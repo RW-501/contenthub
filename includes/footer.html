@@ -1,0 +1,49 @@
+<!-- /components/footer.html -->
+<footer class="footer bg-dark text-light mt-5 py-4 border-top border-secondary">
+  <div class="container text-center text-md-start">
+    <div class="row">
+      
+      <div class="col-md-4 mb-3">
+        <h5>Content Hub</h5>
+        <p class="text-muted small">A platform for creators to share, connect, and grow.</p>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <h6>Quick Links</h6>
+        <ul class="list-unstyled">
+          <li><a href="/index.html" class="footer-link">Home</a></li>
+          <li><a href="/pages/explore.html" class="footer-link">Explore</a></li>
+          <li><a href="/pages/post.html" class="footer-link">Create Post</a></li>
+          <li><a href="/pages/profile.html" class="footer-link">My Profile</a></li>
+          <li><a href="/pages/login.html" class="footer-link">Login</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <h6>Connect</h6>
+        <div class="d-flex gap-3 justify-content-center justify-content-md-start">
+          <a href="https://twitter.com/" target="_blank" class="text-light"><i class="bi bi-twitter"></i></a>
+          <a href="https://instagram.com/" target="_blank" class="text-light"><i class="bi bi-instagram"></i></a>
+          <a href="https://youtube.com/" target="_blank" class="text-light"><i class="bi bi-youtube"></i></a>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="border-secondary" />
+
+    <div class="text-center small text-muted">
+      &copy; <span id="footerYear"></span> Content Hub. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+
+<script>
+
+
+// /includes/footer.js
+
+document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+</script>

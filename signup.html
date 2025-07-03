@@ -63,6 +63,17 @@
   </p>
 </div>
 
+
+<!-- Add this at the bottom of <body> -->
+<div id="footerContainer"></div>
+
+<script type="module">
+  const footer = await fetch('https://rw-501.github.io/contenthub/includes/footer.html').then(res => res.text());
+  document.getElementById('footerContainer').innerHTML = footer;
+  import('https://rw-501.github.io/contenthub/includes/footer.js');
+</script>
+
+
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {

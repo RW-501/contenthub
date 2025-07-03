@@ -1,0 +1,35 @@
+<!-- nav.html -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm px-3">
+  <a class="navbar-brand d-flex align-items-center" href="https://rw-501.github.io/contenthub/index.html">
+    <img src="/assets/logo.png" width="32" height="32" class="me-2" alt="Logo"/>
+    <span>Content Hub</span>
+  </a>
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
+    <ul class="navbar-nav mb-2 mb-lg-0" id="navLinks">
+      <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+      <li class="nav-item"><a class="nav-link" href="/pages/explore.html">Explore</a></li>
+      <li class="nav-item"><a class="nav-link" href="/pages/post.html">Post</a></li>
+      <li class="nav-item"><a class="nav-link" href="/pages/profile.html">Profile</a></li>
+      <li class="nav-item" id="adminLink" style="display: none;">
+        <a class="nav-link" href="/pages/admin.html">Admin</a>
+      </li>
+    </ul>
+
+    <div id="authSection" class="d-flex align-items-center gap-2 ms-3">
+      <button id="loginBtn" class="btn btn-sm btn-outline-light">Login</button>
+      <div id="userAvatar" class="dropdown d-none">
+        <a href="#" class="d-flex align-items-center text-light dropdown-toggle" data-bs-toggle="dropdown">
+          <img id="avatarImg" src="/assets/default-avatar.png" alt="User" class="rounded-circle" width="32" height="32"/>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="/pages/profile.html">My Profile</a></li>
+          <li><button class="dropdown-item" id="logoutBtn">Logout</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
