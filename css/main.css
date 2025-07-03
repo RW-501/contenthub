@@ -230,3 +230,15 @@ button.outline:hover {
   .media-preview { max-height: 200px; }
   .avatar { width: 90px; height: 90px; }
 }
+
+
+
+
+.footer-link {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.footer-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
