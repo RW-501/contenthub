@@ -32,6 +32,12 @@ onAuthStateChanged(auth, async user => {
   const userDoc = await getDoc(doc(db, "users", viewingUserId));
   const data = userDoc.data();
   document.getElementById("displayName").innerText = data.displayName || 'Unnamed';
+      // Set collab button
+    const collabBtn = document.getElementById("collabBtn");
+    collabBtn.classList.remove("d-none");
+    collabBtn.onclick = () => setCollabTarget(viewingUserId);
+  
+
   document.getElementById("bioText").innerText = data.bio || '';
   document.getElementById("niche").innerText = data.niche || '';
   document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';

@@ -1,0 +1,113 @@
+<!-- Request Collaboration Button (to be placed on profile pages) -->
+<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#collabRequestModal">
+  🤝 Request Collaboration
+</button>
+
+<!-- Collab Request Modal -->
+<div class="modal fade" id="collabRequestModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="collabRequestForm">
+      <div class="modal-header">
+        <h5 class="modal-title">Request Collaboration</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Message / Pitch *</label>
+          <textarea class="form-control" id="collabMessage" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Project Title</label>
+          <input type="text" class="form-control" id="collabTitle">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Project Description</label>
+          <textarea class="form-control" id="collabDesc" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Attach Preview (optional)</label>
+          <input type="file" class="form-control" id="collabMedia" accept="image/*,video/*">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Or Media URL</label>
+          <input type="url" class="form-control" id="collabUrl" placeholder="https://...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary w-100">Send Request</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+const db = getFirestore();
+const storage = getStorage();
+const auth = getAuth();
+
+const form = document.getElementById("collabRequestForm");
+let toUid = null; // Set this to the profile user ID dynamically before opening the modal
+
+// Optional: expose this setter globally
+window.setCollabTarget = function(uid) {
+  toUid = uid;
+};
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user || !toUid || user.uid === toUid) return;
+
+  const message = document.getElementById("collabMessage").value.trim();
+  const title = document.getElementById("collabTitle").value.trim();
+  const description = document.getElementById("collabDesc").value.trim();
+  const url = document.getElementById("collabUrl").value.trim();
+  const file = document.getElementById("collabMedia").files[0];
+
+  if (!message) return alert("Please enter a message or pitch.");
+
+  // Prevent duplicate or recent declined requests
+  const q = query(collection(db, "collabRequests"), where("fromUid", "==", user.uid), where("toUid", "==", toUid));
+  const snapshot = await getDocs(q);
+  for (const docSnap of snapshot.docs) {
+    const req = docSnap.data();
+    if (req.status === "pending") {
+      return alert("You already have a pending request to this user.");
+    }
+    if (req.status === "declined" && req.timestamp?.toDate()) {
+      const declinedAt = req.timestamp.toDate();
+      const cooldown = new Date(declinedAt);
+      cooldown.setDate(cooldown.getDate() + 30);
+      if (new Date() < cooldown) {
+        return alert("You can resend a request to this user after 30 days from your last declined request.");
+      }
+    }
+  }
+
+  let mediaLink = url || null;
+  if (!mediaLink && file) {
+    const storageRef = ref(storage, `collabPreviews/${user.uid}_${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    mediaLink = await getDownloadURL(storageRef);
+  }
+
+  await addDoc(collection(db, "collabRequests"), {
+    fromUid: user.uid,
+    toUid,
+    message,
+    title,
+    description,
+    mediaLink,
+    status: "pending",
+    timestamp: serverTimestamp()
+  });
+
+  alert("Collaboration request sent!");
+  form.reset();
+  bootstrap.Modal.getInstance(document.getElementById("collabRequestModal")).hide();
+});
+</script>
