@@ -84,11 +84,9 @@
 
 .auth-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.7);
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -98,26 +96,29 @@
 .auth-box {
   background: var(--bg-light, #1e1e1e);
   padding: 2rem;
-  border-radius: 10px;
+  border-radius: 12px;
   width: 90%;
-  max-width: 400px;
+  max-width: 420px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
   position: relative;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  color: var(--text-light, #f1f1f1);
 }
 
 .close-btn {
   position: absolute;
   top: 12px;
-  right: 16px;
+  right: 12px;
   background: transparent;
+  color: var(--text-muted, #ccc);
   border: none;
   font-size: 1.5rem;
-  color: #ccc;
   cursor: pointer;
 }
 .close-btn:hover {
-  color: var(--danger, red);
+  color: var(--danger, #f87171);
+}
+
+.text-accent {
+  color: var(--accent, #4ade80);
 }
 
 
@@ -168,22 +169,33 @@
 
 <!-- AUTH POPUP -->
 <div id="auth-login" class="auth-modal d-none">
-  <div class="auth-box">
-    <button class="close-btn" id="closeAuthBtn">&times;</button>
+  <div class="auth-box position-relative">
+    <button class="close-btn" id="closeAuthBtn" aria-label="Close">&times;</button>
 
-    <h4 class="mb-3">Welcome to Content Hub</h4>
+    <h4 class="mb-4 text-center">Welcome to <span class="text-accent">Content Hub</span></h4>
 
-    <input type="email" id="email" placeholder="Email" class="form-control mb-2" />
-    <input type="password" id="password" placeholder="Password" class="form-control mb-2" />
-    <button id="emailSignUpBtn" class="btn btn-success w-100 mb-3">Sign Up</button>
+    <!-- EMAIL AUTH -->
+    <div class="auth-section mb-4">
+      <input type="email" id="email" placeholder="Email" class="form-control mb-2" autocomplete="email" />
+      <input type="password" id="password" placeholder="Password" class="form-control mb-2" autocomplete="current-password" />
+      <button id="emailSignUpBtn" class="btn btn-success w-100 mb-2">Sign Up / Log In</button>
+    </div>
 
-    <button id="googleBtn" class="btn btn-danger w-100 mb-3">Login with Google</button>
+    <!-- GOOGLE -->
+    <button id="googleBtn" class="btn btn-danger w-100 mb-4">
+      <i class="bi bi-google me-2"></i> Sign in with Google
+    </button>
 
-    <input type="text" id="phoneNumber" placeholder="+1234567890" class="form-control mb-2" />
-    <div id="recaptcha-container" class="mb-2"></div>
-    <button id="sendOtpBtn" class="btn btn-info w-100 mb-2">Send OTP</button>
+    <!-- PHONE AUTH -->
+    <div class="auth-section">
+      <input type="tel" id="phoneNumber" placeholder="Phone Number" class="form-control mb-2" />
+      <div id="recaptcha-container" class="mb-2"></div>
+      <button id="sendOtpBtn" class="btn btn-outline-info w-100 mb-2">Send OTP</button>
 
-    <input type="text" id="otpCode" placeholder="Enter OTP" class="form-control mb-2" />
-    <button id="verifyOtpBtn" class="btn btn-primary w-100">Verify OTP</button>
+      <div id="otpSection" class="d-none">
+        <input type="text" id="otpCode" placeholder="Enter OTP" class="form-control mb-2" />
+        <button id="verifyOtpBtn" class="btn btn-primary w-100">Verify OTP</button>
+      </div>
+    </div>
   </div>
 </div>

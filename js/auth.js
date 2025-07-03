@@ -124,3 +124,44 @@ export async function loginWith(method, data = {}) {
       authModal.classList.add("d-none");
     }
   });
+
+
+
+  const closeBtn = document.getElementById("closeAuthBtn");
+  const sendOtpBtn = document.getElementById("sendOtpBtn");
+  const otpSection = document.getElementById("otpSection");
+  const phoneInput = document.getElementById("phoneNumber");
+
+  // Show modal
+  signupBtn?.addEventListener("click", () => {
+    authModal.classList.remove("d-none");
+  });
+
+  // Hide modal
+  closeBtn?.addEventListener("click", () => {
+    authModal.classList.add("d-none");
+  });
+
+  // Hide on ESC
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") authModal.classList.add("d-none");
+  });
+
+  // OTP Flow
+  sendOtpBtn?.addEventListener("click", () => {
+    if (phoneInput.value.length >= 10) {
+      otpSection.classList.remove("d-none");
+    } else {
+      alert("Enter a valid phone number first.");
+    }
+  });
+
+  // Auto-format phone number to E.164
+  phoneInput?.addEventListener("blur", () => {
+    let val = phoneInput.value.replace(/\D/g, '');
+    if (val.length === 10) {
+      phoneInput.value = `+1${val}`;
+    } else if (!val.startsWith('+' || val.length < 10)) {
+      alert("Please enter a valid international phone number.");
+    }
+  });
