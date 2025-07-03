@@ -125,3 +125,139 @@ document.getElementById("assignBadgeBtn").addEventListener("click", async () => 
   });
   alert("Badge assigned!");
 });
+
+
+
+
+
+
+    const searchBtn = document.getElementById('searchBtn');
+    const platform = document.getElementById('platform');
+    const usernameInput = document.getElementById('usernameInput');
+    const saveBtn = document.getElementById('saveProfileBtn');
+
+    // **YOUR RAPIDAPI KEYS HERE** - get from https://rapidapi.com
+    const rapidApiKey = 'YOUR_RAPIDAPI_KEY';
+
+    let latestProfile = null;
+
+    searchBtn.addEventListener('click', async () => {
+      const selected = platform.value;
+      const user = usernameInput.value.trim().replace('@', '');
+
+      if (!user) return alert('Please enter a valid username.');
+
+      if (selected === 'youtube') {
+        await fetchYouTube(user);
+      } else if (selected === 'tiktok') {
+        await fetchTikTok(user);
+      } else if (selected === 'instagram') {
+        await fetchInstagram(user);
+      } else if (selected === 'facebook') {
+        alert('Facebook API not integrated yet.');
+      }
+    });
+
+    async function fetchYouTube(username) {
+      const apiKey = 'YOUR_YOUTUBE_API_KEY';
+      const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&forUsername=${username}&key=${apiKey}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.items || !data.items.length) return alert('No YouTube profile found.');
+
+      const profile = data.items[0];
+      latestProfile = {
+        platform: 'youtube',
+        username: username,
+        displayName: profile.snippet.title,
+        bio: profile.snippet.description,
+        profilePic: profile.snippet.thumbnails.default.url,
+        followers: profile.statistics.subscriberCount,
+        url: `https://www.youtube.com/${profile.snippet.customUrl || 'channel/' + profile.id}`
+      };
+
+      showProfile(latestProfile);
+    }
+
+    async function fetchTikTok(username) {
+      const url = `https://tiktok-scraper.p.rapidapi.com/user/info/${username}`;
+
+      try {
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'X-RapidAPI-Key': rapidApiKey,
+            'X-RapidAPI-Host': 'tiktok-scraper.p.rapidapi.com'
+          }
+        });
+        if (!res.ok) throw new Error('Profile not found');
+        const data = await res.json();
+
+        const user = data.user;
+        latestProfile = {
+          platform: 'tiktok',
+          username: username,
+          displayName: user.nickname,
+          bio: user.signature,
+          profilePic: user.avatarThumb,
+          followers: user.followerCount,
+          url: `https://www.tiktok.com/@${username}`
+        };
+
+        showProfile(latestProfile);
+      } catch (err) {
+        alert('TikTok profile not found or API limit exceeded.');
+      }
+    }
+
+    async function fetchInstagram(username) {
+      const url = `https://instagram-profile1.p.rapidapi.com/profile/${username}`;
+
+      try {
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'X-RapidAPI-Key': rapidApiKey,
+            'X-RapidAPI-Host': 'instagram-profile1.p.rapidapi.com'
+          }
+        });
+        if (!res.ok) throw new Error('Profile not found');
+        const data = await res.json();
+
+        const user = data;
+        latestProfile = {
+          platform: 'instagram',
+          username: username,
+          displayName: user.full_name,
+          bio: user.biography,
+          profilePic: user.profile_pic_url_hd,
+          followers: user.edge_followed_by.count,
+          url: `https://instagram.com/${username}`
+        };
+
+        showProfile(latestProfile);
+      } catch (err) {
+        alert('Instagram profile not found or API limit exceeded.');
+      }
+    }
+
+    function showProfile(profile) {
+      document.getElementById('profileImage').src = profile.profilePic || '/assets/default-avatar.png';
+      document.getElementById('profileName').textContent = profile.displayName || profile.username;
+      document.getElementById('profileUsername').textContent = `@${profile.username}`;
+      document.getElementById('profileFollowers').textContent = `Followers: ${profile.followers || 'N/A'}`;
+      document.getElementById('profileUrl').href = profile.url;
+      document.getElementById('resultBox').classList.remove('d-none');
+    }
+
+    saveBtn.addEventListener('click', async () => {
+      if (!latestProfile) return alert('No profile to save.');
+      try {
+        await setDoc(doc(db, "external_profiles", `${latestProfile.platform}_${latestProfile.username}`), latestProfile);
+        alert('Profile saved to Firestore!');
+      } catch (err) {
+        console.error("Error saving profile:", err);
+        alert('Failed to save profile.');
+      }
+    });
