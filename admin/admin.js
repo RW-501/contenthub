@@ -43,6 +43,20 @@ async function loadAnalytics() {
   document.getElementById("reportCount").innerText = reports.size;
 }
 
+
+
+/*
+// Example during login
+if (userData.status === "removed") {
+  alert("Your account was removed. Contact support to appeal.");
+  await signOut(auth);
+}
+
+
+
+*/
+
+
 // Load All Users
 async function loadUsers() {
   const userTable = document.getElementById("userTable");
@@ -51,19 +65,111 @@ async function loadUsers() {
 
   users.forEach(docSnap => {
     const u = docSnap.data();
+    const id = docSnap.id;
+
+    const banUntil = u.bannedUntil?.toDate?.();
+    const banUntilDisplay = banUntil ? banUntil.toLocaleDateString() : "";
+
+    const role = u.role || "user";
+    const status = u.status || "active";
+
     const row = `
       <tr>
         <td>${u.email || 'N/A'}</td>
         <td>${u.niche || ''}</td>
         <td>
-          <button class="btn btn-sm btn-warning" onclick="verifyUser('${docSnap.id}')">Verify</button>
-          <button class="btn btn-sm btn-danger" onclick="banUser('${docSnap.id}')">Ban</button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${docSnap.id}')">Delete</button>
+          <select class="form-select form-select-sm" onchange="setUserRole('${id}', this.value)">
+            <option value="user" ${role === 'user' ? 'selected' : ''}>User</option>
+            <option value="mod" ${role === 'mod' ? 'selected' : ''}>Mod</option>
+            <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
+            <option value="banned" ${role === 'banned' ? 'selected' : ''}>Banned</option>
+          </select>
         </td>
+        <td><span class="badge bg-${status === 'active' ? 'success' : status === 'blocked' ? 'warning' : 'secondary'}">${status}</span></td>
+        <td>${banUntilDisplay}</td>
+<td>
+  ${status === "removed" ? `
+    <button class="btn btn-sm btn-outline-success" onclick="restoreUser('${id}')">♻️ Restore</button>
+  ` : `
+    <button class="btn btn-sm btn-success" onclick="verifyUser('${id}')">✔ Verify</button>
+    <button class="btn btn-sm btn-danger" onclick="openBanModal('${id}')">🚫 Ban</button>
+    <button class="btn btn-sm btn-secondary" onclick="unbanUser('${id}')">🛑 Unban</button>
+    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${id}')">🗑 Remove</button>
+  `}
+</td>
+
       </tr>`;
     userTable.insertAdjacentHTML("beforeend", row);
   });
 }
+
+function openBanModal(userId) {
+  document.getElementById("banUserId").value = userId;
+  new bootstrap.Modal(document.getElementById("banModal")).show();
+}
+
+document.getElementById("banForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const userId = document.getElementById("banUserId").value;
+  const duration = document.getElementById("banDuration").value;
+
+  const banUntil = duration === 'perm'
+    ? new Date("2099-12-31")
+    : new Date(Date.now() + parseInt(duration) * 24 * 60 * 60 * 1000);
+
+  await updateDoc(doc(db, "users", userId), {
+    role: "banned",
+    status: "blocked",
+    bannedUntil: banUntil
+  });
+
+  bootstrap.Modal.getInstance(document.getElementById("banModal")).hide();
+  loadUsers();
+});
+
+async function unbanUser(userId) {
+  await updateDoc(doc(db, "users", userId), {
+    role: "user",
+    status: "active",
+    bannedUntil: null
+  });
+  loadUsers();
+}
+
+async function verifyUser(userId) {
+  await updateDoc(doc(db, "users", userId), { verified: true });
+  alert("User verified.");
+  loadUsers();
+}
+
+async function deleteUser(userId) {
+  const confirmDelete = confirm("Are you sure you want to remove this user? They will be marked as 'removed' and lose access.");
+  if (!confirmDelete) return;
+
+  await updateDoc(doc(db, "users", userId), {
+    status: "removed",
+    role: "removed",
+    removedAt: new Date()
+  });
+
+  alert("User marked as removed.");
+  loadUsers();
+}
+
+async function restoreUser(userId) {
+  const confirmRestore = confirm("Restore this user and return their account to active?");
+  if (!confirmRestore) return;
+
+  await updateDoc(doc(db, "users", userId), {
+    status: "active",
+    role: "user",
+    removedAt: deleteField()
+  });
+
+  alert("User restored.");
+  loadUsers();
+}
+
 
 // Load Flagged Content
 async function loadFlaggedPosts() {
@@ -264,3 +370,61 @@ document.getElementById("assignBadgeBtn").addEventListener("click", async () => 
         alert('Failed to save profile.');
       }
     });
+
+
+  async function loadTickets() {
+    const ticketList = document.getElementById("ticketList");
+    ticketList.innerHTML = "<div class='text-muted'>Loading tickets...</div>";
+
+    const q = query(collection(db, "tickets"), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      ticketList.innerHTML = "<div class='text-muted'>No tickets found.</div>";
+      return;
+    }
+
+    ticketList.innerHTML = "";
+
+    for (const docSnap of snapshot.docs) {
+      const ticket = docSnap.data();
+      const ticketId = docSnap.id;
+
+      const userSnap = await getDoc(doc(db, "users", ticket.userId));
+      const user = userSnap.data();
+
+      const item = document.createElement("div");
+      item.className = `list-group-item list-group-item-action flex-column align-items-start`;
+
+      item.innerHTML = `
+        <div class="d-flex justify-content-between w-100">
+          <div>
+            <h6 class="mb-1">${ticket.type.replace("_", " ").toUpperCase()}</h6>
+            <small class="text-muted">User: ${user?.displayName || "Unknown"} (${user?.email || "N/A"})</small>
+          </div>
+          <span class="badge bg-${ticket.status === 'pending' ? 'warning' : ticket.status === 'approved' ? 'success' : 'danger'} text-uppercase">${ticket.status}</span>
+        </div>
+        <small class="text-muted">Submitted: ${ticket.createdAt?.toDate().toLocaleString() || "unknown"}</small>
+        ${ticket.status === 'pending' ? `
+        <div class="mt-2">
+          <button class="btn btn-sm btn-success me-2" onclick="updateTicketStatus('${ticketId}', 'approved')">✅ Approve</button>
+          <button class="btn btn-sm btn-danger me-2" onclick="updateTicketStatus('${ticketId}', 'denied')">❌ Deny</button>
+          <button class="btn btn-sm btn-secondary" onclick="updateTicketStatus('${ticketId}', 'resolved')">✔️ Mark Resolved</button>
+        </div>` : ''}
+      `;
+
+      ticketList.appendChild(item);
+    }
+  }
+
+  async function updateTicketStatus(ticketId, status) {
+    await updateDoc(doc(db, "tickets", ticketId), {
+      status,
+      reviewedAt: new Date()
+    });
+    alert(`Ticket ${status}`);
+    loadTickets();
+  }
+
+  // Load on admin page load
+  window.addEventListener("DOMContentLoaded", loadTickets);
