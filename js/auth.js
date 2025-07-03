@@ -14,6 +14,8 @@ import {
 
   import { loginWith, initRecaptcha } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
+  import { app, auth } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+
 // 🔌 Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -67,9 +69,6 @@ export async function loginWith(method, data = {}) {
 
 
 
-/*
-
-<script type="module">
   import { loginWith, initRecaptcha } from './js/firebase-config.js';
 
   // EMAIL SIGNUP
@@ -104,20 +103,24 @@ export async function loginWith(method, data = {}) {
     if (result.error) return alert(result.error);
     window.location.href = '/pages/profile.html';
   });
-</script>
-
-<input type="email" id="email" />
-<input type="password" id="password" />
-<button id="emailSignUpBtn">Sign Up</button>
-<button id="googleBtn">Login with Google</button>
-
-<input type="text" id="phoneNumber" placeholder="+1234567890" />
-<div id="recaptcha-container"></div>
-<button id="sendOtpBtn">Send OTP</button>
-<input type="text" id="otpCode" />
-<button id="verifyOtpBtn">Verify OTP</button>
 
 
-*/
 
+    const signupBtn = document.getElementById("signupBtn");
+  const authModal = document.getElementById("auth-login");
+  const closeAuthBtn = document.getElementById("closeAuthBtn");
 
+  signupBtn.addEventListener("click", () => {
+    authModal.classList.remove("d-none");
+  });
+
+  closeAuthBtn.addEventListener("click", () => {
+    authModal.classList.add("d-none");
+  });
+
+  // Optional: ESC key closes modal
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      authModal.classList.add("d-none");
+    }
+  });

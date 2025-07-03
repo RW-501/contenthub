@@ -82,6 +82,47 @@
 
 }
 
+.auth-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.auth-box {
+  background: var(--bg-light, #1e1e1e);
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  color: var(--text-light, #f1f1f1);
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #ccc;
+  cursor: pointer;
+}
+.close-btn:hover {
+  color: var(--danger, red);
+}
+
+
+
+
 </style>
 
 
@@ -107,7 +148,10 @@
     </ul>
 
     <div id="authSection" class="d-flex align-items-center gap-2 ms-3">
-      <button id="loginBtn" class="btn btn-sm btn-outline-light">Login</button>
+
+<!-- Trigger Button -->
+<button id="signupBtn" class="btn btn-sm btn-outline-light">Sign Up / Log In</button>
+
       <div id="userAvatar" class="dropdown d-none">
         <a href="#" class="d-flex align-items-center text-light dropdown-toggle" data-bs-toggle="dropdown">
           <img id="avatarImg" src="/assets/default-avatar.png" alt="User" class="rounded-circle" width="32" height="32"/>
@@ -120,3 +164,26 @@
     </div>
   </div>
 </nav>
+
+
+<!-- AUTH POPUP -->
+<div id="auth-login" class="auth-modal d-none">
+  <div class="auth-box">
+    <button class="close-btn" id="closeAuthBtn">&times;</button>
+
+    <h4 class="mb-3">Welcome to Content Hub</h4>
+
+    <input type="email" id="email" placeholder="Email" class="form-control mb-2" />
+    <input type="password" id="password" placeholder="Password" class="form-control mb-2" />
+    <button id="emailSignUpBtn" class="btn btn-success w-100 mb-3">Sign Up</button>
+
+    <button id="googleBtn" class="btn btn-danger w-100 mb-3">Login with Google</button>
+
+    <input type="text" id="phoneNumber" placeholder="+1234567890" class="form-control mb-2" />
+    <div id="recaptcha-container" class="mb-2"></div>
+    <button id="sendOtpBtn" class="btn btn-info w-100 mb-2">Send OTP</button>
+
+    <input type="text" id="otpCode" placeholder="Enter OTP" class="form-control mb-2" />
+    <button id="verifyOtpBtn" class="btn btn-primary w-100">Verify OTP</button>
+  </div>
+</div>

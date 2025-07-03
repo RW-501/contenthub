@@ -38,8 +38,5 @@ onAuthStateChanged(auth, async user => {
 // Logout
 document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await signOut(auth);
-  location.href = "/pages/login.html";
-});
-document.getElementById("loginBtn")?.addEventListener("click", () => {
-  location.href = "/pages/login.html";
+  location.href = "/";
 });
