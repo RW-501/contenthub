@@ -12,7 +12,7 @@ import {
   RecaptchaVerifier
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-//  import { loginWith, initRecaptcha } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+import { loginWith, initRecaptcha } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
 //  import { app, auth } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 
@@ -69,7 +69,6 @@ export async function loginWith(method, data = {}) {
 
 
 
-  import { loginWith, initRecaptcha } from './js/firebase-config.js';
 
   // EMAIL SIGNUP
   document.getElementById("emailSignUpBtn").addEventListener("click", async () => {
