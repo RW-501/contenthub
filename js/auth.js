@@ -14,11 +14,7 @@ import {
 
 //import { loginWith, initRecaptcha } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
-//  import { app, auth } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
-
-// 🔌 Init Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+import { app, auth } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 
 // 📱 Invisible reCAPTCHA verifier (phone login)
 let recaptchaVerifier;
