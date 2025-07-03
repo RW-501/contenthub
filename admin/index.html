@@ -32,13 +32,18 @@
   <!-- Inject toolbar -->
   <script type="module">
     const toolbarContainer = document.getElementById("toolbarContainer");
-    const html = await fetch('https://rw-501.github.io/contenthub/includes/toolbar.html').then(res => res.text());
+    const html = await fetch('https://rw-501.github.io/contenthub/includes/nav.html').then(res => res.text());
     toolbarContainer.innerHTML = html;
     import('https://rw-501.github.io/contenthub/includes/nav.js');
   </script>
 
 
 
+
+<!-- Main Section -->
+  <main id="main">
+
+    
 <div class="container admin-section">
   <h1 class="text-center">Admin Dashboard</h1>
 
@@ -105,6 +110,7 @@
   </div>
 </div>
 
+</main>
 
 <!-- Add this at the bottom of <body> -->
 <div id="footerContainer"></div>
