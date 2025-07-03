@@ -103,6 +103,10 @@
   position: relative;
 }
 
+#close-area{
+width: 100%;
+display: inline;
+}
 .close-btn {
   position: absolute;
   top: 12px;
@@ -170,7 +174,10 @@
 <!-- AUTH POPUP -->
 <div id="auth-login" class="auth-modal d-none">
   <div class="auth-box position-relative">
+    
+  <div id="close-area">
     <button class="close-btn" id="closeAuthBtn" aria-label="Close">&times;</button>
+  </div>
 
     <h4 class="mb-4 text-center">Welcome to <span class="text-accent">Content Hub</span></h4>
 
