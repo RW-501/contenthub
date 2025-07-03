@@ -72,14 +72,14 @@ export async function loginWith(method, data = {}) {
     const password = document.getElementById("password").value;
     const result = await loginWith('email-signup', { email, password });
     if (result.error) return alert(result.error);
-    window.location.href = '/pages/profile.html';
+    window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
   });
 
   // GOOGLE
   document.getElementById("googleBtn").addEventListener("click", async () => {
     const result = await loginWith('google');
     if (result.error) return alert(result.error);
-    window.location.href = '/pages/profile.html';
+    window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
   });
 
   // PHONE OTP
@@ -96,7 +96,7 @@ export async function loginWith(method, data = {}) {
     const otp = document.getElementById("otpCode").value;
     const result = await loginWith('verify-otp', { otp });
     if (result.error) return alert(result.error);
-    window.location.href = '/pages/profile.html';
+    window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
   });
 
 
