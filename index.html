@@ -17,8 +17,13 @@
   <!-- Favicon -->
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
 
-  <!-- Bootstrap 5 -->
+  
+  <script type="module" src="https://rw-501.github.io/contenthub/js/firebase-config.js" defer></script>
+
+  <!-- Bootstrap 5 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  -->
+
   <link rel="stylesheet" href="https://rw-501.github.io/contenthub/css/main.css">
 
   <!-- Fonts -->
@@ -136,6 +141,8 @@
 </script>
 
 <script type="module">
+
+  /*
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import { getFirestore, collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
@@ -151,7 +158,7 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
+*/
   const featuredContainer = document.getElementById("featuredCreators");
 
   async function loadFeaturedCreators() {
