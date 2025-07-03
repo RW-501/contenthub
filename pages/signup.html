@@ -83,7 +83,11 @@
   </div>
 
   <p class="text-center mt-4">
-    Already have an account? <a href="/pages/login.html">Login</a>
+    Already have an account? <!-- Make the button look like a link -->
+<button id="loginpBtn" style="background: none; border: none; color: blue; text-decoration: underline; cursor: pointer; padding: 0;">
+  Login
+</button>
+
   </p>
 </div>
 
@@ -160,7 +164,13 @@
       alert("Invalid OTP: " + error.message);
     }
   });
+
+
+    document.getElementById("loginpBtn").addEventListener("click", function () {
+    document.getElementById("loginBtn").classList.add("d-none");
+  });
 </script>
+
 
 </body>
 </html>
