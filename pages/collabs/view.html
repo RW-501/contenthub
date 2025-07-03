@@ -1,98 +1,58 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Collaboration Detail</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-
-  
   <script type="module" src="https://rw-501.github.io/contenthub/js/firebase-config.js" defer></script>
-
-
-  <!-- Add this to your <head> -->
-<link rel="stylesheet" href="https://rw-501.github.io/contenthub/css/main.css" />
-
+  <link rel="stylesheet" href="https://rw-501.github.io/contenthub/css/main.css" />
   <style>
     #chatBox { height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: #fff; }
     #chatBox .msg { margin-bottom: 10px; }
     .task { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .edit-btn { cursor: pointer; color: blue; font-size: 0.9rem; }
   </style>
 </head>
 <body>
-
-
-
-
-    
-      <div id="toolbarContainer"></div>
-
-  <!-- Your page content here -->
-
-  <!-- Include Bootstrap JS (required for navbar) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Inject toolbar -->
-  <script type="module">
-    const toolbarContainer = document.getElementById("toolbarContainer");
-    const html = await fetch('https://rw-501.github.io/contenthub/includes/nav.html').then(res => res.text());
-    toolbarContainer.innerHTML = html;
-    import('https://rw-501.github.io/contenthub/includes/nav.js');
-  </script>
-
-
-<!-- Main Section -->
+  <div id="toolbarContainer"></div>
   <main id="main">
-
-<div class="container">
-    
-    <h2 id="collabTitle">Loading...</h2>
-    <p id="collabDesc" class="text-muted"></p>
-
-    <div id="mediaPreview" class="mb-3"></div>
-
-    <div class="form-check form-switch mb-4">
-      <input class="form-check-input" type="checkbox" id="publicToggle" />
-      <label class="form-check-label" for="publicToggle">Visible in Collab Zone</label>
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 id="collabTitle">Loading...</h2>
+        <span id="editControls" class="d-none">
+          <button class="btn btn-sm btn-outline-secondary" id="editCollab">✏️ Edit</button>
+        </span>
+      </div>
+      <p id="collabDesc" class="text-muted"></p>
+      <div id="mediaPreview" class="mb-3"></div>
+      <div class="form-check form-switch mb-4">
+        <input class="form-check-input" type="checkbox" id="publicToggle" />
+        <label class="form-check-label" for="publicToggle">Visible in Collab Zone</label>
+      </div>
+      <h5>💬 Chat <small id="typingStatus" class="text-muted"></small></h5>
+      <div id="chatBox" class="mb-2"></div>
+      <div class="input-group mb-4">
+        <input type="text" id="chatInput" class="form-control" placeholder="Type a message..." />
+        <button class="btn btn-outline-primary" id="sendChat">Send</button>
+      </div>
+      <h5>📌 Shared Board</h5>
+      <div id="taskList" class="mb-2"></div>
+      <div class="input-group">
+        <input type="text" id="newTask" class="form-control" placeholder="Add task or link..." />
+        <button class="btn btn-success" id="addTask">Add</button>
+      </div>
     </div>
-
-    <h5>💬 Chat</h5>
-    <div id="chatBox" class="mb-2"></div>
-    <div class="input-group mb-4">
-      <input type="text" id="chatInput" class="form-control" placeholder="Type a message..." />
-      <button class="btn btn-outline-primary" id="sendChat">Send</button>
-    </div>
-
-    <h5>📌 Shared Board</h5>
-    <div id="taskList" class="mb-2"></div>
-    <div class="input-group">
-      <input type="text" id="newTask" class="form-control" placeholder="Add task or link..." />
-      <button class="btn btn-success" id="addTask">Add</button>
-    </div>
-  </div>
-
   </main>
-
-<!-- Add this at the bottom of <body> -->
-<div id="footerContainer"></div>
-
-<script type="module">
-  const footer = await fetch('https://rw-501.github.io/contenthub/includes/footer.html').then(res => res.text());
-  document.getElementById('footerContainer').innerHTML = footer;
-  import('https://rw-501.github.io/contenthub/includes/footer.js');
-</script>
-
+  <div id="footerContainer"></div>
   <script type="module">
-    /*
-    import { getFirestore, doc, getDoc, updateDoc, onSnapshot, arrayUnion } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, onSnapshot, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const db = getFirestore();
     const auth = getAuth();
-*/
     const urlParams = new URLSearchParams(window.location.search);
     const collabId = urlParams.get("id");
-
     const titleEl = document.getElementById("collabTitle");
     const descEl = document.getElementById("collabDesc");
     const mediaPreview = document.getElementById("mediaPreview");
@@ -103,8 +63,11 @@
     const taskList = document.getElementById("taskList");
     const newTask = document.getElementById("newTask");
     const addTask = document.getElementById("addTask");
+    const editControls = document.getElementById("editControls");
+    const typingStatus = document.getElementById("typingStatus");
 
     let currentUser = null;
+    let typingTimeout;
 
     auth.onAuthStateChanged(user => {
       if (user) {
@@ -113,36 +76,50 @@
       }
     });
 
+    function sanitize(text) {
+      return text
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+        .replace(/@([\w]+)/g, '<span class="text-primary">@$1</span>');
+    }
+
     async function loadCollab() {
       const collabRef = doc(db, "collaborations", collabId);
       const snap = await getDoc(collabRef);
       if (!snap.exists()) return alert("Collaboration not found");
 
       const data = snap.data();
+      const isParticipant = data.participants.includes(currentUser.uid);
+      if (!isParticipant) return alert("Access denied");
+
       titleEl.innerText = data.title || "Untitled";
       descEl.innerText = data.description || "No description provided.";
-
       if (data.mediaLinks) {
-        mediaPreview.innerHTML = data.mediaLinks.map(link => `
-          ${link.includes(".mp4") ? `<video src="${link}" controls class="w-100 mb-2"></video>` : `<img src="${link}" class="img-fluid mb-2"/>`}
-        `).join("");
+        mediaPreview.innerHTML = data.mediaLinks.map(link => link.includes(".mp4") ? `<video src="${link}" controls class="w-100 mb-2"></video>` : `<img src="${link}" class="img-fluid mb-2"/>`).join("");
       }
 
       publicToggle.checked = !!data.isPublic;
-      publicToggle.onchange = () => {
-        updateDoc(collabRef, { isPublic: publicToggle.checked });
-      };
+      publicToggle.onchange = () => updateDoc(collabRef, { isPublic: publicToggle.checked });
 
-      // Chat listener
+      if (data.owner === currentUser.uid) editControls.classList.remove("d-none");
+
       onSnapshot(doc(db, "messages", collabId), docSnap => {
-        const msgData = docSnap.data();
         chatBox.innerHTML = "";
-        if (msgData?.messages) {
-          msgData.messages.forEach(msg => {
-            chatBox.innerHTML += `<div class="msg"><strong>${msg.sender}</strong>: ${msg.content}</div>`;
+        if (docSnap.data()?.messages) {
+          docSnap.data().messages.forEach(msg => {
+            const content = sanitize(msg.content);
+            const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : "";
+            chatBox.innerHTML += `<div class="msg"><strong>${msg.sender}</strong> <small class="text-muted">${time}</small>: ${content}</div>`;
           });
           chatBox.scrollTop = chatBox.scrollHeight;
         }
+      });
+
+      chatInput.addEventListener("input", () => {
+        clearTimeout(typingTimeout);
+        typingStatus.innerText = "typing...";
+        typingTimeout = setTimeout(() => typingStatus.innerText = "", 1000);
       });
 
       sendChat.onclick = async () => {
@@ -155,22 +132,31 @@
         chatInput.value = "";
       };
 
-      // Task list
       if (data.tasks?.length) {
-        taskList.innerHTML = data.tasks.map(t => `<div class="task"><span>${t}</span></div>`).join("");
+        taskList.innerHTML = data.tasks.map(t => `<div class="task"><span>${sanitize(t)}</span></div>`).join("");
       }
 
       addTask.onclick = async () => {
         const task = newTask.value.trim();
         if (!task) return;
-        const collabDoc = doc(db, "collaborations", collabId);
-        await updateDoc(collabDoc, {
+        await updateDoc(collabRef, {
           tasks: arrayUnion(task)
         });
-        taskList.innerHTML += `<div class="task"><span>${task}</span></div>`;
+        taskList.innerHTML += `<div class="task"><span>${sanitize(task)}</span></div>`;
         newTask.value = "";
       };
+
+      document.getElementById("editCollab").onclick = () => {
+        const newTitle = prompt("Edit Title", data.title);
+        const newDesc = prompt("Edit Description", data.description);
+        updateDoc(collabRef, { title: newTitle, description: newDesc });
+      };
     }
+  </script>
+  <script type="module">
+    const footer = await fetch('https://rw-501.github.io/contenthub/includes/footer.html').then(res => res.text());
+    document.getElementById('footerContainer').innerHTML = footer;
+    import('https://rw-501.github.io/contenthub/includes/footer.js');
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
