@@ -17,7 +17,12 @@ let currentUser, viewingUserId;
 
 // Load Profile
 onAuthStateChanged(auth, async user => {
-  if (!user) return location.href = "/pages/login.html";
+  if (!user) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+
+  } 
+  
   currentUser = user;
 
   // Check if viewing someone else's profile via URL ?uid=xxxx
