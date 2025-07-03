@@ -12,8 +12,11 @@ const db = getFirestore(app);
 
 // Admin check
 onAuthStateChanged(auth, async user => {
-  if (!user) return window.location.href = "/pages/login.html";
+  if (!user) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
 
+  } 
   const userDoc = await getDocs(collection(db, "users"));
   const adminDoc = [...userDoc.docs].find(d => d.id === user.uid);
   if (!adminDoc || !adminDoc.data().admin) {
