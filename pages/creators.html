@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Creators | Content Hub</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script type="module" src="https://rw-501.github.io/contenthub/components/toolbar.js"></script>
+  <script type="module" src="https://rw-501.github.io/contenthub/components/footer.js"></script>
+</head>
+<body class="bg-light">
+
+  <!-- Toolbar -->
+  <div id="toolbar"></div>
+
+  <main class="container py-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold">All Creators</h2>
+      <div class="d-flex gap-2">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search by name or tag...">
+        <select id="nicheFilter" class="form-select">
+          <option value="">All Niches</option>
+          <option value="music">Music</option>
+          <option value="art">Art</option>
+          <option value="writing">Writing</option>
+          <option value="video">Video</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row g-4" id="creatorsGrid">
+      <!-- Creator cards injected here -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div id="footer"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyALJLxSJthWI2tnQZ-WnK1DDQNEelUCr7s",
+      authDomain: "content-hub-11923.firebaseapp.com",
+      projectId: "content-hub-11923",
+      storageBucket: "content-hub-11923.appspot.com",
+      messagingSenderId: "1021963959280",
+      appId: "1:1021963959280:web:68155134c25cc38dcdfb35",
+      measurementId: "G-6G9VXCGFTG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const creatorsGrid = document.getElementById("creatorsGrid");
+    const searchInput = document.getElementById("searchInput");
+    const nicheFilter = document.getElementById("nicheFilter");
+
+    let creators = [];
+
+    async function fetchCreators() {
+      const snapshot = await getDocs(collection(db, "users"));
+      creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderCreators(creators);
+    }
+
+    function renderCreators(data) {
+      creatorsGrid.innerHTML = "";
+      if (data.length === 0) {
+        creatorsGrid.innerHTML = '<p class="text-center text-muted">No creators found.</p>';
+        return;
+      }
+
+      data.forEach(user => {
+        const card = document.createElement("div");
+        card.className = "col-sm-6 col-md-4 col-lg-3";
+        card.innerHTML = `
+          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.id}" class="text-decoration-none text-dark">
+            <div class="card shadow-sm h-100">
+              <img src="${user.profilePic || '/assets/default-avatar.png'}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="${user.name}" />
+              <div class="card-body">
+                <h6 class="card-title mb-1">${user.name || 'Unnamed'}</h6>
+                <small class="text-muted">${user.niche || 'Creator'}</small>
+              </div>
+            </div>
+          </a>`;
+        creatorsGrid.appendChild(card);
+      });
+    }
+
+    function filterCreators() {
+      const search = searchInput.value.toLowerCase();
+      const niche = nicheFilter.value;
+      const filtered = creators.filter(user => {
+        const nameMatch = user.name?.toLowerCase().includes(search);
+        const nicheMatch = niche ? user.niche?.toLowerCase() === niche : true;
+        return nameMatch && nicheMatch;
+      });
+      renderCreators(filtered);
+    }
+
+    searchInput.addEventListener("input", filterCreators);
+    nicheFilter.addEventListener("change", filterCreators);
+
+    fetchCreators();
+  </script>
+
+</body>
+</html>

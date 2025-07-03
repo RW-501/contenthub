@@ -108,50 +108,21 @@
     </div>
   </section>
 
-  <!-- Featured Creators -->
-  <section class="bg-light py-5">
-    <div class="container text-center">
-      <h2 class="fw-bold mb-4">Featured Creators</h2>
-      <div class="row g-4">
-        <div class="col-sm-6 col-md-3">
-          <div class="card creator-card shadow-sm">
-            <img src="/assets/creator1.jpg" class="card-img-top" alt="Creator 1">
-            <div class="card-body">
-              <h6 class="card-title mb-1">Alex Rivera</h6>
-              <small class="text-muted">Digital Artist</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-          <div class="card creator-card shadow-sm">
-            <img src="/assets/creator2.jpg" class="card-img-top" alt="Creator 2">
-            <div class="card-body">
-              <h6 class="card-title mb-1">Nia Jenson</h6>
-              <small class="text-muted">Music Producer</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-          <div class="card creator-card shadow-sm">
-            <img src="/assets/creator3.jpg" class="card-img-top" alt="Creator 3">
-            <div class="card-body">
-              <h6 class="card-title mb-1">Kofi Banks</h6>
-              <small class="text-muted">Video Editor</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-          <div class="card creator-card shadow-sm">
-            <img src="/assets/creator4.jpg" class="card-img-top" alt="Creator 4">
-            <div class="card-body">
-              <h6 class="card-title mb-1">Mei Chen</h6>
-              <small class="text-muted">Writer</small>
-            </div>
-          </div>
-        </div>
-      </div>
+<!-- Featured Creators -->
+<section class="bg-light py-5">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-4">Featured Creators</h2>
+
+    <div class="row g-4" id="featuredCreators">
+      <!-- Creator cards will be injected here -->
     </div>
-  </section>
+
+    <div class="mt-4">
+      <a href="https://rw-501.github.io/contenthub/pages/creators.html" class="btn btn-outline-dark">View All Creators</a>
+    </div>
+  </div>
+</section>
+
 
   </main>
 
@@ -162,6 +133,63 @@
   const footer = await fetch('https://rw-501.github.io/contenthub/includes/footer.html').then(res => res.text());
   document.getElementById('footerContainer').innerHTML = footer;
   import('https://rw-501.github.io/contenthub/includes/footer.js');
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyALJLxSJthWI2tnQZ-WnK1DDQNEelUCr7s",
+    authDomain: "content-hub-11923.firebaseapp.com",
+    projectId: "content-hub-11923",
+    storageBucket: "content-hub-11923.appspot.com",
+    messagingSenderId: "1021963959280",
+    appId: "1:1021963959280:web:68155134c25cc38dcdfb35",
+    measurementId: "G-6G9VXCGFTG"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const featuredContainer = document.getElementById("featuredCreators");
+
+  async function loadFeaturedCreators() {
+    const q = query(
+      collection(db, "users"),
+      where("featured", "==", true),
+      limit(4)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      featuredContainer.innerHTML = `<p class="text-muted">No featured creators yet.</p>`;
+      return;
+    }
+
+    querySnapshot.forEach(doc => {
+      const user = doc.data();
+      const creatorCard = `
+        <div class="col-sm-6 col-md-3">
+          <div class="card creator-card shadow-sm h-100">
+            <img src="${user.profilePic || '/assets/default-avatar.png'}" class="card-img-top object-fit-cover" alt="${user.name}">
+          
+        <a href="/pages/profile.html?uid=${doc.id}" class="text-decoration-none text-dark">
+            <div class="card-body">
+              <h6 class="card-title mb-1">${user.name || 'Unnamed Creator'}</h6>
+              <small class="text-muted">${user.niche || 'Creator'}</small>
+            </div>
+            </a>
+
+          </div>
+        </div>
+      `;
+      featuredContainer.insertAdjacentHTML("beforeend", creatorCard);
+    });
+  }
+
+  loadFeaturedCreators();
 </script>
 
   <!-- Scripts -->
