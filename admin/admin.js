@@ -3,7 +3,7 @@ import {
   getAuth, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
-  getFirestore, collection, getDocs, updateDoc, deleteDoc, doc, setDoc
+  getFirestore, collection, query, orderBy, getDocs, updateDoc, doc, setDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { app }  from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
@@ -42,6 +42,69 @@ async function loadAnalytics() {
   document.getElementById("totalPosts").innerText = posts.size;
   document.getElementById("reportCount").innerText = reports.size;
 }
+
+
+  const contactList = document.getElementById("contactList");
+  const filterSelect = document.getElementById("filterStatus");
+
+  filterSelect.addEventListener("change", loadContacts);
+
+  async function loadContacts() {
+    const filter = filterSelect.value;
+    contactList.innerHTML = "<div class='text-muted p-3'>Loading messages...</div>";
+
+    const q = query(collection(db, "contact"), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+
+    contactList.innerHTML = "";
+
+    if (snapshot.empty) {
+      contactList.innerHTML = "<div class='text-muted p-3'>No messages found.</div>";
+      return;
+    }
+
+    snapshot.forEach(docSnap => {
+      const msg = docSnap.data();
+      const id = docSnap.id;
+
+      const status = msg.status || "unread";
+      if (filter !== "all" && status !== filter) return;
+
+      const date = msg.createdAt?.toDate().toLocaleString() || "N/A";
+
+      const item = document.createElement("div");
+      item.className = `list-group-item flex-column align-items-start ${status === 'unread' ? 'list-group-item-warning' : 'list-group-item-light'}`;
+
+      item.innerHTML = `
+        <div class="d-flex justify-content-between">
+          <div>
+            <h5 class="mb-1">${msg.subject || "No Subject"}</h5>
+            <small class="text-muted">${msg.name || "Anonymous"} – ${msg.email}</small>
+          </div>
+          <span class="badge bg-${status === 'unread' ? 'warning' : status === 'read' ? 'primary' : 'success'} text-uppercase">${status}</span>
+        </div>
+        <p class="mt-2">${msg.message || "(no message)"}</p>
+        ${msg.attachment ? `<a href="${msg.attachment}" target="_blank" class="btn btn-sm btn-outline-secondary mb-2">📎 View Attachment</a><br>` : ''}
+        <small class="text-muted">Received: ${date}</small>
+        <div class="mt-2">
+          ${status !== "read" ? `<button class="btn btn-sm btn-outline-primary me-2" onclick="markMessageStatus('${id}', 'read')">Mark as Read</button>` : ""}
+          ${status !== "resolved" ? `<button class="btn btn-sm btn-outline-success" onclick="markMessageStatus('${id}', 'resolved')">Mark as Resolved</button>` : ""}
+        </div>
+      `;
+
+      contactList.appendChild(item);
+    });
+  }
+
+  window.markMessageStatus = async function(id, status) {
+    await updateDoc(doc(db, "contact", id), {
+      status
+    });
+    loadContacts();
+  };
+
+  // Load on page start
+  window.addEventListener("DOMContentLoaded", loadContacts);
 
 
 

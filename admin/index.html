@@ -109,14 +109,6 @@
 
 
 
-<!-- Admin Ticket Review Section -->
-<section class="container my-4">
-  <h3 class="mb-3">📨 User Support Tickets</h3>
-  <div id="ticketList" class="list-group"></div>
-</section>
-
-
-
 
 
 
@@ -171,7 +163,7 @@
     </div>
   </div>
 
-  
+
 <!-- Ban Modal -->
 <div class="modal fade" id="banModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
@@ -196,6 +188,34 @@
     </form>
   </div>
 </div>
+
+
+
+
+
+<!-- Admin Ticket Review Section -->
+<section class="container my-4">
+  <h3 class="mb-3">📨 User Support Tickets</h3>
+  <div id="ticketList" class="list-group"></div>
+</section>
+
+<div class="container my-5">
+  <h3>📥 Contact Messages</h3>
+
+  <div class="mb-3">
+    <label for="filterStatus" class="form-label">Filter by Status</label>
+    <select class="form-select" id="filterStatus">
+      <option value="all">All</option>
+      <option value="unread">Unread</option>
+      <option value="read">Read</option>
+      <option value="resolved">Resolved</option>
+    </select>
+  </div>
+
+  <div id="contactList" class="list-group shadow-sm"></div>
+</div>
+
+
 
 </main>
 
