@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create / View Post | Content Hub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script type="module" src="/js/post.js" defer></script>
+  <script type="module" src="/js/firebase-config.js" defer></script>
+  <style>
+    .media-preview { width: 100%; max-height: 300px; object-fit: cover; margin-bottom: 15px; }
+    .tag { background: #f1f1f1; border-radius: 12px; padding: 3px 8px; margin-right: 5px; }
+    .comment { border-bottom: 1px solid #ddd; padding: 8px 0; }
+    .contributor-link { text-decoration: none; font-weight: bold; margin-right: 8px; }
+  </style>
+</head>
+<body>
+<div class="container py-5" id="postContainer">
+
+  <!-- Post Creation -->
+  <div id="createSection">
+    <h2>Create Post</h2>
+    <form id="postForm">
+      <input type="file" id="mediaFile" class="form-control mb-3" accept="image/*,video/*" required />
+      <textarea class="form-control mb-2" id="caption" placeholder="Write a caption..."></textarea>
+      <input type="text" class="form-control mb-2" id="tags" placeholder="#tags, comma-separated"/>
+      <input type="text" class="form-control mb-2" id="contributors" placeholder="Tag other users by email"/>
+      <input type="datetime-local" class="form-control mb-2" id="scheduleTime" />
+      <button class="btn btn-primary w-100">Publish Post</button>
+    </form>
+  </div>
+
+  <!-- Post Viewer -->
+  <div id="viewSection" class="d-none">
+    <h2 id="viewCaption" class="mb-2"></h2>
+    <img id="viewImage" class="media-preview d-none" />
+    <video id="viewVideo" class="media-preview d-none" controls></video>
+    <div id="viewTags" class="mb-3"></div>
+    <div class="mb-2"><strong>Contributors:</strong> <span id="contribList"></span></div>
+    <div class="mb-3">
+      <button id="likeBtn" class="btn btn-sm btn-outline-danger">❤️ Like</button>
+      <span id="likeCount">0</span> likes • <span id="viewCount">0</span> views
+    </div>
+    <button class="btn btn-sm btn-outline-secondary" onclick="copyLink()">📋 Copy Link</button>
+
+    <hr />
+    <h5>Comments</h5>
+    <div id="commentList"></div>
+    <div class="input-group mt-2">
+      <input type="text" id="commentInput" class="form-control" placeholder="Write a comment...">
+      <button class="btn btn-outline-primary" id="commentBtn">Post</button>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

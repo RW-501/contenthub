@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Hub | Connect. Create. Grow.</title>
+  <meta name="description" content="Content Hub helps creators showcase their work, grow followers, and collaborate with others around the world." />
+  <meta name="keywords" content="content creators, collaborations, creator network, digital portfolio, Content Hub">
+  <meta name="author" content="RW-501">
+
+  <!-- Open Graph for social sharing -->
+  <meta property="og:title" content="Content Hub">
+  <meta property="og:description" content="A community platform for creators to grow and collaborate.">
+  <meta property="og:image" content="/assets/og-image.png">
+  <meta property="og:url" content="https://contenthub.com">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9fa;
+    }
+    .hero {
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+      padding: 100px 0;
+    }
+    .feature-icon {
+      font-size: 3rem;
+      color: #5cb85c;
+    }
+    .creator-card img {
+      object-fit: cover;
+      height: 200px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">Content Hub</a>
+      <div class="d-flex">
+        <a href="/pages/login.html" class="btn btn-outline-secondary me-2">Login</a>
+        <a href="/pages/signup.html" class="btn btn-success">Sign Up</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero text-center">
+    <div class="container">
+      <h1 class="display-4 fw-bold">Connect. Create. Grow.</h1>
+      <p class="lead mt-3">A platform for creators to showcase their work, grow their audience, and collaborate with others.</p>
+      <a href="/pages/signup.html" class="btn btn-lg btn-light mt-4 px-5">Get Started</a>
+    </div>
+  </section>
+
+  <!-- Why Join Section -->
+  <section class="py-5 text-center">
+    <div class="container">
+      <h2 class="fw-bold mb-4">Why Join Content Hub?</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="p-4 border rounded h-100">
+            <div class="feature-icon mb-3">🌍</div>
+            <h5 class="fw-bold">Global Reach</h5>
+            <p>Share your creations with creators and fans around the world.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded h-100">
+            <div class="feature-icon mb-3">🤝</div>
+            <h5 class="fw-bold">Find Collaborators</h5>
+            <p>Discover artists, musicians, writers, and other creators looking to build something big — together.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded h-100">
+            <div class="feature-icon mb-3">📈</div>
+            <h5 class="fw-bold">Grow Your Following</h5>
+            <p>Analytics and visibility tools help you expand your audience and track your performance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Creators -->
+  <section class="bg-light py-5">
+    <div class="container text-center">
+      <h2 class="fw-bold mb-4">Featured Creators</h2>
+      <div class="row g-4">
+        <div class="col-sm-6 col-md-3">
+          <div class="card creator-card shadow-sm">
+            <img src="/assets/creator1.jpg" class="card-img-top" alt="Creator 1">
+            <div class="card-body">
+              <h6 class="card-title mb-1">Alex Rivera</h6>
+              <small class="text-muted">Digital Artist</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <div class="card creator-card shadow-sm">
+            <img src="/assets/creator2.jpg" class="card-img-top" alt="Creator 2">
+            <div class="card-body">
+              <h6 class="card-title mb-1">Nia Jenson</h6>
+              <small class="text-muted">Music Producer</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <div class="card creator-card shadow-sm">
+            <img src="/assets/creator3.jpg" class="card-img-top" alt="Creator 3">
+            <div class="card-body">
+              <h6 class="card-title mb-1">Kofi Banks</h6>
+              <small class="text-muted">Video Editor</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <div class="card creator-card shadow-sm">
+            <img src="/assets/creator4.jpg" class="card-img-top" alt="Creator 4">
+            <div class="card-body">
+              <h6 class="card-title mb-1">Mei Chen</h6>
+              <small class="text-muted">Writer</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white py-4 mt-5">
+    <div class="container text-center">
+      <p class="mb-1">© 2025 Content Hub. All rights reserved.</p>
+      <small>
+        <a href="/pages/terms.html" class="text-white text-decoration-underline me-2">Terms</a>
+        <a href="/pages/privacy.html" class="text-white text-decoration-underline">Privacy</a>
+      </small>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

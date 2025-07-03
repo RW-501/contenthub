@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Profile | Content Hub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script type="module" src="/js/profile.js" defer></script>
+  <script type="module" src="/js/firebase-config.js" defer></script>
+  <link rel="stylesheet" href="/css/profile.css" />
+  <style>
+    .profile-header {
+      text-align: center;
+      padding: 40px 0;
+    }
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .tab-pane {
+      padding-top: 20px;
+    }
+    .media-grid img, .media-grid video {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <img src="" id="profilePhoto" class="avatar mb-3" alt="Profile Picture"/>
+    <h2 id="displayName">Loading...</h2>
+    <p id="bioText"></p>
+    <div id="niche" class="badge bg-primary"></div>
+    <div class="mt-2" id="socialLinks"></div>
+    <div class="mt-3">
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editModal">Edit Profile</button>
+      <button class="btn btn-sm btn-success" id="followBtn" style="display: none;">Follow</button>
+    </div>
+  </div>
+
+  <!-- Tabbed Content -->
+  <ul class="nav nav-tabs" id="profileTabs">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#posts">Posts</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#collabs">Collabs</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#analytics">Analytics</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="posts">
+      <div class="row g-3 mt-3 media-grid" id="postsGrid"></div>
+    </div>
+
+    <div class="tab-pane fade" id="collabs">
+      <ul class="list-group mt-3" id="collabList"></ul>
+    </div>
+
+    <div class="tab-pane fade" id="analytics">
+      <div class="mt-3">
+        <h5>Top Performing Posts</h5>
+        <ul class="list-group" id="analyticsList"></ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="editProfileForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control mb-2" id="editName" placeholder="Display Name" />
+        <textarea class="form-control mb-2" id="editBio" placeholder="Short Bio"></textarea>
+        <input type="text" class="form-control mb-2" id="editNiche" placeholder="Niche (e.g. Music, Art)" />
+        <input type="text" class="form-control mb-2" id="editLinks" placeholder="Social Links (comma-separated)" />
+        <label class="form-label">Profile Picture</label>
+        <input type="file" class="form-control" id="editPhoto" />
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success w-100">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
