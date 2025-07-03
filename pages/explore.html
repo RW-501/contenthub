@@ -30,7 +30,6 @@
 </head>
 <body>
 
-    
       <div id="toolbarContainer"></div>
 
   <!-- Your page content here -->
@@ -41,10 +40,11 @@
   <!-- Inject toolbar -->
   <script type="module">
     const toolbarContainer = document.getElementById("toolbarContainer");
-    const html = await fetch('https://rw-501.github.io/contenthub/includes/toolbar.html').then(res => res.text());
+    const html = await fetch('https://rw-501.github.io/contenthub/includes/nav.html').then(res => res.text());
     toolbarContainer.innerHTML = html;
     import('https://rw-501.github.io/contenthub/includes/nav.js');
   </script>
+
 
 
 <div class="container py-4">
