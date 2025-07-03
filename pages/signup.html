@@ -116,61 +116,71 @@
   });
 </script>
 
-<script>
-  // Email/Password signup
+<script type="module">
+  import { loginWith, initRecaptcha, ensureUserExists } from "https://rw-501.github.io/contenthub/js/auth.js";
+
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const phoneInput = document.getElementById("phoneNumber");
+  const otpCode = document.getElementById("otpCode");
+  const otpSection = document.getElementById("otpSection");
+
+  // Init recaptcha for phone auth
+  initRecaptcha("recaptcha-container");
+
+  // Email Sign Up
   document.getElementById("emailSignUpBtn").addEventListener("click", async () => {
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
-    try {
-      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-      alert("Signed up successfully!");
-      window.location.href = "/pages/profile.html";
-    } catch (error) {
-      alert(error.message);
-    }
+    const result = await loginWith("email-signup", { email, password });
+    if (result.error) return alert(result.error);
+    await ensureUserExists(result.user);
+    window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
   });
 
-  // Google login
+  // Google Sign In
   document.getElementById("googleSignInBtn").addEventListener("click", async () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    try {
-      await firebase.auth().signInWithPopup(provider);
-      window.location.href = "/pages/profile.html";
-    } catch (error) {
-      alert(error.message);
-    }
+    const result = await loginWith("google");
+    if (result.error) return alert(result.error);
+    await ensureUserExists(result.user);
+    window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
   });
 
-  // Phone Auth
-  let confirmationResult;
+  // Send OTP
   document.getElementById("sendCodeBtn").addEventListener("click", async () => {
-    const phone = document.getElementById("phoneNumber").value;
-    try {
-      confirmationResult = await firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier);
-      document.getElementById("otpSection").classList.remove("d-none");
-      alert("OTP sent!");
-    } catch (error) {
-      alert(error.message);
-    }
+    const phone = phoneInput.value.trim();
+    const result = await loginWith("send-otp", { phone });
+    if (result.error) return alert(result.error);
+    otpSection.classList.remove("d-none");
+    alert("OTP sent!");
   });
 
+  // Verify OTP
   document.getElementById("verifyOtpBtn").addEventListener("click", async () => {
-    const code = document.getElementById("otpCode").value;
-    try {
-      await confirmationResult.confirm(code);
-      alert("Phone number verified!");
-      window.location.href = "/pages/profile.html";
-    } catch (error) {
-      alert("Invalid OTP: " + error.message);
-    }
+    const otp = otpCode.value.trim();
+    const result = await loginWith("verify-otp", { otp });
+    if (result.error) return alert(result.error);
+    await ensureUserExists(result.user);
+    window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
   });
 
+  // Toggle login link
+  document.getElementById("loginpBtn").addEventListener("click", function () {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
 
-    document.getElementById("loginpBtn").addEventListener("click", function () {
-    document.getElementById("loginBtn").classList.add("d-none");
+  });
+
+  // Format phone on blur
+  phoneInput.addEventListener("blur", () => {
+    let val = phoneInput.value.replace(/\D/g, "");
+    if (val.length === 10) {
+      phoneInput.value = `+1${val}`;
+    } else if (!val.startsWith("+")) {
+      alert("Please enter a valid international phone number.");
+    }
   });
 </script>
-
 
 </body>
 </html>

@@ -16,6 +16,39 @@ import {
 
 import { app, auth } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 
+
+export async function ensureUserExists(user) {
+  const userRef = doc(db, "users", user.uid);
+  const docSnap = await getDoc(userRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+
+    // 🔒 Blocked User Check
+    if (data.status === 'blocked') {
+      throw new Error("Your account is blocked.");
+    }
+
+    // 🕒 Update Last Login Timestamp
+    await updateDoc(userRef, {
+      lastLogin: new Date()
+    });
+
+  } else {
+    // 🆕 Create New User Profile
+    const userData = {
+      displayName: user.displayName || user.email || "Unnamed",
+      email: user.email || null,
+      photoURL: user.photoURL || "",
+      createdAt: new Date(),
+      lastLogin: new Date(),
+      status: "active",
+      role: "user",
+      verified: false
+    };
+    await setDoc(userRef, userData);
+  }
+}
 // 📱 Invisible reCAPTCHA verifier (phone login)
 let recaptchaVerifier;
 let confirmationResult;
@@ -70,15 +103,17 @@ export async function loginWith(method, data = {}) {
   document.getElementById("emailSignUpBtn").addEventListener("click", async () => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    const result = await loginWith('email-signup', { email, password });
-    if (result.error) return alert(result.error);
+const result = await loginWith('email-signup', { email, password });
+if (result.error) return alert(result.error);
+await ensureUserExists(result.user);
     window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
   });
 
   // GOOGLE
   document.getElementById("googleBtn").addEventListener("click", async () => {
     const result = await loginWith('google');
-    if (result.error) return alert(result.error);
+if (result.error) return alert(result.error);
+await ensureUserExists(result.user);
     window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
   });
 
@@ -94,8 +129,9 @@ export async function loginWith(method, data = {}) {
 
   document.getElementById("verifyOtpBtn").addEventListener("click", async () => {
     const otp = document.getElementById("otpCode").value;
-    const result = await loginWith('verify-otp', { otp });
-    if (result.error) return alert(result.error);
+const result = await loginWith('verify-otp', { otp });
+if (result.error) return alert(result.error);
+await ensureUserExists(result.user);
     window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
   });
 
