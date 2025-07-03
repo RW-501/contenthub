@@ -40,3 +40,18 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await signOut(auth);
   location.href = "/";
 });
+
+
+// Dynamically load external script
+function loadAuthScript() {
+  const existing = document.querySelector('script[src="https://rw-501.github.io/contenthub/js/auth.js"]');
+  if (existing) return; // Avoid duplicate loading
+
+  const script = document.createElement('script');
+  script.src = "https://rw-501.github.io/contenthub/js/auth.js";
+  script.defer = true;
+  document.head.appendChild(script);
+}
+
+// Call it wherever needed
+loadAuthScript();

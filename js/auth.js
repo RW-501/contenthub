@@ -106,7 +106,7 @@ export async function loginWith(method, data = {}) {
 
 
 
-    const signupBtn = document.getElementById("signupBtn");
+  const signupBtn = document.getElementById("signupBtn");
   const authModal = document.getElementById("auth-login");
   const closeAuthBtn = document.getElementById("closeAuthBtn");
 
