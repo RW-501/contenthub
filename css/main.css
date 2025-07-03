@@ -20,6 +20,10 @@
   --shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
+#main {
+    color: #636376;
+
+}
 /* ⚙️ Global Resets */
 body {
   background-color: var(--bg-dark);
