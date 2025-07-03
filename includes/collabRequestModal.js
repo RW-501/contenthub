@@ -1,11 +1,5 @@
 
-import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-const db = getFirestore();
-const storage = getStorage();
-const auth = getAuth();
 
 const form = document.getElementById("collabRequestForm");
 let toUid = null; // Set this to the profile user ID dynamically before opening the modal
