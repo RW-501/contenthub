@@ -42,16 +42,15 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
 });
 
 
-// Dynamically load external script
 function loadAuthScript() {
   const existing = document.querySelector('script[src="https://rw-501.github.io/contenthub/js/auth.js"]');
-  if (existing) return; // Avoid duplicate loading
+  if (existing) return;
 
   const script = document.createElement('script');
   script.src = "https://rw-501.github.io/contenthub/js/auth.js";
-  script.defer = true;
+  script.type = "module";  // 💥 THIS IS REQUIRED
   document.head.appendChild(script);
 }
 
-// Call it wherever needed
+// Load it when needed
 loadAuthScript();
