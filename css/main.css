@@ -20,10 +20,7 @@
   --shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-#main {
-    color: #636376;
 
-}
 /* ⚙️ Global Resets */
 body {
   background-color: var(--bg-dark);
@@ -34,6 +31,10 @@ body {
   padding: 0;
 }
 
+#main {
+    color: #636376;
+
+}
 a {
   color: var(--accent);
   text-decoration: none;
