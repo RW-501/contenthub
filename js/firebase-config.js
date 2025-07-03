@@ -1,5 +1,6 @@
 // firebase-config.js (MODULAR EXPORT VERSION)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -16,4 +17,4 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 // Export what you want to use in other files
-export { app, auth };
+export { app, auth, getFirestore, collection, query, where, limit, getDocs };
