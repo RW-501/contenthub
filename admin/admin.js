@@ -21,7 +21,10 @@ onAuthStateChanged(auth, async user => {
   const adminDoc = [...userDoc.docs].find(d => d.id === user.uid);
   if (!adminDoc || !adminDoc.data().admin) {
     alert("Access Denied – Admins Only");
-    return window.location.href = "/";
+    
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+  
   }
 
   loadAnalytics();
