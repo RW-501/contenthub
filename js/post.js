@@ -42,7 +42,7 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
 
   const file = document.getElementById("mediaFile").files[0];
   const caption = document.getElementById("caption").value.trim();
-  const tags = document.getElementById("tags").value.split(",").map(t => t.trim().toLowerCase());
+  const tags = getTagsForDatabase();
   const schedule = document.getElementById("scheduleTime").value;
   const contributorsInput = document.getElementById("contributors").value;
 
@@ -156,3 +156,76 @@ window.copyLink = () => {
   navigator.clipboard.writeText(link);
   alert("Link copied!");
 };
+
+
+
+  const tagInput = document.getElementById("tagsInput");
+  const tagContainer = document.getElementById("tagContainer");
+  const tagSuggestions = document.getElementById("tagSuggestions");
+
+  // Predefined suggestions for content creators
+  const suggestedTags = [
+    "vlog", "tutorial", "behindthescenes", "reels", "funny", "music", "review",
+    "challenge", "lifestyle", "fashion", "tech", "gaming", "podcast", "shorts",
+    "motivation", "fitness", "howto", "interview", "trending", "viral"
+  ];
+
+  let tags = [];
+
+  function normalizeTag(tag) {
+    return tag
+      .replace(/[#\s]/g, '')     // Remove `#` and whitespace
+      .toLowerCase();
+  }
+
+  function addTag(tag) {
+    const cleanTag = normalizeTag(tag);
+    if (cleanTag && !tags.includes(cleanTag)) {
+      tags.push(cleanTag);
+
+      const badge = document.createElement("span");
+      badge.className = "badge bg-primary me-1 mb-1";
+      badge.textContent = `#${cleanTag}`;
+
+      const remove = document.createElement("button");
+      remove.innerHTML = "&times;";
+      remove.className = "btn-close btn-close-white btn-sm ms-2";
+      remove.onclick = () => {
+        tags = tags.filter(t => t !== cleanTag);
+        badge.remove();
+      };
+
+      badge.appendChild(remove);
+      tagContainer.appendChild(badge);
+    }
+    tagInput.value = '';
+    tagSuggestions.innerHTML = '';
+  }
+
+  tagInput.addEventListener("input", () => {
+    const inputVal = tagInput.value.toLowerCase().trim();
+    tagSuggestions.innerHTML = "";
+
+    if (inputVal.length > 0) {
+      const matches = suggestedTags.filter(tag => tag.startsWith(inputVal) && !tags.includes(tag));
+      matches.forEach(tag => {
+        const item = document.createElement("button");
+        item.className = "list-group-item list-group-item-action";
+        item.textContent = `#${tag}`;
+        item.onclick = () => addTag(tag);
+        tagSuggestions.appendChild(item);
+      });
+    }
+  });
+
+  tagInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === "," || e.key === " ") {
+      e.preventDefault();
+      addTag(tagInput.value);
+    }
+  });
+
+  // Optional: expose tags to your DB
+  function getTagsForDatabase() {
+    return tags;
+  }

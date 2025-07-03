@@ -48,8 +48,17 @@
     <form id="postForm">
       <input type="file" id="mediaFile" class="form-control mb-3" accept="image/*,video/*" required />
       <textarea class="form-control mb-2" id="caption" placeholder="Write a caption..."></textarea>
-      <input type="text" class="form-control mb-2" id="tags" placeholder="#tags, comma-separated"/>
-      <input type="text" class="form-control mb-2" id="contributors" placeholder="Tag other users by email"/>
+      
+<!-- Tag Input -->
+<input type="text" class="form-control mb-2" id="tagsInput" placeholder="Enter tags..." />
+
+<!-- Display selected tags -->
+<div id="tagContainer" class="mb-2"></div>
+
+<!-- Tag Suggestions -->
+<div id="tagSuggestions" class="list-group"></div>
+
+<input type="text" class="form-control mb-2" id="contributors" placeholder="Tag other users by email"/>
       <input type="datetime-local" class="form-control mb-2" id="scheduleTime" />
       <button class="btn btn-primary w-100">Publish Post</button>
     </form>
