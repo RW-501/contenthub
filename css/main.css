@@ -233,12 +233,3 @@ button.outline:hover {
 
 
 
-
-.footer-link {
-  color: var(--text-muted);
-  text-decoration: none;
-}
-.footer-link:hover {
-  color: var(--accent);
-  text-decoration: underline;
-}
