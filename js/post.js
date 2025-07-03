@@ -40,7 +40,21 @@ onAuthStateChanged(auth, async user => {
 document.getElementById("postForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const file = document.getElementById("mediaFile").files[0];
+if (selectedFiles.length === 0) {
+  return alert("Please add at least one media file.");
+}
+
+const uploadedUrls = [];
+
+for (const file of selectedFiles) {
+  const ext = file.type.includes("video") ? 'video' : 'image';
+  const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
+  await uploadBytes(storageRef, file);
+  const mediaUrl = await getDownloadURL(storageRef);
+  uploadedUrls.push({ url: mediaUrl, type: ext });
+}
+
+
   const caption = document.getElementById("caption").value.trim();
   const tags = getTagsForDatabase();
   const schedule = document.getElementById("scheduleTime").value;
@@ -61,23 +75,86 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
     }
   }
 
-  const newPost = {
-    owner: currentUser.uid,
-    caption,
-    tags,
-    contributors,
-    mediaUrl,
-    type: ext,
-    likes: 0,
-    views: 0,
-    createdAt: new Date(),
-    scheduledAt: schedule ? new Date(schedule) : null
-  };
+const newPost = {
+  owner: currentUser.uid,
+  caption,
+  tags,
+  contributors,
+  media: uploadedUrls, // array of { url, type }
+  likes: 0,
+  views: 0,
+  createdAt: new Date(),
+  scheduledAt: schedule ? new Date(schedule) : null
+};
+
 
   const docRef = await addDoc(collection(db, "posts"), newPost);
   alert("Post created!");
   location.href = `/pages/post.html?id=${docRef.id}`;
 });
+
+
+  const mediaFileInput = document.getElementById("mediaFile");
+  const uploadArea = document.getElementById("uploadArea");
+  const previewContainer = document.getElementById("mediaPreview");
+  let selectedFiles = [];
+
+  function renderPreviews() {
+    previewContainer.innerHTML = "";
+    selectedFiles.forEach((file, index) => {
+      const url = URL.createObjectURL(file);
+      const isVideo = file.type.includes("video");
+      
+      const wrapper = document.createElement("div");
+      wrapper.className = "position-relative";
+
+      const media = document.createElement(isVideo ? "video" : "img");
+      media.src = url;
+      media.className = "rounded border";
+      media.style.width = "120px";
+      media.style.height = "120px";
+      media.style.objectFit = "cover";
+      if (isVideo) media.controls = true;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.innerHTML = "&times;";
+      removeBtn.className = "btn btn-sm btn-danger position-absolute top-0 end-0";
+      removeBtn.onclick = () => {
+        selectedFiles.splice(index, 1);
+        renderPreviews();
+      };
+
+      wrapper.appendChild(media);
+      wrapper.appendChild(removeBtn);
+      previewContainer.appendChild(wrapper);
+    });
+  }
+
+  mediaFileInput.addEventListener("change", (e) => {
+    selectedFiles.push(...Array.from(e.target.files));
+    renderPreviews();
+  });
+
+  uploadArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadArea.classList.add("border-primary");
+  });
+
+  uploadArea.addEventListener("dragleave", () => {
+    uploadArea.classList.remove("border-primary");
+  });
+
+  uploadArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove("border-primary");
+    if (e.dataTransfer.files.length > 0) {
+      selectedFiles.push(...Array.from(e.dataTransfer.files));
+      renderPreviews();
+    }
+  });
+
+
+
 
 // 🔼 POST VIEWER
 async function loadPost(id) {

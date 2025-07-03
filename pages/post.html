@@ -46,8 +46,15 @@
   <div id="createSection">
     <h2>Create Post</h2>
     <form id="postForm">
-      <input type="file" id="mediaFile" class="form-control mb-3" accept="image/*,video/*" required />
-      <textarea class="form-control mb-2" id="caption" placeholder="Write a caption..."></textarea>
+      
+<!-- 📸 Custom Media Upload UI -->
+<div id="uploadArea" class="border border-2 rounded p-4 text-center mb-3 bg-light" style="position: relative;">
+  <p class="text-muted">📁 Drag & drop media here or <span class="text-primary" style="cursor:pointer;" onclick="document.getElementById('mediaFile').click()">browse</span></p>
+  <input type="file" id="mediaFile" accept="image/*,video/*" multiple hidden />
+  <div id="mediaPreview" class="d-flex flex-wrap justify-content-start gap-2 mt-3"></div>
+</div>
+
+<textarea class="form-control mb-2" id="caption" placeholder="Write a caption..."></textarea>
       
 <!-- Tag Input -->
 <input type="text" class="form-control mb-2" id="tagsInput" placeholder="Enter tags..." />
