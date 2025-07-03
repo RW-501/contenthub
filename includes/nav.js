@@ -21,7 +21,7 @@ navLinks.forEach(link => {
 // Auth handling
 onAuthStateChanged(auth, async user => {
   if (user) {
-    document.getElementById("loginBtn").classList.add("d-none");
+    document.getElementById("signupBtn").classList.add("d-none");
     document.getElementById("userAvatar").classList.remove("d-none");
 
     const avatar = user.photoURL || "/assets/default-avatar.png";
