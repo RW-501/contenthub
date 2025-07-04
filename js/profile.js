@@ -36,8 +36,11 @@ onAuthStateChanged(auth, async user => {
       // Set collab button
     const collabBtn = document.getElementById("collabBtn");
     collabBtn.classList.remove("d-none");
-    collabBtn.onclick = () => setCollabTarget(viewingUserId);
-  
+
+collabBtn.onclick = () => {
+document.getElementById("collabBtn").dataset.viewingUserId = viewingUserId;
+};
+
 
   document.getElementById("bioText").innerText = data.bio || '';
   document.getElementById("niche").innerText = data.niche || '';

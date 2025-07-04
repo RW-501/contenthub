@@ -3,17 +3,13 @@
 
 const form = document.getElementById("collabRequestForm");
 
-let toUid = null; // Set this to the profile user ID dynamically before opening the modal
 
-// Optional: expose this setter globally
-function setCollabTarget(uid) {
-  toUid = uid;
-};
 
-window.setCollabTarget = setCollabTarget;
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+    const toUid = collabBtn.dataset.viewingUserId;
+
   const user = auth.currentUser;
   if (!user || !toUid || user.uid === toUid) return;
 
