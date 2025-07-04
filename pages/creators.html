@@ -101,21 +101,44 @@
         return;
       }
 
-      data.forEach(user => {
-        const card = document.createElement("div");
-        card.className = "col-sm-6 col-md-4 col-lg-3";
-        card.innerHTML = `
-          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.id}" class="text-decoration-none text-dark">
-            <div class="card shadow-sm h-100">
-              <img src="${user.profilePic || '/assets/default-avatar.png'}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="${user.name}" />
-              <div class="card-body">
-                <h6 class="card-title mb-1">${user.name || 'Unnamed'}</h6>
-                <small class="text-muted">${user.niche || 'Creator'}</small>
-              </div>
-            </div>
-          </a>`;
-        creatorsGrid.appendChild(card);
-      });
+data.forEach(user => {
+  const isVerified = user.verified === true;
+  const verifiedPlatforms = user.verifiedPlatforms || {}; // { instagram: true, facebook: true, ... }
+
+  const badge = isVerified
+    ? `<span class="ms-1 text-primary" title="Verified"><i class="bi bi-patch-check-fill"></i></span>`
+    : '';
+
+  const platformIcons = Object.entries(verifiedPlatforms)
+    .filter(([_, verified]) => verified)
+    .map(([platform]) => {
+      const icons = {
+        instagram: 'bi-instagram',
+        facebook: 'bi-facebook',
+        tiktok: 'bi-tiktok',
+        youtube: 'bi-youtube',
+      };
+      return `<i class="bi ${icons[platform] || ''} text-muted ms-1" title="Verified on ${platform.charAt(0).toUpperCase() + platform.slice(1)}"></i>`;
+    }).join('');
+
+  const card = document.createElement("div");
+  card.className = "col-sm-6 col-md-4 col-lg-3";
+  card.innerHTML = `
+    <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.id}" class="text-decoration-none text-dark">
+      <div class="card shadow-sm h-100">
+        <img src="${user.photoURL || '/assets/default-avatar.png'}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="${user.displayName || 'User'}" />
+        <div class="card-body">
+          <h6 class="card-title mb-1">
+            ${user.displayName || 'Unnamed'} ${badge} ${platformIcons}
+          </h6>
+          <small class="text-muted d-block">${user.niche || 'Creator'}</small>
+          <small class="text-muted">${user.location || ''}</small>
+        </div>
+      </div>
+    </a>`;
+  creatorsGrid.appendChild(card);
+});
+
     }
 
     function filterCreators() {
