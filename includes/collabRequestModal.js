@@ -57,9 +57,19 @@ form.addEventListener("submit", async (e) => {
     timestamp: serverTimestamp()
   });
 
-  alert("Collaboration request sent!");
+    showModal({
+  title: "Sent!",
+  message: "Collaboration request sent!",
+  autoClose: 3000
+});
+
   form.reset();
-    document.getElementById("collabModalOverlay").style.display = "none";
+  //  document.getElementById("collabModalOverlay").style.display = "none";
+
+    const modalEl = document.getElementById("collabModalOverlay");
+const modal = new bootstrap.Modal(modalEl);
+modal.hide();
+
 });
 /*
   // Show modal

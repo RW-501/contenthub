@@ -392,7 +392,10 @@ const links = rawLinks.filter(link => link.url !== "");
   autoClose: 3000
 });
 
-    document.getElementById("editModal").style.display = "none";
+
+const modalEl = document.getElementById("editModal");
+const modal = new bootstrap.Modal(modalEl);
+modal.hide();
   });
 
   // Load existing data into modal (call this when modal is opened)
