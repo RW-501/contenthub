@@ -13,7 +13,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 import {
-  updateDoc, doc, getDoc, setDoc
+  updateDoc, doc, getDoc, setDoc, db
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { app, auth } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
