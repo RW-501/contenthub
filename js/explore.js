@@ -1,32 +1,38 @@
-import {
-  getAuth, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { app }  from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+// Firebase Imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
+// Your config import (must expose the initialized app)
+import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+
+// Firebase instances
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-
+// UI Elements
 const postGrid = document.getElementById("postGrid");
 const suggestedCreatorsDiv = document.getElementById("suggestedCreators");
 const filterSelect = document.getElementById("filterSelect");
 const searchInput = document.getElementById("searchInput");
 const collabZoneToggle = document.getElementById("collabZoneToggle");
 
+// App State
 let lastVisiblePost = null;
 let loadingMore = false;
-
 let currentUser = null;
 
+// Auth check
 onAuthStateChanged(auth, user => {
-  if (!user) location.href = "/pages/login.html";
-  currentUser = user;
-  loadSuggestedCreators();
-  loadPosts();
+  if (!user) {
+    location.href = "/pages/login.html";
+  } else {
+    currentUser = user;
+    loadSuggestedCreators();
+    loadPosts();
+  }
 });
 
 // Load Posts based on filters
