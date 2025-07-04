@@ -32,9 +32,7 @@ body {
 }
 
 .modal{
-      background-color: var(--bg-dark);
-          color: #636376;
-
+  color: var(--text-light);
 }
 
 #main {
