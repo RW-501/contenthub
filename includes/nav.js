@@ -1,13 +1,24 @@
+// ✅ Import Auth only
 import {
-  getAuth, onAuthStateChanged, signOut
+  getAuth,
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { app }  from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
+// ✅ Import Firestore functions separately
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+// ✅ Import your Firebase app config
+import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+
+// ✅ Init services
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 
 const currentPath = location.pathname.replace(/\/$/, '').toLowerCase();
 
