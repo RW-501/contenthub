@@ -386,6 +386,12 @@ const links = rawLinks.filter(link => link.url !== "");
 
     await updateDoc(userRef, updates);
 
+    
+const modalEl = document.getElementById("editModal");
+const modal = new bootstrap.Modal(modalEl);
+modal.hide();
+
+
     showModal({
   title: "Success!",
   message: "Profile updated!",
@@ -393,9 +399,6 @@ const links = rawLinks.filter(link => link.url !== "");
 });
 
 
-const modalEl = document.getElementById("editModal");
-const modal = new bootstrap.Modal(modalEl);
-modal.hide();
   });
 
   // Load existing data into modal (call this when modal is opened)
