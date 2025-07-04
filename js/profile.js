@@ -408,6 +408,7 @@ modal.hide();
   autoClose: 3000
 });
 
+modalEl.style.display = "none";
 
   });
 
