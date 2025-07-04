@@ -557,6 +557,13 @@ document.getElementById("editLink4").value = linkMap.facebook || "";
     stateSelect.dispatchEvent(new Event("change"));
 
     setTimeout(() => {
+                if (userData.location.city) {
+            const opt = document.createElement("option");
+            opt.value = city;
+            opt.textContent = city;
+            citySelect.appendChild(opt);
+            citySelect.value = city;
+          }
       citySelect.value = userData.location.city || "";
     }, 100);
   }
