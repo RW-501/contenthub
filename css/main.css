@@ -31,8 +31,10 @@ body {
   padding: 0;
 }
 
-.modal-content{
-  color: var(--text-dark);
+.modal.modal-content {
+  color: var(--text-light);
+  background-color: var(--bg-dark);
+
 }
 
 #main {

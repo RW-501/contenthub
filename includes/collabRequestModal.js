@@ -61,11 +61,12 @@ form.addEventListener("submit", async (e) => {
   form.reset();
     document.getElementById("collabModalOverlay").style.display = "none";
 });
-
+/*
   // Show modal
   document.getElementById("openCollabModal").addEventListener("click", () => {
     document.getElementById("collabModalOverlay").style.display = "block";
   });
+*/
 
   // Hide modal
   document.getElementById("cancelModalBtn").addEventListener("click", () => {
