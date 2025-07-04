@@ -59,5 +59,16 @@ form.addEventListener("submit", async (e) => {
 
   alert("Collaboration request sent!");
   form.reset();
-  bootstrap.Modal.getInstance(document.getElementById("collabRequestModal")).hide();
+    document.getElementById("collabModalOverlay").style.display = "none";
 });
+
+  // Show modal
+  document.getElementById("openCollabModal").addEventListener("click", () => {
+    document.getElementById("collabModalOverlay").style.display = "block";
+  });
+
+  // Hide modal
+  document.getElementById("cancelModalBtn").addEventListener("click", () => {
+    document.getElementById("collabModalOverlay").style.display = "none";
+  });
+
