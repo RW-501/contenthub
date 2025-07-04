@@ -178,17 +178,145 @@
           <option value="Tech">
         </datalist>
 
+        <style>
+          .accordion-button i {
+  font-size: 1.2rem;
+}
+.accordion-body {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+        </style>
         <!-- Social Links -->
-<div class="mb-2">
-  <input type="url" class="form-control mb-1" id="editLink1" placeholder="https://instagram.com/..." />
-  <input type="url" class="form-control mb-1" id="editLink2" placeholder="https://tiktok.com/..." />
-  <input type="url" class="form-control mb-1" id="editLink3" placeholder="https://youtube.com/..." />
-  <input type="url" class="form-control mb-1" id="editLink4" placeholder="https://facebook.com/..." />
-  <input type="url" class="form-control mb-1" id="editLink5" placeholder="https://twitch.tv/..." />
-  <input type="url" class="form-control mb-1" id="editLink6" placeholder="https://threads.net/..." />
-  <input type="url" class="form-control mb-1" id="editLink7" placeholder="https://snapchat.com/..." />
-  <input type="url" class="form-control mb-1" id="editLink8" placeholder="https://pinterest.com/..." />
-  <input type="url" class="form-control" id="editLink9" placeholder="https://reddit.com/..." />
+<div class="accordion mb-3" id="socialLinksAccordion">
+
+  <!-- Instagram -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingInstagram">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInstagram" aria-expanded="false" aria-controls="collapseInstagram">
+        <i class="bi bi-instagram me-2 text-danger"></i> Instagram
+      </button>
+    </h2>
+    <div id="collapseInstagram" class="accordion-collapse collapse" aria-labelledby="headingInstagram" data-bs-parent="#socialLinksAccordion">
+      <div class="accordion-body">
+        <input type="url" class="form-control" id="editLink1" placeholder="https://instagram.com/..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- TikTok -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingTikTok">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTikTok" aria-expanded="false" aria-controls="collapseTikTok">
+        <i class="bi bi-tiktok me-2 text-dark"></i> TikTok
+      </button>
+    </h2>
+    <div id="collapseTikTok" class="accordion-collapse collapse" aria-labelledby="headingTikTok" data-bs-parent="#socialLinksAccordion">
+      <div class="accordion-body">
+        <input type="url" class="form-control" id="editLink2" placeholder="https://tiktok.com/..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- YouTube -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingYouTube">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseYouTube" aria-expanded="false" aria-controls="collapseYouTube">
+        <i class="bi bi-youtube me-2 text-danger"></i> YouTube
+      </button>
+    </h2>
+    <div id="collapseYouTube" class="accordion-collapse collapse" aria-labelledby="headingYouTube" data-bs-parent="#socialLinksAccordion">
+      <div class="accordion-body">
+        <input type="url" class="form-control" id="editLink3" placeholder="https://youtube.com/..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- Facebook -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingFacebook">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFacebook" aria-expanded="false" aria-controls="collapseFacebook">
+        <i class="bi bi-facebook me-2 text-primary"></i> Facebook
+      </button>
+    </h2>
+    <div id="collapseFacebook" class="accordion-collapse collapse" aria-labelledby="headingFacebook" data-bs-parent="#socialLinksAccordion">
+      <div class="accordion-body">
+        <input type="url" class="form-control" id="editLink4" placeholder="https://facebook.com/..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- Twitch -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingTwitch">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwitch" aria-expanded="false" aria-controls="collapseTwitch">
+        <i class="bi bi-twitch me-2 text-purple"></i> Twitch
+      </button>
+    </h2>
+    <div id="collapseTwitch" class="accordion-collapse collapse" aria-labelledby="headingTwitch" data-bs-parent="#socialLinksAccordion">
+      <div class="accordion-body">
+        <input type="url" class="form-control" id="editLink5" placeholder="https://twitch.tv/..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- Threads -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingThreads">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThreads" aria-expanded="false" aria-controls="collapseThreads">
+        <i class="bi bi-threads me-2 text-dark"></i> Threads
+      </button>
+    </h2>
+    <div id="collapseThreads" class="accordion-collapse collapse" aria-labelledby="headingThreads" data-bs-parent="#socialLinksAccordion">
+      <div class="accordion-body">
+        <input type="url" class="form-control" id="editLink6" placeholder="https://threads.net/..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- Snapchat -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingSnapchat">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSnapchat" aria-expanded="false" aria-controls="collapseSnapchat">
+        <i class="bi bi-snapchat me-2 text-warning"></i> Snapchat
+      </button>
+    </h2>
+    <div id="collapseSnapchat" class="accordion-collapse collapse" aria-labelledby="headingSnapchat" data-bs-parent="#socialLinksAccordion">
+      <div class="accordion-body">
+        <input type="url" class="form-control" id="editLink7" placeholder="https://snapchat.com/..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- Pinterest -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingPinterest">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePinterest" aria-expanded="false" aria-controls="collapsePinterest">
+        <i class="bi bi-pinterest me-2 text-danger"></i> Pinterest
+      </button>
+    </h2>
+    <div id="collapsePinterest" class="accordion-collapse collapse" aria-labelledby="headingPinterest" data-bs-parent="#socialLinksAccordion">
+      <div class="accordion-body">
+        <input type="url" class="form-control" id="editLink8" placeholder="https://pinterest.com/..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- Reddit -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingReddit">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReddit" aria-expanded="false" aria-controls="collapseReddit">
+        <i class="bi bi-reddit me-2 text-orange"></i> Reddit
+      </button>
+    </h2>
+    <div id="collapseReddit" class="accordion-collapse collapse" aria-labelledby="headingReddit" data-bs-parent="#socialLinksAccordion">
+      <div class="accordion-body">
+        <input type="url" class="form-control" id="editLink9" placeholder="https://reddit.com/..." />
+      </div>
+    </div>
+  </div>
+
 </div>
 
 

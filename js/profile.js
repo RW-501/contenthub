@@ -53,7 +53,7 @@ document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-
 const socialContainer = document.getElementById("socialLinks");
 socialContainer.innerHTML = "";
 
-if (Array.isArray(data.links)) {
+
 const platformIcons = {
   instagram: "bi bi-instagram",
   tiktok: "bi bi-tiktok",
@@ -69,17 +69,21 @@ const platformIcons = {
   other: "bi bi-link-45deg"
 };
 
-
+if (Array.isArray(data.links)) {
   data.links.forEach(linkObj => {
     const { platform, url } = linkObj;
     const icon = platformIcons[platform?.toLowerCase()] || platformIcons.other;
+    const isVerified = data.verifiedPlatforms?.[platform.toLowerCase()] === true;
 
     const a = document.createElement("a");
     a.href = url.trim();
     a.target = "_blank";
     a.rel = "noopener noreferrer";
     a.className = "btn btn-sm btn-outline-secondary me-1";
-    a.innerHTML = `<i class="${icon}"></i>`;
+    a.innerHTML = `
+      <i class="${icon}"></i>
+      ${isVerified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
+    `;
     socialContainer.appendChild(a);
   });
 }
@@ -336,11 +340,6 @@ async function loadAnalytics(uid) {
     }
   });
 
-  // Request verification
-  document.getElementById("verifyProfileBtn").addEventListener("click", () => {
-    // 🔧 This function should submit a "verification" ticket in Firestore
-    openSupportTicket("verify_profile");
-  });
 
   function openSupportTicket(type) {
     // placeholder logic for now
@@ -411,6 +410,56 @@ modal.hide();
 
 
   });
+
+
+    // Request verification
+document.getElementById("verifyProfileBtn").addEventListener("click", async () => {
+  const rawLinks = [ 
+    { platform: "instagram", url: document.getElementById("editLink1").value.trim() },
+    { platform: "tiktok", url: document.getElementById("editLink2").value.trim() },
+    { platform: "youtube", url: document.getElementById("editLink3").value.trim() },
+    { platform: "facebook", url: document.getElementById("editLink4").value.trim() },
+    { platform: "twitch", url: document.getElementById("editLink5").value.trim() },
+    { platform: "threads", url: document.getElementById("editLink6").value.trim() },
+    { platform: "snapchat", url: document.getElementById("editLink7").value.trim() },
+    { platform: "pinterest", url: document.getElementById("editLink8").value.trim() },
+    { platform: "reddit", url: document.getElementById("editLink9").value.trim() }
+  ].filter(link => link.url !== "");
+
+  const verifiedPlatforms = {};
+
+  // ✅ Very basic verification method: check if displayName appears in the URL
+  const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+  const userData = userSnap.data();
+  const displayName = userData.displayName?.toLowerCase().replace(/\s/g, "");
+
+  rawLinks.forEach(link => {
+    const usernameMatch = link.url.toLowerCase().includes(displayName);
+    if (usernameMatch) {
+      verifiedPlatforms[link.platform] = true;
+    }
+  });
+
+  await updateDoc(doc(db, "users", currentUser.uid), {
+    links: rawLinks,
+    verifiedPlatforms: verifiedPlatforms
+  });
+
+  showModal({
+    title: "Verification Requested",
+    message: `
+      <p class="mb-2">The system attempted automatic verification.</p>
+      <p class="text-success">Verified: ${Object.keys(verifiedPlatforms).join(", ") || "None"}.</p>
+    `,
+    autoClose: 4000
+  });
+
+  // Optionally reload user profile UI
+  location.reload();
+});
+
+
+
 
   // Load existing data into modal (call this when modal is opened)
   async function populateEditProfileModal() {
@@ -559,6 +608,11 @@ document.getElementById("editLink1").value = linkMap.instagram || "";
 document.getElementById("editLink2").value = linkMap.tiktok || "";
 document.getElementById("editLink3").value = linkMap.youtube || "";
 document.getElementById("editLink4").value = linkMap.facebook || "";
+document.getElementById("editLink5").value = linkMap.twitch || "";
+document.getElementById("editLink6").value = linkMap.threads || "";
+document.getElementById("editLink7").value = linkMap.snapchat || "";
+document.getElementById("editLink8").value = linkMap.pinterest || "";
+document.getElementById("editLink9").value = linkMap.reddit || "";
 
 
 
