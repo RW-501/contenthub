@@ -392,8 +392,7 @@ const links = rawLinks.filter(link => link.url !== "");
   autoClose: 3000
 });
 
-   // alert("Profile updated!");
-    location.reload();
+    window.reload();
   });
 
   // Load existing data into modal (call this when modal is opened)
