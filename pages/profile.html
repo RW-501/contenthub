@@ -124,11 +124,7 @@
       </div>
 
       <div class="modal-body">
-        <!-- Display Name -->
-        <input type="text" class="form-control mb-2" id="editName" placeholder="Display Name" disabled />
-        <small id="nameChangeNote" class="text-muted mb-2 d-block"></small>
 
-        
         <!-- Profile Picture Upload -->
         <div class="mb-3 text-center">
           <img id="photoPreview" src="#" alt="Profile Preview" class="rounded-circle mb-2 d-none" style="width: 100px; height: 100px; object-fit: cover;">
@@ -136,6 +132,11 @@
           <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('editPhoto').click()">Change Profile Picture</button>
           <input type="file" accept="image/*" id="editPhoto" hidden />
         </div>
+        
+        <!-- Display Name -->
+        <input type="text" class="form-control mb-2" id="editName" placeholder="Display Name" disabled />
+        <small id="nameChangeNote" class="text-muted mb-2 d-block"></small>
+
         
         <!-- Bio -->
         <textarea class="form-control mb-2" id="editBio" placeholder="Short Bio (max 160 chars)" maxlength="160"></textarea>
