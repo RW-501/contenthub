@@ -181,7 +181,8 @@ async function loadAnalytics(uid) {
 const rawLinks = [
   { platform: "instagram", url: document.getElementById("editLink1").value.trim() },
   { platform: "tiktok", url: document.getElementById("editLink2").value.trim() },
-  { platform: "youtube", url: document.getElementById("editLink3").value.trim() }
+  { platform: "youtube", url: document.getElementById("editLink3").value.trim() },
+  { platform: "facebook", url: document.getElementById("editLink3").value.trim() }
 ];
 
 const links = rawLinks.filter(link => link.url !== "");
@@ -335,7 +336,7 @@ const statesAndCities = {
   document.getElementById("editName").value = userData.displayName || "";
   document.getElementById("editBio").value = userData.bio || "";
   document.getElementById("editNiche").value = userData.niche || "";
-  
+
 const linkMap = {};
 (userData.links || []).forEach(link => {
   linkMap[link.platform] = link.url;
@@ -344,6 +345,8 @@ const linkMap = {};
 document.getElementById("editLink1").value = linkMap.instagram || "";
 document.getElementById("editLink2").value = linkMap.tiktok || "";
 document.getElementById("editLink3").value = linkMap.youtube || "";
+document.getElementById("editLink4").value = linkMap.facebook || "";
+
 
 
   if (userData.photoURL) {

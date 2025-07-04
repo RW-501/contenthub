@@ -43,6 +43,70 @@
           <option value="writing">Writing</option>
           <option value="video">Video</option>
         </select>
+
+<select id="locationFilter" class="form-select">
+  <option value="">All Locations</option>
+  <option value="Alabama">Alabama</option>
+  <option value="Alaska">Alaska</option>
+  <option value="Arizona">Arizona</option>
+  <option value="Arkansas">Arkansas</option>
+  <option value="California">California</option>
+  <option value="Colorado">Colorado</option>
+  <option value="Connecticut">Connecticut</option>
+  <option value="Delaware">Delaware</option>
+  <option value="Florida">Florida</option>
+  <option value="Georgia">Georgia</option>
+  <option value="Hawaii">Hawaii</option>
+  <option value="Idaho">Idaho</option>
+  <option value="Illinois">Illinois</option>
+  <option value="Indiana">Indiana</option>
+  <option value="Iowa">Iowa</option>
+  <option value="Kansas">Kansas</option>
+  <option value="Kentucky">Kentucky</option>
+  <option value="Louisiana">Louisiana</option>
+  <option value="Maine">Maine</option>
+  <option value="Maryland">Maryland</option>
+  <option value="Massachusetts">Massachusetts</option>
+  <option value="Michigan">Michigan</option>
+  <option value="Minnesota">Minnesota</option>
+  <option value="Mississippi">Mississippi</option>
+  <option value="Missouri">Missouri</option>
+  <option value="Montana">Montana</option>
+  <option value="Nebraska">Nebraska</option>
+  <option value="Nevada">Nevada</option>
+  <option value="New Hampshire">New Hampshire</option>
+  <option value="New Jersey">New Jersey</option>
+  <option value="New Mexico">New Mexico</option>
+  <option value="New York">New York</option>
+  <option value="North Carolina">North Carolina</option>
+  <option value="North Dakota">North Dakota</option>
+  <option value="Ohio">Ohio</option>
+  <option value="Oklahoma">Oklahoma</option>
+  <option value="Oregon">Oregon</option>
+  <option value="Pennsylvania">Pennsylvania</option>
+  <option value="Rhode Island">Rhode Island</option>
+  <option value="South Carolina">South Carolina</option>
+  <option value="South Dakota">South Dakota</option>
+  <option value="Tennessee">Tennessee</option>
+  <option value="Texas">Texas</option>
+  <option value="Utah">Utah</option>
+  <option value="Vermont">Vermont</option>
+  <option value="Virginia">Virginia</option>
+  <option value="Washington">Washington</option>
+  <option value="West Virginia">West Virginia</option>
+  <option value="Wisconsin">Wisconsin</option>
+  <option value="Wyoming">Wyoming</option>
+</select>
+
+
+<select id="platformFilter" class="form-select">
+  <option value="">All Platforms</option>
+  <option value="instagram">Instagram</option>
+  <option value="tiktok">TikTok</option>
+  <option value="facebook">Facebook</option>
+  <option value="youtube">YouTube</option>
+</select>
+
       </div>
     </div>
 
@@ -85,8 +149,41 @@
     const creatorsGrid = document.getElementById("creatorsGrid");
     const searchInput = document.getElementById("searchInput");
     const nicheFilter = document.getElementById("nicheFilter");
+    const locationFilter = document.getElementById("locationFilter");
+    const platformFilter = document.getElementById("platformFilter");
+
 
     let creators = [];
+
+    function filterCreators() {
+  const search = searchInput.value.toLowerCase();
+  const niche = nicheFilter.value;
+  const location = locationFilter.value;
+  const platform = platformFilter.value;
+
+  const filtered = creators.filter(user => {
+    const nameMatch =
+      user.displayName?.toLowerCase().includes(search) ||
+      user.niche?.toLowerCase().includes(search);
+
+    const nicheMatch = niche ? user.niche?.toLowerCase() === niche : true;
+
+    const locationMatch = location
+      ? user.location?.state?.toLowerCase() === location.toLowerCase()
+      : true;
+
+    const platformMatch = platform
+      ? user.verifiedPlatforms?.[platform] === true
+      : true;
+
+    return nameMatch && nicheMatch && locationMatch && platformMatch;
+  });
+
+  renderCreators(filtered);
+}
+
+locationFilter.addEventListener("change", filterCreators);
+platformFilter.addEventListener("change", filterCreators);
 
     async function fetchCreators() {
       const snapshot = await getDocs(collection(db, "users"));
@@ -132,7 +229,7 @@ data.forEach(user => {
             ${user.displayName || 'Unnamed'} ${badge} ${platformIcons}
           </h6>
           <small class="text-muted d-block">${user.niche || 'Creator'}</small>
-          <small class="text-muted">${user.location || ''}</small>
+          <small class="text-muted">${user.location?.city || ''}${user.location?.city && user.location?.state ? ', ' : ''}${user.location?.state || ''}</small>
         </div>
       </div>
     </a>`;
