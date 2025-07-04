@@ -348,41 +348,59 @@ async function loadAnalytics(uid) {
   }
 
 
+const linkIds = [
+  "editLink1", "editLink2", "editLink3", "editLink4",
+  "editLink5", "editLink6", "editLink7", "editLink8", "editLink9"
+];
 
-  const nicheInput = document.getElementById("nicheInput");
-const tagWrapper = document.getElementById("nicheTagWrapper");
-let selectedNiches = [];
+const platforms = [
+  "instagram", "tiktok", "youtube", "facebook",
+  "twitch", "threads", "snapchat", "pinterest", "reddit"
+];
 
-nicheInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" || e.key === ",") {
-    e.preventDefault();
-    const value = nicheInput.value.trim();
-    if (value && !selectedNiches.includes(value)) {
-      selectedNiches.push(value);
-      addNicheTag(value);
-    }
-    nicheInput.value = "";
-  }
+linkIds.forEach((id, i) => {
+  const el = document.getElementById(id);
+  if (el) el.value = linkMap[platforms[i]] || "";
 });
 
-function addNicheTag(niche) {
-  const tag = document.createElement("span");
-  tag.className = "badge bg-primary me-1 mb-1 d-flex align-items-center";
-  tag.innerHTML = `
-    ${niche}
-    <button type="button" class="btn-close btn-close-white btn-sm ms-1" aria-label="Remove"></button>
-  `;
+document.addEventListener("DOMContentLoaded", () => {
+  const nicheInput = document.getElementById("nicheInput");
+  const tagWrapper = document.getElementById("nicheTagWrapper");
+  let selectedNiches = [];
 
-  tag.querySelector("button").onclick = () => {
-    selectedNiches = selectedNiches.filter(n => n !== niche);
-    tag.remove();
-  };
+  if (!nicheInput || !tagWrapper) return;
 
-  tagWrapper.insertBefore(tag, nicheInput);
-}
+  nicheInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const value = nicheInput.value.trim();
+      if (value && !selectedNiches.includes(value)) {
+        selectedNiches.push(value);
+        addNicheTag(value);
+      }
+      nicheInput.value = "";
+    }
+  });
 
-// Optional: expose selectedNiches for form submission
-//window.getSelectedNiches = () => selectedNiches;
+  function addNicheTag(niche) {
+    const tag = document.createElement("span");
+    tag.className = "badge bg-primary me-1 mb-1 d-flex align-items-center";
+    tag.innerHTML = `
+      ${niche}
+      <button type="button" class="btn-close btn-close-white btn-sm ms-1" aria-label="Remove"></button>
+    `;
+
+    tag.querySelector("button").onclick = () => {
+      selectedNiches = selectedNiches.filter(n => n !== niche);
+      tag.remove();
+    };
+
+    tagWrapper.insertBefore(tag, nicheInput);
+  }
+
+  // You can use this when saving
+  window.getSelectedNiches = () => selectedNiches;
+});
 
   // Save profile changes
   document.getElementById("editProfileForm").addEventListener("submit", async e => {
@@ -397,6 +415,7 @@ function addNicheTag(niche) {
   city: citySelect.value
 };
 
+const selectedNiches = window.getSelectedNiches ? window.getSelectedNiches() : [];
 
 
 const rawLinks = [ 
@@ -680,4 +699,8 @@ document.getElementById("editLink9").value = linkMap.reddit || "";
 }
 
   // Optional: hook into modal show event
-  document.getElementById("editModal").addEventListener("shown.bs.modal", populateEditProfileModal);
+const modalEl = document.getElementById("editModal");
+
+modalEl.addEventListener('shown.bs.modal', () => {
+  populateEditProfileModal(); // Your function that sets input values
+});
