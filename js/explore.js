@@ -1,4 +1,9 @@
-
+import {
+  getAuth, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const postGrid = document.getElementById("postGrid");
 const suggestedCreatorsDiv = document.getElementById("suggestedCreators");
