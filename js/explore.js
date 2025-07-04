@@ -27,8 +27,10 @@ let currentUser = null;
 // Auth check
 onAuthStateChanged(auth, user => {
   if (!user) {
-    location.href = "/pages/login.html";
-  } else {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+
+  }  else {
     currentUser = user;
     loadSuggestedCreators();
     loadPosts();
