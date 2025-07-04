@@ -155,35 +155,7 @@
 
     let creators = [];
 
-    function filterCreators() {
-  const search = searchInput.value.toLowerCase();
-  const niche = nicheFilter.value;
-  const location = locationFilter.value;
-  const platform = platformFilter.value;
 
-  const filtered = creators.filter(user => {
-    const nameMatch =
-      user.displayName?.toLowerCase().includes(search) ||
-      user.niche?.toLowerCase().includes(search);
-
-    const nicheMatch = niche ? user.niche?.toLowerCase() === niche : true;
-
-    const locationMatch = location
-      ? user.location?.state?.toLowerCase() === location.toLowerCase()
-      : true;
-
-    const platformMatch = platform
-      ? user.verifiedPlatforms?.[platform] === true
-      : true;
-
-    return nameMatch && nicheMatch && locationMatch && platformMatch;
-  });
-
-  renderCreators(filtered);
-}
-
-locationFilter.addEventListener("change", filterCreators);
-platformFilter.addEventListener("change", filterCreators);
 
     async function fetchCreators() {
       const snapshot = await getDocs(collection(db, "users"));
@@ -238,19 +210,35 @@ data.forEach(user => {
 
     }
 
-    function filterCreators() {
-      const search = searchInput.value.toLowerCase();
-      const niche = nicheFilter.value;
-      const filtered = creators.filter(user => {
-        const nameMatch = user.name?.toLowerCase().includes(search);
-        const nicheMatch = niche ? user.niche?.toLowerCase() === niche : true;
-        return nameMatch && nicheMatch;
-      });
-      renderCreators(filtered);
-    }
+function filterCreators() {
+  const search = searchInput.value.toLowerCase();
+  const niche = nicheFilter.value.toLowerCase();
+  const location = locationFilter.value.toLowerCase();
+  const platform = platformFilter.value.toLowerCase();
 
-    searchInput.addEventListener("input", filterCreators);
-    nicheFilter.addEventListener("change", filterCreators);
+  const filtered = creators.filter(user => {
+    const name = user.displayName?.toLowerCase() || "";
+    const userNiche = user.niche?.toLowerCase() || "";
+    const state = user.location?.state?.toLowerCase() || "";
+    const verified = user.verifiedPlatforms || {};
+
+    const matchesSearch =
+      name.includes(search) || userNiche.includes(search);
+
+    const matchesNiche = !niche || userNiche === niche;
+    const matchesLocation = !location || state === location;
+    const matchesPlatform = !platform || verified[platform] === true;
+
+    return matchesSearch && matchesNiche && matchesLocation && matchesPlatform;
+  });
+
+  renderCreators(filtered);
+}
+
+searchInput.addEventListener("input", filterCreators);
+nicheFilter.addEventListener("change", filterCreators);
+locationFilter.addEventListener("change", filterCreators);
+platformFilter.addEventListener("change", filterCreators);
 
     fetchCreators();
   </script>
