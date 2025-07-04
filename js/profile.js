@@ -392,7 +392,7 @@ const links = rawLinks.filter(link => link.url !== "");
   autoClose: 3000
 });
 
-    window.reload();
+   // window.reload();
   });
 
   // Load existing data into modal (call this when modal is opened)
