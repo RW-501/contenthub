@@ -362,7 +362,7 @@ const rawLinks = [
   { platform: "instagram", url: document.getElementById("editLink1").value.trim() },
   { platform: "tiktok", url: document.getElementById("editLink2").value.trim() },
   { platform: "youtube", url: document.getElementById("editLink3").value.trim() },
-  { platform: "facebook", url: document.getElementById("editLink3").value.trim() }
+  { platform: "facebook", url: document.getElementById("editLink4").value.trim() }
 ];
 
 const links = rawLinks.filter(link => link.url !== "");
