@@ -215,27 +215,50 @@ display: block;
 
 <style>
   #reusableModal .modal-content {
-  border-radius: 10px;
-  box-shadow: 0 0 30px rgba(0,0,0,0.2);
-}
+    border-radius: 12px;
+    background-color: #1f1f1f;
+    color: #f1f1f1;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    text-align: center;
+  }
 
+  #reusableModal .modal-header,
+  #reusableModal .modal-footer {
+    border: none;
+    background-color: transparent;
+    justify-content: center;
+  }
+
+  #reusableModal .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+
+  #reusableModal .modal-body {
+    padding: 1.5rem;
+    font-size: 1rem;
+    color: #ddd;
+  }
+
+  #reusableModal .btn-close {
+    filter: invert(1);
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+  }
 </style>
 
 <!-- Reusable Modal -->
 <div class="modal fade" id="reusableModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 id="reusableModalTitle" class="modal-title">Title</h5>
+      <div class="modal-header border-0">
+        <h5 id="reusableModalTitle" class="modal-title w-100">Title</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div id="reusableModalBody" class="modal-body">Message</div>
-      <div id="reusableModalFooter" class="modal-footer d-flex justify-content-end"></div>
+      <div id="reusableModalFooter" class="modal-footer border-0 d-flex justify-content-center"></div>
     </div>
   </div>
 </div>
 
-<script>
-
-
-</script>
