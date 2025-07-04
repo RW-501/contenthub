@@ -31,6 +31,12 @@ body {
   padding: 0;
 }
 
+.modal{
+      background-color: var(--bg-dark);
+          color: #636376;
+
+}
+
 #main {
     color: #636376;
 
