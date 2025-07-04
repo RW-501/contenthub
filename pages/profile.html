@@ -181,13 +181,15 @@ async function loadCollabModal() {
     const text = await res.text();
     const template = document.createElement('div');
     template.innerHTML = text;
-
     document.body.appendChild(template);
 
+  window.addEventListener('DOMContentLoaded', () => {
     const script = document.createElement('script');
     script.type = 'module';
     script.src = 'https://rw-501.github.io/contenthub/includes/collabRequestModal.js';
     document.body.appendChild(script);
+  });
+
   } catch (err) {
     console.error("Failed to load collab modal:", err);
   }
