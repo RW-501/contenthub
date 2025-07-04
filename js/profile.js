@@ -26,33 +26,31 @@ onAuthStateChanged(auth, async user => {
   currentUser = user;
 
   // Check if viewing someone else's profile via URL ?uid=xxxx
-  const params = new URLSearchParams(location.search);
-  viewingUserId = params.get('uid') || currentUser.uid;
+  // Extract UID from URL or fallback to current user
+const params = new URLSearchParams(location.search);
+viewingUserId = params.get('uid') || currentUser.uid;
 
-  const userDoc = await getDoc(doc(db, "users", viewingUserId));
-  const data = userDoc.data();
-  document.getElementById("displayName").innerText = data.displayName || 'Unnamed';
+const userDoc = await getDoc(doc(db, "users", viewingUserId));
+const data = userDoc.data();
+document.getElementById("displayName").innerText = data.displayName || 'Unnamed';
 
-      // Set collab button
-    const collabBtn = document.getElementById("collabBtn");
-    collabBtn.classList.remove("d-none");
-
+// Set collab button
+const collabBtn = document.getElementById("collabBtn");
+collabBtn.classList.remove("d-none");
 collabBtn.onclick = () => {
-document.getElementById("collabBtn").dataset.viewingUserId = viewingUserId;
+  document.getElementById("collabBtn").dataset.viewingUserId = viewingUserId;
 };
 
-
-  document.getElementById("bioText").innerText = data.bio || '';
-  document.getElementById("locationText").innerText = 
+document.getElementById("bioText").innerText = data.bio || '';
+document.getElementById("locationText").innerText = 
   data.location?.city && data.location?.state
     ? `${data.location.city}, ${data.location.state}`
     : '';
-
-  document.getElementById("niche").innerText = data.niche || '';
-  document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';
+document.getElementById("niche").innerText = data.niche || '';
+document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';
 
 const socialContainer = document.getElementById("socialLinks");
-socialContainer.innerHTML = ""; // Clear old content
+socialContainer.innerHTML = "";
 
 if (Array.isArray(data.links)) {
   const platformIcons = {
@@ -79,17 +77,141 @@ if (Array.isArray(data.links)) {
   });
 }
 
+if (viewingUserId !== currentUser.uid) {
+  const followBtn = document.getElementById("followBtn");
+  followBtn.style.display = "inline-block";
 
+  if ((data.followers || []).includes(currentUser.uid)) {
+    followBtn.innerText = "Unfollow";
+    followBtn.onclick = () => unfollowUser(viewingUserId);
+  } else {
+    followBtn.innerText = "Follow";
+    followBtn.onclick = () => followUser(viewingUserId);
+  }
+}
 
-  if (viewingUserId !== currentUser.uid) {
-    document.getElementById("followBtn").style.display = "inline-block";
-    // TODO: check if already followed and update text
+loadUserPosts(viewingUserId);
+loadUserCollabs(viewingUserId);
+loadFollowingList(data);
+loadFollowersList(data);
+loadAnalytics(viewingUserId);
+
+const userCache = {};
+
+async function getUserFromCache(uid) {
+  if (!userCache[uid]) {
+    const docSnap = await getDoc(doc(db, "users", uid));
+    userCache[uid] = docSnap.data();
+  }
+  return userCache[uid];
+}
+
+async function loadFollowingList(data) {
+  const list = document.getElementById("followingList");
+  list.innerHTML = `<small class="text-muted">${data.following?.length || 0} Following</small>`;
+
+  if (!data.following || data.following.length === 0) {
+    list.innerHTML += "<li class='list-group-item text-muted'>Not following anyone yet.</li>";
+    return;
   }
 
-  loadUserPosts(viewingUserId);
-  loadUserCollabs(viewingUserId);
-  loadAnalytics(viewingUserId);
-});
+  let start = 0;
+  const limit = 10;
+
+  const renderNext = async () => {
+    const slice = data.following.slice(start, start + limit);
+    const userDocs = await Promise.all(slice.map(uid => getUserFromCache(uid)));
+
+    userDocs.forEach(u => {
+      const li = document.createElement("li");
+      li.className = "list-group-item d-flex align-items-center";
+      li.innerHTML = `
+        <img src="${u.photoURL || '/assets/default-avatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+        <strong>${u.displayName || "Unnamed"}</strong> - <small class="text-muted ms-2">${u.niche || ''}</small>
+      `;
+      list.appendChild(li);
+    });
+
+    start += limit;
+
+    if (start < data.following.length) {
+      const loadMoreBtn = document.createElement("button");
+      loadMoreBtn.className = "btn btn-link w-100 mt-2";
+      loadMoreBtn.textContent = "Load more";
+      loadMoreBtn.onclick = () => {
+        loadMoreBtn.remove();
+        renderNext();
+      };
+      list.appendChild(loadMoreBtn);
+    }
+  };
+
+  renderNext();
+}
+
+async function loadFollowersList(data) {
+  const list = document.getElementById("followersList");
+  list.innerHTML = `<small class="text-muted">${data.followers?.length || 0} Followers</small>`;
+
+  if (!data.followers || data.followers.length === 0) {
+    list.innerHTML += "<li class='list-group-item text-muted'>No followers yet.</li>";
+    return;
+  }
+
+  let start = 0;
+  const limit = 10;
+
+  const renderNext = async () => {
+    const slice = data.followers.slice(start, start + limit);
+    const userDocs = await Promise.all(slice.map(uid => getUserFromCache(uid)));
+
+    userDocs.forEach(u => {
+      const li = document.createElement("li");
+      li.className = "list-group-item d-flex align-items-center";
+      li.innerHTML = `
+        <img src="${u.photoURL || '/assets/default-avatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+        <strong>${u.displayName || "Unnamed"}</strong> - <small class="text-muted ms-2">${u.niche || ''}</small>
+      `;
+      list.appendChild(li);
+    });
+
+    start += limit;
+
+    if (start < data.followers.length) {
+      const loadMoreBtn = document.createElement("button");
+      loadMoreBtn.className = "btn btn-link w-100 mt-2";
+      loadMoreBtn.textContent = "Load more";
+      loadMoreBtn.onclick = () => {
+        loadMoreBtn.remove();
+        renderNext();
+      };
+      list.appendChild(loadMoreBtn);
+    }
+  };
+
+  renderNext();
+}
+
+// Unfollow user
+async function unfollowUser(uid) {
+  const userRef = doc(db, "users", currentUser.uid);
+  await updateDoc(userRef, {
+    following: arrayRemove(uid)
+  });
+  showModal({ title: "Success!", message: "Unfollowed!", autoClose: 3000 });
+  location.reload();
+}
+
+// Follow user
+async function followUser(uid) {
+  const userRef = doc(db, "users", currentUser.uid);
+  await updateDoc(userRef, {
+    following: arrayUnion(uid)
+  });
+  showModal({ title: "Success!", message: "Followed!", autoClose: 3000 });
+  location.reload();
+}
+
 
 // Load Posts
 async function loadUserPosts(uid) {

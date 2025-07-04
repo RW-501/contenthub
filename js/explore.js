@@ -168,18 +168,24 @@ async function loadSuggestedCreators() {
 
 // Follow user
 window.followUser = async (uid) => {
-  if (!currentUser) return alert("Login required");
-  const userRef = doc(db, "users", currentUser.uid);
+  if (!currentUser) return showModal({ title: "Login Required", message: "Please log in to follow users." });
+
+  const userRef = doc(db, "users", currentUser.uid); // Current user
+  const targetRef = doc(db, "users", uid); // Profile being viewed
+
   await updateDoc(userRef, {
     following: arrayUnion(uid)
   });
 
+  await updateDoc(targetRef, {
+    followers: arrayUnion(currentUser.uid)
+  });
+
   showModal({
-  title: "Success!",
-  message: "Followed!",
-  autoClose: 3000
-});
-//  alert("Followed!");
+    title: "Followed!",
+    message: "You are now following this creator.",
+    autoClose: 3000
+  });
 };
 
 filterSelect.addEventListener("change", () => loadPosts(true));
