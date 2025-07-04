@@ -175,18 +175,29 @@
 
 
 <script>
-    async function loadCollabModal() {
+async function loadCollabModal() {
+  try {
     const res = await fetch('https://rw-501.github.io/contenthub/includes/collabRequestModal.html');
     const text = await res.text();
     const template = document.createElement('div');
     template.innerHTML = text;
-    document.body.appendChild(template.querySelector('template').content.cloneNode(true));
+
+    const tmpl = template.querySelector('template');
+    if (!tmpl) {
+      console.error("No <template> tag found in collabRequestModal.html");
+      return;
+    }
+
+    document.body.appendChild(tmpl.content.cloneNode(true));
 
     const script = document.createElement('script');
     script.type = 'module';
-    script.src = 'https://rw-501.github.io/contenthub/includes/collabRequestModal.js'; // put the logic part here
+    script.src = 'https://rw-501.github.io/contenthub/includes/collabRequestModal.js';
     document.body.appendChild(script);
+  } catch (err) {
+    console.error("Failed to load collab modal:", err);
   }
+}
 
   // Call this when you know it might be used
   loadCollabModal();
