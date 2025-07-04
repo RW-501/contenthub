@@ -25,3 +25,25 @@ const db = getFirestore(app); // ✅ This is what you need
 export { app, auth, db,   getAuth,
   onAuthStateChanged,
   signOut  };
+
+function insertBootstrapCSS() {
+  if (!document.querySelector('link[href*="bootstrap.min.css"]')) {
+    const link = document.createElement("link");
+    link.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css";
+    link.rel = "stylesheet";
+    document.head.appendChild(link);
+  }
+}
+
+// Call this early in your script
+//  insertBootstrapCSS();
+
+  function insertBootstrapIcons() {
+  const link = document.createElement("link");
+  link.href = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css";
+  link.rel = "stylesheet";
+  document.head.appendChild(link);
+}
+
+// Call it early in your script
+insertBootstrapIcons();

@@ -43,6 +43,11 @@ document.getElementById("collabBtn").dataset.viewingUserId = viewingUserId;
 
 
   document.getElementById("bioText").innerText = data.bio || '';
+  document.getElementById("locationText").innerText = 
+  data.location?.city && data.location?.state
+    ? `${data.location.city}, ${data.location.state}`
+    : '';
+
   document.getElementById("niche").innerText = data.niche || '';
   document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';
 
