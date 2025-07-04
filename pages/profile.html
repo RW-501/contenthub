@@ -164,19 +164,44 @@
   </div>
 </div>
 
-        <!-- Niche (Auto-Suggest Tags) -->
-        <input list="nicheList" class="form-control mb-2" id="editNiche" placeholder="Your Niche (e.g. Music, Fashion)" />
-        <datalist id="nicheList">
-          <option value="Music">
-          <option value="Gaming">
-          <option value="Fashion">
-          <option value="Fitness">
-          <option value="Comedy">
-          <option value="Lifestyle">
-          <option value="Tutorials">
-          <option value="Vlogging">
-          <option value="Tech">
-        </datalist>
+     <!-- Multi-Niche Selector -->
+<label for="nicheTags">Select Your Niches</label>
+<div id="nicheTagWrapper" class="form-control d-flex flex-wrap align-items-center" style="min-height: 46px;">
+  <input type="text" id="nicheInput" class="border-0 flex-grow-1" placeholder="Type and press Enter…" list="nicheList" />
+</div>
+
+<datalist id="nicheList">
+  <option value="Music">
+  <option value="Gaming">
+  <option value="Fashion">
+  <option value="Fitness">
+  <option value="Comedy">
+  <option value="Lifestyle">
+  <option value="Tutorials">
+  <option value="Vlogging">
+  <option value="Tech">
+  <option value="Beauty">
+  <option value="Education">
+  <option value="Food & Cooking">
+  <option value="Travel">
+  <option value="Motivation">
+  <option value="Health & Wellness">
+  <option value="DIY & Crafts">
+  <option value="Finance & Investing">
+  <option value="Parenting">
+  <option value="Photography">
+  <option value="Pets & Animals">
+  <option value="Art & Design">
+  <option value="Product Reviews">
+  <option value="Unboxing">
+  <option value="ASMR">
+  <option value="Skits & Acting">
+  <option value="Memes">
+  <option value="Spirituality">
+  <option value="Cars & Motorsports">
+  <option value="Real Estate">
+  <option value="Book Reviews">
+</datalist>
 
         <style>
           .accordion-button i {

@@ -347,6 +347,43 @@ async function loadAnalytics(uid) {
     // You'd actually write this to a Firestore collection like `tickets`
   }
 
+
+
+  const nicheInput = document.getElementById("nicheInput");
+const tagWrapper = document.getElementById("nicheTagWrapper");
+let selectedNiches = [];
+
+nicheInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === ",") {
+    e.preventDefault();
+    const value = nicheInput.value.trim();
+    if (value && !selectedNiches.includes(value)) {
+      selectedNiches.push(value);
+      addNicheTag(value);
+    }
+    nicheInput.value = "";
+  }
+});
+
+function addNicheTag(niche) {
+  const tag = document.createElement("span");
+  tag.className = "badge bg-primary me-1 mb-1 d-flex align-items-center";
+  tag.innerHTML = `
+    ${niche}
+    <button type="button" class="btn-close btn-close-white btn-sm ms-1" aria-label="Remove"></button>
+  `;
+
+  tag.querySelector("button").onclick = () => {
+    selectedNiches = selectedNiches.filter(n => n !== niche);
+    tag.remove();
+  };
+
+  tagWrapper.insertBefore(tag, nicheInput);
+}
+
+// Optional: expose selectedNiches for form submission
+//window.getSelectedNiches = () => selectedNiches;
+
   // Save profile changes
   document.getElementById("editProfileForm").addEventListener("submit", async e => {
     e.preventDefault();
@@ -361,7 +398,6 @@ async function loadAnalytics(uid) {
 };
 
 
-    const niche = document.getElementById("editNiche").value.trim();
 
 const rawLinks = [ 
   { platform: "instagram", url: document.getElementById("editLink1").value.trim() },
@@ -380,7 +416,7 @@ const links = rawLinks.filter(link => link.url !== "");
 
     const file = document.getElementById("editPhoto").files[0];
     const userRef = doc(db, "users", currentUser.uid);
-    const updates = { bio, niche, links, location };
+    const updates = { bio, selectedNiches, links, location };
 
     if (!document.getElementById("editName").disabled) {
       updates.displayName = name;
