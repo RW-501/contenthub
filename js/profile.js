@@ -25,6 +25,7 @@ onAuthStateChanged(auth, async user => {
   
   currentUser = user;
 
+
   // Check if viewing someone else's profile via URL ?uid=xxxx
   // Extract UID from URL or fallback to current user
 const params = new URLSearchParams(location.search);
@@ -95,6 +96,8 @@ loadUserCollabs(viewingUserId);
 loadFollowingList(data);
 loadFollowersList(data);
 loadAnalytics(viewingUserId);
+
+});
 
 const userCache = {};
 
