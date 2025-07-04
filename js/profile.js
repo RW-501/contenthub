@@ -66,8 +66,8 @@ if (Array.isArray(data.links)) {
   };
 
   data.links.forEach(linkObj => {
-    const { type, url } = linkObj;
-    const icon = platformIcons[type?.toLowerCase()] || platformIcons.other;
+    const { platform, url } = linkObj;
+    const icon = platformIcons[platform?.toLowerCase()] || platformIcons.other;
 
     const a = document.createElement("a");
     a.href = url.trim();
@@ -78,6 +78,7 @@ if (Array.isArray(data.links)) {
     socialContainer.appendChild(a);
   });
 }
+
 
 
   if (viewingUserId !== currentUser.uid) {
