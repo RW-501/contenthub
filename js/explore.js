@@ -9,6 +9,7 @@ import {
   collection,
   query,
   where,
+  arrayUnion, 
   getDocs,
   orderBy,   // ✅ add this
   limit      // ✅ and this
