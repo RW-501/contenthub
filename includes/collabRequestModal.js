@@ -58,7 +58,6 @@ form.addEventListener("submit", async (e) => {
   });
 
     form.reset();
-  //  document.getElementById("collabModalOverlay").style.display = "none";
 
     const modalEl = document.getElementById("collabModalOverlay");
 const modal = new bootstrap.Modal(modalEl);
@@ -71,6 +70,7 @@ modal.hide();
   autoClose: 3000
 });
 
+modalEl.style.display = "none";
 
 
 });
