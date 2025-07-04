@@ -157,7 +157,7 @@ async function loadSuggestedCreators() {
     div.innerHTML = `
       <img src="${u.photoURL || '/assets/default-avatar.png'}" alt="avatar" class="creator-avatar" />
       <div>
-        <a href="/pages/profile.html?uid=${docSnap.id}">${u.displayName || 'Unknown'}</a><br/>
+        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${docSnap.id}">${u.displayName || 'Unknown'}</a><br/>
         <small>${u.niche || ''}</small>
       </div>
       <button class="btn btn-sm btn-outline-primary ms-auto" onclick="followUser('${docSnap.id}')">Follow</button>
