@@ -392,7 +392,7 @@ const links = rawLinks.filter(link => link.url !== "");
   autoClose: 3000
 });
 
-   // window.reload();
+    document.getElementById("editModal").style.display = "none";
   });
 
   // Load existing data into modal (call this when modal is opened)
