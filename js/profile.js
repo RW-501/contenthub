@@ -32,6 +32,10 @@ onAuthStateChanged(auth, async user => {
   const userDoc = await getDoc(doc(db, "users", viewingUserId));
   const data = userDoc.data();
   document.getElementById("displayName").innerText = data.displayName || 'Unnamed';
+
+  window.setCollabTarget = function(uid) {
+  toUid = uid;
+};
       // Set collab button
     const collabBtn = document.getElementById("collabBtn");
     collabBtn.classList.remove("d-none");
