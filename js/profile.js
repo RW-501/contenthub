@@ -54,15 +54,21 @@ const socialContainer = document.getElementById("socialLinks");
 socialContainer.innerHTML = "";
 
 if (Array.isArray(data.links)) {
-  const platformIcons = {
-    instagram: "bi bi-instagram",
-    tiktok: "bi bi-tiktok",
-    youtube: "bi bi-youtube",
-    facebook: "bi bi-facebook",
-    twitter: "bi bi-twitter",
-    linkedin: "bi bi-linkedin",
-    other: "bi bi-link-45deg"
-  };
+const platformIcons = {
+  instagram: "bi bi-instagram",
+  tiktok: "bi bi-tiktok",
+  youtube: "bi bi-youtube",
+  facebook: "bi bi-facebook",
+  twitter: "bi bi-twitter",
+  linkedin: "bi bi-linkedin",
+  twitch: "bi bi-twitch",
+  threads: "bi bi-threads",
+  snapchat: "bi bi-snapchat",
+  pinterest: "bi bi-pinterest",
+  reddit: "bi bi-reddit",
+  other: "bi bi-link-45deg"
+};
+
 
   data.links.forEach(linkObj => {
     const { platform, url } = linkObj;
@@ -358,12 +364,17 @@ async function loadAnalytics(uid) {
 
     const niche = document.getElementById("editNiche").value.trim();
 
-const rawLinks = [
+const rawLinks = [ 
   { platform: "instagram", url: document.getElementById("editLink1").value.trim() },
   { platform: "tiktok", url: document.getElementById("editLink2").value.trim() },
   { platform: "youtube", url: document.getElementById("editLink3").value.trim() },
-  { platform: "facebook", url: document.getElementById("editLink4").value.trim() }
-];
+  { platform: "facebook", url: document.getElementById("editLink4").value.trim() },
+  { platform: "twitch", url: document.getElementById("editLink5").value.trim() },
+  { platform: "threads", url: document.getElementById("editLink6").value.trim() },
+  { platform: "snapchat", url: document.getElementById("editLink7").value.trim() },
+  { platform: "pinterest", url: document.getElementById("editLink8").value.trim() },
+  { platform: "reddit", url: document.getElementById("editLink9").value.trim() }
+].filter(link => link.url !== "");
 
 const links = rawLinks.filter(link => link.url !== "");
 
