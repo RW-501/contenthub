@@ -120,6 +120,29 @@
         <!-- Bio -->
         <textarea class="form-control mb-2" id="editBio" placeholder="Short Bio (max 160 chars)" maxlength="160"></textarea>
 
+        <!-- 📍 Location Section -->
+<div class="mb-3">
+  <label class="form-label">Location</label>
+  <div class="d-flex flex-column gap-2">
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="detectLocationBtn">
+      Use My Location
+    </button>
+
+    <div class="d-flex gap-2">
+      <select class="form-select" id="stateSelect" required>
+        <option value="">Select State</option>
+        <!-- dynamically populated -->
+      </select>
+      <select class="form-select" id="citySelect" required>
+        <option value="">Select City</option>
+        <!-- dynamically populated -->
+      </select>
+    </div>
+
+    <small class="text-muted" id="locationStatus"></small>
+  </div>
+</div>
+
         <!-- Niche (Auto-Suggest Tags) -->
         <input list="nicheList" class="form-control mb-2" id="editNiche" placeholder="Your Niche (e.g. Music, Fashion)" />
         <datalist id="nicheList">

@@ -168,6 +168,14 @@ async function loadAnalytics(uid) {
 
     const name = document.getElementById("editName").value.trim();
     const bio = document.getElementById("editBio").value.trim();
+    const stateSelect = document.getElementById("stateSelect");
+    const citySelect = document.getElementById("citySelect");
+    const location = {
+  state: stateSelect.value,
+  city: citySelect.value
+};
+
+
     const niche = document.getElementById("editNiche").value.trim();
     const links = [
       document.getElementById("editLink1").value.trim(),
@@ -177,7 +185,7 @@ async function loadAnalytics(uid) {
 
     const file = document.getElementById("editPhoto").files[0];
     const userRef = doc(db, "users", currentUser.uid);
-    const updates = { bio, niche, links };
+    const updates = { bio, niche, links, location };
 
     if (!document.getElementById("editName").disabled) {
       updates.displayName = name;
@@ -205,25 +213,147 @@ async function loadAnalytics(uid) {
 
   // Load existing data into modal (call this when modal is opened)
   async function populateEditProfileModal() {
-    const userSnap = await getDoc(doc(db, "users", currentUser.uid));
-    const userData = userSnap.data();
+  const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+  const userData = userSnap.data();
 
-    document.getElementById("editName").value = userData.displayName || "";
-    document.getElementById("editBio").value = userData.bio || "";
-    document.getElementById("editNiche").value = userData.niche || "";
-    const [link1, link2, link3] = userData.links || [];
-    document.getElementById("editLink1").value = link1 || "";
-    document.getElementById("editLink2").value = link2 || "";
-    document.getElementById("editLink3").value = link3 || "";
+  // Initialize location dropdowns
+const statesAndCities = {
+  "Alabama": ["Birmingham", "Montgomery", "Mobile", "Huntsville"],
+  "Alaska": ["Anchorage", "Juneau", "Fairbanks"],
+  "Arizona": ["Phoenix", "Tucson", "Mesa", "Scottsdale"],
+  "Arkansas": ["Little Rock", "Fayetteville", "Fort Smith", "Springdale"],
+  "California": ["Los Angeles", "San Diego", "San Francisco", "San Jose", "Sacramento"],
+  "Colorado": ["Denver", "Colorado Springs", "Aurora", "Boulder"],
+  "Connecticut": ["Bridgeport", "New Haven", "Hartford", "Stamford"],
+  "Delaware": ["Wilmington", "Dover", "Newark"],
+  "Florida": ["Miami", "Orlando", "Tampa", "Jacksonville"],
+  "Georgia": ["Atlanta", "Savannah", "Augusta", "Columbus"],
+  "Hawaii": ["Honolulu", "Hilo", "Kailua"],
+  "Idaho": ["Boise", "Idaho Falls", "Meridian"],
+  "Illinois": ["Chicago", "Springfield", "Naperville", "Peoria"],
+  "Indiana": ["Indianapolis", "Fort Wayne", "Evansville", "South Bend"],
+  "Iowa": ["Des Moines", "Cedar Rapids", "Davenport"],
+  "Kansas": ["Wichita", "Topeka", "Overland Park"],
+  "Kentucky": ["Louisville", "Lexington", "Bowling Green"],
+  "Louisiana": ["New Orleans", "Baton Rouge", "Shreveport", "Lafayette"],
+  "Maine": ["Portland", "Augusta", "Bangor"],
+  "Maryland": ["Baltimore", "Annapolis", "Silver Spring"],
+  "Massachusetts": ["Boston", "Worcester", "Springfield", "Cambridge"],
+  "Michigan": ["Detroit", "Grand Rapids", "Ann Arbor", "Lansing"],
+  "Minnesota": ["Minneapolis", "Saint Paul", "Duluth"],
+  "Mississippi": ["Jackson", "Gulfport", "Hattiesburg"],
+  "Missouri": ["Kansas City", "St. Louis", "Springfield", "Columbia"],
+  "Montana": ["Billings", "Missoula", "Bozeman"],
+  "Nebraska": ["Omaha", "Lincoln", "Bellevue"],
+  "Nevada": ["Las Vegas", "Reno", "Henderson", "Carson City"],
+  "New Hampshire": ["Manchester", "Nashua", "Concord"],
+  "New Jersey": ["Newark", "Jersey City", "Paterson", "Trenton"],
+  "New Mexico": ["Albuquerque", "Santa Fe", "Las Cruces"],
+  "New York": ["New York City", "Buffalo", "Rochester", "Albany", "Syracuse"],
+  "North Carolina": ["Charlotte", "Raleigh", "Durham", "Greensboro"],
+  "North Dakota": ["Fargo", "Bismarck", "Grand Forks"],
+  "Ohio": ["Columbus", "Cleveland", "Cincinnati", "Toledo"],
+  "Oklahoma": ["Oklahoma City", "Tulsa", "Norman"],
+  "Oregon": ["Portland", "Eugene", "Salem", "Beaverton"],
+  "Pennsylvania": ["Philadelphia", "Pittsburgh", "Allentown", "Harrisburg"],
+  "Rhode Island": ["Providence", "Warwick", "Cranston"],
+  "South Carolina": ["Columbia", "Charleston", "Greenville"],
+  "South Dakota": ["Sioux Falls", "Rapid City", "Pierre"],
+  "Tennessee": ["Nashville", "Memphis", "Knoxville", "Chattanooga"],
+  "Texas": ["Dallas", "Houston", "Austin", "San Antonio", "Fort Worth"],
+  "Utah": ["Salt Lake City", "Provo", "Ogden", "St. George"],
+  "Vermont": ["Burlington", "Montpelier", "Rutland"],
+  "Virginia": ["Virginia Beach", "Richmond", "Norfolk", "Arlington"],
+  "Washington": ["Seattle", "Spokane", "Tacoma", "Bellevue"],
+  "West Virginia": ["Charleston", "Huntington", "Morgantown"],
+  "Wisconsin": ["Milwaukee", "Madison", "Green Bay", "Kenosha"],
+  "Wyoming": ["Cheyenne", "Casper", "Laramie"]
+};
 
-    if (userData.photoURL) {
-      const preview = document.getElementById("photoPreview");
-      preview.src = userData.photoURL;
-      preview.classList.remove("d-none");
+  const stateSelect = document.getElementById("stateSelect");
+  const citySelect = document.getElementById("citySelect");
+  const locationStatus = document.getElementById("locationStatus");
+
+  Object.keys(statesAndCities).forEach(state => {
+    const option = document.createElement("option");
+    option.value = state;
+    option.textContent = state;
+    stateSelect.appendChild(option);
+  });
+
+  stateSelect.addEventListener("change", () => {
+    const state = stateSelect.value;
+    citySelect.innerHTML = `<option value="">Select City</option>`;
+    if (statesAndCities[state]) {
+      statesAndCities[state].forEach(city => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
     }
+  });
 
-    checkNameChangeEligibility(userData);
+  document.getElementById("detectLocationBtn").addEventListener("click", () => {
+    locationStatus.textContent = "Detecting location...";
+    navigator.geolocation.getCurrentPosition(async position => {
+      const { latitude, longitude } = position.coords;
+
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+        const data = await res.json();
+        const city = data.address.city || data.address.town || data.address.village || "";
+        const state = data.address.state || "";
+
+        if (state && city) {
+          stateSelect.value = state;
+          stateSelect.dispatchEvent(new Event("change"));
+
+          setTimeout(() => {
+            citySelect.value = city;
+          }, 100);
+
+          locationStatus.textContent = `Detected: ${city}, ${state}`;
+        } else {
+          locationStatus.textContent = "Could not auto-detect city/state.";
+        }
+      } catch (err) {
+        console.error(err);
+        locationStatus.textContent = "Error retrieving location.";
+      }
+    }, err => {
+      console.warn(err);
+      locationStatus.textContent = "Location permission denied.";
+    });
+  });
+
+  // Fill other profile fields
+  document.getElementById("editName").value = userData.displayName || "";
+  document.getElementById("editBio").value = userData.bio || "";
+  document.getElementById("editNiche").value = userData.niche || "";
+  const [link1, link2, link3] = userData.links || [];
+  document.getElementById("editLink1").value = link1 || "";
+  document.getElementById("editLink2").value = link2 || "";
+  document.getElementById("editLink3").value = link3 || "";
+
+  if (userData.photoURL) {
+    const preview = document.getElementById("photoPreview");
+    preview.src = userData.photoURL;
+    preview.classList.remove("d-none");
   }
+
+  // ✅ Set location if already stored
+  if (userData.location) {
+    stateSelect.value = userData.location.state || "";
+    stateSelect.dispatchEvent(new Event("change"));
+
+    setTimeout(() => {
+      citySelect.value = userData.location.city || "";
+    }, 100);
+  }
+
+  checkNameChangeEligibility(userData);
+}
 
   // Optional: hook into modal show event
   document.getElementById("editModal").addEventListener("shown.bs.modal", populateEditProfileModal);
