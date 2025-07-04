@@ -4,8 +4,7 @@
 
     /* ========== TOOLBAR STYLES ========== */
 
-#main-navbar {
-.navbar {
+#main-navbar.navbar {
   background-color: var(--bg-dark);
   border-bottom: 1px solid var(--border);
   z-index: 1000;
@@ -26,16 +25,16 @@
   border-color: var(--border);
 }
 
-.navbar-nav .nav-link {
+#main-navbar.navbar .nav-link {
   color: var(--text-muted);
   font-weight: 500;
   transition: color 0.3s ease, border-bottom 0.3s ease;
   padding: 8px 12px;
 }
-.navbar-nav .nav-link:hover {
+#main-navbar.navbar .nav-link:hover {
   color: var(--accent);
 }
-.navbar-nav .nav-link.active {
+#main-navbar.navbar .nav-link.active {
   color: var(--accent);
   border-bottom: 2px solid var(--accent);
 }
@@ -68,7 +67,7 @@
   color: #000;
 }
 
-}
+
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
@@ -162,7 +161,7 @@ display: block;
 <button id="signupBtn" class="btn btn-sm btn-outline-light">Sign Up / Log In</button>
 
       <div id="userAvatar" class="dropdown d-none">
-        <a href="#" class="d-flex align-items-center text-light dropdown-toggle" data-bs-toggle="dropdown">
+<a href="#" class="d-flex align-items-center text-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
           <img id="avatarImg" src="/assets/default-avatar.png" alt="User" class="rounded-circle" width="32" height="32"/>
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
