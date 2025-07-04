@@ -46,17 +46,34 @@ document.getElementById("collabBtn").dataset.viewingUserId = viewingUserId;
   document.getElementById("niche").innerText = data.niche || '';
   document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';
 
-  const socialContainer = document.getElementById("socialLinks");
-  if (data.links) {
-    data.links.split(",").forEach(link => {
-      const a = document.createElement("a");
-      a.href = link.trim();
-      a.target = "_blank";
-      a.className = "btn btn-sm btn-outline-secondary me-1";
-      a.innerText = "🔗";
-      socialContainer.appendChild(a);
-    });
-  }
+const socialContainer = document.getElementById("socialLinks");
+socialContainer.innerHTML = ""; // Clear old content
+
+if (Array.isArray(data.links)) {
+  const platformIcons = {
+    instagram: "bi bi-instagram",
+    tiktok: "bi bi-tiktok",
+    youtube: "bi bi-youtube",
+    facebook: "bi bi-facebook",
+    twitter: "bi bi-twitter",
+    linkedin: "bi bi-linkedin",
+    other: "bi bi-link-45deg"
+  };
+
+  data.links.forEach(linkObj => {
+    const { type, url } = linkObj;
+    const icon = platformIcons[type?.toLowerCase()] || platformIcons.other;
+
+    const a = document.createElement("a");
+    a.href = url.trim();
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "btn btn-sm btn-outline-secondary me-1";
+    a.innerHTML = `<i class="${icon}"></i>`;
+    socialContainer.appendChild(a);
+  });
+}
+
 
   if (viewingUserId !== currentUser.uid) {
     document.getElementById("followBtn").style.display = "inline-block";
