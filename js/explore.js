@@ -173,7 +173,13 @@ window.followUser = async (uid) => {
   await updateDoc(userRef, {
     following: arrayUnion(uid)
   });
-  alert("Followed!");
+
+  showModal({
+  title: "Success!",
+  message: "Followed!",
+  autoClose: 3000
+});
+//  alert("Followed!");
 };
 
 filterSelect.addEventListener("change", () => loadPosts(true));
