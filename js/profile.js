@@ -478,38 +478,55 @@ const statesAndCities = {
     }
   });
 
-  document.getElementById("detectLocationBtn").addEventListener("click", () => {
-    locationStatus.textContent = "Detecting location...";
-    navigator.geolocation.getCurrentPosition(async position => {
-      const { latitude, longitude } = position.coords;
+document.getElementById("detectLocationBtn").addEventListener("click", () => {
+  locationStatus.textContent = "Detecting location...";
+  navigator.geolocation.getCurrentPosition(async position => {
+    const { latitude, longitude } = position.coords;
 
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
-        const data = await res.json();
-        const city = data.address.city || data.address.town || data.address.village || "";
-        const state = data.address.state || "";
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+      const data = await res.json();
+      const city = data.address.city || data.address.town || data.address.village || "";
+      const state = data.address.state || "";
 
-        if (state && city) {
-          stateSelect.value = state;
-          stateSelect.dispatchEvent(new Event("change"));
+      if (state && city) {
+        stateSelect.value = state;
+        stateSelect.dispatchEvent(new Event("change")); // Populate cities
 
-          setTimeout(() => {
+        // Wait for city options to load
+        setTimeout(() => {
+          let found = false;
+          [...citySelect.options].forEach(option => {
+            if (option.value.toLowerCase() === city.toLowerCase()) {
+              citySelect.value = option.value;
+              found = true;
+            }
+          });
+
+          // If city wasn't in dropdown, add it manually
+          if (!found) {
+            const opt = document.createElement("option");
+            opt.value = city;
+            opt.textContent = city;
+            citySelect.appendChild(opt);
             citySelect.value = city;
-          }, 100);
+          }
 
           locationStatus.textContent = `Detected: ${city}, ${state}`;
-        } else {
-          locationStatus.textContent = "Could not auto-detect city/state.";
-        }
-      } catch (err) {
-        console.error(err);
-        locationStatus.textContent = "Error retrieving location.";
+        }, 200);
+      } else {
+        locationStatus.textContent = "Could not auto-detect city/state.";
       }
-    }, err => {
-      console.warn(err);
-      locationStatus.textContent = "Location permission denied.";
-    });
+    } catch (err) {
+      console.error(err);
+      locationStatus.textContent = "Error retrieving location.";
+    }
+  }, err => {
+    console.warn(err);
+    locationStatus.textContent = "Location permission denied.";
   });
+});
+
 
   // Fill other profile fields
   document.getElementById("editName").value = userData.displayName || "";
