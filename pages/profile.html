@@ -216,7 +216,7 @@ async function loadCollabModal() {
     const text = await res.text();
     const template = document.createElement('div');
     template.innerHTML = text;
-    document.body.appendChild(template);
+    document.main.appendChild(template);
 
   window.addEventListener('DOMContentLoaded', () => {
     const script = document.createElement('script');
