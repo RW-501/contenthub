@@ -559,10 +559,10 @@ document.getElementById("editLink4").value = linkMap.facebook || "";
     setTimeout(() => {
                 if (userData.location.city) {
             const opt = document.createElement("option");
-            opt.value = city;
-            opt.textContent = city;
+            opt.value = userData.location.city;
+            opt.textContent = userData.location.city;
             citySelect.appendChild(opt);
-            citySelect.value = city;
+            citySelect.value = userData.location.city;
           }
       citySelect.value = userData.location.city || "";
     }, 100);
