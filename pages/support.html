@@ -111,8 +111,10 @@
     if (userSnap.exists()) {
       currentUserData = userSnap.data();
     } else {
-      alert("User data not found.");
-      return;
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    
+    return;
     }
   });
 
