@@ -177,11 +177,15 @@ async function loadAnalytics(uid) {
 
 
     const niche = document.getElementById("editNiche").value.trim();
-    const links = [
-      document.getElementById("editLink1").value.trim(),
-      document.getElementById("editLink2").value.trim(),
-      document.getElementById("editLink3").value.trim(),
-    ].filter(link => link !== "");
+
+const rawLinks = [
+  { platform: "instagram", url: document.getElementById("editLink1").value.trim() },
+  { platform: "tiktok", url: document.getElementById("editLink2").value.trim() },
+  { platform: "youtube", url: document.getElementById("editLink3").value.trim() }
+];
+
+const links = rawLinks.filter(link => link.url !== "");
+
 
     const file = document.getElementById("editPhoto").files[0];
     const userRef = doc(db, "users", currentUser.uid);
@@ -331,10 +335,16 @@ const statesAndCities = {
   document.getElementById("editName").value = userData.displayName || "";
   document.getElementById("editBio").value = userData.bio || "";
   document.getElementById("editNiche").value = userData.niche || "";
-  const [link1, link2, link3] = userData.links || [];
-  document.getElementById("editLink1").value = link1 || "";
-  document.getElementById("editLink2").value = link2 || "";
-  document.getElementById("editLink3").value = link3 || "";
+  
+const linkMap = {};
+(userData.links || []).forEach(link => {
+  linkMap[link.platform] = link.url;
+});
+
+document.getElementById("editLink1").value = linkMap.instagram || "";
+document.getElementById("editLink2").value = linkMap.tiktok || "";
+document.getElementById("editLink3").value = linkMap.youtube || "";
+
 
   if (userData.photoURL) {
     const preview = document.getElementById("photoPreview");
