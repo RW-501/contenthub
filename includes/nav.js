@@ -110,8 +110,10 @@ loadAuthScript();
   }
 
   const modalEl = document.getElementById("reusableModal");
-  const bsModal = new bootstrap.Modal(modalEl);
-  bsModal.show();
+let bsModal = bootstrap.Modal.getInstance(modalEl);
+if (!bsModal) bsModal = new bootstrap.Modal(modalEl);
+bsModal.show();
+
 
   if (autoClose) {
     setTimeout(() => {
