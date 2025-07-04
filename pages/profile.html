@@ -182,12 +182,15 @@
     template.innerHTML = text;
     document.body.appendChild(template.querySelector('template').content.cloneNode(true));
 
+import('https://rw-501.github.io/contenthub/includes/collabRequestModal.js')
+  .then(() => console.log('Collab Request Modal Loaded'))
+  .catch(console.error);
+
   }
 
   // Call this when you know it might be used
   loadCollabModal();
 </script>
-
 
 </body>
 </html>
