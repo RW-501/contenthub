@@ -2,12 +2,15 @@
 
 
 const form = document.getElementById("collabRequestForm");
+
 let toUid = null; // Set this to the profile user ID dynamically before opening the modal
 
 // Optional: expose this setter globally
-window.setCollabTarget = function(uid) {
+function setCollabTarget(uid) {
   toUid = uid;
 };
+
+window.setCollabTarget = setCollabTarget;
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
