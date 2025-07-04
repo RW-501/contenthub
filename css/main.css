@@ -32,7 +32,7 @@ body {
 }
 
 .modal-content{
-  color: var(--text-light);
+  color: var(--text-dark);
 }
 
 #main {
