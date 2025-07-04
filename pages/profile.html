@@ -182,13 +182,7 @@ async function loadCollabModal() {
     const template = document.createElement('div');
     template.innerHTML = text;
 
-    const tmpl = template.querySelector('template');
-    if (!tmpl) {
-      console.error("No <template> tag found in collabRequestModal.html");
-      return;
-    }
-
-    document.body.appendChild(tmpl.content.cloneNode(true));
+    document.body.appendChild(template);
 
     const script = document.createElement('script');
     script.type = 'module';
