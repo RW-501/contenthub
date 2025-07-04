@@ -192,7 +192,14 @@ async function loadAnalytics(uid) {
     }
 
     await updateDoc(userRef, updates);
-    alert("Profile updated!");
+
+    showModal({
+  title: "Success!",
+  message: "Profile updated!",
+  autoClose: 3000
+});
+
+   // alert("Profile updated!");
     location.reload();
   });
 

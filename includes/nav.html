@@ -211,3 +211,109 @@ display: block;
     </div>
   </div>
 </div>
+
+
+<style>
+  #reusableModal .modal-content {
+  border-radius: 10px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.2);
+}
+
+</style>
+
+<!-- Reusable Modal -->
+<div class="modal fade" id="reusableModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="reusableModalTitle" class="modal-title">Title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div id="reusableModalBody" class="modal-body">Message</div>
+      <div id="reusableModalFooter" class="modal-footer d-flex justify-content-end"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  window.showModal = function({
+  title = "Notice",
+  message = "",
+  confirmText = null,
+  cancelText = null,
+  onConfirm = null,
+  onCancel = null,
+  autoClose = null // in ms
+}) {
+  const titleEl = document.getElementById("reusableModalTitle");
+  const bodyEl = document.getElementById("reusableModalBody");
+  const footerEl = document.getElementById("reusableModalFooter");
+
+  titleEl.textContent = title;
+  bodyEl.innerHTML = message;
+  footerEl.innerHTML = ""; // Reset buttons
+
+  if (cancelText) {
+    const cancelBtn = document.createElement("button");
+    cancelBtn.className = "btn btn-secondary";
+    cancelBtn.textContent = cancelText;
+    cancelBtn.onclick = () => {
+      if (onCancel) onCancel();
+      bootstrap.Modal.getInstance(modalEl).hide();
+    };
+    footerEl.appendChild(cancelBtn);
+  }
+
+  if (confirmText) {
+    const confirmBtn = document.createElement("button");
+    confirmBtn.className = "btn btn-primary";
+    confirmBtn.textContent = confirmText;
+    confirmBtn.onclick = () => {
+      if (onConfirm) onConfirm();
+      bootstrap.Modal.getInstance(modalEl).hide();
+    };
+    footerEl.appendChild(confirmBtn);
+  }
+
+  const modalEl = document.getElementById("reusableModal");
+  const bsModal = new bootstrap.Modal(modalEl);
+  bsModal.show();
+
+  if (autoClose) {
+    setTimeout(() => {
+      bsModal.hide();
+    }, autoClose);
+  }
+};
+
+/*
+showModal({
+  title: "Success!",
+  message: "Your post was submitted.",
+  autoClose: 3000
+});
+
+showModal({
+  title: "Delete Post?",
+  message: "Are you sure you want to delete this post? This cannot be undone.",
+  confirmText: "Delete",
+  cancelText: "Cancel",
+  onConfirm: () => {
+    // handle delete
+  }
+});
+
+showModal({
+  title: "Verification Required",
+  message: "<p>Please verify your email before continuing.</p>",
+  confirmText: "Resend Email",
+  cancelText: "Close",
+  onConfirm: () => resendVerificationEmail()
+});
+
+
+*/
+
+
+</script>
