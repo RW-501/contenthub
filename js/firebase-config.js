@@ -1,7 +1,10 @@
 // firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";import { getFirestore } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyALJLxSJthWI2tnQZ-WnK1DDQNEelUCr7s",
@@ -18,4 +21,6 @@ const auth = getAuth(app);
 const db = getFirestore(app); // ✅ This is what you need
 
 // Export what you want to use in other files
-export { app, auth, db  };
+export { app, auth, db,   getAuth,
+  onAuthStateChanged,
+  signOut  };
