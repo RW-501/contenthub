@@ -128,6 +128,15 @@
         <input type="text" class="form-control mb-2" id="editName" placeholder="Display Name" disabled />
         <small id="nameChangeNote" class="text-muted mb-2 d-block"></small>
 
+        
+        <!-- Profile Picture Upload -->
+        <div class="mb-3 text-center">
+          <img id="photoPreview" src="#" alt="Profile Preview" class="rounded-circle mb-2 d-none" style="width: 100px; height: 100px; object-fit: cover;">
+          <br />
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('editPhoto').click()">Change Profile Picture</button>
+          <input type="file" accept="image/*" id="editPhoto" hidden />
+        </div>
+        
         <!-- Bio -->
         <textarea class="form-control mb-2" id="editBio" placeholder="Short Bio (max 160 chars)" maxlength="160"></textarea>
 
@@ -176,13 +185,6 @@
           <input type="url" class="form-control" id="editLink4" placeholder="https://facebook.com/..." />
         </div>
 
-        <!-- Profile Picture Upload -->
-        <div class="mb-3 text-center">
-          <img id="photoPreview" src="#" alt="Profile Preview" class="rounded-circle mb-2 d-none" style="width: 100px; height: 100px; object-fit: cover;">
-          <br />
-          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('editPhoto').click()">Change Profile Picture</button>
-          <input type="file" accept="image/*" id="editPhoto" hidden />
-        </div>
 
         <!-- Verify Profile Button -->
         <button type="button" class="btn btn-outline-primary w-100 mb-2" id="verifyProfileBtn">Request Verification</button>
