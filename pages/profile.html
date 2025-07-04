@@ -196,6 +196,43 @@
 </div>
 
 
+<!-- Collab Request Modal -->
+<div class="modal fade" id="collabRequestModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" id="collabRequestForm">
+      <div class="modal-header">
+        <h5 class="modal-title">Request Collaboration</h5>
+        <button id="cancelModalBtn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Message / Pitch *</label>
+          <textarea class="form-control" id="collabMessage" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Project Title</label>
+          <input type="text" class="form-control" id="collabTitle">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Project Description</label>
+          <textarea class="form-control" id="collabDesc" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Attach Preview (optional)</label>
+          <input type="file" class="form-control" id="collabMedia" accept="image/*,video/*">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Or Media URL</label>
+          <input type="url" class="form-control" id="collabUrl" placeholder="https://...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary w-100">Send Request</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 
   </main>
 
@@ -216,7 +253,7 @@ async function loadCollabModal() {
     const text = await res.text();
     const template = document.createElement('div');
     template.innerHTML = text;
-    document.main.appendChild(template);
+   // document.body.appendChild(template);
 
   window.addEventListener('DOMContentLoaded', () => {
     const script = document.createElement('script');
