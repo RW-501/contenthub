@@ -38,7 +38,7 @@ onAuthStateChanged(auth, async user => {
 // Logout
 document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await signOut(auth);
-  location.href = "/";
+  location.href = "https://rw-501.github.io/contenthub/";
 });
 
 
