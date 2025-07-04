@@ -114,7 +114,12 @@ async function loadFollowingList(data) {
   list.innerHTML = `<small class="text-muted">${data.following?.length || 0} Following</small>`;
 
   if (!data.following || data.following.length === 0) {
-    list.innerHTML += "<li class='list-group-item text-muted'>Not following anyone yet.</li>";
+    list.innerHTML += `<li class='list-group-item text-muted'>Not following anyone yet.       
+     <br>
+        <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
+          🤝 Follow some creators 
+        </a>
+      </li>`;
     return;
   }
 
@@ -222,16 +227,29 @@ async function loadUserPosts(uid) {
   const q = query(collection(db, "posts"), where("owner", "==", uid));
   const snapshot = await getDocs(q);
   postGrid.innerHTML = "";
+
+  if (snapshot.empty) {
+    postGrid.innerHTML = `
+      <div class="col-12 text-center text-muted mt-3">
+        <p>No posts yet.</p>
+        <a href="https://rw-501.github.io/contenthub/pages/post.html" class="btn btn-primary btn-sm">
+          🚀 Create your first post
+        </a>
+      </div>`;
+    return;
+  }
+
   snapshot.forEach(docSnap => {
     const post = docSnap.data();
     const col = document.createElement("div");
     col.className = "col-sm-6 col-md-4";
     col.innerHTML = post.type === 'video'
-      ? `<video src="${post.mediaUrl}" controls></video>`
-      : `<img src="${post.mediaUrl}" alt="Post" />`;
+      ? `<video src="${post.mediaUrl}" controls class="w-100 rounded shadow-sm"></video>`
+      : `<img src="${post.mediaUrl}" alt="Post" class="img-fluid rounded shadow-sm" />`;
     postGrid.appendChild(col);
   });
 }
+
 
 // Load Collabs
 async function loadUserCollabs(uid) {
@@ -239,6 +257,19 @@ async function loadUserCollabs(uid) {
   const q = query(collection(db, "collabs"), where("participants", "array-contains", uid));
   const snapshot = await getDocs(q);
   list.innerHTML = "";
+
+  if (snapshot.empty) {
+    list.innerHTML = `
+      <li class="list-group-item text-muted text-center">
+        No collaborations yet.
+        <br>
+        <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
+          🤝 Find creators to collaborate with
+        </a>
+      </li>`;
+    return;
+  }
+
   snapshot.forEach(docSnap => {
     const item = document.createElement("li");
     item.className = "list-group-item";
@@ -246,6 +277,7 @@ async function loadUserCollabs(uid) {
     list.appendChild(item);
   });
 }
+
 
 // Load Analytics
 async function loadAnalytics(uid) {
