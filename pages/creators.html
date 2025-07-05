@@ -407,6 +407,8 @@ function filterCreators() {
     return acc;
   }, {});
 
+  let visibleCount = 0;
+
   document.querySelectorAll("#creatorsGrid > div").forEach(card => {
     const name = card.dataset.name;
     const niche = card.dataset.niche;
@@ -419,18 +421,27 @@ function filterCreators() {
     const matchesLocation = !locationFilter.value || location === locationFilter.value.toLowerCase();
 
     const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
+
     card.style.display = visible ? "block" : "none";
-
-  updateActiveFilters(); 
-
-    if (card.length === 0) {
-    creatorsGrid.innerHTML = '<p class="text-center text-muted small text-light">No creators found.</p>';
-    return;
-  }
+    if (visible) visibleCount++;
   });
 
+  updateActiveFilters();
 
+  // Show message if no cards are visible
+  const noResults = document.getElementById("noResultsMessage");
+  if (!noResults) {
+    const msg = document.createElement("p");
+    msg.id = "noResultsMessage";
+    msg.className = "text-center text-muted small mt-4";
+    msg.textContent = "No creators match your filters.";
+    creatorsGrid.appendChild(msg);
+  }
+
+  // Toggle message visibility
+  document.getElementById("noResultsMessage").style.display = visibleCount === 0 ? "block" : "none";
 }
+
 
 searchInput.addEventListener("input", filterCreators);
 nicheFilter.addEventListener("change", filterCreators);
