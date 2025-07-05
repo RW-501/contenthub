@@ -42,9 +42,9 @@ collabBtn.onclick = () => {
   document.getElementById("collabBtn").dataset.viewingUserId = viewingUserId;
 };
 
-document.getElementById("usernameText").textContent = userData.username || "";
-document.getElementById("pronounsText").innerHTML = userData.pronouns ? `<i class="bi bi-person"></i> ${userData.pronouns}` : "";
-document.getElementById("availabilityText").innerHTML = userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : "";
+document.getElementById("usernameText").textContent = data.username || "";
+document.getElementById("pronounsText").innerHTML = data.pronouns ? `<i class="bi bi-person"></i> ${data.pronouns}` : "";
+document.getElementById("availabilityText").innerHTML = data.availability ? `<i class="bi bi-clock-history"></i> ${data.availability}` : "";
 
 
 document.getElementById("bioText").innerText = data.bio || '';
