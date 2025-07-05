@@ -48,14 +48,23 @@ document.getElementById("availabilityText").innerHTML = data.availability ? `<i 
 
 
 document.getElementById("bioText").innerText = data.bio || '';
-document.getElementById("locationText").innerText = 
-  data.location?.city && data.location?.state
-    ? `${data.location.city}, ${data.location.state}`
-    : '';
+document.getElementById("locationText").innerText =
+  data.location?.city && data.location?.state && data.location?.country
+    ? `${data.location.city}, ${data.location.state}, ${data.location.country}`
+    : data.location?.state && data.location?.country
+      ? `${data.location.state}, ${data.location.country}`
+      : data.location?.country || '';
 
 
-document.getElementById("contentTypeText").innerText = data.contentTypes || '';
-document.getElementById("nicheText").innerText = data.niche || '';
+
+document.getElementById("contentTypeText").innerText = Array.isArray(data.contentTypes)
+  ? data.contentTypes.join(", ")
+  : '';
+
+document.getElementById("nicheText").innerText = Array.isArray(data.niches)
+  ? data.niches.join(", ")
+  : '';
+
 document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';
 
 const socialContainer = document.getElementById("socialLinks");
@@ -452,7 +461,7 @@ if (username && !username.startsWith("@")) {
     const countrySelect = document.getElementById("countrySelect");
     const stateSelect = document.getElementById("stateSelect");
     const citySelect = document.getElementById("citySelect");
-    const location = {
+    const userLocation = {
   state: countrySelect.value,
   state: stateSelect.value,
   city: citySelect.value
@@ -478,7 +487,7 @@ const links = rawLinks.filter(link => link.url !== "");
 
     const file = document.getElementById("editPhoto").files[0];
     const userRef = doc(db, "users", currentUser.uid);
-    const updates = { bio, contentTypes, niches, links, location, username, pronouns, availability };
+    const updates = { bio, contentTypes, niches, links, userLocation, username, pronouns, availability };
 
     if (!document.getElementById("editUsername").disabled) {
       updates.displayName = username;
@@ -507,6 +516,8 @@ modal.hide();
 });
 
 modalEl.style.display = "none";
+location.reload();
+
 
   });
 
