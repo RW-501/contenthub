@@ -400,44 +400,40 @@ contentTypeInput.addEventListener("keydown", (e) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+const selectedNiches = new Set();
+
   const nicheInput = document.getElementById("nicheInput");
-  const tagWrapper = document.getElementById("nicheTagWrapper");
+  const nicheTagWrapper = document.getElementById("nicheTagWrapper");
 
-  let selectedNiches = [];
-
-  if (!nicheInput || !tagWrapper) return;
 
   nicheInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      const value = nicheInput.value.trim();
-      if (value && !selectedNiches.includes(value)) {
-        selectedNiches.push(value);
-        addNicheTag(value);
-      }
+  if (e.key === "Enter" && nicheInput.value.trim() !== "") {
+    e.preventDefault();
+    const value = nicheInput.value.trim();
+    if (!selectedNiches.has(value)) {
+      selectedNiches.add(value);
+      const tag = document.createElement("span");
+      tag.className = "badge bg-secondary me-2 mb-1";
+      tag.textContent = value;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn-close btn-close-white btn-sm ms-2";
+      removeBtn.style.fontSize = "0.6rem";
+      removeBtn.onclick = () => {
+        selectedNiches.delete(value);
+        nicheTagWrapper.removeChild(tagWrapper);
+      };
+
+      const tagWrapper = document.createElement("div");
+      tagWrapper.className = "d-flex align-items-center bg-dark text-white rounded px-2 py-1 me-2 mb-1";
+      tagWrapper.appendChild(tag);
+      tagWrapper.appendChild(removeBtn);
+
+      nicheTagWrapper.insertBefore(tagWrapper, nicheInput);
       nicheInput.value = "";
     }
-  });
-
-  function addNicheTag(niche) {
-    const tag = document.createElement("span");
-    tag.className = "badge bg-primary me-1 mb-1 d-flex align-items-center";
-    tag.innerHTML = `
-      ${niche}
-      <button type="button" class="btn-close btn-close-white btn-sm ms-1" aria-label="Remove"></button>
-    `;
-
-    tag.querySelector("button").onclick = () => {
-      selectedNiches = selectedNiches.filter(n => n !== niche);
-      tag.remove();
-    };
-
-    tagWrapper.insertBefore(tag, nicheInput);
   }
-
-  // You can use this when saving
-  window.getSelectedNiches = () => selectedNiches;
 });
 
   // Save profile changes
@@ -462,8 +458,8 @@ if (username && !username.startsWith("@")) {
   city: citySelect.value
 };
 
-const selectedNiches = window.getSelectedNiches ? window.getSelectedNiches() : [];
 const contentTypes = Array.from(selectedContentTypes);
+const niches = Array.from(selectedNiches);
 
 const rawLinks = [ 
   { platform: "instagram", url: document.getElementById("editLink1").value.trim() },
@@ -482,7 +478,7 @@ const links = rawLinks.filter(link => link.url !== "");
 
     const file = document.getElementById("editPhoto").files[0];
     const userRef = doc(db, "users", currentUser.uid);
-    const updates = { bio, contentTypes, selectedNiches, links, location, username, pronouns, availability };
+    const updates = { bio, contentTypes, niches, links, location, username, pronouns, availability };
 
     if (!document.getElementById("editUsername").disabled) {
       updates.displayName = username;
