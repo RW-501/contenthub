@@ -549,7 +549,6 @@ const socialPlatforms = {
   reddit: "https://reddit.com/u/"
 };
 
-document.addEventListener("DOMContentLoaded", () => {
   const verifyBtn = document.getElementById("verifyProfileBtn");
   const editProfileBtn = document.getElementById("editProfileBtn");
   const linkValidity = {}; // Store validity per platform
@@ -625,7 +624,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   updateVerifyBtnState(); // Initial check
-});
+
 
 
 
