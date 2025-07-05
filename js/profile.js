@@ -668,6 +668,9 @@ const username = userData.username?.toLowerCase().replace(/^@/, "").replace(/\s/
     verifiedPlatforms: verifiedPlatforms
   });
 
+
+      updateVerifyBtnState();
+
   showModal({
     title: "Verification Requested",
     message: `
@@ -676,9 +679,6 @@ const username = userData.username?.toLowerCase().replace(/^@/, "").replace(/\s/
     `,
     autoClose: 4000
   });
-      updateVerifyBtnState();
-
-
 
 });
 
