@@ -392,8 +392,7 @@ function updateActiveFilters() {
     // If no filters, show fallback message
   if (filters.length === 0) {
     const noFilters = document.createElement("div");
-    noFilters.className = "text-muted small text-light fst-italic";
-    noFilters.textContent = "No filters applied";
+noFilters.innerHTML = `<i class="bi bi-funnel-fill me-1"></i>No filters applied`;
     filtersDiv.appendChild(noFilters);
     return;
   }
