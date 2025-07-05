@@ -40,6 +40,8 @@ const collabBtn = document.getElementById("collabBtn");
 collabBtn.classList.remove("d-none");
 collabBtn.onclick = () => {
   document.getElementById("collabBtn").dataset.viewingUserId = viewingUserId;
+  document.getElementById("collabBtn").dataset.username = data.username;
+  document.getElementById("collabBtn").dataset.displayName = data.displayName;
 };
 
 document.getElementById("usernameText").textContent = data.username || "";

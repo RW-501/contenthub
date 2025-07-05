@@ -83,6 +83,8 @@ form.addEventListener("submit", async (e) => {
   }
 
   const toUid = collabBtn.dataset.viewingUserId;
+  const username = collabBtn.dataset.username;
+  const displayName = collabBtn.dataset.displayName;
   const user = auth.currentUser;
   if (!user || !toUid || user.uid === toUid);// return;
 
@@ -141,6 +143,8 @@ form.addEventListener("submit", async (e) => {
   await addDoc(collection(db, "collabRequests"), {
     fromUid: user.uid,
     toUid,
+    username,
+    displayName,
     message,
     title,
     description,
