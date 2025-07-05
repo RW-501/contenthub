@@ -63,6 +63,16 @@
     
 <h2 id="displayName">Loading...</h2>
 
+<!-- Username -->
+<p id="usernameText" class="text-muted">@username</p>
+
+<!-- Pronouns -->
+<p id="pronounsText"><i class="bi bi-person"></i> They/Them</p>
+
+<!-- Availability -->
+<p id="availabilityText"><i class="bi bi-clock-history"></i> Available for Collabs</p>
+
+
 <!-- Collab Button (hidden until ready) -->
 <button id="collabBtn" class="btn btn-outline-primary d-none" data-viewing-user-id="" data-bs-toggle="modal" data-bs-target="#collabRequestModal">
   🤝 Request Collaboration
@@ -137,7 +147,26 @@
         <input type="text" class="form-control mb-2" id="editName" placeholder="Display Name" disabled />
         <small id="nameChangeNote" class="text-muted mb-2 d-block"></small>
 
-        
+        <!-- Username -->
+<input type="text" class="form-control mb-2" id="editUsername" placeholder="Username (e.g., @creator123)" />
+
+<!-- Pronouns -->
+<select class="form-select mb-2" id="editPronouns">
+  <option value="">Select Pronouns</option>
+  <option value="he/him">He/Him</option>
+  <option value="she/her">She/Her</option>
+  <option value="they/them">They/Them</option>
+  <option value="other">Other</option>
+</select>
+
+<!-- Availability -->
+<select class="form-select mb-3" id="editAvailability">
+  <option value="">Select Availability</option>
+  <option value="Available for Collabs">Available for Collabs</option>
+  <option value="Not Currently Available">Not Currently Available</option>
+  <option value="Open to Offers">Open to Offers</option>
+</select>
+
         <!-- Bio -->
         <textarea class="form-control mb-2" id="editBio" placeholder="Short Bio (max 160 chars)" maxlength="160"></textarea>
 

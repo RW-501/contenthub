@@ -33,7 +33,7 @@ viewingUserId = params.get('uid') || currentUser.uid;
 
 const userDoc = await getDoc(doc(db, "users", viewingUserId));
 const data = userDoc.data();
-document.getElementById("displayName").innerText = data.displayName || 'Unnamed';
+document.getElementById("displayName").innerText = data.displayName || 'Anonymous';
 
 // Set collab button
 const collabBtn = document.getElementById("collabBtn");
@@ -41,6 +41,11 @@ collabBtn.classList.remove("d-none");
 collabBtn.onclick = () => {
   document.getElementById("collabBtn").dataset.viewingUserId = viewingUserId;
 };
+
+document.getElementById("usernameText").textContent = userData.username || "";
+document.getElementById("pronounsText").innerHTML = userData.pronouns ? `<i class="bi bi-person"></i> ${userData.pronouns}` : "";
+document.getElementById("availabilityText").innerHTML = userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : "";
+
 
 document.getElementById("bioText").innerText = data.bio || '';
 document.getElementById("locationText").innerText = 
@@ -105,6 +110,7 @@ if (viewingUserId !== currentUser.uid) {
   }
 }
 
+checkNameChangeEligibility(data); 
 loadUserPosts(viewingUserId);
 loadUserCollabs(viewingUserId);
 loadFollowingList(data);
@@ -318,7 +324,7 @@ async function loadAnalytics(uid) {
     const diffDays = Math.floor((now - lastNameChange) / (1000 * 60 * 60 * 24));
 
     const canChange = diffDays >= 90;
-    const nameInput = document.getElementById("editName");
+    const nameInput = document.getElementById("usernameText");
     const note = document.getElementById("nameChangeNote");
 
     if (canChange) {
@@ -397,7 +403,14 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const name = document.getElementById("editName").value.trim();
+    let username = document.getElementById("editUsername").value.trim();
+if (username && !username.startsWith("@")) {
+  username = "@" + username;
+}
     const bio = document.getElementById("editBio").value.trim();
+    const pronouns = document.getElementById("editPronouns").value;
+    const availability = document.getElementById("editAvailability").value;
+
     const stateSelect = document.getElementById("stateSelect");
     const citySelect = document.getElementById("citySelect");
     const location = {
@@ -425,7 +438,7 @@ const links = rawLinks.filter(link => link.url !== "");
 
     const file = document.getElementById("editPhoto").files[0];
     const userRef = doc(db, "users", currentUser.uid);
-    const updates = { bio, selectedNiches, links, location };
+    const updates = { bio, selectedNiches, links, location, username, pronouns, availability };
 
     if (!document.getElementById("editName").disabled) {
       updates.displayName = name;
@@ -512,8 +525,8 @@ document.getElementById("verifyProfileBtn").addEventListener("click", async () =
   const userSnap = await getDoc(doc(db, "users", currentUser.uid));
   const userData = userSnap.data();
 
-  // Initialize location dropdownsconst 
-  countriesAndStates = {
+  // Initialize location dropdowns
+  const countriesAndStates = {
   "United States": {
     "Alabama": ["Birmingham", "Montgomery", "Mobile", "Huntsville"],
     "Alaska": ["Anchorage", "Juneau", "Fairbanks"],
@@ -602,6 +615,7 @@ const countrySelect = document.getElementById("countrySelect");
 const stateSelect = document.getElementById("stateSelect");
 const citySelect = document.getElementById("citySelect");
 const locationStatus = document.getElementById("locationStatus");
+
 
 // Populate countries dropdown
 Object.keys(countriesAndStates).forEach(country => {
@@ -731,6 +745,10 @@ document.getElementById("detectLocationBtn").addEventListener("click", () => {
   document.getElementById("editName").value = userData.displayName || "";
   document.getElementById("editBio").value = userData.bio || "";
   document.getElementById("editNiche").value = userData.niche || "";
+  document.getElementById("editUsername").value = userData.username || "";
+document.getElementById("editPronouns").value = userData.pronouns || "";
+document.getElementById("editAvailability").value = userData.availability || "";
+
 
   /*
 const linkMap = {};
