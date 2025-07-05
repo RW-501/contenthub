@@ -421,6 +421,7 @@ function filterCreators() {
     const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
     card.style.display = visible ? "block" : "none";
 
+  updateActiveFilters(); 
 
     if (card.length === 0) {
     creatorsGrid.innerHTML = '<p class="text-center text-muted small text-light">No creators found.</p>';
@@ -428,7 +429,6 @@ function filterCreators() {
   }
   });
 
-  updateActiveFilters(); // 👈 this line updates the pill tags
 
 }
 
