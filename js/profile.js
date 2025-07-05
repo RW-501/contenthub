@@ -528,7 +528,11 @@ modal.hide();
 });
 
 modalEl.style.display = "none";
-location.reload();
+
+// Optionally reload user profile UI after 2 seconds
+setTimeout(() => {
+ // location.reload();
+}, 2000);
 
 
   });
@@ -575,9 +579,12 @@ document.getElementById("verifyProfileBtn").addEventListener("click", async () =
     `,
     autoClose: 4000
   });
-
-  // Optionally reload user profile UI
+// Optionally reload user profile UI after 2 seconds
+setTimeout(() => {
   location.reload();
+}, 2000);
+
+
 });
 
 
