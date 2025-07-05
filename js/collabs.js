@@ -50,7 +50,8 @@ async function loadDashboard(uid) {
     const isIncoming = data.toUid === uid;
 
     if (isIncoming && data.status === "pending") categorized.incoming.push(renderRequest(doc.id, data, true));
-    else categorized.sent.push(renderRequest(doc.id, data, false));
+    else if(isIncoming && data.status === "declined") categorized.sent.push(renderRequest(doc.id, data, false));
+    else if(isIncoming && data.status === "accepted") categorized.sent.push(renderRequest(doc.id, data, true));
   }
 
   for (const doc of collaborations) {
