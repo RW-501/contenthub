@@ -330,7 +330,9 @@ async function loadAnalytics(uid) {
     const nameInput = document.getElementById("usernameText");
     const note = document.getElementById("nameChangeNote");
 
-    if (canChange) {
+    const nameInputValue = nameInput.value.length;
+
+    if (canChange || nameInputValue == 0) {
       nameInput.disabled = false;
       note.textContent = "You can update your display name.";
     } else {
@@ -451,9 +453,11 @@ if (username && !username.startsWith("@")) {
     const pronouns = document.getElementById("editPronouns").value;
     const availability = document.getElementById("editAvailability").value;
 
+    const countrySelect = document.getElementById("countrySelect");
     const stateSelect = document.getElementById("stateSelect");
     const citySelect = document.getElementById("citySelect");
     const location = {
+  state: countrySelect.value,
   state: stateSelect.value,
   city: citySelect.value
 };
