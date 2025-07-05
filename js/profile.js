@@ -56,14 +56,20 @@ document.getElementById("locationText").innerText =
       : data.userLocation?.country || '';
 
 
-
-document.getElementById("contentTypeText").innerText = Array.isArray(data.contentTypes)
-  ? data.contentTypes.join(", ")
+// Content Type Badges
+document.getElementById("contentTypeText").innerHTML = Array.isArray(data.contentTypes)
+  ? data.contentTypes.map(ct =>
+      `<span class="badge bg-secondary text-light me-1 mb-1 content-type-badge" data-content="${ct.toLowerCase()}">${ct}</span>`
+    ).join('')
   : '';
 
-document.getElementById("nicheText").innerText = Array.isArray(data.niches)
-  ? data.niches.join(", ")
+// Niche Badges
+document.getElementById("nicheText").innerHTML = Array.isArray(data.niches)
+  ? data.niches.map(n =>
+      `<span class="badge bg-light text-dark border me-1 mb-1 niche-badge" data-niche="${n.toLowerCase()}">${n}</span>`
+    ).join('')
   : '';
+
 
 document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';
 
