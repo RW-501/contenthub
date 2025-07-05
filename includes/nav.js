@@ -88,49 +88,70 @@ window.showModal = function({
   bodyEl.innerHTML = message;
   footerEl.innerHTML = ""; // Clear previous buttons
 
-  // Add Cancel button
-  if (cancelText) {
-    const cancelBtn = document.createElement("button");
-    cancelBtn.className = "btn btn-secondary";
-    cancelBtn.textContent = cancelText;
-    cancelBtn.addEventListener("click", () => {
-      if (onCancel) onCancel();
-      bootstrap.Modal.getInstance(modalEl)?.hide();
-    });
-    footerEl.appendChild(cancelBtn);
-  }
+// Cancel button
+if (cancelText) {
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "btn btn-secondary";
+  cancelBtn.textContent = cancelText;
+  cancelBtn.addEventListener("click", () => {
+    if (onCancel) onCancel();
 
-  // Add Confirm button
-  if (confirmText) {
-    const confirmBtn = document.createElement("button");
-    confirmBtn.className = "btn btn-primary";
-    confirmBtn.textContent = confirmText;
-    confirmBtn.addEventListener("click", () => {
-      if (onConfirm) onConfirm();
-      bootstrap.Modal.getInstance(modalEl)?.hide();
-    });
-    footerEl.appendChild(confirmBtn);
-  }
+    // Accessibility fix
+    modalEl.setAttribute("aria-hidden", "true");
 
-  // Show modal safely with Bootstrap
-  let bsModal = bootstrap.Modal.getInstance(modalEl);
-  if (!bsModal) bsModal = new bootstrap.Modal(modalEl);
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  });
+  footerEl.appendChild(cancelBtn);
+}
 
-  // Focus first focusable element inside modal after it is shown
-  modalEl.addEventListener("shown.bs.modal", () => {
-    const focusTarget = modalEl.querySelector("button, [tabindex]:not([tabindex='-1'])");
-    if (focusTarget) focusTarget.focus();
-  }, { once: true });
+// Confirm button
+if (confirmText) {
+  const confirmBtn = document.createElement("button");
+  confirmBtn.className = "btn btn-primary";
+  confirmBtn.textContent = confirmText;
+  confirmBtn.addEventListener("click", () => {
+    if (onConfirm) onConfirm();
 
-  // Show modal
-  bsModal.show();
+    // Accessibility fix
+    modalEl.setAttribute("aria-hidden", "true");
+
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  });
+  footerEl.appendChild(confirmBtn);
+}
+
+
+// Ensure modal is not hidden to assistive tech
+modalEl.setAttribute("aria-hidden", "false");
+
+let bsModal = bootstrap.Modal.getInstance(modalEl);
+if (!bsModal) bsModal = new bootstrap.Modal(modalEl);
+
+// Focus first focusable element after modal is shown
+modalEl.addEventListener("shown.bs.modal", () => {
+const focusTarget = modalEl.querySelector(
+  'button:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])'
+);
+  if (focusTarget) focusTarget.focus();
+}, { once: true });
+
+// Show the modal once
+bsModal.show();
+
 
   // Auto-close after timeout
-  if (autoClose) {
-    setTimeout(() => {
-      bsModal.hide();
-    }, autoClose);
-  }
+if (autoClose) {
+  setTimeout(() => {
+    if (document.activeElement && modalEl.contains(document.activeElement)) {
+      // Move focus to body or another safe element before hiding the modal
+      document.activeElement.blur();
+    }
+
+    modalEl.setAttribute("aria-hidden", "true");
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  }, autoClose);
+}
+
 };
 
 /*
