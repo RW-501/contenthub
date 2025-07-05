@@ -52,7 +52,10 @@ document.getElementById("locationText").innerText =
   data.location?.city && data.location?.state
     ? `${data.location.city}, ${data.location.state}`
     : '';
-document.getElementById("niche").innerText = data.niche || '';
+
+
+document.getElementById("contentTypeText").innerText = data.contentTypes || '';
+document.getElementById("nicheText").innerText = data.niche || '';
 document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';
 
 const socialContainer = document.getElementById("socialLinks");
@@ -358,6 +361,43 @@ async function loadAnalytics(uid) {
   }
 
 
+
+// Store selected content types
+const selectedContentTypes = new Set();
+
+const contentTypeInput = document.getElementById("contentTypeInput");
+const contentTypeWrapper = document.getElementById("contentTypeWrapper");
+
+contentTypeInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && contentTypeInput.value.trim() !== "") {
+    e.preventDefault();
+    const value = contentTypeInput.value.trim();
+    if (!selectedContentTypes.has(value)) {
+      selectedContentTypes.add(value);
+      const tag = document.createElement("span");
+      tag.className = "badge bg-secondary me-2 mb-1";
+      tag.textContent = value;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn-close btn-close-white btn-sm ms-2";
+      removeBtn.style.fontSize = "0.6rem";
+      removeBtn.onclick = () => {
+        selectedContentTypes.delete(value);
+        contentTypeWrapper.removeChild(tagWrapper);
+      };
+
+      const tagWrapper = document.createElement("div");
+      tagWrapper.className = "d-flex align-items-center bg-dark text-white rounded px-2 py-1 me-2 mb-1";
+      tagWrapper.appendChild(tag);
+      tagWrapper.appendChild(removeBtn);
+
+      contentTypeWrapper.insertBefore(tagWrapper, contentTypeInput);
+      contentTypeInput.value = "";
+    }
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   const nicheInput = document.getElementById("nicheInput");
   const tagWrapper = document.getElementById("nicheTagWrapper");
@@ -419,7 +459,7 @@ if (username && !username.startsWith("@")) {
 };
 
 const selectedNiches = window.getSelectedNiches ? window.getSelectedNiches() : [];
-
+const contentTypes = Array.from(selectedContentTypes);
 
 const rawLinks = [ 
   { platform: "instagram", url: document.getElementById("editLink1").value.trim() },
@@ -438,7 +478,7 @@ const links = rawLinks.filter(link => link.url !== "");
 
     const file = document.getElementById("editPhoto").files[0];
     const userRef = doc(db, "users", currentUser.uid);
-    const updates = { bio, selectedNiches, links, location, username, pronouns, availability };
+    const updates = { bio, selectedContentTypes, selectedNiches, links, location, username, pronouns, availability };
 
     if (!document.getElementById("editName").disabled) {
       updates.displayName = name;
@@ -741,10 +781,43 @@ document.getElementById("detectLocationBtn").addEventListener("click", () => {
   });
 });
 
+
+const contentTypeInput = document.getElementById("contentTypeInput");
+const nicheInput = document.getElementById("nicheInput");
+
+if (userData.contentTypes && Array.isArray(userData.contentTypes)) {
+  userData.contentTypes.forEach(type => {
+    const event = new KeyboardEvent("keydown", {
+      key: "Enter",
+      bubbles: true,
+    });
+    contentTypeInput.value = type;
+    contentTypeInput.dispatchEvent(event);
+  });
+}else{
+  contentTypeInput.value = userData.contentTypes || "";
+}
+
+if (userData.niche && Array.isArray(userData.niche)) {
+  userData.niche.forEach(type => {
+    const event = new KeyboardEvent("keydown", {
+      key: "Enter",
+      bubbles: true,
+    });
+    nicheInput.value = type;
+    nicheInput.dispatchEvent(event);
+  });
+}else{
+  nicheInput.value = userData.niche || "";
+}
+
   // Fill other profile fields
   document.getElementById("editName").value = userData.displayName || "";
   document.getElementById("editBio").value = userData.bio || "";
-  document.getElementById("editNiche").value = userData.niche || "";
+  /*
+  document.getElementById("contentTypeInput").value = userData.contentTypes || "";
+  document.getElementById("nicheInput").value = userData.niche || "";
+  */
   document.getElementById("editUsername").value = userData.username || "";
 document.getElementById("editPronouns").value = userData.pronouns || "";
 document.getElementById("editAvailability").value = userData.availability || "";
