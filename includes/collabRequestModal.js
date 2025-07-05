@@ -63,6 +63,7 @@ form.addEventListener("submit", async (e) => {
 const modal = new bootstrap.Modal(modalEl);
 modal.hide();
 
+modalEl.style.display = "none";
 
     showModal({
   title: "Sent!",
@@ -70,7 +71,6 @@ modal.hide();
   autoClose: 3000
 });
 
-modalEl.style.display = "none";
 
 
 });
