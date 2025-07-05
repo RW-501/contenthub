@@ -34,9 +34,9 @@
 
 <div class="container py-4">
 
-    <div class="d-flex flex-md-row justify-content-between  mb-4">
+    <div class="flex-md-row mb-4">
 
-      <div class="d-flex flex-wrap gap-2 mb-3">
+      <div class="d-flex flex-wrap gap-2 mb-1">
       <h2 class="fw-bold">All Creators</h2>
         <input type="text" id="searchInput" class="form-control" placeholder="Search by name or tag...">
       </div>
@@ -391,6 +391,15 @@ function updateActiveFilters() {
       filterCreators(); // re-run filter
     });
   });
+
+    // If no filters, show fallback message
+  if (filters.length === 0) {
+    const noFilters = document.createElement("div");
+    noFilters.className = "text-muted small fst-italic";
+    noFilters.textContent = "No filters applied";
+    filtersDiv.appendChild(noFilters);
+    return;
+  }
 }
 
 function filterCreators() {
@@ -421,11 +430,14 @@ function filterCreators() {
 }
 
 searchInput.addEventListener("input", filterCreators);
+nicheFilter.addEventListener("change", filterCreators);
+contentTypeFilter.addEventListener("change", filterCreators);
 locationFilter.addEventListener("change", filterCreators);
 platformFilter.addEventListener("change", filterCreators);
 resetFiltersBtn.addEventListener("click", resetAllFilters);
 
 fetchCreators();
+updateActiveFilters();
 
   </script>
 
