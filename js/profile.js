@@ -455,7 +455,7 @@ const selectedNiches = new Set();
   document.getElementById("editProfileForm").addEventListener("submit", async e => {
     e.preventDefault();
 
-    const name = document.getElementById("editName").value.trim();
+    const displayName = document.getElementById("editName").value.trim();
     let username = document.getElementById("editUsername").value.trim();
 if (username && !username.startsWith("@")) {
   username = "@" + username;
@@ -493,10 +493,10 @@ const links = rawLinks.filter(link => link.url !== "");
 
     const file = document.getElementById("editPhoto").files[0];
     const userRef = doc(db, "users", currentUser.uid);
-    const updates = { bio, contentTypes, niches, links, userLocation, username, pronouns, availability };
+    const updates = { bio, contentTypes, niches, links, userLocation, displayName, username, pronouns, availability };
 
     if (!document.getElementById("editUsername").disabled) {
-      updates.displayName = username;
+      updates.username = username;
       updates.lastNameChange = new Date(); // Track the name change
     }
 

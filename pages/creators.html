@@ -226,12 +226,13 @@ function filterCreators() {
 
   const filtered = creators.filter(user => {
     const name = user.displayName?.toLowerCase() || "";
+    const username = user.username?.toLowerCase() || "";
     const userNiche = user.niches?.toLowerCase() || "";
     const state = user.userLocation?.state?.toLowerCase() || "";
     const verified = user.verifiedPlatforms || {};
 
     const matchesSearch =
-      name.includes(search) || userNiche.includes(search);
+      username.includes(search) || name.includes(search) || userNiche.includes(search);
 
     const matchesNiche = !niche || userNiche === niche;
     const matchesLocation = !location || state === location;
