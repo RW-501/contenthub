@@ -332,7 +332,7 @@ async function loadAnalytics(uid) {
 
     const nameInputValue = nameInput.value.length;
 
-    if (canChange || nameInputValue == 0) {
+    if (canChange || lastNameChange == 0) {
       nameInput.disabled = false;
       note.textContent = "You can update your display name.";
     } else {
