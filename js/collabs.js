@@ -95,7 +95,7 @@ function renderRequest(id, data, incoming) {
     <i class="bi bi-chat-dots"></i> showChatPopup
   </button>
   
-  <button class="btn btn-sm btn-outline-primary ms-2" onclick="openChatPopup('${incoming ? data.fromUid : data.toUid}')">
+  <button class="btn btn-sm btn-outline-primary ms-2" onclick="openGroupChat('${incoming ? data.fromUid : data.toUid}')">
     <i class="bi bi-chat-dots"></i> Open Message
   </button>`;
 
