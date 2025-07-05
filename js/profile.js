@@ -480,8 +480,8 @@ const links = rawLinks.filter(link => link.url !== "");
     const userRef = doc(db, "users", currentUser.uid);
     const updates = { bio, selectedContentTypes, selectedNiches, links, location, username, pronouns, availability };
 
-    if (!document.getElementById("editName").disabled) {
-      updates.displayName = name;
+    if (!document.getElementById("editUsername").disabled) {
+      updates.displayName = username;
       updates.lastNameChange = new Date(); // Track the name change
     }
 
