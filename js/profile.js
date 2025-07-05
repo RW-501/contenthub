@@ -551,11 +551,13 @@ const socialPlatforms = {
 
 document.addEventListener("DOMContentLoaded", () => {
   const verifyBtn = document.getElementById("verifyProfileBtn");
+  const editProfileBtn = document.getElementById("editProfileBtn");
   const linkValidity = {}; // Store validity per platform
 
   function updateVerifyBtnState() {
     const allValid = Object.values(linkValidity).every(v => v !== false); // allow true or undefined
     verifyBtn.disabled = !allValid;
+    editProfileBtn.disabled = !allValid;
   }
 
   Object.keys(socialPlatforms).forEach((platform, index) => {
