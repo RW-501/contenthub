@@ -50,8 +50,9 @@ async function loadDashboard(uid) {
     const isIncoming = data.toUid === uid;
 
     if (isIncoming && data.status === "pending") categorized.incoming.push(renderRequest(doc.id, data, true));
-    else if(isIncoming && data.status === "declined") categorized.sent.push(renderRequest(doc.id, data, false));
-    else if(isIncoming && data.status === "accepted") categorized.sent.push(renderRequest(doc.id, data, true));
+    else if(isIncoming && data.status === "declined") categorized.incoming.push(renderRequest(doc.id, data, true));
+    else if(!isIncoming && data.status === "pending") categorized.incoming.sent(renderRequest(doc.id, data, false));
+    else if(!isIncoming && data.status === "declined") categorized.incoming.sent(renderRequest(doc.id, data, false));
   }
 
   for (const doc of collaborations) {
@@ -161,8 +162,26 @@ function renderCollab(id, data) {
     </div>`;
 }
 
-window.respondToRequest = async function(id, status) {
+
+window.respondToRequest = async function(id, status, rawData = null) {
   await updateDoc(doc(db, "collabRequests", id), { status });
+
+  if (status === "accepted" && rawData) {
+    const { fromUid, toUid, title, description, mediaLink, displayName } = rawData;
+    const newCollab = {
+      title: title || "Untitled",
+      description: description || "No description provided.",
+      mediaLink: mediaLink || "",
+      isPublic: false,
+      owner: fromUid,
+      participants: [fromUid, toUid],
+      tasks: [],
+      pinned: false,
+      timestamp: new Date()
+    };
+    await addDoc(collection(db, "collaborations"), newCollab);
+  }
+
   loadDashboard(auth.currentUser.uid);
 };
 
