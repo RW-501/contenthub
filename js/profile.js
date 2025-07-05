@@ -478,7 +478,7 @@ const links = rawLinks.filter(link => link.url !== "");
 
     const file = document.getElementById("editPhoto").files[0];
     const userRef = doc(db, "users", currentUser.uid);
-    const updates = { bio, selectedContentTypes, selectedNiches, links, location, username, pronouns, availability };
+    const updates = { bio, contentTypes, selectedNiches, links, location, username, pronouns, availability };
 
     if (!document.getElementById("editUsername").disabled) {
       updates.displayName = username;
