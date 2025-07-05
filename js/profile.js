@@ -529,83 +529,146 @@ document.getElementById("verifyProfileBtn").addEventListener("click", async () =
   const userSnap = await getDoc(doc(db, "users", currentUser.uid));
   const userData = userSnap.data();
 
-  // Initialize location dropdowns
-const statesAndCities = {
-  "Alabama": ["Birmingham", "Montgomery", "Mobile", "Huntsville"],
-  "Alaska": ["Anchorage", "Juneau", "Fairbanks"],
-  "Arizona": ["Phoenix", "Tucson", "Mesa", "Scottsdale"],
-  "Arkansas": ["Little Rock", "Fayetteville", "Fort Smith", "Springdale"],
-  "California": ["Los Angeles", "San Diego", "San Francisco", "San Jose", "Sacramento"],
-  "Colorado": ["Denver", "Colorado Springs", "Aurora", "Boulder"],
-  "Connecticut": ["Bridgeport", "New Haven", "Hartford", "Stamford"],
-  "Delaware": ["Wilmington", "Dover", "Newark"],
-  "Florida": ["Miami", "Orlando", "Tampa", "Jacksonville"],
-  "Georgia": ["Atlanta", "Savannah", "Augusta", "Columbus"],
-  "Hawaii": ["Honolulu", "Hilo", "Kailua"],
-  "Idaho": ["Boise", "Idaho Falls", "Meridian"],
-  "Illinois": ["Chicago", "Springfield", "Naperville", "Peoria"],
-  "Indiana": ["Indianapolis", "Fort Wayne", "Evansville", "South Bend"],
-  "Iowa": ["Des Moines", "Cedar Rapids", "Davenport"],
-  "Kansas": ["Wichita", "Topeka", "Overland Park"],
-  "Kentucky": ["Louisville", "Lexington", "Bowling Green"],
-  "Louisiana": ["New Orleans", "Baton Rouge", "Shreveport", "Lafayette"],
-  "Maine": ["Portland", "Augusta", "Bangor"],
-  "Maryland": ["Baltimore", "Annapolis", "Silver Spring"],
-  "Massachusetts": ["Boston", "Worcester", "Springfield", "Cambridge"],
-  "Michigan": ["Detroit", "Grand Rapids", "Ann Arbor", "Lansing"],
-  "Minnesota": ["Minneapolis", "Saint Paul", "Duluth"],
-  "Mississippi": ["Jackson", "Gulfport", "Hattiesburg"],
-  "Missouri": ["Kansas City", "St. Louis", "Springfield", "Columbia"],
-  "Montana": ["Billings", "Missoula", "Bozeman"],
-  "Nebraska": ["Omaha", "Lincoln", "Bellevue"],
-  "Nevada": ["Las Vegas", "Reno", "Henderson", "Carson City"],
-  "New Hampshire": ["Manchester", "Nashua", "Concord"],
-  "New Jersey": ["Newark", "Jersey City", "Paterson", "Trenton"],
-  "New Mexico": ["Albuquerque", "Santa Fe", "Las Cruces"],
-  "New York": ["New York City", "Buffalo", "Rochester", "Albany", "Syracuse"],
-  "North Carolina": ["Charlotte", "Raleigh", "Durham", "Greensboro"],
-  "North Dakota": ["Fargo", "Bismarck", "Grand Forks"],
-  "Ohio": ["Columbus", "Cleveland", "Cincinnati", "Toledo"],
-  "Oklahoma": ["Oklahoma City", "Tulsa", "Norman"],
-  "Oregon": ["Portland", "Eugene", "Salem", "Beaverton"],
-  "Pennsylvania": ["Philadelphia", "Pittsburgh", "Allentown", "Harrisburg"],
-  "Rhode Island": ["Providence", "Warwick", "Cranston"],
-  "South Carolina": ["Columbia", "Charleston", "Greenville"],
-  "South Dakota": ["Sioux Falls", "Rapid City", "Pierre"],
-  "Tennessee": ["Nashville", "Memphis", "Knoxville", "Chattanooga"],
-  "Texas": ["Dallas", "Houston", "Austin", "San Antonio", "Fort Worth"],
-  "Utah": ["Salt Lake City", "Provo", "Ogden", "St. George"],
-  "Vermont": ["Burlington", "Montpelier", "Rutland"],
-  "Virginia": ["Virginia Beach", "Richmond", "Norfolk", "Arlington"],
-  "Washington": ["Seattle", "Spokane", "Tacoma", "Bellevue"],
-  "West Virginia": ["Charleston", "Huntington", "Morgantown"],
-  "Wisconsin": ["Milwaukee", "Madison", "Green Bay", "Kenosha"],
-  "Wyoming": ["Cheyenne", "Casper", "Laramie"]
+  // Initialize location dropdownsconst 
+  countriesAndStates = {
+  "United States": {
+    "Alabama": ["Birmingham", "Montgomery", "Mobile", "Huntsville"],
+    "Alaska": ["Anchorage", "Juneau", "Fairbanks"],
+    "Arizona": ["Phoenix", "Tucson", "Mesa", "Scottsdale"],
+    "Arkansas": ["Little Rock", "Fayetteville", "Fort Smith", "Springdale"],
+    "California": ["Los Angeles", "San Diego", "San Francisco", "San Jose", "Sacramento"],
+    "Colorado": ["Denver", "Colorado Springs", "Aurora", "Boulder"],
+    "Connecticut": ["Bridgeport", "New Haven", "Hartford", "Stamford"],
+    "Delaware": ["Wilmington", "Dover", "Newark"],
+    "Florida": ["Miami", "Orlando", "Tampa", "Jacksonville"],
+    "Georgia": ["Atlanta", "Savannah", "Augusta", "Columbus"],
+    "Hawaii": ["Honolulu", "Hilo", "Kailua"],
+    "Idaho": ["Boise", "Idaho Falls", "Meridian"],
+    "Illinois": ["Chicago", "Springfield", "Naperville", "Peoria"],
+    "Indiana": ["Indianapolis", "Fort Wayne", "Evansville", "South Bend"],
+    "Iowa": ["Des Moines", "Cedar Rapids", "Davenport"],
+    "Kansas": ["Wichita", "Topeka", "Overland Park"],
+    "Kentucky": ["Louisville", "Lexington", "Bowling Green"],
+    "Louisiana": ["New Orleans", "Baton Rouge", "Shreveport", "Lafayette"],
+    "Maine": ["Portland", "Augusta", "Bangor"],
+    "Maryland": ["Baltimore", "Annapolis", "Silver Spring"],
+    "Massachusetts": ["Boston", "Worcester", "Springfield", "Cambridge"],
+    "Michigan": ["Detroit", "Grand Rapids", "Ann Arbor", "Lansing"],
+    "Minnesota": ["Minneapolis", "Saint Paul", "Duluth"],
+    "Mississippi": ["Jackson", "Gulfport", "Hattiesburg"],
+    "Missouri": ["Kansas City", "St. Louis", "Springfield", "Columbia"],
+    "Montana": ["Billings", "Missoula", "Bozeman"],
+    "Nebraska": ["Omaha", "Lincoln", "Bellevue"],
+    "Nevada": ["Las Vegas", "Reno", "Henderson", "Carson City"],
+    "New Hampshire": ["Manchester", "Nashua", "Concord"],
+    "New Jersey": ["Newark", "Jersey City", "Paterson", "Trenton"],
+    "New Mexico": ["Albuquerque", "Santa Fe", "Las Cruces"],
+    "New York": ["New York City", "Buffalo", "Rochester", "Albany", "Syracuse"],
+    "North Carolina": ["Charlotte", "Raleigh", "Durham", "Greensboro"],
+    "North Dakota": ["Fargo", "Bismarck", "Grand Forks"],
+    "Ohio": ["Columbus", "Cleveland", "Cincinnati", "Toledo"],
+    "Oklahoma": ["Oklahoma City", "Tulsa", "Norman"],
+    "Oregon": ["Portland", "Eugene", "Salem", "Beaverton"],
+    "Pennsylvania": ["Philadelphia", "Pittsburgh", "Allentown", "Harrisburg"],
+    "Rhode Island": ["Providence", "Warwick", "Cranston"],
+    "South Carolina": ["Columbia", "Charleston", "Greenville"],
+    "South Dakota": ["Sioux Falls", "Rapid City", "Pierre"],
+    "Tennessee": ["Nashville", "Memphis", "Knoxville", "Chattanooga"],
+    "Texas": ["Dallas", "Houston", "Austin", "San Antonio", "Fort Worth"],
+    "Utah": ["Salt Lake City", "Provo", "Ogden", "St. George"],
+    "Vermont": ["Burlington", "Montpelier", "Rutland"],
+    "Virginia": ["Virginia Beach", "Richmond", "Norfolk", "Arlington"],
+    "Washington": ["Seattle", "Spokane", "Tacoma", "Bellevue"],
+    "West Virginia": ["Charleston", "Huntington", "Morgantown"],
+    "Wisconsin": ["Milwaukee", "Madison", "Green Bay", "Kenosha"],
+    "Wyoming": ["Cheyenne", "Casper", "Laramie"]
+  },
+  "Canada": {
+    "Ontario": ["Toronto", "Ottawa", "Hamilton", "London"],
+    "Quebec": ["Montreal", "Quebec City", "Laval", "Gatineau"],
+    "British Columbia": ["Vancouver", "Victoria", "Surrey"],
+    "Alberta": ["Calgary", "Edmonton", "Red Deer"],
+    "Manitoba": ["Winnipeg", "Brandon"],
+    "Nova Scotia": ["Halifax", "Sydney"]
+  },
+  "United Kingdom": {
+    "England": ["London", "Manchester", "Birmingham", "Leeds"],
+    "Scotland": ["Edinburgh", "Glasgow", "Aberdeen"],
+    "Wales": ["Cardiff", "Swansea", "Newport"],
+    "Northern Ireland": ["Belfast", "Derry"]
+  },
+  "Australia": {
+    "New South Wales": ["Sydney", "Newcastle", "Wollongong"],
+    "Victoria": ["Melbourne", "Geelong", "Ballarat"],
+    "Queensland": ["Brisbane", "Gold Coast", "Cairns"],
+    "Western Australia": ["Perth", "Fremantle"],
+    "South Australia": ["Adelaide", "Mount Gambier"],
+    "Tasmania": ["Hobart", "Launceston"]
+  },
+  "India": {
+    "Maharashtra": ["Mumbai", "Pune", "Nagpur"],
+    "Delhi": ["New Delhi"],
+    "Karnataka": ["Bangalore", "Mysore"],
+    "Tamil Nadu": ["Chennai", "Coimbatore"],
+    "West Bengal": ["Kolkata", "Howrah"],
+    "Gujarat": ["Ahmedabad", "Surat"]
+  }
 };
 
-  const stateSelect = document.getElementById("stateSelect");
-  const citySelect = document.getElementById("citySelect");
-  const locationStatus = document.getElementById("locationStatus");
+const countrySelect = document.getElementById("countrySelect");
+const stateSelect = document.getElementById("stateSelect");
+const citySelect = document.getElementById("citySelect");
+const locationStatus = document.getElementById("locationStatus");
 
-  Object.keys(statesAndCities).forEach(state => {
-    const option = document.createElement("option");
-    option.value = state;
-    option.textContent = state;
-    stateSelect.appendChild(option);
-  });
+// Populate countries dropdown
+Object.keys(countriesAndStates).forEach(country => {
+  const option = document.createElement("option");
+  option.value = country;
+  option.textContent = country;
+  countrySelect.appendChild(option);
+});
 
-  stateSelect.addEventListener("change", () => {
-    const state = stateSelect.value;
-    citySelect.innerHTML = `<option value="">Select City</option>`;
-    if (statesAndCities[state]) {
-      statesAndCities[state].forEach(city => {
-        const option = document.createElement("option");
-        option.value = city;
-        option.textContent = city;
-        citySelect.appendChild(option);
-      });
-    }
-  });
+// When country changes, populate states/provinces
+countrySelect.addEventListener("change", () => {
+  const country = countrySelect.value;
+  stateSelect.innerHTML = `<option value="">Select State/Province</option>`;
+  citySelect.innerHTML = `<option value="">Select City</option>`;
+
+  if (countriesAndStates[country]) {
+    Object.keys(countriesAndStates[country]).forEach(state => {
+      const option = document.createElement("option");
+      option.value = state;
+      option.textContent = state;
+      stateSelect.appendChild(option);
+    });
+  }
+});
+
+
+  
+
+
+
+// When state changes, populate cities
+stateSelect.addEventListener("change", () => {
+  const country = countrySelect.value;
+  const state = stateSelect.value;
+  citySelect.innerHTML = `<option value="">Select City</option>`;
+
+  if (country && state && countriesAndStates[country] && countriesAndStates[country][state]) {
+    countriesAndStates[country][state].forEach(city => {
+      const option = document.createElement("option");
+      option.value = city;
+      option.textContent = city;
+      citySelect.appendChild(option);
+    });
+  }
+});
+
+
+  
+
+
 
 document.getElementById("detectLocationBtn").addEventListener("click", () => {
   locationStatus.textContent = "Detecting location...";
@@ -615,36 +678,61 @@ document.getElementById("detectLocationBtn").addEventListener("click", () => {
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
       const data = await res.json();
+
       const city = data.address.city || data.address.town || data.address.village || "";
       const state = data.address.state || "";
+      const country = data.address.country || "";
 
-      if (state && city) {
-        stateSelect.value = state;
-        stateSelect.dispatchEvent(new Event("change")); // Populate cities
+      if (country) {
+        countrySelect.value = country;
+        countrySelect.dispatchEvent(new Event("change"));
 
-        // Wait for city options to load
         setTimeout(() => {
-          let found = false;
-          [...citySelect.options].forEach(option => {
-            if (option.value.toLowerCase() === city.toLowerCase()) {
-              citySelect.value = option.value;
-              found = true;
+          if (state) {
+            // Select state if it exists in dropdown
+            let foundState = false;
+            [...stateSelect.options].forEach(option => {
+              if (option.value.toLowerCase() === state.toLowerCase()) {
+                stateSelect.value = option.value;
+                foundState = true;
+              }
+            });
+
+            if (!foundState && state !== "") {
+              const opt = document.createElement("option");
+              opt.value = state;
+              opt.textContent = state;
+              stateSelect.appendChild(opt);
+              stateSelect.value = state;
             }
-          });
+            stateSelect.dispatchEvent(new Event("change"));
 
-          // If city wasn't in dropdown, add it manually
-          if (!found) {
-            const opt = document.createElement("option");
-            opt.value = city;
-            opt.textContent = city;
-            citySelect.appendChild(opt);
-            citySelect.value = city;
+            setTimeout(() => {
+              // Select city if in dropdown
+              let foundCity = false;
+              [...citySelect.options].forEach(option => {
+                if (option.value.toLowerCase() === city.toLowerCase()) {
+                  citySelect.value = option.value;
+                  foundCity = true;
+                }
+              });
+
+              if (!foundCity && city !== "") {
+                const opt = document.createElement("option");
+                opt.value = city;
+                opt.textContent = city;
+                citySelect.appendChild(opt);
+                citySelect.value = city;
+              }
+
+              locationStatus.textContent = `Detected: ${city}, ${state}, ${country}`;
+            }, 200);
+          } else {
+            locationStatus.textContent = `Detected: ${country}`;
           }
-
-          locationStatus.textContent = `Detected: ${city}, ${state}`;
         }, 200);
       } else {
-        locationStatus.textContent = "Could not auto-detect city/state.";
+        locationStatus.textContent = "Could not auto-detect location.";
       }
     } catch (err) {
       console.error(err);
@@ -655,7 +743,6 @@ document.getElementById("detectLocationBtn").addEventListener("click", () => {
     locationStatus.textContent = "Location permission denied.";
   });
 });
-
 
   // Fill other profile fields
   document.getElementById("editName").value = userData.displayName || "";
@@ -686,24 +773,42 @@ document.getElementById("editLink9").value = linkMap.reddit || "";
   }
 
   // ✅ Set location if already stored
-  if (userData.location) {
-    stateSelect.value = userData.location.state || "";
-    stateSelect.dispatchEvent(new Event("change"));
-
-    setTimeout(() => {
-                if (userData.location.city) {
-            const opt = document.createElement("option");
-            opt.value = userData.location.city;
-            opt.textContent = userData.location.city;
-            citySelect.appendChild(opt);
-            citySelect.value = userData.location.city;
-          }
-      citySelect.value = userData.location.city || "";
-    }, 100);
+ if (userData.location) {
+  if (userData.location.country) {
+    countrySelect.value = userData.location.country;
+    countrySelect.dispatchEvent(new Event("change"));
   }
 
-  checkNameChangeEligibility(userData);
+  setTimeout(() => {
+    if (userData.location.state) {
+      // Add state option if missing
+      if (![...stateSelect.options].some(o => o.value === userData.location.state)) {
+        const opt = document.createElement("option");
+        opt.value = userData.location.state;
+        opt.textContent = userData.location.state;
+        stateSelect.appendChild(opt);
+      }
+      stateSelect.value = userData.location.state;
+      stateSelect.dispatchEvent(new Event("change"));
+    }
+
+    setTimeout(() => {
+      if (userData.location.city) {
+        // Add city option if missing
+        if (![...citySelect.options].some(o => o.value === userData.location.city)) {
+          const opt = document.createElement("option");
+          opt.value = userData.location.city;
+          opt.textContent = userData.location.city;
+          citySelect.appendChild(opt);
+        }
+        citySelect.value = userData.location.city;
+      }
+    }, 100);
+  }, 100);
 }
+
+
+  }
 
   // Optional: hook into modal show event
 const modalEl = document.getElementById("editModal");
