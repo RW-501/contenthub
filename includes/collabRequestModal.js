@@ -14,50 +14,93 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 
+let isUploading = false;
 
 const form = document.getElementById("collabRequestForm");
 
+function sanitizeInput(str) {
+  return str.replace(/[<>"']/g, ''); // Light sanitization
+}
+
+const mediaInput = document.getElementById("collabMedia");
+const fileFeedback = document.getElementById("fileFeedback");
+
+const mediaPreview = document.getElementById("mediaPreview");
+
+mediaInput.addEventListener("change", () => {
+  const file = mediaInput.files[0];
+  mediaPreview.innerHTML = "";
+  if (file) {
+    if (file.size > 15 * 1024 * 1024) {
+      fileFeedback.textContent = "File too large (max 15MB)";
+      mediaInput.classList.add("is-invalid");
+    } else {
+      fileFeedback.textContent = `Selected: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+      mediaInput.classList.remove("is-invalid");
+
+      const url = URL.createObjectURL(file);
+      if (file.type.startsWith("image/")) {
+        mediaPreview.innerHTML = `<img src="${url}" alt="preview" class="img-fluid rounded shadow-sm" style="max-height: 200px;" />`;
+      } else if (file.type.startsWith("video/")) {
+        mediaPreview.innerHTML = `<video src="${url}" controls class="w-100 rounded shadow-sm" style="max-height: 240px;"></video>`;
+      }
+    }
+  } else {
+    fileFeedback.textContent = "";
+  }
+});
 
 
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-    const toUid = collabBtn.dataset.viewingUserId;
 
+  if (isUploading) {
+    return alert("Please wait, file is still uploading...");
+  }
+
+  const toUid = collabBtn.dataset.viewingUserId;
   const user = auth.currentUser;
   if (!user || !toUid || user.uid === toUid) return;
 
-  const message = document.getElementById("collabMessage").value.trim();
-  const title = document.getElementById("collabTitle").value.trim();
-  const description = document.getElementById("collabDesc").value.trim();
+  const message = sanitizeInput(document.getElementById("collabMessage").value.trim());
+  const title = sanitizeInput(document.getElementById("collabTitle").value.trim());
+  const description = sanitizeInput(document.getElementById("collabDesc").value.trim());
   const url = document.getElementById("collabUrl").value.trim();
-  const file = document.getElementById("collabMedia").files[0];
+  const file = mediaInput.files[0];
 
   if (!message) return alert("Please enter a message or pitch.");
 
-  // Prevent duplicate or recent declined requests
-  const q = query(collection(db, "collabRequests"), where("fromUid", "==", user.uid), where("toUid", "==", toUid));
+  // Check for duplicate requests
+  const q = query(collection(db, "collabRequests"),
+    where("fromUid", "==", user.uid),
+    where("toUid", "==", toUid)
+  );
   const snapshot = await getDocs(q);
   for (const docSnap of snapshot.docs) {
     const req = docSnap.data();
-    if (req.status === "pending") {
-      return alert("You already have a pending request to this user.");
-    }
+    if (req.status === "pending") return alert("You already have a pending request.");
     if (req.status === "declined" && req.timestamp?.toDate()) {
-      const declinedAt = req.timestamp.toDate();
-      const cooldown = new Date(declinedAt);
+      const cooldown = new Date(req.timestamp.toDate());
       cooldown.setDate(cooldown.getDate() + 30);
-      if (new Date() < cooldown) {
-        return alert("You can resend a request to this user after 30 days from your last declined request.");
-      }
+      if (new Date() < cooldown) return alert("You can resend this request after 30 days.");
     }
   }
 
   let mediaLink = url || null;
   if (!mediaLink && file) {
-    const storageRef = ref(storage, `collabPreviews/${user.uid}_${Date.now()}_${file.name}`);
-    await uploadBytes(storageRef, file);
-    mediaLink = await getDownloadURL(storageRef);
+    isUploading = true;
+    try {
+      const safeName = file.name.replace(/\s+/g, '_').replace(/[^\w.-]/g, '');
+      const storageRef = ref(storage, `collabPreviews/${user.uid}_${Date.now()}_${safeName}`);
+      await uploadBytes(storageRef, file);
+      mediaLink = await getDownloadURL(storageRef);
+    } catch (err) {
+      alert("Upload failed. Please try again.");
+      isUploading = false;
+      return;
+    }
+    isUploading = false;
   }
 
   await addDoc(collection(db, "collabRequests"), {
@@ -71,29 +114,43 @@ form.addEventListener("submit", async (e) => {
     timestamp: serverTimestamp()
   });
 
-    form.reset();
+  form.reset();
+  mediaPreview.innerHTML = "";
+  fileFeedback.textContent = "";
+  mediaInput.classList.remove("is-invalid");
 
-    const modalEl = document.getElementById("collabModalOverlay");
-const modal = new bootstrap.Modal(modalEl);
-modal.hide();
+  const modalEl = document.getElementById("collabRequestModal");
+  bootstrap.Modal.getInstance(modalEl)?.hide();
 
-modalEl.style.display = "none";
-
-    showModal({
-  title: "Sent!",
-  message: "Collaboration request sent!",
-  autoClose: 3000
-});
-
-
-
-});
-/*
-  // Show modal
-  document.getElementById("openCollabModal").addEventListener("click", () => {
-    document.getElementById("collabModalOverlay").style.display = "block";
+  showModal({
+    title: "Sent!",
+    message: "Collaboration request sent successfully.",
+    autoClose: 3000
   });
-*/
+});
+
+
+const titleInput = document.getElementById("collabTitle");
+
+titleInput.addEventListener("focus", () => {
+  const cachedTitles = JSON.parse(localStorage.getItem("pastCollabTitles") || "[]");
+  if (cachedTitles.length) {
+    const list = document.createElement("ul");
+    list.className = "list-group position-absolute mt-1 w-100 z-1";
+    cachedTitles.forEach(title => {
+      const item = document.createElement("li");
+      item.className = "list-group-item list-group-item-action";
+      item.textContent = title;
+      item.onclick = () => {
+        titleInput.value = title;
+        list.remove();
+      };
+      list.appendChild(item);
+    });
+    titleInput.parentElement.appendChild(list);
+    titleInput.addEventListener("blur", () => setTimeout(() => list.remove(), 200));
+  }
+});
 
   // Hide modal
   document.getElementById("cancelModalBtn").addEventListener("click", () => {

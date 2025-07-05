@@ -442,10 +442,14 @@
           <label class="form-label">Project Description</label>
           <textarea class="form-control" id="collabDesc" rows="3"></textarea>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Attach Preview (optional)</label>
-          <input type="file" class="form-control" id="collabMedia" accept="image/*,video/*">
-        </div>
+<div class="mb-3">
+  <label class="form-label">Attach Preview (optional)</label>
+  <input type="file" class="form-control" id="collabMedia" accept="image/*,video/*">
+  <div id="fileFeedback" class="form-text text-muted small mt-1"></div>
+  <div id="mediaPreview" class="mt-2"></div>
+</div>
+
+
         <div class="mb-3">
           <label class="form-label">Or Media URL</label>
           <input type="url" class="form-control" id="collabUrl" placeholder="https://...">
