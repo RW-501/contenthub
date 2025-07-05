@@ -554,13 +554,13 @@ document.getElementById("verifyProfileBtn").addEventListener("click", async () =
 
   const verifiedPlatforms = {};
 
-  // ✅ Very basic verification method: check if displayName appears in the URL
+  // ✅ Very basic verification method: check if username appears in the URL
   const userSnap = await getDoc(doc(db, "users", currentUser.uid));
   const userData = userSnap.data();
-  const displayName = userData.displayName?.toLowerCase().replace(/\s/g, "");
+const username = userData.username?.toLowerCase().replace(/^@/, "").replace(/\s/g, "");
 
   rawLinks.forEach(link => {
-    const usernameMatch = link.url.toLowerCase().includes(displayName);
+    const usernameMatch = link.url.toLowerCase().includes(username);
     if (usernameMatch) {
       verifiedPlatforms[link.platform] = true;
     }
