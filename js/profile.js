@@ -609,13 +609,13 @@ const socialPlatforms = {
           input.classList.remove("is-invalid");
           if(response){
           linkValidity[platform] = false;
-          errorMsg.textContent = "Could not verify this link (site might be down or block CORS)";
+errorMsg.textContent = `Unable to verify your ${platform} link. Please check the URL.`;
           errorMsg.classList.remove("d-none");
           input.classList.add("is-invalid");
           }
         } catch {
           linkValidity[platform] = false;
-          errorMsg.textContent = "Could not verify this link (site might be down or block CORS)";
+errorMsg.textContent = `Unable to verify your ${platform} link. Please check the URL.`;
           errorMsg.classList.remove("d-none");
           input.classList.add("is-invalid");
         }
