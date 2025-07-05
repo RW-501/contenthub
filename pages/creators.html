@@ -43,7 +43,7 @@
 </div>
 
 <!-- 🔎 Multi-Select Filters UI -->
-<div class="d-flex flex-wrap gap-2 mb-3" id="activeFilters"></div>
+<div id="activeFilters" class="d-flex flex-wrap gap-2 my-3"></div>
 
 
 
@@ -344,6 +344,55 @@ function renderCreators(data) {
   });
 }
 
+function updateActiveFilters() {
+  const filtersDiv = document.getElementById("activeFilters");
+  filtersDiv.innerHTML = ""; // Clear previous filters
+
+  const filters = [];
+
+  if (searchInput.value) {
+    filters.push({ label: `Search: ${searchInput.value}`, key: "search" });
+  }
+  if (nicheFilter.value) {
+    filters.push({ label: `Niche: ${nicheFilter.value}`, key: "niche" });
+  }
+  if (contentTypeFilter.value) {
+    filters.push({ label: `Content: ${contentTypeFilter.value}`, key: "contentType" });
+  }
+  if (locationFilter.value) {
+    filters.push({ label: `Location: ${locationFilter.value}`, key: "location" });
+  }
+  if (platformFilter.value) {
+    filters.push({ label: `Platform: ${platformFilter.value}`, key: "platform" });
+  }
+
+  filters.forEach(filter => {
+    const tag = document.createElement("span");
+    tag.className = "badge bg-secondary text-white d-flex align-items-center gap-1";
+    tag.innerHTML = `
+      ${filter.label}
+      <button type="button" class="btn-close btn-close-white btn-sm" aria-label="Remove"
+        data-key="${filter.key}"></button>
+    `;
+    filtersDiv.appendChild(tag);
+  });
+
+  // Event listeners to remove filters
+  filtersDiv.querySelectorAll("button[data-key]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.key;
+      switch (key) {
+        case "search": searchInput.value = ""; break;
+        case "niche": nicheFilter.value = ""; break;
+        case "contentType": contentTypeFilter.value = ""; break;
+        case "location": locationFilter.value = ""; break;
+        case "platform": platformFilter.value = ""; break;
+      }
+      filterCreators(); // re-run filter
+    });
+  });
+}
+
 function filterCreators() {
   const search = searchInput.value.toLowerCase();
   const tagsByType = activeFilterTags.reduce((acc, f) => {
@@ -366,6 +415,9 @@ function filterCreators() {
     const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
     card.style.display = visible ? "block" : "none";
   });
+
+  updateActiveFilters(); // 👈 this line updates the pill tags
+
 }
 
 searchInput.addEventListener("input", filterCreators);
