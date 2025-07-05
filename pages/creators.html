@@ -37,6 +37,16 @@
       <div class="d-flex gap-2">
         <input type="text" id="searchInput" class="form-control" placeholder="Search by name or tag...">
 
+        
+
+<!-- 🔎 Multi-Select Filters UI -->
+<div class="d-flex flex-wrap gap-2 mb-3" id="activeFilters"></div>
+
+<!-- 🔁 Reset Filters Button -->
+<div class="mb-3">
+  <button class="btn btn-outline-secondary btn-sm" id="resetFiltersBtn">Reset Filters</button>
+</div>
+
         </div>
 
       <div class="d-flex gap-2">
@@ -203,116 +213,156 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const creatorsGrid = document.getElementById("creatorsGrid");
-    const searchInput = document.getElementById("searchInput");
-    const contentTypeFilter = document.getElementById("contentTypeFilter");
-    const nicheFilter = document.getElementById("nicheFilter");
-    const locationFilter = document.getElementById("locationFilter");
-    const platformFilter = document.getElementById("platformFilter");
 
+// 🔧 JavaScript Enhancements
 
-    let creators = [];
+const creatorsGrid = document.getElementById("creatorsGrid");
+const searchInput = document.getElementById("searchInput");
+const contentTypeFilter = document.getElementById("contentTypeFilter");
+const nicheFilter = document.getElementById("nicheFilter");
+const locationFilter = document.getElementById("locationFilter");
+const platformFilter = document.getElementById("platformFilter");
+const activeFilters = document.getElementById("activeFilters");
+const resetFiltersBtn = document.getElementById("resetFiltersBtn");
 
+let creators = [];
+let activeFilterTags = [];
 
+function addFilterTag(type, value) {
+  if (activeFilterTags.find(f => f.type === type && f.value === value)) return;
 
-    async function fetchCreators() {
-      const snapshot = await getDocs(collection(db, "users"));
-      creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderCreators(creators);
-    }
+  const tag = document.createElement("span");
+  tag.className = "badge rounded-pill bg-primary text-white px-3 py-2 d-flex align-items-center";
+  tag.innerHTML = `${value} <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"></button>`;
 
-    function renderCreators(data) {
-      creatorsGrid.innerHTML = "";
-      if (data.length === 0) {
-        creatorsGrid.innerHTML = '<p class="text-center text-muted">No creators found.</p>';
-        return;
-      }
-
-data.forEach(user => {
-  const isVerified = user.verified === true;
-  const verifiedPlatforms = user.verifiedPlatforms || {}; // { instagram: true, facebook: true, ... }
-
-  const badge = isVerified
-    ? `<span class="ms-1 text-primary" title="Verified"><i class="bi bi-patch-check-fill"></i></span>`
-    : '';
-
-  const platformIcons = Object.entries(verifiedPlatforms)
-    .filter(([_, verified]) => verified)
-    .map(([platform]) => {
-      const icons = {
-    instagram: "bi bi-instagram",
-  tiktok: "bi bi-tiktok",
-  youtube: "bi bi-youtube",
-  facebook: "bi bi-facebook",
-  twitter: "bi bi-twitter",
-  linkedin: "bi bi-linkedin",
-  twitch: "bi bi-twitch",
-  threads: "bi bi-threads",
-  snapchat: "bi bi-snapchat",
-  pinterest: "bi bi-pinterest",
-  reddit: "bi bi-reddit",
-  other: "bi bi-link-45deg"
-};
-      return `<i class="${icons[platform] || ''} text-muted ms-1" title="Verified on ${platform.charAt(0).toUpperCase() + platform.slice(1)}"></i>`;
-    }).join('');
-
-  const card = document.createElement("div");
-  card.className = "col-sm-6 col-md-4 col-lg-3";
-  card.innerHTML = `
-    <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.id}" class="text-decoration-none text-dark">
-      <div class="card shadow-sm h-100">
-        <img src="${user.photoURL || '/assets/default-avatar.png'}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="${user.displayName || 'User'}" />
-        <div class="card-body">
-          <h6 class="card-title mb-1">
-            ${user.displayName || 'Unnamed'} ${badge} ${platformIcons}
-          </h6>
-          <small class="text-muted d-block">${user.niches || 'Creator'}</small>
-          <small class="text-muted">${user.userLocation?.city || ''}${user.userLocation?.city && user.userLocation?.state ? ', ' : ''}${user.userLocation?.state || ''}</small>
-        </div>
-      </div>
-    </a>`;
-  creatorsGrid.appendChild(card);
-});
-
-    }
-
-function filterCreators() { 
-  const search = searchInput.value.toLowerCase();
-  const niche = nicheFilter.value.toLowerCase();
-  const location = locationFilter.value.toLowerCase();
-  const platform = platformFilter.value.toLowerCase();
-  const contentType = contentTypeFilter.value.toLowerCase(); // 👈 new line
-
-  const filtered = creators.filter(user => {
-    const name = user.displayName?.toLowerCase() || "";
-    const username = user.username?.toLowerCase() || "";
-    const userNiche = user.niches?.toLowerCase?.() || "";
-    const userContent = user.contentTypes?.toLowerCase?.() || ""; // 👈 new line
-    const state = user.userLocation?.state?.toLowerCase() || "";
-    const verified = user.verifiedPlatforms || {};
-
-    const matchesSearch =
-      username.includes(search) || name.includes(search) || userNiche.includes(search);
-
-    const matchesNiche = !niche || userNiche === niche;
-    const matchesLocation = !location || state === location;
-    const matchesPlatform = !platform || verified[platform] === true;
-    const matchesContentType = !contentType || userContent.includes(contentType); // 👈 new line
-
-    return matchesSearch && matchesNiche && matchesLocation && matchesPlatform && matchesContentType;
+  tag.querySelector(".btn-close").addEventListener("click", () => {
+    activeFilterTags = activeFilterTags.filter(f => !(f.type === type && f.value === value));
+    filterCreators();
   });
 
-  renderCreators(filtered);
+  activeFilters.appendChild(tag);
+  activeFilterTags.push({ type, value });
+  filterCreators();
 }
 
+function resetAllFilters() {
+  activeFilterTags = [];
+  searchInput.value = "";
+  nicheFilter.value = "";
+  contentTypeFilter.value = "";
+  locationFilter.value = "";
+  platformFilter.value = "";
+  filterCreators();
+}
+
+function renderCreators(data) {
+  creatorsGrid.innerHTML = "";
+  activeFilters.innerHTML = "";
+
+  if (data.length === 0) {
+    creatorsGrid.innerHTML = '<p class="text-center text-muted">No creators found.</p>';
+    return;
+  }
+
+  data.forEach(user => {
+    const isVerified = user.verified === true;
+    const verifiedPlatforms = user.verifiedPlatforms || {};
+    const badge = isVerified ? `<span class="ms-1 text-primary" title="Verified"><i class="bi bi-patch-check-fill"></i></span>` : '';
+
+    const platformIcons = Object.entries(verifiedPlatforms)
+      .filter(([_, verified]) => verified)
+      .map(([platform]) => {
+        const icons = {
+          instagram: "bi bi-instagram", tiktok: "bi bi-tiktok", youtube: "bi bi-youtube",
+          facebook: "bi bi-facebook", twitter: "bi bi-twitter", linkedin: "bi bi-linkedin",
+          twitch: "bi bi-twitch", threads: "bi bi-threads", snapchat: "bi bi-snapchat",
+          pinterest: "bi bi-pinterest", reddit: "bi bi-reddit", other: "bi bi-link-45deg"
+        };
+        return `<i class="${icons[platform] || ''} text-muted ms-1" title="Verified on ${platform}"></i>`;
+      }).join('');
+
+    const userNiches = (user.niches || []).map(n =>
+      `<span class="badge bg-light text-dark border me-1 niche-badge" data-niche="${n.toLowerCase()}">${n}</span>`
+    ).join('');
+
+    const userContent = (user.contentTypes || []).map(ct =>
+      `<span class="badge bg-secondary text-light me-1 content-type-badge" data-content="${ct.toLowerCase()}">${ct}</span>`
+    ).join('');
+
+    const avatarBorder = user.online ? 'border-success border-2' : 'border-0';
+
+    const location = user.userLocation?.city || user.userLocation?.state
+      ? `${user.userLocation?.city || ''}${user.userLocation?.city && user.userLocation?.state ? ', ' : ''}${user.userLocation?.state || ''}`
+      : '';
+
+    const card = document.createElement("div");
+    card.className = "col-sm-6 col-md-4 col-lg-3 mb-3";
+    card.dataset.name = `${user.displayName?.toLowerCase() || ''} ${user.username?.toLowerCase() || ''}`;
+    card.dataset.niche = (user.niches || []).join(',').toLowerCase();
+    card.dataset.content = (user.contentTypes || []).join(',').toLowerCase();
+    card.dataset.location = (user.userLocation?.state || '').toLowerCase();
+
+    card.innerHTML = `
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.id}" class="text-decoration-none text-dark">
+        <div class="card shadow-sm h-100">
+          <div class="text-center pt-3">
+            <img src="${user.photoURL || '/assets/default-avatar.png'}"
+              class="rounded-circle border ${avatarBorder}"
+              style="width: 100px; height: 100px; object-fit: cover;"
+              alt="${user.displayName || 'User'}" />
+          </div>
+          <div class="card-body text-center">
+            <h6 class="card-title mb-0">${user.displayName || 'Unnamed'} ${badge} ${platformIcons}</h6>
+            <small class="text-muted d-block mb-1">${user.availability || 'Available'}</small>
+            ${userNiches}
+            ${userContent}
+            <small class="text-muted d-block mt-2">${location}</small>
+          </div>
+        </div>
+      </a>
+    `;
+    creatorsGrid.appendChild(card);
+  });
+
+  document.querySelectorAll('.niche-badge').forEach(badge => {
+    badge.addEventListener('click', () => addFilterTag('niche', badge.dataset.niche));
+  });
+  document.querySelectorAll('.content-type-badge').forEach(badge => {
+    badge.addEventListener('click', () => addFilterTag('content', badge.dataset.content));
+  });
+}
+
+function filterCreators() {
+  const search = searchInput.value.toLowerCase();
+  const tagsByType = activeFilterTags.reduce((acc, f) => {
+    acc[f.type] = acc[f.type] || [];
+    acc[f.type].push(f.value);
+    return acc;
+  }, {});
+
+  document.querySelectorAll("#creatorsGrid > div").forEach(card => {
+    const name = card.dataset.name;
+    const niche = card.dataset.niche;
+    const content = card.dataset.content;
+    const location = card.dataset.location;
+
+    const matchesSearch = name.includes(search);
+    const matchesNiche = !tagsByType.niche || tagsByType.niche.some(n => niche.includes(n));
+    const matchesContent = !tagsByType.content || tagsByType.content.some(c => content.includes(c));
+    const matchesLocation = !locationFilter.value || location === locationFilter.value.toLowerCase();
+
+    const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
+    card.style.display = visible ? "block" : "none";
+  });
+}
 
 searchInput.addEventListener("input", filterCreators);
-contentTypeFilter.addEventListener("change", filterCreators);
-nicheFilter.addEventListener("change", filterCreators);
 locationFilter.addEventListener("change", filterCreators);
 platformFilter.addEventListener("change", filterCreators);
+resetFiltersBtn.addEventListener("click", resetAllFilters);
 
-    fetchCreators();
+fetchCreators();
+
   </script>
 
 </body>
