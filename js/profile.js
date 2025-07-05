@@ -383,7 +383,7 @@ async function checkNameChangeEligibility(userData) {
     // You'd actually write this to a Firestore collection like `tickets`
   }
 
-
+window.openSupportTicket = openSupportTicket;
 
 // Store selected content types
 const selectedContentTypes = new Set();
