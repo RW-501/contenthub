@@ -550,45 +550,81 @@ const socialPlatforms = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  const verifyBtn = document.getElementById("verifyProfileBtn");
+  const linkValidity = {}; // Store validity per platform
+
+  function updateVerifyBtnState() {
+    const allValid = Object.values(linkValidity).every(v => v !== false); // allow true or undefined
+    verifyBtn.disabled = !allValid;
+  }
+
   Object.keys(socialPlatforms).forEach((platform, index) => {
     const input = document.getElementById(`editLink${index + 1}`);
     if (!input) return;
 
     const base = socialPlatforms[platform];
-    
-    // Create a small error message container
+
+    // Create error message container
     const errorMsg = document.createElement("div");
     errorMsg.className = "text-danger small mt-1 d-none";
     input.insertAdjacentElement("afterend", errorMsg);
 
-    input.addEventListener("change", () => {
+    input.addEventListener("change", async () => {
       let value = input.value.trim();
+      linkValidity[platform] = undefined; // Reset status
 
-      // Only username (e.g., "myhandle")
-      if (!value.startsWith("http")) {
-        value = base + value.replace(/^@/, ""); // Add base if user pasted username
+      if (!value) {
+        input.classList.remove("is-invalid");
+        errorMsg.classList.add("d-none");
+        updateVerifyBtnState();
+        return;
       }
+
+      // Format: only username → full URL
+      if (!value.startsWith("http")) {
+        value = base + value.replace(/^@/, "");
+      }
+
+      input.value = value;
 
       // Validate domain
       try {
         const url = new URL(value);
         if (!url.hostname.includes(new URL(base).hostname)) {
-          throw new Error("Invalid domain");
+          throw new Error("Domain mismatch");
         }
 
-        // Hide error if valid
-        errorMsg.classList.add("d-none");
-        errorMsg.textContent = "";
+        // Now do a CORS-safe check
+        errorMsg.textContent = "Checking link...";
+        errorMsg.classList.remove("d-none");
         input.classList.remove("is-invalid");
-        input.value = value; // Format and set cleaned URL
-      } catch {
+
+        try {
+          const response = await fetch(value, { method: "HEAD", mode: "no-cors" });
+          // We can't inspect response in no-cors, but assume it's okay if it doesn't throw
+          linkValidity[platform] = true;
+          errorMsg.classList.add("d-none");
+          input.classList.remove("is-invalid");
+        } catch {
+          linkValidity[platform] = false;
+          errorMsg.textContent = "Could not verify this link (site might be down or block CORS)";
+          errorMsg.classList.remove("d-none");
+          input.classList.add("is-invalid");
+        }
+      } catch (err) {
+        linkValidity[platform] = false;
         errorMsg.textContent = `Please enter a valid ${platform} URL`;
         errorMsg.classList.remove("d-none");
         input.classList.add("is-invalid");
       }
+
+      updateVerifyBtnState();
     });
   });
+
+  updateVerifyBtnState(); // Initial check
 });
+
 
 
     // Request verification
@@ -632,10 +668,8 @@ const username = userData.username?.toLowerCase().replace(/^@/, "").replace(/\s/
     `,
     autoClose: 4000
   });
-// Optionally reload user profile UI after 2 seconds
-setTimeout(() => {
-  location.reload();
-}, 2000);
+      updateVerifyBtnState();
+
 
 
 });
