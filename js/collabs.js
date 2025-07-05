@@ -81,6 +81,7 @@ function renderMediaPreview(mediaLink) {
 
 function renderRequest(id, data, incoming) {
   const name = data.displayName || (incoming ? data.fromUid : data.toUid);
+  const senderUrl = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${id}`
   const dateStr = formatTimestamp(data.timestamp);
   const mediaHTML = renderMediaPreview(data.mediaLink);
 
@@ -105,7 +106,11 @@ function renderRequest(id, data, incoming) {
         <div>
           <strong>${data.title || "Untitled Project"}</strong>
           <p class="mb-1">${data.message}</p>
-          <small class="text-muted">${incoming ? "From" : "To"}: ${name} <br>${dateStr}</small>
+<small class="text-muted">
+  ${incoming ? "From" : "To"}: 
+  <a href="${senderUrl}" target="_blank" class="text-decoration-none">${name}</a>
+  <br>${dateStr}
+</small>
         </div>
         <div class="text-end">
           <button class="btn btn-sm btn-link text-decoration-none" data-bs-toggle="collapse" data-bs-target="#req-details-${id}">View</button>
