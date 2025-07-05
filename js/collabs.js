@@ -86,7 +86,7 @@ function renderRequest(id, data, incoming) {
   const mediaHTML = renderMediaPreview(data.mediaLink);
 
   const actions = incoming
-    ? `<button class="btn btn-sm btn-success me-1" onclick="respondToRequest('${id}', 'accepted''${data}')">Accept</button>
+    ? `<button class="btn btn-sm btn-success me-1" onclick="respondToRequest('${id}', 'accepted','${data}')">Accept</button>
        <button class="btn btn-sm btn-danger" onclick="respondToRequest('${id}', 'declined')">Decline</button>`
     : data.status === "pending"
       ? `<span class="badge bg-warning text-dark">Pending</span>`
