@@ -330,7 +330,7 @@ async function loadAnalytics(uid) {
 let lastNameChange = null; // Fetched from Firestore user metadata
 
 async function checkNameChangeEligibility(userData) {
-  const nameInput = document.getElementById("usernameText");
+  const nameInput = document.getElementById("editUsername");
   const note = document.getElementById("nameChangeNote");
 
   // Handle new users with no lastNameChange
@@ -815,8 +815,8 @@ if (userData.contentTypes && Array.isArray(userData.contentTypes)) {
   contentTypeInput.value = userData.contentTypes || "";
 }
 
-if (userData.niche && Array.isArray(userData.niche)) {
-  userData.niche.forEach(type => {
+if (userData.niches && Array.isArray(userData.niches)) {
+  userData.niches.forEach(type => {
     const event = new KeyboardEvent("keydown", {
       key: "Enter",
       bubbles: true,
@@ -825,37 +825,20 @@ if (userData.niche && Array.isArray(userData.niche)) {
     nicheInput.dispatchEvent(event);
   });
 }else{
-  nicheInput.value = userData.niche || "";
+  nicheInput.value = userData.niches || "";
 }
 
   // Fill other profile fields
   document.getElementById("editName").value = userData.displayName || "";
   document.getElementById("editBio").value = userData.bio || "";
-  /*
-  document.getElementById("contentTypeInput").value = userData.contentTypes || "";
-  document.getElementById("nicheInput").value = userData.niche || "";
-  */
+
+  
   document.getElementById("editUsername").value = userData.username || "";
 document.getElementById("editPronouns").value = userData.pronouns || "";
 document.getElementById("editAvailability").value = userData.availability || "";
 
 
-  /*
-const linkMap = {};
-(userData.links || []).forEach(link => {
-  linkMap[link.platform] = link.url;
-});
 
-document.getElementById("editLink1").value = linkMap.instagram || "";
-document.getElementById("editLink2").value = linkMap.tiktok || "";
-document.getElementById("editLink3").value = linkMap.youtube || "";
-document.getElementById("editLink4").value = linkMap.facebook || "";
-document.getElementById("editLink5").value = linkMap.twitch || "";
-document.getElementById("editLink6").value = linkMap.threads || "";
-document.getElementById("editLink7").value = linkMap.snapchat || "";
-document.getElementById("editLink8").value = linkMap.pinterest || "";
-document.getElementById("editLink9").value = linkMap.reddit || "";
-*/
 const platforms = [
   "instagram", "tiktok", "youtube", "facebook",
   "twitch", "threads", "snapchat", "pinterest", "reddit"
