@@ -88,6 +88,10 @@ if (Array.isArray(data.links)) {
   });
 }
 
+
+
+
+
 if (viewingUserId !== currentUser.uid) {
   const followBtn = document.getElementById("followBtn");
   followBtn.style.display = "inline-block";
@@ -347,27 +351,6 @@ async function loadAnalytics(uid) {
     // You'd actually write this to a Firestore collection like `tickets`
   }
 
-const platforms = [
-  "instagram", "tiktok", "youtube", "facebook",
-  "twitch", "threads", "snapchat", "pinterest", "reddit"
-];
-
-const linkIds = [
-  "editLink1", "editLink2", "editLink3", "editLink4",
-  "editLink5", "editLink6", "editLink7", "editLink8", "editLink9"
-];
-
-// ✅ Create a mapping from platform to link
-const linkMap = {};
-(userData.links || []).forEach(link => {
-  linkMap[link.platform] = link.url;
-});
-
-// ✅ Populate the inputs
-linkIds.forEach((id, i) => {
-  const el = document.getElementById(id);
-  if (el) el.value = linkMap[platforms[i]] || "";
-});
 
 document.addEventListener("DOMContentLoaded", () => {
   const nicheInput = document.getElementById("nicheInput");
@@ -749,6 +732,7 @@ document.getElementById("detectLocationBtn").addEventListener("click", () => {
   document.getElementById("editBio").value = userData.bio || "";
   document.getElementById("editNiche").value = userData.niche || "";
 
+  /*
 const linkMap = {};
 (userData.links || []).forEach(link => {
   linkMap[link.platform] = link.url;
@@ -763,6 +747,28 @@ document.getElementById("editLink6").value = linkMap.threads || "";
 document.getElementById("editLink7").value = linkMap.snapchat || "";
 document.getElementById("editLink8").value = linkMap.pinterest || "";
 document.getElementById("editLink9").value = linkMap.reddit || "";
+*/
+const platforms = [
+  "instagram", "tiktok", "youtube", "facebook",
+  "twitch", "threads", "snapchat", "pinterest", "reddit"
+];
+
+const linkIds = [
+  "editLink1", "editLink2", "editLink3", "editLink4",
+  "editLink5", "editLink6", "editLink7", "editLink8", "editLink9"
+];
+
+// ✅ Create a mapping from platform to link
+const linkMap = {};
+(userData.links || []).forEach(link => {
+  linkMap[link.platform] = link.url;
+});
+
+// ✅ Populate the inputs
+linkIds.forEach((id, i) => {
+  const el = document.getElementById(id);
+  if (el) el.value = linkMap[platforms[i]] || "";
+});
 
 
 
