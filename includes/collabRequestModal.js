@@ -61,7 +61,7 @@ form.addEventListener("submit", async (e) => {
 
   const toUid = collabBtn.dataset.viewingUserId;
   const user = auth.currentUser;
-  if (!user || !toUid || user.uid === toUid) return;
+  if (!user || !toUid || user.uid === toUid);// return;
 
   const message = sanitizeInput(document.getElementById("collabMessage").value.trim());
   const title = sanitizeInput(document.getElementById("collabTitle").value.trim());
@@ -72,7 +72,7 @@ form.addEventListener("submit", async (e) => {
   if (!message){
 
       showModal({
-    title: "",
+    title: "Info",
     message: "Please enter a message or pitch.",
     autoClose: 3000
   });
@@ -104,7 +104,11 @@ form.addEventListener("submit", async (e) => {
       await uploadBytes(storageRef, file);
       mediaLink = await getDownloadURL(storageRef);
     } catch (err) {
-      alert("Upload failed. Please try again.");
+            showModal({
+    title: "Info",
+    message: "Upload failed. Please try again.",
+    autoClose: 3000
+  });
       isUploading = false;
       return;
     }
