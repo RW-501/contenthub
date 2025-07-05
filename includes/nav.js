@@ -148,7 +148,12 @@ if (autoClose) {
     }
 
     modalEl.setAttribute("aria-hidden", "true");
-    bootstrap.Modal.getInstance(modalEl)?.hide();
+bootstrap.Modal.getInstance(modalEl)?.hide();
+
+// Cleanup for scrollbar/overlay issue
+document.body.classList.remove('modal-open');
+document.body.style.overflow = '';
+document.body.style.paddingRight = '';
   }, autoClose);
 }
 
