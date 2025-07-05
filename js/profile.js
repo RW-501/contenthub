@@ -347,17 +347,23 @@ async function loadAnalytics(uid) {
     // You'd actually write this to a Firestore collection like `tickets`
   }
 
+const platforms = [
+  "instagram", "tiktok", "youtube", "facebook",
+  "twitch", "threads", "snapchat", "pinterest", "reddit"
+];
 
 const linkIds = [
   "editLink1", "editLink2", "editLink3", "editLink4",
   "editLink5", "editLink6", "editLink7", "editLink8", "editLink9"
 ];
 
-const platforms = [
-  "instagram", "tiktok", "youtube", "facebook",
-  "twitch", "threads", "snapchat", "pinterest", "reddit"
-];
+// ✅ Create a mapping from platform to link
+const linkMap = {};
+(userData.links || []).forEach(link => {
+  linkMap[link.platform] = link.url;
+});
 
+// ✅ Populate the inputs
 linkIds.forEach((id, i) => {
   const el = document.getElementById(id);
   if (el) el.value = linkMap[platforms[i]] || "";
@@ -366,6 +372,7 @@ linkIds.forEach((id, i) => {
 document.addEventListener("DOMContentLoaded", () => {
   const nicheInput = document.getElementById("nicheInput");
   const tagWrapper = document.getElementById("nicheTagWrapper");
+
   let selectedNiches = [];
 
   if (!nicheInput || !tagWrapper) return;
