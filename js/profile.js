@@ -327,28 +327,34 @@ async function loadAnalytics(uid) {
   });
 }
 
-  let lastNameChange = null; // fetched from Firestore user metadata
+let lastNameChange = null; // Fetched from Firestore user metadata
 
-  // Check display name change eligibility
-  async function checkNameChangeEligibility(userData) {
-    lastNameChange = userData.lastNameChange?.toDate?.() || new Date(0);
-    const now = new Date();
-    const diffDays = Math.floor((now - lastNameChange) / (1000 * 60 * 60 * 24));
+async function checkNameChangeEligibility(userData) {
+  const nameInput = document.getElementById("usernameText");
+  const note = document.getElementById("nameChangeNote");
 
-    const canChange = diffDays >= 90;
-    const nameInput = document.getElementById("usernameText");
-    const note = document.getElementById("nameChangeNote");
-
-    const nameInputValue = nameInput.value.length;
-
-    if (canChange || lastNameChange == 0) {
-      nameInput.disabled = false;
-      note.textContent = "You can update your display name.";
-    } else {
-      nameInput.disabled = true;
-      note.innerHTML = `You can change your name again in <strong>${90 - diffDays}</strong> days or <a href="#" onclick="openSupportTicket('name_change')">submit a ticket</a>.`;
-    }
+  // Handle new users with no lastNameChange
+  if (!userData.lastNameChange) {
+    nameInput.disabled = false;
+    note.textContent = "You can update your display name.";
+    return;
   }
+
+  // Convert Firestore Timestamp to Date
+  lastNameChange = userData.lastNameChange.toDate();
+  const now = new Date();
+  const diffDays = Math.floor((now - lastNameChange) / (1000 * 60 * 60 * 24));
+  const canChange = diffDays >= 90;
+
+  if (canChange) {
+    nameInput.disabled = false;
+    note.textContent = "You can update your display name.";
+  } else {
+    nameInput.disabled = true;
+    note.innerHTML = `You can change your name again in <strong>${90 - diffDays}</strong> days or <a href="#" onclick="openSupportTicket('name_change')">submit a ticket</a>.`;
+  }
+}
+
 
   // Preview photo
   document.getElementById("editPhoto").addEventListener("change", (e) => {
