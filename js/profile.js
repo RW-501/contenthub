@@ -603,6 +603,12 @@ const socialPlatforms = {
         try {
           const response = await fetch(value, { method: "HEAD", mode: "no-cors" });
           // We can't inspect response in no-cors, but assume it's okay if it doesn't throw
+          if(response){
+          linkValidity[platform] = false;
+          errorMsg.textContent = "Could not verify this link (site might be down or block CORS)";
+          errorMsg.classList.remove("d-none");
+          input.classList.add("is-invalid");
+          }
           linkValidity[platform] = true;
           errorMsg.classList.add("d-none");
           input.classList.remove("is-invalid");
