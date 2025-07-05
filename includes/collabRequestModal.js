@@ -19,8 +19,20 @@ let isUploading = false;
 const form = document.getElementById("collabRequestForm");
 
 function sanitizeInput(str) {
-  return str.replace(/[<>"']/g, ''); // Light sanitization
+  if (typeof str !== "string") return "";
+
+  const map = {
+    '&': "&amp;",
+    '<': "&lt;",
+    '>': "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+    "`": "&#96;"
+  };
+
+  return str.replace(/[&<>"'`]/g, char => map[char]);
 }
+
 
 const mediaInput = document.getElementById("collabMedia");
 const fileFeedback = document.getElementById("fileFeedback");
