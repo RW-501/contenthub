@@ -294,7 +294,7 @@ async function loadUserPosts(uid) {
 // Load Collabs
 async function loadUserCollabs(uid) {
   const list = document.getElementById("collabList");
-  const q = query(collection(db, "collabs"), where("participants", "array-contains", uid));
+  const q = query(collection(db, "collaborations"), where("participants", "array-contains", uid));
   const snapshot = await getDocs(q);
   list.innerHTML = "";
 
