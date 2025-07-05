@@ -62,12 +62,17 @@
   <div id="footerContainer"></div>
   <script type="module">
     import { getFirestore, doc, getDoc, updateDoc, onSnapshot, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { db, auth } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
     const db = getFirestore();
-    const auth = getAuth();
+    
     const urlParams = new URLSearchParams(window.location.search);
-    const collabId = urlParams.get("id");
+const collabId = urlParams.get("id");
+
+console.log("Full URL:", window.location.href);
+console.log("Search Params:", window.location.search);
+console.log("Collab ID:", collabId);
+
     const titleEl = document.getElementById("collabTitle");
     const descEl = document.getElementById("collabDesc");
     const mediaPreview = document.getElementById("mediaPreview");
