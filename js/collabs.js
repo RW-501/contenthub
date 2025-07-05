@@ -123,7 +123,7 @@ function renderRequest(id, data, incoming) {
           ${mediaHTML}
           <div class="text-end">
           ${actions}
-          ${chatBtn}
+          
           </div>
         </div>
       </div>
