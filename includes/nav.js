@@ -69,8 +69,7 @@ loadAuthScript();
 
 
 
-
-  window.showModal = function({
+window.showModal = function({
   title = "Notice",
   message = "",
   confirmText = null,
@@ -79,42 +78,54 @@ loadAuthScript();
   onCancel = null,
   autoClose = null // in ms
 }) {
+  const modalEl = document.getElementById("reusableModal");
   const titleEl = document.getElementById("reusableModalTitle");
   const bodyEl = document.getElementById("reusableModalBody");
   const footerEl = document.getElementById("reusableModalFooter");
 
+  // Set content
   titleEl.textContent = title;
   bodyEl.innerHTML = message;
-  footerEl.innerHTML = ""; // Reset buttons
+  footerEl.innerHTML = ""; // Clear previous buttons
 
+  // Add Cancel button
   if (cancelText) {
     const cancelBtn = document.createElement("button");
     cancelBtn.className = "btn btn-secondary";
     cancelBtn.textContent = cancelText;
-    cancelBtn.onclick = () => {
+    cancelBtn.addEventListener("click", () => {
       if (onCancel) onCancel();
-      bootstrap.Modal.getInstance(modalEl).hide();
-    };
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    });
     footerEl.appendChild(cancelBtn);
   }
 
+  // Add Confirm button
   if (confirmText) {
     const confirmBtn = document.createElement("button");
     confirmBtn.className = "btn btn-primary";
     confirmBtn.textContent = confirmText;
-    confirmBtn.onclick = () => {
+    confirmBtn.addEventListener("click", () => {
       if (onConfirm) onConfirm();
-      bootstrap.Modal.getInstance(modalEl).hide();
-    };
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    });
     footerEl.appendChild(confirmBtn);
   }
 
-  const modalEl = document.getElementById("reusableModal");
-let bsModal = bootstrap.Modal.getInstance(modalEl);
-if (!bsModal) bsModal = new bootstrap.Modal(modalEl);
-bsModal.show();
+  // Show modal safely with Bootstrap
+  let bsModal = bootstrap.Modal.getInstance(modalEl);
+  if (!bsModal) bsModal = new bootstrap.Modal(modalEl);
 
+  // Focus first focusable element inside modal after it is shown
+  modalEl.addEventListener("shown.bs.modal", () => {
+    const focusTarget = modalEl.querySelector("button, [tabindex]:not([tabindex='-1'])");
+    if (focusTarget) focusTarget.focus();
+  }, { once: true });
 
+  // Show modal
+  bsModal.show();
+
+  // Auto-close after timeout
   if (autoClose) {
     setTimeout(() => {
       bsModal.hide();
