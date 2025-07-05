@@ -81,7 +81,7 @@ function renderMediaPreview(mediaLink) {
 
 function renderRequest(id, data, incoming) {
   const name = data.displayName || (incoming ? data.fromUid : data.toUid);
-  const senderUrl = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${id}`
+  const senderUrl = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${incoming ? data.fromUid : data.toUid}`
   const dateStr = formatTimestamp(data.timestamp);
   const mediaHTML = renderMediaPreview(data.mediaLink);
 
