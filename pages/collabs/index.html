@@ -106,44 +106,7 @@
   </div>
 </div>
 
-<script type="module">
-  import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-  window.openGroupChat = function (collabId) {
-    // Redirect to full page chat
-    window.location.href = `https://rw-501.github.io/contenthub/pages/collabs/view.html?id=${collabId}`;
-
-    // Alternatively, use a modal (commented out if you prefer full-page)
-    // showChatPopup(collabId);
-  };
-
-  // Optional modal chat popup function (only use if popup preferred)
-  function showChatPopup(collabId) {
-    const modalHtml = `
-      <div class="modal fade" id="groupChatModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Group Chat</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <iframe src="https://rw-501.github.io/contenthub/pages/collabs/view.html?id=${collabId}" frameborder="0" class="w-100" style="height: 500px;"></iframe>
-            </div>
-          </div>
-        </div>
-      </div>`;
-
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    new bootstrap.Modal(document.getElementById('groupChatModal')).show();
-  }
-</script>
-
-<!-- Example Button (Replace where needed) 
-<button class="btn btn-sm btn-outline-primary" onclick="openGroupChat('COLLAB_ID')">
-  <i class="bi bi-chat-dots"></i> Open Chat
-</button>
--->
   </main>
 
 <!-- Add this at the bottom of <body> -->

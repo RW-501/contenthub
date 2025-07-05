@@ -91,8 +91,12 @@ function renderRequest(id, data, incoming) {
       ? `<span class="badge bg-warning text-dark">Pending</span>`
       : `<span class="badge bg-danger">Declined</span>`;
 
-  const chatBtn = `<button class="btn btn-sm btn-outline-primary ms-2" onclick="openChatPopup('${incoming ? data.fromUid : data.toUid}')">
-    <i class="bi bi-chat-dots"></i> Message
+  const chatBtn = `<button class="btn btn-sm btn-outline-primary ms-2" onclick="showChatPopup('${incoming ? data.fromUid : data.toUid}')">
+    <i class="bi bi-chat-dots"></i> showChatPopup
+  </button>
+  
+  <button class="btn btn-sm btn-outline-primary ms-2" onclick="openChatPopup('${incoming ? data.fromUid : data.toUid}')">
+    <i class="bi bi-chat-dots"></i> Open Message
   </button>`;
 
   return `
@@ -157,12 +161,35 @@ window.respondToRequest = async function(id, status) {
 };
 
 // 🔧 Basic Chat Popup Handler
-window.openChatPopup = function(uid) {
+window.showChatPopup = function(uid) {
   // Show a chat modal or drawer for messaging with specific user
-  alert(`Start chat with UID: ${uid}`);
+showChatPopup(uid)
 };
 
-window.openGroupChat = function(collabId) {
-  // Show chat modal for group thread
-  alert(`Open group chat for collab: ${collabId}`);
-};
+  window.openGroupChat = function (collabId) {
+    // Redirect to full page chat
+    window.location.href = `https://rw-501.github.io/contenthub/pages/collabs/view.html?id=${collabId}`;
+
+  };
+
+  // Optional modal chat popup function (only use if popup preferred)
+  function showChatPopup(collabId) {
+    const modalHtml = `
+      <div class="modal fade" id="groupChatModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Group Chat</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <iframe src="https://rw-501.github.io/contenthub/pages/collabs/view.html?id=${collabId}" frameborder="0" class="w-100" style="height: 500px;"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    new bootstrap.Modal(document.getElementById('groupChatModal')).show();
+  }
+
