@@ -537,6 +537,59 @@ setTimeout(() => {
 
   });
 
+const socialPlatforms = {
+  instagram: "https://instagram.com/",
+  tiktok: "https://tiktok.com/@",
+  youtube: "https://youtube.com/",
+  facebook: "https://facebook.com/",
+  twitch: "https://twitch.tv/",
+  threads: "https://threads.net/",
+  snapchat: "https://snapchat.com/add/",
+  pinterest: "https://pinterest.com/",
+  reddit: "https://reddit.com/u/"
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  Object.keys(socialPlatforms).forEach((platform, index) => {
+    const input = document.getElementById(`editLink${index + 1}`);
+    if (!input) return;
+
+    const base = socialPlatforms[platform];
+    
+    // Create a small error message container
+    const errorMsg = document.createElement("div");
+    errorMsg.className = "text-danger small mt-1 d-none";
+    input.insertAdjacentElement("afterend", errorMsg);
+
+    input.addEventListener("change", () => {
+      let value = input.value.trim();
+
+      // Only username (e.g., "myhandle")
+      if (!value.startsWith("http")) {
+        value = base + value.replace(/^@/, ""); // Add base if user pasted username
+      }
+
+      // Validate domain
+      try {
+        const url = new URL(value);
+        if (!url.hostname.includes(new URL(base).hostname)) {
+          throw new Error("Invalid domain");
+        }
+
+        // Hide error if valid
+        errorMsg.classList.add("d-none");
+        errorMsg.textContent = "";
+        input.classList.remove("is-invalid");
+        input.value = value; // Format and set cleaned URL
+      } catch {
+        errorMsg.textContent = `Please enter a valid ${platform} URL`;
+        errorMsg.classList.remove("d-none");
+        input.classList.add("is-invalid");
+      }
+    });
+  });
+});
+
 
     // Request verification
 document.getElementById("verifyProfileBtn").addEventListener("click", async () => {
