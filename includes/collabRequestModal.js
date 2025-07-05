@@ -27,28 +27,39 @@ const fileFeedback = document.getElementById("fileFeedback");
 
 const mediaPreview = document.getElementById("mediaPreview");
 
+const fileTrigger = document.getElementById("customFileTrigger");
+const fileNameLabel = document.getElementById("selectedFileName");
+
+fileTrigger.addEventListener("click", () => {
+  mediaInput.click();
+});
+
 mediaInput.addEventListener("change", () => {
   const file = mediaInput.files[0];
   mediaPreview.innerHTML = "";
+  fileFeedback.textContent = "";
+
   if (file) {
+    fileNameLabel.textContent = file.name;
+
     if (file.size > 15 * 1024 * 1024) {
       fileFeedback.textContent = "File too large (max 15MB)";
       mediaInput.classList.add("is-invalid");
     } else {
-      fileFeedback.textContent = `Selected: ${file.name} (${Math.round(file.size / 1024)} KB)`;
       mediaInput.classList.remove("is-invalid");
 
       const url = URL.createObjectURL(file);
       if (file.type.startsWith("image/")) {
-        mediaPreview.innerHTML = `<img src="${url}" alt="preview" class="img-fluid rounded shadow-sm" style="max-height: 200px;" />`;
+        mediaPreview.innerHTML = `<img src="${url}" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 200px;" />`;
       } else if (file.type.startsWith("video/")) {
         mediaPreview.innerHTML = `<video src="${url}" controls class="w-100 rounded shadow-sm" style="max-height: 240px;"></video>`;
       }
     }
   } else {
-    fileFeedback.textContent = "";
+    fileNameLabel.textContent = "No file chosen";
   }
 });
+
 
 
 
