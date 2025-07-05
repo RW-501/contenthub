@@ -468,7 +468,7 @@ if (username && !username.startsWith("@")) {
     const stateSelect = document.getElementById("stateSelect");
     const citySelect = document.getElementById("citySelect");
     const userLocation = {
-  state: countrySelect.value,
+  country: countrySelect.value,
   state: stateSelect.value,
   city: citySelect.value
 };
@@ -870,35 +870,35 @@ linkIds.forEach((id, i) => {
   }
 
   // ✅ Set location if already stored
- if (userData.location) {
-  if (userData.location.country) {
-    countrySelect.value = userData.location.country;
+ if (userData.userLocation) {
+  if (userData.userLocation.country) {
+    countrySelect.value = userData.userLocation.country;
     countrySelect.dispatchEvent(new Event("change"));
   }
 
   setTimeout(() => {
-    if (userData.location.state) {
+    if (userData.userLocation.state) {
       // Add state option if missing
-      if (![...stateSelect.options].some(o => o.value === userData.location.state)) {
+      if (![...stateSelect.options].some(o => o.value === userData.userLocation.state)) {
         const opt = document.createElement("option");
-        opt.value = userData.location.state;
-        opt.textContent = userData.location.state;
+        opt.value = userData.userLocation.state;
+        opt.textContent = userData.userLocation.state;
         stateSelect.appendChild(opt);
       }
-      stateSelect.value = userData.location.state;
+      stateSelect.value = userData.userLocation.state;
       stateSelect.dispatchEvent(new Event("change"));
     }
 
     setTimeout(() => {
-      if (userData.location.city) {
+      if (userData.userLocation.city) {
         // Add city option if missing
-        if (![...citySelect.options].some(o => o.value === userData.location.city)) {
+        if (![...citySelect.options].some(o => o.value === userData.userLocation.city)) {
           const opt = document.createElement("option");
-          opt.value = userData.location.city;
-          opt.textContent = userData.location.city;
+          opt.value = userData.userLocation.city;
+          opt.textContent = userData.userLocation.city;
           citySelect.appendChild(opt);
         }
-        citySelect.value = userData.location.city;
+        citySelect.value = userData.userLocation.city;
       }
     }, 100);
   }, 100);
