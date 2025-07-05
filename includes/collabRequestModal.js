@@ -69,7 +69,15 @@ form.addEventListener("submit", async (e) => {
   const url = document.getElementById("collabUrl").value.trim();
   const file = mediaInput.files[0];
 
-  if (!message) return alert("Please enter a message or pitch.");
+  if (!message){
+
+      showModal({
+    title: "",
+    message: "Please enter a message or pitch.",
+    autoClose: 3000
+  });
+  return 
+};
 
   // Check for duplicate requests
   const q = query(collection(db, "collabRequests"),
