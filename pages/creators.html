@@ -33,12 +33,16 @@
 
 <div class="container py-4">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+
+      <div class="d-flex flex-wrap gap-2 mb-3">
       <h2 class="fw-bold">All Creators</h2>
       <div class="d-flex gap-2">
         <input type="text" id="searchInput" class="form-control" placeholder="Search by name or tag...">
-
+</div>
         
+</div>
 
+      <div class="d-flex flex-wrap gap-2 mb-3">
 <!-- 🔎 Multi-Select Filters UI -->
 <div class="d-flex flex-wrap gap-2 mb-3" id="activeFilters"></div>
 
@@ -216,6 +220,7 @@
 
 // 🔧 JavaScript Enhancements
 
+
 const creatorsGrid = document.getElementById("creatorsGrid");
 const searchInput = document.getElementById("searchInput");
 const contentTypeFilter = document.getElementById("contentTypeFilter");
@@ -227,6 +232,12 @@ const resetFiltersBtn = document.getElementById("resetFiltersBtn");
 
 let creators = [];
 let activeFilterTags = [];
+
+    async function fetchCreators() {
+      const snapshot = await getDocs(collection(db, "users"));
+      creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderCreators(creators);
+    }
 
 function addFilterTag(type, value) {
   if (activeFilterTags.find(f => f.type === type && f.value === value)) return;
