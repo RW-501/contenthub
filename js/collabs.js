@@ -91,7 +91,7 @@ function renderRequest(id, data, incoming) {
     : data.status === "pending"
       ? `<span class="badge bg-warning text-dark">Pending</span>`
       : `<span class="badge bg-danger">Declined</span>`;
-
+/*
   const chatBtn = `<button class="btn btn-sm btn-outline-primary ms-2" onclick="showChatPopup('${incoming ? data.fromUid : data.toUid}')">
     <i class="bi bi-chat-dots"></i> showChatPopup
   </button>
@@ -99,7 +99,7 @@ function renderRequest(id, data, incoming) {
   <button class="btn btn-sm btn-outline-primary ms-2" onclick="openGroupChat('${incoming ? data.fromUid : data.toUid}')">
     <i class="bi bi-chat-dots"></i> Open Message
   </button>`;
-
+*/
   return `
     <div class="list-group-item">
       <div class="d-flex justify-content-between align-items-center">

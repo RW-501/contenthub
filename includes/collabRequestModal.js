@@ -153,6 +153,9 @@ form.addEventListener("submit", async (e) => {
     timestamp: serverTimestamp()
   });
 
+  
+
+
   form.reset();
   mediaPreview.innerHTML = "";
   fileFeedback.textContent = "";
