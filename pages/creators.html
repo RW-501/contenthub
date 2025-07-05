@@ -323,8 +323,8 @@ function renderCreators(data) {
           <div class="card-body text-center">
             <h6 class="card-title mb-0">${user.displayName || 'Unnamed'} ${badge} ${platformIcons}</h6>
             <small class="text-muted d-block mb-1">${user.availability || 'Available'}</small>
-            ${userNiches}
-            ${userContent}
+            <div class="flex">${userNiches}</div>
+            <div class="flex">${userContent}</div>
             <small class="text-muted d-block mt-2">${location}</small>
           </div>
         </div>
