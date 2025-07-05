@@ -182,12 +182,20 @@ data.forEach(user => {
     .filter(([_, verified]) => verified)
     .map(([platform]) => {
       const icons = {
-        instagram: 'bi-instagram',
-        facebook: 'bi-facebook',
-        tiktok: 'bi-tiktok',
-        youtube: 'bi-youtube',
-      };
-      return `<i class="bi ${icons[platform] || ''} text-muted ms-1" title="Verified on ${platform.charAt(0).toUpperCase() + platform.slice(1)}"></i>`;
+    instagram: "bi bi-instagram",
+  tiktok: "bi bi-tiktok",
+  youtube: "bi bi-youtube",
+  facebook: "bi bi-facebook",
+  twitter: "bi bi-twitter",
+  linkedin: "bi bi-linkedin",
+  twitch: "bi bi-twitch",
+  threads: "bi bi-threads",
+  snapchat: "bi bi-snapchat",
+  pinterest: "bi bi-pinterest",
+  reddit: "bi bi-reddit",
+  other: "bi bi-link-45deg"
+};
+      return `<i class="${icons[platform] || ''} text-muted ms-1" title="Verified on ${platform.charAt(0).toUpperCase() + platform.slice(1)}"></i>`;
     }).join('');
 
   const card = document.createElement("div");
@@ -200,8 +208,8 @@ data.forEach(user => {
           <h6 class="card-title mb-1">
             ${user.displayName || 'Unnamed'} ${badge} ${platformIcons}
           </h6>
-          <small class="text-muted d-block">${user.niche || 'Creator'}</small>
-          <small class="text-muted">${user.location?.city || ''}${user.location?.city && user.location?.state ? ', ' : ''}${user.location?.state || ''}</small>
+          <small class="text-muted d-block">${user.niches || 'Creator'}</small>
+          <small class="text-muted">${user.userLocation?.city || ''}${user.userLocation?.city && user.userLocation?.state ? ', ' : ''}${user.userLocation?.state || ''}</small>
         </div>
       </div>
     </a>`;
@@ -218,8 +226,8 @@ function filterCreators() {
 
   const filtered = creators.filter(user => {
     const name = user.displayName?.toLowerCase() || "";
-    const userNiche = user.niche?.toLowerCase() || "";
-    const state = user.location?.state?.toLowerCase() || "";
+    const userNiche = user.niches?.toLowerCase() || "";
+    const state = user.userLocation?.state?.toLowerCase() || "";
     const verified = user.verifiedPlatforms || {};
 
     const matchesSearch =

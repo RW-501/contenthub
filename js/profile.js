@@ -49,11 +49,11 @@ document.getElementById("availabilityText").innerHTML = data.availability ? `<i 
 
 document.getElementById("bioText").innerText = data.bio || '';
 document.getElementById("locationText").innerText =
-  data.location?.city && data.location?.state && data.location?.country
-    ? `${data.location.city}, ${data.location.state}, ${data.location.country}`
-    : data.location?.state && data.location?.country
-      ? `${data.location.state}, ${data.location.country}`
-      : data.location?.country || '';
+  data.userLocation?.city && data.userLocation?.state && data.userLocation?.country
+    ? `${data.userLocation.city}, ${data.userLocation.state}, ${data.userLocation.country}`
+    : data.userLocation?.state && data.userLocation?.country
+      ? `${data.userLocation.state}, ${data.userLocation.country}`
+      : data.userLocation?.country || '';
 
 
 
