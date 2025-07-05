@@ -104,8 +104,6 @@ function renderRequest(id, data, incoming) {
           <small class="text-muted">${incoming ? "From" : "To"}: ${name} <br>${dateStr}</small>
         </div>
         <div class="text-end">
-          ${actions}
-          ${chatBtn}
           <button class="btn btn-sm btn-link text-decoration-none" data-bs-toggle="collapse" data-bs-target="#req-details-${id}">View</button>
         </div>
       </div>
@@ -113,6 +111,10 @@ function renderRequest(id, data, incoming) {
         <div class="border-top pt-2">
           <p class="mb-1"><strong>Description:</strong> ${data.description || "No description."}</p>
           ${mediaHTML}
+          <div class="text-end">
+          ${actions}
+          ${chatBtn}
+          </div>
         </div>
       </div>
     </div>`;

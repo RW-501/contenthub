@@ -15,7 +15,22 @@
   </style>
 </head>
 <body>
-  <div id="toolbarContainer"></div>
+    
+      <div id="toolbarContainer"></div>
+
+  <!-- Your page content here -->
+
+  <!-- Include Bootstrap JS (required for navbar) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Inject toolbar -->
+  <script type="module">
+    const toolbarContainer = document.getElementById("toolbarContainer");
+    const html = await fetch('https://rw-501.github.io/contenthub/includes/nav.html').then(res => res.text());
+    toolbarContainer.innerHTML = html;
+    import('https://rw-501.github.io/contenthub/includes/nav.js');
+  </script>
+
   <main id="main">
     <div class="container">
       <div class="d-flex justify-content-between align-items-center">
