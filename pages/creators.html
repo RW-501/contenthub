@@ -37,7 +37,7 @@
     <div class="flex-md-row mb-4">
 
       <div class="d-flex flex-wrap gap-2 mb-1">
-      <h2 class="fw-bold">All Creators</h2>
+      <h2 class="fw-bold">Creators</h2>
         <input type="text" id="searchInput" class="form-control" placeholder="Search by name or tag...">
       </div>
    
@@ -45,10 +45,7 @@
 <!-- 🔎 Multi-Select Filters UI -->
 <div id="activeFilters" class="d-flex flex-wrap gap-2 my-3"></div>
 
-
-
-
-      <div class="d-flex align-items-center gap-2 m-2">
+      <div class="d-flex align-items-center gap-2 m-4">
         <select id="contentTypeFilter" class="form-select">
   <option value="">All Content Types</option>
   <option value="tutorials">Tutorials</option>
@@ -272,7 +269,7 @@ function renderCreators(data) {
   activeFilters.innerHTML = "";
 
   if (data.length === 0) {
-    creatorsGrid.innerHTML = '<p class="text-center text-muted">No creators found.</p>';
+    creatorsGrid.innerHTML = '<p class="text-center text-muted small text-light">No creators found.</p>';
     return;
   }
 
@@ -395,7 +392,7 @@ function updateActiveFilters() {
     // If no filters, show fallback message
   if (filters.length === 0) {
     const noFilters = document.createElement("div");
-    noFilters.className = "text-muted small fst-italic";
+    noFilters.className = "text-muted small text-light fst-italic";
     noFilters.textContent = "No filters applied";
     filtersDiv.appendChild(noFilters);
     return;
@@ -423,6 +420,12 @@ function filterCreators() {
 
     const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
     card.style.display = visible ? "block" : "none";
+
+
+    if (card.length === 0) {
+    creatorsGrid.innerHTML = '<p class="text-center text-muted small text-light">No creators found.</p>';
+    return;
+  }
   });
 
   updateActiveFilters(); // 👈 this line updates the pill tags
