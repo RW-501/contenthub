@@ -139,7 +139,7 @@
   </main>
   <div id="footerContainer"></div>
   <script type="module">
-    import { getFirestore, doc, getDoc, updateDoc,docSnap, onSnapshot, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc, onSnapshot, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db, auth } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
     
@@ -191,7 +191,7 @@ console.log("Collab ID:", collabId);
       if (!isParticipant) return alert("Access denied");
 
 
-      const tasksArray = docSnap.data().tasks || [];
+      const tasksArray = data.tasks || [];
       renderAllTasks(tasksArray);
 
       titleEl.innerText = data.title || "Untitled";
