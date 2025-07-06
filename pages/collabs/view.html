@@ -322,14 +322,8 @@ const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
   return new bootstrap.Tooltip(tooltipTriggerEl);
 });
 
-// Auto-complete population (replace with real participant list from Firebase)
-const teamList = document.getElementById("teamList");
-const teamMembers = ["uid123", "uid456", "uid789"];
-teamMembers.forEach(id => {
-  const option = document.createElement("option");
-  option.value = id;
-  teamList.appendChild(option);
-});
+
+
 
 // Live preview task text
 const newTaskInput = document.getElementById("newTask");
