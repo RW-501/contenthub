@@ -476,22 +476,36 @@ function renderMessage(msg) {
 chatBox.addEventListener("click", async (e) => {
   if (e.target.classList.contains("reaction-btn")) {
     const emoji = e.target.dataset.emoji;
-    const msgId = e.target.closest(".msg").dataset.id;
+    const msgId = e.target.closest(".msg")?.dataset.id;
+    if (!msgId) return;
+
     const docRef = doc(db, "messages", collabId);
     const docSnap = await getDoc(docRef);
     const messages = docSnap.data()?.messages || [];
-    const msg = messages.find(m => m.id === msgId);
-    if (!msg.reactions) msg.reactions = {};
-    msg.reactions[emoji] = msg.reactions[emoji] || [];
 
-    const alreadyReacted = msg.reactions[emoji].includes(currentUser.uid);
-    msg.reactions[emoji] = alreadyReacted ?
-      msg.reactions[emoji].filter(u => u !== currentUser.uid) :
-      [...msg.reactions[emoji], currentUser.uid];
+    const updatedMessages = messages.map(msg => {
+      if (msg.id !== msgId) return msg;
 
-    await updateDoc(docRef, { messages });
+      const reactions = msg.reactions || {};
+      const users = reactions[emoji] || [];
+
+      const updatedUsers = users.includes(currentUser.uid)
+        ? users.filter(uid => uid !== currentUser.uid)
+        : [...users, currentUser.uid];
+
+      return {
+        ...msg,
+        reactions: {
+          ...reactions,
+          [emoji]: updatedUsers
+        }
+      };
+    });
+
+    await updateDoc(docRef, { messages: updatedMessages });
   }
 });
+
 
 // 5. Edit/Delete
 chatBox.addEventListener("click", async (e) => {
