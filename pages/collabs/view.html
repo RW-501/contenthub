@@ -713,6 +713,11 @@ function renderTask(taskObj) {
     }
   };
 
+  const checkbox = document.createElement("input");
+checkbox.type = "checkbox";
+checkbox.className = "form-check-input";
+checkbox.checked = taskObj.completed || false;
+
   // === HEADER (Task title + checkbox)
 checkbox.addEventListener("change", async () => {
   const isCompleted = checkbox.checked;
