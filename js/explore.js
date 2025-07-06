@@ -66,7 +66,7 @@ async function loadPosts(reset = true) {
 
   if (collabZone) {
     // Show open collaboration requests
-    q = query(collection(db, "collabs"), where("open", "==", true), orderBy("createdAt", "desc"), limit(10));
+    q = query(collection(db, "collaborations"), where("open", "==", true), orderBy("createdAt", "desc"), limit(10));
     const snap = await getDocs(q);
     snap.forEach(docSnap => {
       const data = docSnap.data();
