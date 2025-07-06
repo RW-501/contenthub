@@ -12,6 +12,16 @@
     #chatBox .msg { margin-bottom: 10px; }
     .task { display: block;  align-items: center; margin-bottom: 6px; }
     .edit-btn { cursor: pointer; color: blue; font-size: 0.9rem; }
+
+    #mentionsDropdown {
+  min-width: 200px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
   </style>
 </head>
 <body>
@@ -60,6 +70,7 @@
     </div>
     <div class="collapse show" id="chatSection">
       <div class="card-body">
+        <div id="mentionsDropdown" class="dropdown-menu show" style="position:absolute; display:none; z-index:9999;"></div>
         <div id="chatBox" class="mb-3" style="max-height: 300px; overflow-y: auto;"></div>
 <div class="input-group align-items-end">
 <div id="chatInput" contenteditable="true" class="form-control" style="min-height: 60px;"></div>
@@ -192,6 +203,7 @@
 </div>
 
   </main>
+
 
 
 <script src="https://unpkg.com/timeago.js@4.0.2/dist/timeago.min.js"></script>
@@ -550,11 +562,69 @@ onSnapshot(doc(db, "messages", collabId), docSnap => {
   renderGroupedMessages(msgs);
 });
 
+chatInput.addEventListener("keyup", async (e) => {
+  const selection = window.getSelection();
+  const range = selection.getRangeAt(0);
+  const caretRect = range.getBoundingClientRect();
+
+  const text = chatInput.innerText;
+  const lastWord = text.split(/\s/).pop();
+  if (lastWord.startsWith("@") && lastWord.length > 1) {
+    const query = lastWord.slice(1);
+    showMentionDropdown(query, caretRect);
+  } else {
+    hideMentionDropdown();
+  }
+});
 
 
 
+let mentionList = [];
+
+function showMentionDropdown(query, caretRect) {
+  const dropdown = document.getElementById("mentionsDropdown");
+  const matches = mentionList.filter(u => u.displayName.toLowerCase().includes(query.toLowerCase()));
+
+  if (!matches.length) return hideMentionDropdown();
+
+  dropdown.innerHTML = matches.map(user =>
+    `<button class="dropdown-item" data-uid="${user.uid}" data-name="${user.displayName}">@${user.displayName}</button>`
+  ).join("");
+
+  dropdown.style.left = `${caretRect.left}px`;
+  dropdown.style.top = `${caretRect.bottom}px`;
+  dropdown.style.display = "block";
+}
+
+function hideMentionDropdown() {
+  const dropdown = document.getElementById("mentionsDropdown");
+  dropdown.style.display = "none";
+}
 
 
+document.getElementById("mentionsDropdown").addEventListener("click", (e) => {
+  if (!e.target.matches(".dropdown-item")) return;
+  const name = e.target.dataset.name;
+  const selection = window.getSelection();
+  const range = selection.getRangeAt(0);
+  range.deleteContents();
+  const node = document.createTextNode(`@${name} `);
+  range.insertNode(node);
+  range.setStartAfter(node);
+  selection.removeAllRanges();
+  selection.addRange(range);
+  hideMentionDropdown();
+});
+
+// Run this on load
+async function loadMentionList() {
+  const qSnap = await getDocs(collection(db, "users"));
+  mentionList = qSnap.docs.map(doc => ({
+    uid: doc.id,
+    displayName: doc.data().displayName || doc.data().email
+  }));
+}
+loadMentionList();
 
 
 let draggedTaskId = null;
