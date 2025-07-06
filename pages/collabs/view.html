@@ -714,39 +714,35 @@ function renderTask(taskObj) {
   };
 
   // === HEADER (Task title + checkbox)
-  const taskHeader = document.createElement("div");
-  taskHeader.className = "d-flex justify-content-between align-items-center mb-2";
-
-  const taskText = document.createElement("span");
-  taskText.textContent = taskObj.text;
-  taskText.className = taskObj.completed ? "text-decoration-line-through" : "";
-
-const checkbox = document.createElement("input");
-checkbox.type = "checkbox";
-checkbox.className = "form-check-input";
-checkbox.checked = taskObj.completed || false;
-
 checkbox.addEventListener("change", async () => {
   const isCompleted = checkbox.checked;
   const updatedTask = { ...taskObj, completed: isCompleted };
 
+  // Fetch and update task list
   const docSnap = await getDoc(collabRef);
   const data = docSnap.data();
   const tasks = (data.tasks || []).filter(t => t.text !== taskObj.text);
   tasks.push(updatedTask);
 
-  await updateDoc(collabRef, { tasks });
+  // Calculate progress percentage
+  const total = tasks.length;
+  const done = tasks.filter(t => t.completed).length;
+  const percent = total ? Math.round((done / total) * 100) : 0;
+
+  // Update tasks + progress in Firestore
+  await updateDoc(collabRef, {
+    tasks,
+    progress: percent // ✅ Save progress to DB
+  });
 
   // Update UI
   taskText.classList.toggle("text-decoration-line-through", isCompleted);
+  updateProgressBar(tasks); // Reuse your existing UI function
 
   // Log to timeline
   const status = isCompleted ? "✔️ Completed" : "❌ Marked as Not Completed";
   const timelineMsg = `"${taskObj.text}" → ${status}`;
   await addToTimeline("checked_task", timelineMsg);
-
-  // ✅ Update progress bar
-  updateProgressBar(tasks);
 });
 
 
@@ -842,7 +838,10 @@ addTask.onclick = async () => {
   const order = parseInt(document.getElementById("taskOrder").value);
   const deadline = document.getElementById("taskDeadline").value;
   const assignee = document.getElementById("taskAssignee").value.trim();
-  const links = document.getElementById("taskLinks").value.split(",").map(l => l.trim()).filter(Boolean);
+  const links = document.getElementById("taskLinks").value
+    .split(",")
+    .map(l => l.trim())
+    .filter(Boolean);
 
   if (!taskText) return;
 
@@ -859,15 +858,27 @@ addTask.onclick = async () => {
     assignee
   };
 
-await updateDoc(collabRef, {
-  tasks: arrayUnion(taskObj)
-});
-await addToTimeline("added_task", taskText);
+  // 1. Add task to array
+  await updateDoc(collabRef, {
+    tasks: arrayUnion(taskObj)
+  });
 
+  // 2. Add to timeline
+  await addToTimeline("added_task", taskText);
 
+  // 3. Update totalTasks count
   const updatedDoc = await getDoc(collabRef);
-  renderAllTasks(updatedDoc.data().tasks || []);
+  const updatedTasks = updatedDoc.data().tasks || [];
+  const totalTasks = updatedTasks.length;
 
+  await updateDoc(collabRef, {
+    totalTasks // ✅ Save total count
+  });
+
+  // 4. Re-render UI
+  renderAllTasks(updatedTasks);
+
+  // 5. Reset form
   document.getElementById("newTask").value = "";
   document.getElementById("taskGoal").value = "";
   document.getElementById("taskOrder").value = "";
@@ -875,6 +886,7 @@ await addToTimeline("added_task", taskText);
   document.getElementById("taskAssignee").value = "";
   document.getElementById("taskLinks").value = "";
 };
+
 
 
 
