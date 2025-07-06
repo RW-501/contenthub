@@ -284,6 +284,7 @@ function getActionText(type, details) {
     case "deleted_task": return `🗑️ deleted task <strong>${details}</strong>`;
     case "pinned_task": return `📌 pinned task <strong>${details}</strong>`;
     case "updated_collab": return `✏️ updated the collaboration`;
+    case "checked_task": return `Checked task ${details}`;
     case "visibility_toggle": return `🔓 ${details}`;
     case "added_goal": return `🎯 added goal <strong>${details}</strong>`;
     default: return `<strong>${details}</strong>`;
@@ -634,13 +635,19 @@ checkbox.addEventListener("change", async () => {
   const data = docSnap.data();
   const tasks = (data.tasks || []).filter(t => t.text !== taskObj.text);
   tasks.push(updatedTask);
+
   await updateDoc(collabRef, { tasks });
 
+  // Update UI
   taskText.classList.toggle("text-decoration-line-through", isCompleted);
 
+  // Log to timeline
   const status = isCompleted ? "✔️ Completed" : "❌ Marked as Not Completed";
   const timelineMsg = `"${taskObj.text}" → ${status}`;
   await addToTimeline("checked_task", timelineMsg);
+
+  // ✅ Update progress bar
+  updateProgressBar(tasks);
 });
 
 
@@ -782,6 +789,7 @@ await addToTimeline("added_task", taskText);
 async function addToTimeline(type, details) {
   const userDoc = await getDoc(doc(db, "users", currentUser.uid));
   const user = userDoc.exists() ? userDoc.data() : {};
+
   const entry = {
     user: {
       displayName: user.displayName || currentUser.displayName || currentUser.email,
@@ -793,8 +801,18 @@ async function addToTimeline(type, details) {
     details,
     timestamp: Date.now()
   };
+
+  // Push to Firestore
   await updateDoc(collabRef, { timeline: arrayUnion(entry) });
+
+  // Optionally: Update UI immediately
+  if (typeof renderTimeline === "function") {
+    const docSnap = await getDoc(collabRef); // Fetch latest timeline
+    const updatedTimeline = docSnap.data().timeline || [];
+    renderTimeline(updatedTimeline);
+  }
 }
+
 
 
 
