@@ -189,6 +189,9 @@
 </div>
 
   </main>
+
+
+
   <div id="footerContainer"></div>
   <script type="module">
 import { getFirestore, doc, getDoc, updateDoc, collection, onSnapshot, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -487,7 +490,6 @@ function renderAllTasks(tasksArray) {
   });
 }
 
-
 function renderTask(taskObj) {
   const taskList = document.getElementById("taskList");
 
@@ -514,6 +516,7 @@ function renderTask(taskObj) {
     }
   };
 
+  // === HEADER (Task title + checkbox)
   const taskHeader = document.createElement("div");
   taskHeader.className = "d-flex justify-content-between align-items-center mb-2";
 
@@ -538,8 +541,9 @@ function renderTask(taskObj) {
   taskHeader.append(taskText, checkbox);
   taskDiv.appendChild(taskHeader);
 
+  // === META INFO ROW
   const metaRow = document.createElement("div");
-  metaRow.className = "small text-muted d-flex flex-wrap gap-3";
+  metaRow.className = "small text-muted d-flex flex-wrap gap-3 mb-2";
 
   if (taskObj.goal) metaRow.innerHTML += `<span>🎯 <strong>Goal:</strong> ${taskObj.goal}</span>`;
   if (taskObj.order !== null && taskObj.order !== undefined) metaRow.innerHTML += `<span>🔢 <strong>Order:</strong> ${taskObj.order}</span>`;
@@ -555,16 +559,23 @@ function renderTask(taskObj) {
 
   taskDiv.appendChild(metaRow);
 
-  const checklist = document.createElement("ul");
-  (taskObj.checklist || []).forEach(item => {
-    const li = document.createElement("li");
-    li.textContent = item;
-    checklist.appendChild(li);
-  });
-  taskDiv.appendChild(checklist);
+  // === OPTIONAL CHECKLIST
+  if (taskObj.checklist?.length) {
+    const checklist = document.createElement("ul");
+    (taskObj.checklist || []).forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      checklist.appendChild(li);
+    });
+    taskDiv.appendChild(checklist);
+  }
+
+  // === FOOTER: comment + buttons
+  const footer = document.createElement("div");
+  footer.className = "mt-3";
 
   const commentBox = document.createElement("textarea");
-  commentBox.className = "form-control form-control-sm mt-2";
+  commentBox.className = "form-control form-control-sm mb-2";
   commentBox.placeholder = "Add comment...";
   commentBox.value = taskObj.comment || "";
   commentBox.addEventListener("blur", async () => {
@@ -573,10 +584,9 @@ function renderTask(taskObj) {
     const tasks = data.tasks.map(t => t.text === taskObj.text ? { ...t, comment: commentBox.value } : t);
     await updateDoc(collabRef, { tasks });
   });
-  taskDiv.appendChild(commentBox);
 
   const btnGroup = document.createElement("div");
-  btnGroup.className = "mt-2 d-flex gap-2";
+  btnGroup.className = "d-flex gap-2";
 
   const editBtn = document.createElement("button");
   editBtn.className = "btn btn-sm btn-outline-primary";
@@ -597,7 +607,10 @@ function renderTask(taskObj) {
   delBtn.onclick = () => deleteTask(taskObj.text);
 
   btnGroup.append(editBtn, delBtn);
-  taskDiv.appendChild(btnGroup);
+
+  footer.appendChild(commentBox);
+  footer.appendChild(btnGroup);
+  taskDiv.appendChild(footer);
 
   taskList.appendChild(taskDiv);
 }
