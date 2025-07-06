@@ -83,6 +83,7 @@
           <div class="progress-bar bg-success" role="progressbar" id="progressBarFill" style="width: 0%;"></div>
         </div>
 
+
         <!-- Filters -->
         <div class="mb-3 d-flex flex-wrap gap-2">
           <select id="filterGoal" class="form-select w-auto">
@@ -134,6 +135,27 @@
     </div>
   </div>
 
+
+<!-- Timeline Section -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">📜 Activity Timeline</h5>
+    <button class="btn btn-sm btn-outline-secondary" 
+            data-bs-toggle="collapse" 
+            data-bs-target="#timelineSection"
+            aria-expanded="true" 
+            aria-controls="timelineSection">
+      Toggle
+    </button>
+  </div>
+  <div class="collapse show" id="timelineSection">
+    <div class="card-body">
+      <ul id="timeline" class="list-group list-group-flush mb-0"></ul>
+    </div>
+  </div>
+</div>
+
+
 </div>
 
   </main>
@@ -180,6 +202,38 @@ console.log("Collab ID:", collabId);
         .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
         .replace(/@([\w]+)/g, '<span class="text-primary">@$1</span>');
     }
+
+function renderTimeline(entries) {
+  const timelineEl = document.getElementById("timeline");
+  timelineEl.innerHTML = "";
+  const sorted = entries.sort((a, b) => b.timestamp - a.timestamp);
+  sorted.forEach(entry => {
+const time = new Date(entry.timestamp).toLocaleString([], {
+  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+});
+    let text = `${entry.user} ${getActionText(entry.type, entry.details)} <br><small class="text-muted">${time}</small>`;
+    const li = document.createElement("li");
+    li.className = "list-group-item";
+    li.innerHTML = text;
+    if (entries.length === 0) {
+  timelineEl.innerHTML = `<li class="list-group-item text-muted">No activity yet.</li>`;
+}
+
+    timelineEl.appendChild(li);
+  });
+}
+
+function getActionText(type, details) {
+  switch (type) {
+    case "added_task": return `📝 added task <strong>${details}</strong>`;
+    case "pinned_task": return `Task Pinned`;
+    case "updated_collab": return `✏️ updated the collaboration`;
+    case "visibility_toggle": return `🔓 ${details}`;
+    case "added_goal": return `🎯 added goal <strong>${details}</strong>`;
+    default: return `<strong>${details}</strong>`;
+  }
+}
+
 
     async function loadCollab() {
       const collabRef = doc(db, "collaborations", collabId);
@@ -255,6 +309,7 @@ chatBox.querySelectorAll(".like-btn").forEach(btn => {
 
 let draggedTaskId = null;
 
+
 const pinBtn = document.createElement("button");
 pinBtn.textContent = "📌 Pin";
 pinBtn.className = "btn btn-sm btn-outline-warning";
@@ -262,7 +317,9 @@ pinBtn.onclick = async () => {
   const pinnedTasks = (data.pinnedTasks || []);
   if (!pinnedTasks.includes(taskObj.text)) {
     await updateDoc(collabRef, { pinnedTasks: arrayUnion(taskObj.text) });
-  }
+  
+  await addToTimeline("pinned_task", taskObj.text);
+}
 };
 
 function renderPinnedTasks(pinnedTexts, tasks) {
@@ -430,6 +487,8 @@ async function deleteTask(taskText) {
   const tasks = (docSnap.data().tasks || []).filter(t => t.text !== taskText);
   await updateDoc(collabRef, { tasks });
   renderAllTasks(tasks);
+  await addToTimeline("deleted_task", taskText);
+
 }
 
 addTask.onclick = async () => {
@@ -455,9 +514,11 @@ addTask.onclick = async () => {
     assignee
   };
 
-  await updateDoc(collabRef, {
-    tasks: arrayUnion(taskObj)
-  });
+await updateDoc(collabRef, {
+  tasks: arrayUnion(taskObj)
+});
+await addToTimeline("added_task", taskText);
+
 
   const updatedDoc = await getDoc(collabRef);
   renderAllTasks(updatedDoc.data().tasks || []);
@@ -471,12 +532,36 @@ addTask.onclick = async () => {
 };
 
 
-      document.getElementById("editCollab").onclick = () => {
-        const newTitle = prompt("Edit Title", data.title);
-        const newDesc = prompt("Edit Description", data.description);
-        updateDoc(collabRef, { title: newTitle, description: newDesc });
-      };
+
+
+      if (data.timeline?.length) {
+  renderTimeline(data.timeline);
+}
+
     }
+
+
+async function addToTimeline(type, details) {
+  await updateDoc(collabRef, {
+    timeline: arrayUnion({
+      user: currentUser.displayName || currentUser.email,
+      type,
+      details,
+      timestamp: Date.now()
+    })
+  });
+}
+
+document.getElementById("editCollab").onclick = async () => {
+  const newTitle = prompt("Edit Title", data.title);
+  const newDesc = prompt("Edit Description", data.description);
+
+  await updateDoc(collabRef, { title: newTitle, description: newDesc });
+
+  await addToTimeline("updated_collab", "Changed title/description");
+};
+
+
   </script>
   <script type="module">
     const footer = await fetch('https://rw-501.github.io/contenthub/includes/footer.html').then(res => res.text());
