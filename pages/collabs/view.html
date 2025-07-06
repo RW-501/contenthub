@@ -538,8 +538,6 @@ await addToTimeline("added_task", taskText);
   renderTimeline(data.timeline);
 }
 
-    }
-
 
 async function addToTimeline(type, details) {
   await updateDoc(collabRef, {
@@ -560,6 +558,8 @@ document.getElementById("editCollab").onclick = async () => {
 
   await addToTimeline("updated_collab", "Changed title/description");
 };
+
+    }
 
 
   </script>
