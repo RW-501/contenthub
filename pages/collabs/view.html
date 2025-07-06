@@ -84,53 +84,130 @@
         </div>
 
 
-        <!-- Filters -->
-        <div class="mb-3 d-flex flex-wrap gap-2">
-          <select id="filterGoal" class="form-select w-auto">
-            <option value="">All Goals</option>
-          </select>
-          <select id="filterAssignee" class="form-select w-auto">
-            <option value="">All Assignees</option>
-          </select>
+<!-- Filters -->
+<div class="mb-3 d-flex flex-wrap gap-2 align-items-end">
+  <div>
+    <label for="filterGoal" class="form-label" data-bs-toggle="tooltip" title="Filter tasks based on goal or category">🎯 Filter by Goal</label>
+    <select id="filterGoal" class="form-select w-auto">
+      <option value="">All Goals</option>
+    </select>
+  </div>
+  <div>
+    <label for="filterAssignee" class="form-label" data-bs-toggle="tooltip" title="Filter tasks by who it's assigned to">👤 Filter by Assignee</label>
+    <select id="filterAssignee" class="form-select w-auto">
+      <option value="">All Assignees</option>
+    </select>
+  </div>
+</div>
+
+<!-- Task List -->
+<div id="taskList" class="mb-4"></div>
+
+<!-- Task Form -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6 class="mb-0">➕ Add New Task</h6>
+    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#taskForm">Toggle</button>
+  </div>
+  <div class="collapse show" id="taskForm">
+    <div class="card-body">
+      <div class="row g-3">
+
+        <div class="col-md-4">
+          <label for="newTask" class="form-label" data-bs-toggle="tooltip" title="Name of the task or paste a relevant link">📝 Task Name or Link</label>
+          <input type="text" id="newTask" class="form-control" placeholder="Write task or paste a URL..." />
+          <div id="taskPreview" class="mt-2 small text-muted"></div>
         </div>
 
-        <!-- Task List -->
-        <div id="taskList" class="mb-4"></div>
+        <div class="col-md-3">
+          <label for="taskGoal" class="form-label" data-bs-toggle="tooltip" title="Category or purpose of the task">🎯 Goal / Category</label>
+          <input type="text" id="taskGoal" class="form-control" placeholder="e.g. Design, Outreach" />
+        </div>
 
-        <!-- Task Form -->
-        <div class="card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0">➕ Add New Task</h6>
-            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#taskForm">Toggle</button>
-          </div>
-          <div class="collapse show" id="taskForm">
-            <div class="card-body">
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <input type="text" id="newTask" class="form-control" placeholder="Task or link..." />
-                </div>
-                <div class="col-md-3">
-                  <input type="text" id="taskGoal" class="form-control" placeholder="Goal or category" />
-                </div>
-                <div class="col-md-2">
-                  <input type="number" id="taskOrder" class="form-control" placeholder="Order" min="1" />
-                </div>
-                <div class="col-md-3">
-                  <input type="date" id="taskDeadline" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                  <input type="text" id="taskAssignee" class="form-control" placeholder="Assign to user ID" />
-                </div>
-                <div class="col-md-5">
-                  <input type="text" id="taskLinks" class="form-control" placeholder="Links (comma-separated)" />
-                </div>
-                <div class="col-md-3 d-grid">
-                  <button class="btn btn-success" id="addTask">Add Task</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> <!-- End Task Form -->
+        <div class="col-md-2">
+          <label for="taskOrder" class="form-label" data-bs-toggle="tooltip" title="Display order of the task (lower appears first)">🔢 Order</label>
+          <input type="number" id="taskOrder" class="form-control" placeholder="Sort priority" min="1" />
+        </div>
+
+        <div class="col-md-3">
+          <label for="taskDeadline" class="form-label" data-bs-toggle="tooltip" title="When is this task due? Must be a future date.">🕒 Deadline</label>
+          <input type="date" id="taskDeadline" class="form-control" />
+        </div>
+
+        <div class="col-md-4 position-relative">
+          <label for="taskAssignee" class="form-label" data-bs-toggle="tooltip" title="Assign to a team member (auto-complete enabled)">👤 Assign to (User ID)</label>
+<input type="text" id="taskAssignee" class="form-control" placeholder="Assign to user..." list="assigneeList" />
+<datalist id="assigneeList"></datalist>
+
+        </div>
+
+        <div class="col-md-5">
+          <label for="taskLinks" class="form-label" data-bs-toggle="tooltip" title="Relevant links for this task (comma separated)">📎 Related Links</label>
+          <input type="text" id="taskLinks" class="form-control" placeholder="Comma-separated URLs" />
+          <div id="linkPreview" class="mt-2 small"></div>
+        </div>
+
+        <div class="col-md-3 d-grid">
+          <label class="form-label invisible">Add Button</label>
+          <button class="btn btn-success" id="addTask">➕ Add Task</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Tooltip init
+const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+
+// Auto-complete population (replace with real participant list from Firebase)
+const teamList = document.getElementById("teamList");
+const teamMembers = ["uid123", "uid456", "uid789"];
+teamMembers.forEach(id => {
+  const option = document.createElement("option");
+  option.value = id;
+  teamList.appendChild(option);
+});
+
+// Live preview task text
+const newTaskInput = document.getElementById("newTask");
+newTaskInput.addEventListener("input", () => {
+  const val = newTaskInput.value;
+  const preview = document.getElementById("taskPreview");
+  if (val.startsWith("http")) {
+    preview.innerHTML = `<a href="${val}" target="_blank">Preview Link</a>`;
+  } else {
+    preview.textContent = "";
+  }
+});
+
+// Live URL preview for taskLinks
+const linksInput = document.getElementById("taskLinks");
+linksInput.addEventListener("input", () => {
+  const links = linksInput.value.split(",").map(l => l.trim()).filter(Boolean);
+  const preview = document.getElementById("linkPreview");
+  preview.innerHTML = links.map(link =>
+    link.startsWith("http") ? `<a href="${link}" target="_blank">${link}</a>` : `<span class="text-danger">Invalid URL</span>`
+  ).join("<br>");
+});
+
+// Deadline validation
+const deadlineInput = document.getElementById("taskDeadline");
+deadlineInput.addEventListener("change", () => {
+  const date = new Date(deadlineInput.value);
+  const now = new Date();
+  if (date < now) {
+    deadlineInput.classList.add("is-invalid");
+  } else {
+    deadlineInput.classList.remove("is-invalid");
+  }
+});
+</script>
+
       </div>
     </div>
   </div>
@@ -207,31 +284,47 @@ function sanitize(text) {
     .replace(/@([\w]+)/g, '<span class="text-primary">@$1</span>');
 }
 
-
+// ✅ Render Timeline with avatars, roles, display names
 function renderTimeline(entries) {
   const timelineEl = document.getElementById("timeline");
   timelineEl.innerHTML = "";
+
+  if (!entries.length) {
+    timelineEl.innerHTML = `<li class="list-group-item text-muted">No activity yet.</li>`;
+    return;
+  }
+
   const sorted = entries.sort((a, b) => b.timestamp - a.timestamp);
   sorted.forEach(entry => {
-const time = new Date(entry.timestamp).toLocaleString([], {
-  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-});
-    let text = `${entry.user} ${getActionText(entry.type, entry.details)} <br><small class="text-muted">${time}</small>`;
-    const li = document.createElement("li");
-    li.className = "list-group-item";
-    li.innerHTML = text;
-    if (entries.length === 0) {
-  timelineEl.innerHTML = `<li class="list-group-item text-muted">No activity yet.</li>`;
-}
+    const time = new Date(entry.timestamp).toLocaleString([], {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
 
+    const userName = entry.user?.displayName || entry.user?.email || "Unknown";
+    const userRole = entry.user?.role ? ` <small class="text-muted">(${entry.user.role})</small>` : "";
+    const avatar = entry.user?.photoURL
+      ? `<img src="${entry.user.photoURL}" class="rounded-circle me-2" style="width:32px;height:32px;object-fit:cover;">`
+      : `<span class="avatar-placeholder me-2">👤</span>`;
+
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex align-items-start gap-2";
+    li.innerHTML = `
+      ${avatar}
+      <div>
+        <div>${userName}${userRole} ${getActionText(entry.type, entry.details)}</div>
+        <small class="text-muted">${time}</small>
+      </div>
+    `;
     timelineEl.appendChild(li);
   });
 }
 
+// ✅ Action descriptions
 function getActionText(type, details) {
   switch (type) {
     case "added_task": return `📝 added task <strong>${details}</strong>`;
-    case "pinned_task": return `Task Pinned`;
+    case "deleted_task": return `🗑️ deleted task <strong>${details}</strong>`;
+    case "pinned_task": return `📌 pinned task <strong>${details}</strong>`;
     case "updated_collab": return `✏️ updated the collaboration`;
     case "visibility_toggle": return `🔓 ${details}`;
     case "added_goal": return `🎯 added goal <strong>${details}</strong>`;
@@ -249,6 +342,27 @@ function getActionText(type, details) {
       const isParticipant = data.participants.includes(currentUser.uid);
       if (!isParticipant) return alert("Access denied");
 
+const assigneeListEl = document.getElementById("assigneeList");
+
+// Optional: Clear previous values
+assigneeListEl.innerHTML = "";
+
+// Fetch participant names or emails
+const participantIds = data.participants || [];
+const usersCollection = collection(db, "users"); // adjust path if needed
+
+for (const uid of participantIds) {
+  const userRef = doc(usersCollection, uid);
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    const userData = userSnap.data();
+    const option = document.createElement("option");
+    option.value = userData.displayName || userData.email || uid;
+    assigneeListEl.appendChild(option);
+  }
+}
+
+document.getElementById("taskAssignee").value = currentUser.displayName || currentUser.email;
 
       const tasksArray = data.tasks || [];
       renderAllTasks(tasksArray);
@@ -544,16 +658,26 @@ await addToTimeline("added_task", taskText);
 }
 
 
+// ✅ Add to Timeline w/ full user object
 async function addToTimeline(type, details) {
-  await updateDoc(collabRef, {
-    timeline: arrayUnion({
-      user: currentUser.displayName || currentUser.email,
-      type,
-      details,
-      timestamp: Date.now()
-    })
-  });
+  const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+  const user = userDoc.exists() ? userDoc.data() : {};
+  const entry = {
+    user: {
+      displayName: user.displayName || currentUser.displayName || currentUser.email,
+      email: user.email || currentUser.email,
+      role: user.role || "member",
+      photoURL: user.photoURL || null
+    },
+    type,
+    details,
+    timestamp: Date.now()
+  };
+  await updateDoc(collabRef, { timeline: arrayUnion(entry) });
 }
+
+
+
 
 document.getElementById("editCollab").onclick = async () => {
   const newTitle = prompt("Edit Title", data.title);
