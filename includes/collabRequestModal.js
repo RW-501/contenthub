@@ -83,9 +83,18 @@ form.addEventListener("submit", async (e) => {
   }
 
   const toUid = collabBtn.dataset.viewingUserId;
-  const username = collabBtn.dataset.username;
-  const displayName = collabBtn.dataset.displayName;
-  const user = auth.currentUser;
+  const toUsername = collabBtn.dataset.username;
+  const toDisplayName = collabBtn.dataset.displayName;
+
+const currentUserData = getCurrentUserData();
+
+const currentDisplayName = currentUserData?.displayName || "";
+const currentPhotoURL = currentUserData?.photoURL || "";
+console.log("currentUserData ", currentUserData);
+console.log("currentDisplayName ", currentDisplayName);
+
+  //const fromUid = auth.currentUser;
+
   if (!user || !toUid || user.uid === toUid);// return;
 
   const message = sanitizeInput(document.getElementById("collabMessage").value.trim());
@@ -143,8 +152,10 @@ form.addEventListener("submit", async (e) => {
   await addDoc(collection(db, "collabRequests"), {
     fromUid: user.uid,
     toUid,
-    username,
-    displayName,
+    toUsername,
+    toDisplayName,
+    fromDisplayName: currentDisplayName,
+    fromPhotoURL: currentPhotoURL,
     message,
     title,
     description,

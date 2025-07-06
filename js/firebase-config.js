@@ -21,6 +21,39 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app); // ✅ This is what you need
 
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    const data = userSnap.data();
+
+    // Only store safe fields
+    const safeUserData = {
+      uid: user.uid,
+      displayName: data.displayName || "",
+      photoURL: data.photoURL || "",
+      bio: data.bio || ""
+    };
+
+    // Store in memory and localStorage
+    window.currentUserData = safeUserData;
+    localStorage.setItem("currentUserData", JSON.stringify(safeUserData));
+  }
+});
+
+function getCurrentUserData() {
+  if (window.currentUserData) return window.currentUserData;
+
+  const cached = localStorage.getItem("currentUserData");
+  if (cached) {
+    window.currentUserData = JSON.parse(cached);
+    return window.currentUserData;
+  }
+
+  return null;
+}
+
+window.getCurrentUserData = getCurrentUserData;
+
 // Export what you want to use in other files
 export { app, auth, db,   getAuth,
   onAuthStateChanged,
