@@ -1,11 +1,14 @@
-// firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getAuth,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  getFirestore,
+  getDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyALJLxSJthWI2tnQZ-WnK1DDQNEelUCr7s",
@@ -19,14 +22,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app); // ✅ This is what you need
+const db = getFirestore(app);
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userSnap = await getDoc(doc(db, "users", user.uid));
     const data = userSnap.data();
 
-    // Only store safe fields
     const safeUserData = {
       uid: user.uid,
       displayName: data.displayName || "",
@@ -34,7 +36,6 @@ onAuthStateChanged(auth, async (user) => {
       bio: data.bio || ""
     };
 
-    // Store in memory and localStorage
     window.currentUserData = safeUserData;
     localStorage.setItem("currentUserData", JSON.stringify(safeUserData));
   }
@@ -54,10 +55,7 @@ function getCurrentUserData() {
 
 window.getCurrentUserData = getCurrentUserData;
 
-// Export what you want to use in other files
-export { app, auth, db,   getAuth,
-  onAuthStateChanged,
-  signOut  };
+export { app, auth, db, getAuth, onAuthStateChanged, signOut };
 
 function insertBootstrapCSS() {
   if (!document.querySelector('link[href*="bootstrap.min.css"]')) {
