@@ -161,11 +161,23 @@ function renderCollab(id, data) {
 }
 
 
-window.respondToRequest = async function(id, status, rawData = null) {
-  await updateDoc(doc(db, "collabRequests", id), { status });
+window.respondToRequest = async function(id, status) {
+  const requestRef = doc(db, "collabRequests", id);
+  const snap = await getDoc(requestRef);
+  if (!snap.exists()) return;
+
+  const rawData = snap.data();
+
+  await updateDoc(requestRef, { status });
 
   if (status === "accepted" && rawData) {
-    const { fromUid, toUid, title, description, mediaLink, displayName } = rawData;
+    const { fromUid, toUid, title, description, mediaLink } = rawData;
+
+    if (!fromUid || !toUid) {
+      console.error("Missing fromUid or toUid in request data");
+      return;
+    }
+
     const newCollab = {
       title: title || "Untitled",
       description: description || "No description provided.",
@@ -177,11 +189,13 @@ window.respondToRequest = async function(id, status, rawData = null) {
       pinned: false,
       timestamp: new Date()
     };
+
     await addDoc(collection(db, "collaborations"), newCollab);
   }
 
   loadDashboard(auth.currentUser.uid);
 };
+
 
 // 🔧 Basic Chat Popup Handler
 window.showChatPopup = function(uid) {
