@@ -424,9 +424,21 @@ sendChat.onclick = async () => {
 
   const docRef = doc(db, "messages", collabId);
   const docSnap = await getDoc(docRef);
-  const msgs = docSnap.data()?.messages || [];
+
+  let msgs = [];
+  if (docSnap.exists()) {
+    msgs = docSnap.data().messages || [];
+  }
+
   msgs.push(newMsg);
-  await updateDoc(docRef, { messages: msgs });
+
+  // 🔁 Use setDoc if doc doesn't exist, updateDoc if it does
+  if (docSnap.exists()) {
+    await updateDoc(docRef, { messages: msgs });
+  } else {
+    await setDoc(docRef, { messages: msgs });
+  }
+
   chatInput.innerHTML = "";
 };
 
