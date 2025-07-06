@@ -61,10 +61,13 @@
     <div class="collapse show" id="chatSection">
       <div class="card-body">
         <div id="chatBox" class="mb-3" style="max-height: 300px; overflow-y: auto;"></div>
-        <div class="input-group">
-          <input type="text" id="chatInput" class="form-control" placeholder="Type a message..." />
-          <button class="btn btn-outline-primary" id="sendChat">Send</button>
-        </div>
+<div class="input-group align-items-end">
+<div id="chatInput" contenteditable="true" class="form-control" style="min-height: 60px;"></div>
+<input type="file" id="chatMedia" hidden />
+<button class="btn btn-outline-secondary" onclick="document.getElementById('chatMedia').click()">📎</button>
+  <button class="btn btn-outline-primary" id="sendChat">Send</button>
+</div>
+
       </div>
     </div>
   </div>
@@ -157,9 +160,6 @@
   </div>
 </div>
 
-<script>
-
-</script>
 
       </div>
     </div>
@@ -191,11 +191,13 @@
   </main>
 
 
+<script src="https://unpkg.com/timeago.js@4.0.2/dist/timeago.min.js"></script>
 
   <div id="footerContainer"></div>
   <script type="module">
 import { getFirestore, doc, getDoc, updateDoc, collection, onSnapshot, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db, auth } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+import { v4 as uuidv4 } from "https://jspm.dev/uuid"; // You can use any UUID lib
 
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -375,60 +377,155 @@ deadlineInput.addEventListener("change", () => {
 
       if (data.owner === currentUser.uid) editControls.classList.remove("d-none");
 
-      onSnapshot(doc(db, "messages", collabId), docSnap => {
-        chatBox.innerHTML = "";
-        if (docSnap.data()?.messages) {
-          docSnap.data().messages.forEach(msg => {
-            const content = sanitize(msg.content);
-            const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : "";
-            chatBox.innerHTML += `<div class="msg" data-id="${msg.id}">
-  <strong>${msg.sender}</strong>
-  <small class="text-muted">${time}</small>: ${content}
-  <span class="like-btn text-danger ms-2" style="cursor:pointer;">❤️ ${msg.likes || 0}</span>
-</div>
-`;
-          });
-          chatBox.scrollTop = chatBox.scrollHeight;
-        }
-      });
 
 
+// ✅ Updated Chat Enhancements for Collab Board
 
-     onSnapshot(doc(db, "messages", collabId), docSnap => {
+function timeSince(timestamp) {
+  const now = Date.now();
+  const seconds = Math.floor((now - timestamp) / 1000);
+
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+
+  // Show full date for anything older than a week
+  return new Date(timestamp).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+
+// 2. Handle Sending
+sendChat.onclick = async () => {
+  const html = chatInput.innerHTML.trim();
+  if (!html) return;
+
+  const newMsg = {
+    id: crypto.randomUUID(),
+    sender: currentUser.displayName || currentUser.email,
+    content: html,
+    timestamp: Date.now(),
+    reactions: {},
+    uid: currentUser.uid
+  };
+
+  const docRef = doc(db, "messages", collabId);
+  const docSnap = await getDoc(docRef);
+  const msgs = docSnap.data()?.messages || [];
+  msgs.push(newMsg);
+  await updateDoc(docRef, { messages: msgs });
+  chatInput.innerHTML = "";
+};
+
+// 3. Grouped Message Rendering
+function renderGroupedMessages(messages) {
   chatBox.innerHTML = "";
-  if (docSnap.data()?.messages) {
-    docSnap.data().messages.forEach(msg => {
-      const content = sanitize(msg.content);
-      const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : "";
-      chatBox.innerHTML += `
-        <div class="msg" data-id="${msg.id}">
-          <strong>${msg.sender}</strong>
-          <small class="text-muted">${time}</small>: ${content}
-          <span class="like-btn text-danger ms-2" style="cursor:pointer;">❤️ ${msg.likes || 0}</span>
-        </div>
-      `;
-    });
+  const grouped = {};
+  messages.forEach(msg => {
+    const dateKey = new Date(msg.timestamp).toLocaleDateString();
+    grouped[dateKey] = grouped[dateKey] || [];
+    grouped[dateKey].push(msg);
+  });
 
-    // ✅ Moved inside
-    chatBox.querySelectorAll(".like-btn").forEach(btn => {
-      btn.onclick = async () => {
-        const msgId = btn.closest(".msg").dataset.id;
-        const threadRef = doc(db, "messages", collabId);
-        const docSnap = await getDoc(threadRef);
-        const updated = docSnap.data().messages.map(m =>
-          m.id === msgId ? { ...m, likes: (m.likes || 0) + 1 } : m
-        );
-        await updateDoc(threadRef, { messages: updated });
-      };
-    });
+  Object.entries(grouped).forEach(([date, msgs]) => {
+    chatBox.innerHTML += `<div class='text-center text-muted small mb-1'>${date}</div>`;
+    msgs.forEach(msg => renderMessage(msg));
+  });
 
-    chatBox.scrollTop = chatBox.scrollHeight;
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function renderMessage(msg) {
+  const timeAgo = timeSince(msg.timestamp);
+  const reactionsHtml = Object.entries(msg.reactions || {}).map(([emoji, users]) =>
+    `<span class='me-2 reaction-btn' data-emoji='${emoji}'>${emoji} ${users.length}</span>`
+  ).join("");
+
+  const fileIcon = msg.content.match(/(\.pdf|\.docx|\.mp4|\.zip)/i) ?
+    `<i class='bi bi-file-earmark'></i> ` : "";
+
+  chatBox.innerHTML += `
+    <div class="msg mb-2 p-2 bg-light rounded" data-id="${msg.id}">
+      <div class="fw-bold">${msg.sender}</div>
+      <div>${fileIcon}${sanitize(msg.content)}</div>
+      <div class="small text-muted mt-1 d-flex justify-content-between">
+<span title="${new Date(msg.timestamp).toLocaleString()}">${timeAgo}</span>
+        <span class="d-flex gap-2">
+          ${reactionsHtml}
+          ${msg.uid === currentUser.uid ? `<button class='btn btn-sm btn-link edit-btn'>✏️</button><button class='btn btn-sm btn-link delete-btn text-danger'>🗑️</button>` : ""}
+        </span>
+      </div>
+    </div>
+  `;
+}
+
+// 4. React to messages
+chatBox.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("reaction-btn")) {
+    const emoji = e.target.dataset.emoji;
+    const msgId = e.target.closest(".msg").dataset.id;
+    const docRef = doc(db, "messages", collabId);
+    const docSnap = await getDoc(docRef);
+    const messages = docSnap.data()?.messages || [];
+    const msg = messages.find(m => m.id === msgId);
+    if (!msg.reactions) msg.reactions = {};
+    msg.reactions[emoji] = msg.reactions[emoji] || [];
+
+    const alreadyReacted = msg.reactions[emoji].includes(currentUser.uid);
+    msg.reactions[emoji] = alreadyReacted ?
+      msg.reactions[emoji].filter(u => u !== currentUser.uid) :
+      [...msg.reactions[emoji], currentUser.uid];
+
+    await updateDoc(docRef, { messages });
   }
 });
 
-      if (data.tasks?.length) {
-        taskList.innerHTML = data.tasks.map(t => `<div class="task"><span>${sanitize(t)}</span></div>`).join("");
-      }
+// 5. Edit/Delete
+chatBox.addEventListener("click", async (e) => {
+  const msgEl = e.target.closest(".msg");
+  const msgId = msgEl.dataset.id;
+  const docRef = doc(db, "messages", collabId);
+  const docSnap = await getDoc(docRef);
+  const messages = docSnap.data()?.messages || [];
+  const msg = messages.find(m => m.id === msgId);
+
+  if (e.target.classList.contains("edit-btn")) {
+    chatInput.innerHTML = msg.content;
+    messages.splice(messages.indexOf(msg), 1);
+    await updateDoc(docRef, { messages });
+  }
+
+  if (e.target.classList.contains("delete-btn")) {
+    const confirmed = confirm("Delete this message?");
+    if (confirmed) {
+      await updateDoc(docRef, {
+        messages: messages.filter(m => m.id !== msgId)
+      });
+    }
+  }
+});
+
+// 6. Load Messages
+onSnapshot(doc(db, "messages", collabId), docSnap => {
+  const msgs = docSnap.data()?.messages || [];
+  renderGroupedMessages(msgs);
+});
+
+
+
+
+
+
+
 
 let draggedTaskId = null;
 
@@ -524,19 +621,28 @@ function renderTask(taskObj) {
   taskText.textContent = taskObj.text;
   taskText.className = taskObj.completed ? "text-decoration-line-through" : "";
 
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.className = "form-check-input";
-  checkbox.checked = taskObj.completed || false;
-  checkbox.addEventListener("change", async () => {
-    const updatedTask = { ...taskObj, completed: checkbox.checked };
-    const docSnap = await getDoc(collabRef);
-    const data = docSnap.data();
-    const tasks = (data.tasks || []).filter(t => t.text !== taskObj.text);
-    tasks.push(updatedTask);
-    await updateDoc(collabRef, { tasks });
-    taskText.classList.toggle("text-decoration-line-through");
-  });
+const checkbox = document.createElement("input");
+checkbox.type = "checkbox";
+checkbox.className = "form-check-input";
+checkbox.checked = taskObj.completed || false;
+
+checkbox.addEventListener("change", async () => {
+  const isCompleted = checkbox.checked;
+  const updatedTask = { ...taskObj, completed: isCompleted };
+
+  const docSnap = await getDoc(collabRef);
+  const data = docSnap.data();
+  const tasks = (data.tasks || []).filter(t => t.text !== taskObj.text);
+  tasks.push(updatedTask);
+  await updateDoc(collabRef, { tasks });
+
+  taskText.classList.toggle("text-decoration-line-through", isCompleted);
+
+  const status = isCompleted ? "✔️ Completed" : "❌ Marked as Not Completed";
+  const timelineMsg = `"${taskObj.text}" → ${status}`;
+  await addToTimeline("checked_task", timelineMsg);
+});
+
 
   taskHeader.append(taskText, checkbox);
   taskDiv.appendChild(taskHeader);
