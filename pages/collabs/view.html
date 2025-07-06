@@ -195,13 +195,18 @@ console.log("Collab ID:", collabId);
       }
     });
 
-    function sanitize(text) {
-      return text
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
-        .replace(/@([\w]+)/g, '<span class="text-primary">@$1</span>');
-    }
+function sanitize(text) {
+  if (typeof text !== "string") {
+    console.warn("sanitize() expected string but got:", text);
+  }
+  text = String(text || "");
+  return text
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+    .replace(/@([\w]+)/g, '<span class="text-primary">@$1</span>');
+}
+
 
 function renderTimeline(entries) {
   const timelineEl = document.getElementById("timeline");
