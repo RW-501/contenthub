@@ -713,7 +713,15 @@ function renderTask(taskObj) {
     }
   };
 
-  const checkbox = document.createElement("input");
+  const taskHeader = document.createElement("div");
+  taskHeader.className = "d-flex justify-content-between align-items-center mb-2";
+
+  const taskText = document.createElement("span");
+  taskText.textContent = taskObj.text;
+  taskText.className = taskObj.completed ? "text-decoration-line-through" : "";
+
+
+const checkbox = document.createElement("input");
 checkbox.type = "checkbox";
 checkbox.className = "form-check-input";
 checkbox.checked = taskObj.completed || false;
