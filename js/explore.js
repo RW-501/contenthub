@@ -131,6 +131,61 @@ async function loadPosts(reset = true) {
     return;
   }
 
+  async function requestToJoin(collabId, ownerId) {
+  try {
+    if (!user || !user.uid) {
+      alert("⚠️ Please log in to request to join.");
+      return;
+    }
+
+    console.log("[requestToJoin] userId:", user.uid);
+    console.log("[requestToJoin] collabId:", collabId);
+    console.log("[requestToJoin] ownerId:", ownerId);
+
+    const requestsRef = collection(db, "collabJoinRequests");
+
+    // Check if request already exists
+    const existingSnap = await getDocs(query(
+      requestsRef,
+      where("userId", "==", user.uid),
+      where("collabId", "==", collabId),
+      where("status", "in", ["pending", "approved"])
+    ));
+
+    if (!existingSnap.empty) {
+      showModal({
+        title: "Already Requested",
+        message: "You've already requested to join this collaboration.",
+        autoClose: 3000
+      });
+      return;
+    }
+
+    // Create the request
+    await addDoc(requestsRef, {
+      userId: user.uid,
+      collabId,
+      ownerId,
+      status: "pending",
+      timestamp: serverTimestamp()
+    });
+
+    console.log("[requestToJoin] Request successfully submitted");
+
+    showModal({
+      title: "Request Sent",
+      message: "Your request to join has been sent.",
+      autoClose: 3000
+    });
+
+  } catch (error) {
+    console.error("[requestToJoin] Error:", error);
+    alert("❌ Failed to send join request. Please try again.");
+  }
+}
+
+window.requestToJoin = requestToJoin;
+
   console.log("[loadPosts] Collab Zone is OFF. Add non-collab zone logic here.");
   loadingMore = false;
 
