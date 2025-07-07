@@ -308,7 +308,7 @@ function getActionText(type, details) {
     case "deleted_task": return `🗑️ deleted task <strong>${details}</strong>`;
     case "pinned_task": return `📌 pinned task <strong>${details}</strong>`;
     case "updated_collab": return `✏️ updated the collaboration`;
-    case "checked_task": return `Checked task ${details}`;
+    case "checked_task": return `${details}`;
     case "visibility_toggle": return `🔓 ${details}`;
     case "added_goal": return `🎯 added goal <strong>${details}</strong>`;
     default: return `<strong>${details}</strong>`;
