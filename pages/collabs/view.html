@@ -240,6 +240,25 @@
 
   </main>
 
+<!-- Mention User Modal -->
+<div class="modal fade" id="mentionUserModal" tabindex="-1" aria-labelledby="mentionUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mentionUserModalLabel">User Mention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex align-items-center gap-3">
+        <img id="mentionUserAvatar" src="https://via.placeholder.com/64" alt="User Avatar" class="rounded-circle" width="64" height="64" />
+        <div>
+          <h6 id="mentionUserName" class="mb-1"></h6>
+          <button id="mentionViewProfileBtn" class="btn btn-primary btn-sm">View Profile</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 <script src="https://unpkg.com/timeago.js@4.0.2/dist/timeago.min.js"></script>
@@ -645,32 +664,52 @@ function hideMentionDropdown() {
   dropdown.style.display = "none";
 }
 
-
-document.getElementById("mentionsDropdown").addEventListener("click", (e) => {
+document.getElementById("mentionsDropdown").addEventListener("click", async (e) => {
   if (!e.target.matches(".dropdown-item")) return;
 
+  const uid = e.target.dataset.uid;
   const name = e.target.dataset.name;
+
+  // Fetch user details (including photoURL)
+  const userDoc = await getDoc(doc(db, "users", uid));
+  const userData = userDoc.exists() ? userDoc.data() : {};
+
+  // Show modal and fill data
+  const modalEl = document.getElementById("mentionUserModal");
+  const avatarEl = document.getElementById("mentionUserAvatar");
+  const nameEl = document.getElementById("mentionUserName");
+  const profileBtn = document.getElementById("mentionViewProfileBtn");
+
+  avatarEl.src = userData.photoURL || "https://via.placeholder.com/64";
+  nameEl.textContent = userData.displayName || name;
+
+  profileBtn.onclick = () => {
+    window.location.href = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${uid}`;
+  };
+
+  // Show Bootstrap modal
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+
+  // Optional: Insert mention text on modal confirmation or elsewhere
+  // For now, let's insert the mention immediately after modal is shown
+  // If you want insertion on modal button confirm, add another button & handler
+
+  // Insert mention in text, replacing typed "@..."
   const selection = window.getSelection();
   const range = selection.getRangeAt(0);
-
-  // Step 1: Get the node and offset
   const node = range.startContainer;
   const offset = range.startOffset;
 
   if (node.nodeType === Node.TEXT_NODE) {
     const text = node.textContent;
     const beforeCursor = text.slice(0, offset);
-
-    // Step 2: Find the last "@"
     const atIndex = beforeCursor.lastIndexOf("@");
     if (atIndex !== -1) {
       const afterCursor = text.slice(offset);
       const newText = beforeCursor.slice(0, atIndex) + `@${name} ` + afterCursor;
-
-      // Step 3: Replace the text node
       node.textContent = newText;
 
-      // Step 4: Set the cursor after the inserted mention
       const newOffset = atIndex + name.length + 2;
       const newRange = document.createRange();
       newRange.setStart(node, newOffset);
@@ -683,6 +722,7 @@ document.getElementById("mentionsDropdown").addEventListener("click", (e) => {
 
   hideMentionDropdown();
 });
+
 
 
 // Run this on load
