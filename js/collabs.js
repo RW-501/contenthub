@@ -47,20 +47,19 @@ async function loadDashboard(uid) {
   };
 
 
-for (const doc of requests) {
-  const data = doc.data();
+for (const reqDoc of requests) {
+  const data = reqDoc.data();
   const isIncoming = data.toUid === uid;
 
   if (isIncoming && data.status === "pending") {
-    categorized.incoming.push(renderRequest(doc.id, data, true));
+    categorized.incoming.push(renderRequest(reqDoc.id, data, true));
   } else if (!isIncoming && data.status === "pending") {
-    categorized.sent.push(renderRequest(doc.id, data, false));
+    categorized.sent.push(renderRequest(reqDoc.id, data, false));
   } else if (data.status === "declined" || data.status === "accepted") {
     try {
-await deleteDoc(doc(db, "collabRequests", doc.id));
-     // console.log(`[Cleanup] Deleted request ${doc.id} with status ${data.status}`);
+      await deleteDoc(doc(db, "collabRequests", reqDoc.id));
     } catch (error) {
-      console.error(`[Cleanup] Failed to delete request ${doc.id}:`, error);
+      console.error(`[Cleanup] Failed to delete request ${reqDoc.id}:`, error);
     }
   }
 }
