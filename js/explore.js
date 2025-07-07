@@ -82,7 +82,7 @@ async function loadPosts(reset = true) {
       const q = query(
         collection(db, "collaborations"),
         where("isPublic", "==", true),
-        orderBy("createdAt", "desc"),
+        orderBy("timestamp", "desc"),
         limit(10)
       );
 
