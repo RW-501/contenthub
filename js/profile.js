@@ -244,15 +244,25 @@ async function loadFollowersList(data) {
     const slice = data.followers.slice(start, start + limit);
     const userDocs = await Promise.all(slice.map(uid => getUserFromCache(uid)));
 
-    userDocs.forEach(u => {
-      const li = document.createElement("li");
-      li.className = "list-group-item d-flex align-items-center";
-      li.innerHTML = `
-        <img src="${u.photoURL || '/assets/default-avatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
-        <strong>${u.displayName || "Unnamed"}</strong> - <small class="text-muted ms-2">${u.niche || ''}</small>
-      `;
-      list.appendChild(li);
-    });
+userDocs.forEach(u => {
+  const li = document.createElement("li");
+  li.className = "list-group-item d-flex align-items-center justify-content-between";
+
+  const profileLink = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${u.uid}`;
+
+  li.innerHTML = `
+    <div class="d-flex align-items-center">
+      <img src="${u.photoURL || '/assets/default-avatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+      <a href="${profileLink}" class="btn btn-link p-0 m-0 text-decoration-none">
+        <strong>${u.displayName || "Unnamed"}</strong>
+      </a>
+      <small class="text-muted ms-2">${u.niche || ''}</small>
+    </div>
+  `;
+
+  list.appendChild(li);
+});
+
 
     start += limit;
 
