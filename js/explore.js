@@ -69,7 +69,7 @@ async function loadPosts(reset = true) {
   // Show open collaboration requests
   const q = query(
     collection(db, "collaborations"),
-    where("open", "==", true),
+    where("isPublic", "==", true),
     orderBy("createdAt", "desc"),
     limit(10)
   );
