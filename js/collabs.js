@@ -8,7 +8,7 @@ import {
   getAuth, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
-  getFirestore, doc, addDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp
+  getFirestore, doc, addDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp, deleteDoc, docRef
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db, auth } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
@@ -45,13 +45,25 @@ async function loadDashboard(uid) {
     archived: []
   };
 
-  for (const doc of requests) {
-    const data = doc.data();
-    const isIncoming = data.toUid === uid;
 
-    if (isIncoming && data.status === "pending") categorized.incoming.push(renderRequest(doc.id, data, true));
-    else if(!isIncoming && data.status === "pending") categorized.sent.push(renderRequest(doc.id, data, false));
+for (const doc of requests) {
+  const data = doc.data();
+  const isIncoming = data.toUid === uid;
+
+  if (isIncoming && data.status === "pending") {
+    categorized.incoming.push(renderRequest(doc.id, data, true));
+  } else if (!isIncoming && data.status === "pending") {
+    categorized.sent.push(renderRequest(doc.id, data, false));
+  } else if (data.status === "declined" || data.status === "accepted") {
+    try {
+      await deleteDoc(docRef(db, "requests", doc.id));
+     // console.log(`[Cleanup] Deleted request ${doc.id} with status ${data.status}`);
+    } catch (error) {
+      console.error(`[Cleanup] Failed to delete request ${doc.id}:`, error);
+    }
   }
+}
+
 
   for (const doc of collaborations) {
     const data = doc.data();
