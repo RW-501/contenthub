@@ -307,7 +307,7 @@ async function loadUserCollabs(uid) {
         <li class="list-group-item text-muted text-center">
           No collaborations yet.
           <br>
-          <a href="/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
+          <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
             🤝 Find creators to collaborate with
           </a>
         </li>`;

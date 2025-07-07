@@ -66,15 +66,21 @@ for (const doc of requests) {
 }
 
 
-  for (const doc of collaborations) {
-    const data = doc.data();
-    if (data.status === "archive") categorized.archived.push(renderCollab(doc.id, data));
-    else categorized.active.push(renderCollab(doc.id, data));
-  }
-
-  for (const key in categorized) {
+for (const key in categorized) {
+  if (categorized[key].length === 0) {
+    tabs[key].innerHTML = `
+      <li class="list-group-item text-muted text-center">
+        No ${key} items yet.
+        <br>
+        <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
+          🤝 Find creators to collaborate with
+        </a>
+      </li>`;
+  } else {
     tabs[key].innerHTML = categorized[key].join("");
   }
+}
+
 }
 
 function formatTimestamp(timestamp) {
