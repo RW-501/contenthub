@@ -292,13 +292,12 @@ async function loadUserPosts(uid) {
 
 
 // Load Collabs
-async function loadUserCollabs(uid) {
+async function loadUserCollabs(viewingUserId) {
   const list = document.getElementById("collabList");
-  const currentUserId = user?.uid;
   list.innerHTML = `<li class="list-group-item text-muted">Loading collaborations...</li>`;
 
   try {
-    const q = query(collection(db, "collaborations"), where("participants", "array-contains", uid));
+    const q = query(collection(db, "collaborations"), where("participants", "array-contains", viewingUserId));
     const snapshot = await getDocs(q);
     list.innerHTML = "";
 
@@ -318,7 +317,7 @@ async function loadUserCollabs(uid) {
       const data = docSnap.data();
       const id = docSnap.id;
       const isPublic = data.isPublic === true;
-      const alreadyJoined = data.participants.includes(currentUserId);
+      const alreadyJoined = data.participants.includes(viewingUserId);
       const progress = data.progress || 0;
       const status = data.status || "active";
       const title = data.title || "Untitled Collaboration";
@@ -336,7 +335,7 @@ async function loadUserCollabs(uid) {
             ${progress}%
           </div>
         </div>
-        ${isPublic && !alreadyJoined && currentUserId !== uid
+        ${isPublic && !alreadyJoined && viewingUserId
           ? `<button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${id}', '${data.owner}')">Request to Join</button>`
           : ""
         }
