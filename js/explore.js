@@ -65,21 +65,94 @@ async function loadPosts(reset = true) {
   const search = searchInput.value.trim().toLowerCase();
 
   if (collabZone) {
-    // Show open collaboration requests
-    q = query(collection(db, "collaborations"), where("open", "==", true), orderBy("createdAt", "desc"), limit(10));
-    const snap = await getDocs(q);
-    snap.forEach(docSnap => {
-      const data = docSnap.data();
-      const card = document.createElement("div");
-      card.className = "card p-3 mb-3";
-      card.innerHTML = `<strong>${data.title || "Untitled Collab"}</strong><br/>
-        <small>Requested by <a href="/pages/profile.html?uid=${data.owner}">Creator</a></small><br/>
-        <p>${data.description || ""}</p>`;
-      postGrid.appendChild(card);
+
+  // Show open collaboration requests
+  const q = query(
+    collection(db, "collaborations"),
+    where("open", "==", true),
+    orderBy("createdAt", "desc"),
+    limit(10)
+  );
+
+  const snap = await getDocs(q);
+
+  snap.forEach(docSnap => {
+    const data = docSnap.data();
+
+    const card = document.createElement("div");
+    card.className = "card p-3 mb-3";
+
+    const progress = data.progress || 0;
+    const totalTasks = data.totalTasks || 0;
+
+    card.innerHTML = `
+      <strong>${data.title || "Untitled Collab"}</strong><br/>
+      <small>Requested by <a href="/pages/profile.html?uid=${data.owner}">Creator</a></small><br/>
+      <p>${data.description || ""}</p>
+      <div class="progress my-2" style="height: 20px;">
+        <div class="progress-bar" role="progressbar" style="width: ${progress}%" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
+          ${progress}% Complete
+        </div>
+      </div>
+      <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${docSnap.id}', '${data.owner}')">Request to Join</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
+      </div>
+    `;
+
+    postGrid.appendChild(card);
+  });
+
+  loadingMore = false;
+  return;
+}
+
+async function requestToJoin(collabId, ownerId) {
+  const confirmJoin = confirm("Send a request to join this project?");
+  if (!confirmJoin) return;
+
+  await addDoc(collection(db, "collabJoinRequests"), {
+    userId: user.uid,
+    collabId,
+    ownerId,
+    status: "pending",
+    timestamp: serverTimestamp()
+  });
+
+  showModal({
+    title: "Request Sent",
+    message: "Your request to join has been sent.",
+    autoClose: 3000
+  });
+}
+
+async function followUser(targetUid) {
+  if (!user || !targetUid || user.uid === targetUid) return;
+
+  const followRef = doc(db, "users", user.uid);
+  const userDoc = await getDoc(followRef);
+  const currentFollows = userDoc.data()?.following || [];
+
+  if (!currentFollows.includes(targetUid)) {
+    await updateDoc(followRef, {
+      following: arrayUnion(targetUid)
     });
-    loadingMore = false;
-    return;
+
+    showModal({
+      title: "Followed",
+      message: "You are now following this user.",
+      autoClose: 3000
+    });
+  } else {
+    showModal({
+      title: "Already Following",
+      message: "You're already following this user.",
+      autoClose: 3000
+    });
   }
+}
+
 
   const postsCol = collection(db, "posts");
   switch (filter) {
