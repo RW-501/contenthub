@@ -51,107 +51,87 @@ onAuthStateChanged(auth, user => {
 
 // Load Posts based on filters
 async function loadPosts(reset = true) {
-  if (loadingMore) return;
+  console.log("[loadPosts] Started loading posts... reset =", reset);
+  if (loadingMore) {
+    console.warn("[loadPosts] Already loading, aborting...");
+    return;
+  }
+
   loadingMore = true;
 
   if (reset) {
+    console.log("[loadPosts] Resetting post grid and pagination.");
     postGrid.innerHTML = "";
     lastVisiblePost = null;
   }
 
-  let q;
   const collabZone = collabZoneToggle.checked;
   const filter = filterSelect.value;
   const search = searchInput.value.trim().toLowerCase();
 
+  console.log("[loadPosts] collabZone:", collabZone);
+  console.log("[loadPosts] filter:", filter);
+  console.log("[loadPosts] search:", search);
+
   if (collabZone) {
+    try {
+      console.log("[loadPosts] Building Firestore query for collaborations...");
 
-  // Show open collaboration requests
-  const q = query(
-    collection(db, "collaborations"),
-    where("isPublic", "==", true),
-    orderBy("createdAt", "desc"),
-    limit(10)
-  );
+      const q = query(
+        collection(db, "collaborations"),
+        where("isPublic", "==", true),
+        orderBy("createdAt", "desc"),
+        limit(10)
+      );
 
-  const snap = await getDocs(q);
+      console.log("[loadPosts] Executing query...");
+      const snap = await getDocs(q);
+      console.log("[loadPosts] Documents fetched:", snap.size);
 
-  snap.forEach(docSnap => {
-    const data = docSnap.data();
+      if (snap.empty) {
+        console.log("[loadPosts] No posts found.");
+      }
 
-    const card = document.createElement("div");
-    card.className = "card p-3 mb-3";
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        console.log("[loadPosts] Document data:", data);
 
-    const progress = data.progress || 0;
-    const totalTasks = data.totalTasks || 0;
+        const card = document.createElement("div");
+        card.className = "card p-3 mb-3";
 
-    card.innerHTML = `
-      <strong>${data.title || "Untitled Collab"}</strong><br/>
-      <small>Requested by <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${data.owner}">Creator</a></small><br/>
-      <p>${data.description || ""}</p>
-      <div class="progress my-2" style="height: 20px;">
-        <div class="progress-bar" role="progressbar" style="width: ${progress}%" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
-          ${progress}% Complete
-        </div>
-      </div>
-      <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
-      <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${docSnap.id}', '${data.owner}')">Request to Join</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
-      </div>
-    `;
+        const progress = data.progress || 0;
+        const totalTasks = data.totalTasks || 0;
 
-    postGrid.appendChild(card);
-  });
+        card.innerHTML = `
+          <strong>${data.title || "Untitled Collab"}</strong><br/>
+          <small>Requested by <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${data.owner}">Creator</a></small><br/>
+          <p>${data.description || ""}</p>
+          <div class="progress my-2" style="height: 20px;">
+            <div class="progress-bar" role="progressbar" style="width: ${progress}%" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
+              ${progress}% Complete
+            </div>
+          </div>
+          <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${docSnap.id}', '${data.owner}')">Request to Join</button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
+          </div>
+        `;
 
-  loadingMore = false;
-  return;
-}
+        postGrid.appendChild(card);
+      });
+    } catch (error) {
+      console.error("[loadPosts] Error loading posts:", error);
+    }
 
-async function requestToJoin(collabId, ownerId) {
-  const confirmJoin = confirm("Send a request to join this project?");
-  if (!confirmJoin) return;
-
-  await addDoc(collection(db, "collabJoinRequests"), {
-    userId: user.uid,
-    collabId,
-    ownerId,
-    status: "pending",
-    timestamp: serverTimestamp()
-  });
-
-  showModal({
-    title: "Request Sent",
-    message: "Your request to join has been sent.",
-    autoClose: 3000
-  });
-}
-
-async function followUser(targetUid) {
-  if (!user || !targetUid || user.uid === targetUid) return;
-
-  const followRef = doc(db, "users", user.uid);
-  const userDoc = await getDoc(followRef);
-  const currentFollows = userDoc.data()?.following || [];
-
-  if (!currentFollows.includes(targetUid)) {
-    await updateDoc(followRef, {
-      following: arrayUnion(targetUid)
-    });
-
-    showModal({
-      title: "Followed",
-      message: "You are now following this user.",
-      autoClose: 3000
-    });
-  } else {
-    showModal({
-      title: "Already Following",
-      message: "You're already following this user.",
-      autoClose: 3000
-    });
+    loadingMore = false;
+    console.log("[loadPosts] Done loading.");
+    return;
   }
-}
+
+  console.log("[loadPosts] Collab Zone is OFF. Add non-collab zone logic here.");
+  loadingMore = false;
+
 
 
   const postsCol = collection(db, "posts");
