@@ -648,17 +648,42 @@ function hideMentionDropdown() {
 
 document.getElementById("mentionsDropdown").addEventListener("click", (e) => {
   if (!e.target.matches(".dropdown-item")) return;
+
   const name = e.target.dataset.name;
   const selection = window.getSelection();
   const range = selection.getRangeAt(0);
-  range.deleteContents();
-  const node = document.createTextNode(`${name} `);
-  range.insertNode(node);
-  range.setStartAfter(node);
-  selection.removeAllRanges();
-  selection.addRange(range);
+
+  // Step 1: Get the node and offset
+  const node = range.startContainer;
+  const offset = range.startOffset;
+
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.textContent;
+    const beforeCursor = text.slice(0, offset);
+
+    // Step 2: Find the last "@"
+    const atIndex = beforeCursor.lastIndexOf("@");
+    if (atIndex !== -1) {
+      const afterCursor = text.slice(offset);
+      const newText = beforeCursor.slice(0, atIndex) + `@${name} ` + afterCursor;
+
+      // Step 3: Replace the text node
+      node.textContent = newText;
+
+      // Step 4: Set the cursor after the inserted mention
+      const newOffset = atIndex + name.length + 2;
+      const newRange = document.createRange();
+      newRange.setStart(node, newOffset);
+      newRange.collapse(true);
+
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+    }
+  }
+
   hideMentionDropdown();
 });
+
 
 // Run this on load
 async function loadMentionList() {
