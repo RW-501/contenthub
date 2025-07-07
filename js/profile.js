@@ -294,30 +294,116 @@ async function loadUserPosts(uid) {
 // Load Collabs
 async function loadUserCollabs(uid) {
   const list = document.getElementById("collabList");
-  const q = query(collection(db, "collaborations"), where("participants", "array-contains", uid));
-  const snapshot = await getDocs(q);
-  list.innerHTML = "";
+  const currentUserId = user?.uid;
+  list.innerHTML = `<li class="list-group-item text-muted">Loading collaborations...</li>`;
 
-  if (snapshot.empty) {
-    list.innerHTML = `
-      <li class="list-group-item text-muted text-center">
-        No collaborations yet.
-        <br>
-        <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
-          🤝 Find creators to collaborate with
-        </a>
-      </li>`;
-    return;
+  try {
+    const q = query(collection(db, "collaborations"), where("participants", "array-contains", uid));
+    const snapshot = await getDocs(q);
+    list.innerHTML = "";
+
+    if (snapshot.empty) {
+      list.innerHTML = `
+        <li class="list-group-item text-muted text-center">
+          No collaborations yet.
+          <br>
+          <a href="/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
+            🤝 Find creators to collaborate with
+          </a>
+        </li>`;
+      return;
+    }
+
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const id = docSnap.id;
+      const isPublic = data.isPublic === true;
+      const alreadyJoined = data.participants.includes(currentUserId);
+      const progress = data.progress || 0;
+      const status = data.status || "active";
+      const title = data.title || "Untitled Collaboration";
+
+      const item = document.createElement("li");
+      item.className = "list-group-item";
+
+      item.innerHTML = `
+        <strong>${title}</strong>
+        ${isPublic ? `<span class="badge bg-info ms-2">Public</span>` : ""}
+        <div class="small text-muted">Status: ${status}</div>
+        <div class="progress my-2" style="height: 16px;">
+          <div class="progress-bar bg-success" role="progressbar" style="width: ${progress}%;" 
+            aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
+            ${progress}%
+          </div>
+        </div>
+        ${isPublic && !alreadyJoined && currentUserId !== uid
+          ? `<button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${id}', '${data.owner}')">Request to Join</button>`
+          : ""
+        }
+      `;
+
+      list.appendChild(item);
+    });
+  } catch (error) {
+    console.error("[loadUserCollabs] Error:", error);
+    list.innerHTML = `<li class="list-group-item text-danger">Failed to load collaborations.</li>`;
   }
-
-  snapshot.forEach(docSnap => {
-    const item = document.createElement("li");
-    item.className = "list-group-item";
-    item.innerText = docSnap.data().title || "Untitled Collaboration";
-    list.appendChild(item);
-  });
 }
 
+async function requestToJoin(collabId, ownerId) {
+  try {
+    if (!user || !user.uid) {
+      alert("⚠️ Please log in to request to join.");
+      return;
+    }
+
+    console.log("[requestToJoin] userId:", user.uid);
+    console.log("[requestToJoin] collabId:", collabId);
+    console.log("[requestToJoin] ownerId:", ownerId);
+
+    const requestsRef = collection(db, "collabJoinRequests");
+
+    // Check if request already exists
+    const existingSnap = await getDocs(query(
+      requestsRef,
+      where("userId", "==", user.uid),
+      where("collabId", "==", collabId),
+      where("status", "in", ["pending", "approved"])
+    ));
+
+    if (!existingSnap.empty) {
+      showModal({
+        title: "Already Requested",
+        message: "You've already requested to join this collaboration.",
+        autoClose: 3000
+      });
+      return;
+    }
+
+    // Create the request
+    await addDoc(requestsRef, {
+      userId: user.uid,
+      collabId,
+      ownerId,
+      status: "pending",
+      timestamp: serverTimestamp()
+    });
+
+    console.log("[requestToJoin] Request successfully submitted");
+
+    showModal({
+      title: "Request Sent",
+      message: "Your request to join has been sent.",
+      autoClose: 3000
+    });
+
+  } catch (error) {
+    console.error("[requestToJoin] Error:", error);
+    alert("❌ Failed to send join request. Please try again.");
+  }
+}
+
+window.requestToJoin = requestToJoin;
 
 // Load Analytics
 async function loadAnalytics(uid) {
