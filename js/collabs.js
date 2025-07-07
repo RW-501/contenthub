@@ -151,7 +151,6 @@ function renderCollab(id, data) {
           ${isPinned ? '<span class="badge bg-warning text-dark ms-2">📌 Pinned</span>' : ''}
           <p class="mb-1">${data.description?.substring(0, 100) || "No description provided."}</p>
           <small class="text-muted">
-            👥 Participants: ${participantCount}<br>
             📅 ${dateStr}
           </small>
         </div>
@@ -171,6 +170,9 @@ function renderCollab(id, data) {
           <div class="row mb-2 text-muted small">
             <div class="col-md-4">
               🔐 <strong>Visibility:</strong> ${isPublic ? "Public" : "Private"}
+            </div>
+            <div class="col-md-4">
+            👥 Participants: ${participantCount}<br>
             </div>
             <div class="col-md-4">
               ✅ <strong>Tasks:</strong> ${totalTasks}
