@@ -35,6 +35,8 @@ const collabZoneToggle = document.getElementById("collabZoneToggle");
 let lastVisiblePost = null;
 let loadingMore = false;
 let currentUser = null;
+  let q;
+ 
 
 // Auth check
 onAuthStateChanged(auth, user => {
