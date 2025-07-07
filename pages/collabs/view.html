@@ -996,7 +996,7 @@ document.getElementById("editCollab").onclick = async () => {
 
     }
 
-    async function loadJoinRequests() {
+async function loadJoinRequests() {
   const joinPanel = document.getElementById("joinRequestsPanel");
   const countBadge = document.getElementById("joinRequestCount");
 
@@ -1014,19 +1014,32 @@ document.getElementById("editCollab").onclick = async () => {
     return;
   }
 
-  joinSnap.forEach(docSnap => {
+  for (const docSnap of joinSnap.docs) {
     const req = docSnap.data();
+    const userDoc = await getDoc(doc(db, "users", req.userId));
+    const userInfo = userDoc.exists() ? userDoc.data() : {};
+    const avatar = userInfo.photoURL || "https://via.placeholder.com/40";
 
     const reqCard = document.createElement("div");
-    reqCard.className = "border rounded p-3 mb-3 bg-light";
+    reqCard.className = "d-flex align-items-center justify-content-between border p-3 mb-2 rounded bg-light";
 
     reqCard.innerHTML = `
-      <strong>📨 From:</strong> <a href="/pages/profile.html?uid=${req.userId}">${req.userId}</a><br/>
-      <strong>Collab ID:</strong> ${req.collabId}<br/>
-      <button class="btn btn-sm btn-success mt-2">✅ Approve</button>
+      <div class="d-flex align-items-center">
+        <img src="${avatar}" class="rounded-circle me-2" style="width: 40px; height: 40px;" />
+        <div>
+          <div><strong>${userInfo.displayName || "User"}</strong></div>
+          <div class="text-muted small">Collab ID: ${req.collabId}</div>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-success">Approve</button>
+        <button class="btn btn-sm btn-outline-danger">Decline</button>
+      </div>
     `;
 
-    reqCard.querySelector("button").onclick = async () => {
+    const [approveBtn, declineBtn] = reqCard.querySelectorAll("button");
+
+    approveBtn.onclick = async () => {
       const newCollab = {
         title: "Untitled",
         description: "No description provided.",
@@ -1040,14 +1053,10 @@ document.getElementById("editCollab").onclick = async () => {
         createdAt: serverTimestamp()
       };
 
-      // Add new collab
-      const docRef = await addDoc(collection(db, "collaborations"), newCollab);
-
-      // Mark request as approved
+      const collabRef = await addDoc(collection(db, "collaborations"), newCollab);
       await updateDoc(doc(db, "collabJoinRequests", docSnap.id), { status: "approved" });
 
-      // Add internal notification (optional)
-      await updateDoc(docRef, {
+      await updateDoc(collabRef, {
         notifications: arrayUnion({
           type: "join_approved",
           userId: req.userId,
@@ -1056,97 +1065,24 @@ document.getElementById("editCollab").onclick = async () => {
         })
       });
 
+      await addToTimeline("join_Request", "✅ Request approved and collaboration created.");
       reqCard.remove();
-        await addToTimeline("join_Request", "✅ Request approved and collaboration created.");
-
-    };
-
-    joinPanel.appendChild(reqCard);
-  });
-}
-
-// Call this when the page loads:
-if (document.getElementById("joinRequestsPanel")) {
-  loadJoinRequests();
-}
-
-if (document.getElementById("joinRequestsPanel")) {
-  const joinSnap = await getDocs(query(
-    collection(db, "collabJoinRequests"),
-    where("status", "==", "pending"),
-    where("ownerId", "==", user.uid)
-  ));
-
-  const joinPanel = document.getElementById("joinRequestsPanel");
-  joinPanel.innerHTML = "";
-
-  if (joinSnap.empty) {
-    joinPanel.innerHTML = `<p class="text-muted">No requests yet.</p>`;
-    return;
-  }
-
-  document.getElementById("joinRequestCount").textContent = joinSnap.size;
-
-  for (const docSnap of joinSnap.docs) {
-    const data = docSnap.data();
-    const userDoc = await getDoc(doc(db, "users", data.userId));
-    const userInfo = userDoc.exists() ? userDoc.data() : {};
-    const avatar = userInfo.photoURL || "https://via.placeholder.com/40";
-
-    const reqDiv = document.createElement("div");
-    reqDiv.className = "d-flex align-items-center justify-content-between border p-2 mb-2 rounded";
-
-    reqDiv.innerHTML = `
-      <div class="d-flex align-items-center">
-        <img src="${avatar}" class="rounded-circle me-2" style="width: 40px; height: 40px;" alt="Avatar" />
-        <div>
-          <div><strong>${userInfo.displayName || "User"}</strong></div>
-          <div class="text-muted small">Collab ID: ${data.collabId}</div>
-        </div>
-      </div>
-      <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-success">Approve</button>
-        <button class="btn btn-sm btn-outline-danger">Decline</button>
-      </div>
-    `;
-
-    const [approveBtn, declineBtn] = reqDiv.querySelectorAll("button");
-
-    approveBtn.onclick = async () => {
-      const newCollab = {
-        title: "Untitled",
-        description: "No description provided.",
-        mediaLink: "",
-        isPublic: false,
-        owner: data.ownerId,
-        participants: [data.ownerId, data.userId],
-        tasks: [],
-        pinned: false,
-        timestamp: new Date()
-      };
-      await addDoc(collection(db, "collaborations"), newCollab);
-      await updateDoc(doc(db, "collabJoinRequests", docSnap.id), { status: "approved" });
-
-      // Optional: Add notification
-      await updateDoc(doc(db, "collaborations", newCollab.id), {
-        notifications: arrayUnion({
-          type: "joined",
-          userId: data.userId,
-          timestamp: Date.now()
-        })
-      });
-
-      reqDiv.remove();
     };
 
     declineBtn.onclick = async () => {
       await updateDoc(doc(db, "collabJoinRequests", docSnap.id), { status: "declined" });
-      reqDiv.remove();
+      reqCard.remove();
     };
 
-    joinPanel.appendChild(reqDiv);
+    joinPanel.appendChild(reqCard);
   }
 }
+
+// Call only once:
+if (document.getElementById("joinRequestsPanel")) {
+  loadJoinRequests();
+}
+
 
   </script>
   <script type="module">
