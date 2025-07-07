@@ -57,7 +57,7 @@ for (const doc of requests) {
     categorized.sent.push(renderRequest(doc.id, data, false));
   } else if (data.status === "declined" || data.status === "accepted") {
     try {
-      await deleteDoc(docRef(db, "requests", doc.id));
+await deleteDoc(doc(db, "collabRequests", doc.id));
      // console.log(`[Cleanup] Deleted request ${doc.id} with status ${data.status}`);
     } catch (error) {
       console.error(`[Cleanup] Failed to delete request ${doc.id}:`, error);
