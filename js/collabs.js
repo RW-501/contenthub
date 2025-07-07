@@ -8,7 +8,7 @@ import {
   getAuth, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
-  getFirestore, doc, addDoc, getDoc, updateDoc, collection, query, where, getDocs
+  getFirestore, doc, addDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db, auth } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
@@ -220,7 +220,9 @@ window.respondToRequest = async function(id, status) {
       participants: [fromUid, toUid],
       tasks: [],
       pinned: false,
-      timestamp: new Date()
+      createdAt: new Date(),
+    timestamp: serverTimestamp()
+
     };
 
     await addDoc(collection(db, "collaborations"), newCollab);
