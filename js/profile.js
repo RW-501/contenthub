@@ -65,9 +65,11 @@ if (!isOwnerView) {
 }
 
 userBtns.forEach(btn => {
-  btn.style.display = isOwnerView ? "block" : "none";
-    btn?.remove(); // Completely removes the button from the DOM
+  if (!isOwnerView) {
+    btn.remove(); // Completely remove if not the owner
+  }
 });
+
 
 
 document.getElementById("usernameText").textContent = data.username || "";
