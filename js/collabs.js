@@ -55,7 +55,7 @@ async function loadDashboard(uid) {
 
   for (const doc of collaborations) {
     const data = doc.data();
-    if (data.status === "archived") categorized.archived.push(renderCollab(doc.id, data));
+    if (data.status === "archive") categorized.archived.push(renderCollab(doc.id, data));
     else categorized.active.push(renderCollab(doc.id, data));
   }
 
