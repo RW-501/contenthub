@@ -188,31 +188,25 @@
     </div>
   </div>
 
-<!-- Pending Join Requests Section -->
+<!-- Participants Section -->
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">📜 Pending Join Requests</h5>
+    <h5 class="mb-0">👥 Participants</h5>
     <button class="btn btn-sm btn-outline-secondary" 
             data-bs-toggle="collapse" 
-            data-bs-target="#pendingJoinRequestsCollapse"
+            data-bs-target="#participantsCollapse" 
             aria-expanded="true" 
-            aria-controls="pendingJoinRequestsCollapse">
+            aria-controls="participantsCollapse">
       Toggle
     </button>
   </div>
-
-  <div class="collapse show" id="pendingJoinRequestsCollapse">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="mb-0">Approve or review user join requests</h6>
-        <span class="badge bg-info" id="joinRequestCount">0</span>
-      </div>
-      <div id="joinRequestsPanel">
-        <p class="text-muted">No requests yet.</p>
-      </div>
+  <div class="collapse show" id="participantsCollapse">
+    <div class="card-body" id="participantsList">
+      <p class="text-muted">Loading participants...</p>
     </div>
   </div>
 </div>
+
 
 
 
@@ -1091,7 +1085,77 @@ document.getElementById("archiveBoardBtn").addEventListener("click", async () =>
   await archiveBoard(collabRef);
 });
 
+
+loadParticipants(collabId);
+
     }
+
+
+async function removeUserFromBoard(collabId, userIdToRemove) {
+  const collabRef = doc(db, "collaborations", collabId);
+  const collabSnap = await getDoc(collabRef);
+
+  if (!collabSnap.exists()) {
+    console.error("Collaboration not found:", collabId);
+    return;
+  }
+
+  const collabData = collabSnap.data();
+  const currentParticipants = collabData.participants || [];
+
+  // Remove the user from participants
+  const updatedParticipants = currentParticipants.filter(uid => uid !== userIdToRemove);
+
+  // Update Firestore document
+  await updateDoc(collabRef, { participants: updatedParticipants });
+
+  // Optional: Add a notification about the removal
+  await updateDoc(collabRef, {
+    notifications: arrayUnion({
+      type: "user_removed",
+      userId: userIdToRemove,
+      message: `User ${userIdToRemove} was removed from the collaboration.`,
+      timestamp: Date.now()
+    })
+  });
+
+  console.log(`User ${userIdToRemove} removed from collaboration ${collabId}`);
+}
+
+async function loadParticipants(collabId) {
+  const participantsList = document.getElementById("participantsList");
+  participantsList.innerHTML = ""; 
+
+  const collabRef = doc(db, "collaborations", collabId);
+  const collabSnap = await getDoc(collabRef);
+
+  if (!collabSnap.exists()) return;
+
+  const participants = collabSnap.data().participants || [];
+
+  for (const uid of participants) {
+    const userDoc = await getDoc(doc(db, "users", uid));
+    const userInfo = userDoc.exists() ? userDoc.data() : { displayName: "User", photoURL: "https://via.placeholder.com/40" };
+
+    const userDiv = document.createElement("div");
+    userDiv.className = "d-flex align-items-center justify-content-between mb-2";
+
+    userDiv.innerHTML = `
+      <div class="d-flex align-items-center">
+        <img src="${userInfo.photoURL}" alt="Avatar" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+        <strong>${userInfo.displayName}</strong>
+      </div>
+      <button class="btn btn-sm btn-outline-danger">Remove</button>
+    `;
+
+    userDiv.querySelector("button").onclick = async () => {
+      await removeUserFromBoard(collabId, uid);
+      userDiv.remove();
+    };
+
+    participantsList.appendChild(userDiv);
+  }
+}
 
 
     // Pass collabRef (Firestore doc ref) of the board you want to archive
