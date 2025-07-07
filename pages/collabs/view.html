@@ -1100,7 +1100,7 @@ async function archiveBoard(collabRef) {
   const archiveBtn = document.getElementById("archiveBoardBtn");
   try {
     archiveBtn.disabled = true;
-    await updateDoc(collabRef, { status: "archive" });
+    await updateDoc(collabRef, { status: "archive", isPublic: false });
     statusMsg.textContent = "Board archived successfully!";
     statusMsg.style.display = "block";
   } catch (error) {
