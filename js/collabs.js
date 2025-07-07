@@ -133,6 +133,15 @@ function renderCollab(id, data) {
   const dateStr = formatTimestamp(data.timestamp);
   const mediaHTML = renderMediaPreview(data.mediaLink);
   const isPinned = data.pinned;
+  const isPublic = data.isPublic;
+  const participantCount = (data.participants || []).length;
+  const totalTasks = (data.tasks || []).length;
+  const progress = data.progress || 0;
+  const status = data.status || "active";
+
+  const statusBadge = status === "archive"
+    ? `<span class="badge bg-secondary">Archived</span>`
+    : `<span class="badge bg-success">Active</span>`;
 
   return `
     <div class="list-group-item ${isPinned ? 'border border-2 border-warning bg-light' : ''}">
@@ -141,24 +150,46 @@ function renderCollab(id, data) {
           <strong>${data.title || "Untitled Project"}</strong>
           ${isPinned ? '<span class="badge bg-warning text-dark ms-2">📌 Pinned</span>' : ''}
           <p class="mb-1">${data.description?.substring(0, 100) || "No description provided."}</p>
-          <small class="text-muted">Participants: ${data.participants.length}<br>${dateStr}</small>
+          <small class="text-muted">
+            👥 Participants: ${participantCount}<br>
+            📅 ${dateStr}
+          </small>
         </div>
         <div class="text-end">
-          <span class="badge bg-success">Active</span>
+          ${statusBadge}
           <button class="btn btn-sm btn-outline-primary ms-2" onclick="openGroupChat('${id}')">
-            <i class="bi bi-chat-left-text"></i> Message
+            <i class="bi bi-chat-left-text"></i> View Project
           </button>
-          <button class="btn btn-sm btn-link text-decoration-none" data-bs-toggle="collapse" data-bs-target="#collab-details-${id}">View</button>
+          <button class="btn btn-sm btn-link text-decoration-none" data-bs-toggle="collapse" data-bs-target="#collab-details-${id}">
+            Details
+          </button>
         </div>
       </div>
-      <div class="collapse mt-2" id="collab-details-${id}">
-        <div class="border-top pt-2">
+
+      <div class="collapse mt-3" id="collab-details-${id}">
+        <div class="border-top pt-3">
+          <div class="row mb-2 text-muted small">
+            <div class="col-md-4">
+              🔐 <strong>Visibility:</strong> ${isPublic ? "Public" : "Private"}
+            </div>
+            <div class="col-md-4">
+              ✅ <strong>Tasks:</strong> ${totalTasks}
+            </div>
+            <div class="col-md-4">
+              📈 <strong>Progress:</strong>
+              <div class="progress" style="height: 10px;">
+                <div class="progress-bar bg-info" role="progressbar" style="width: ${progress}%;" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+          </div>
           <p class="mb-1"><strong>Full Description:</strong> ${data.description || "No description."}</p>
           ${mediaHTML}
         </div>
       </div>
-    </div>`;
+    </div>
+  `;
 }
+
 
 
 window.respondToRequest = async function(id, status) {
