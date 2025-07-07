@@ -35,14 +35,40 @@ const userDoc = await getDoc(doc(db, "users", viewingUserId));
 const data = userDoc.data();
 document.getElementById("displayName").innerText = data.displayName || 'Anonymous';
 
-// Set collab button
-const collabBtn = document.getElementById("collabBtn");
-collabBtn.classList.remove("d-none");
-collabBtn.onclick = () => {
-  document.getElementById("collabBtn").dataset.viewingUserId = viewingUserId;
-  document.getElementById("collabBtn").dataset.username = data.username;
-  document.getElementById("collabBtn").dataset.displayName = data.displayName;
-};
+
+  // Grab DOM elements
+  const collabBtn = document.getElementById("collabBtn");
+  const editProfileBtn = document.getElementById("editProfileBtn");
+  const analyticsBtn = document.getElementById("analyticsBtn");
+const userBtns = document.querySelectorAll(".userBtns");
+
+  // Show/hide collab button
+if (!viewingUserId || viewingUserId === currentUser.uid) {
+  collabBtn?.remove(); // Completely removes the button from the DOM
+} else {
+  collabBtn.onclick = () => {
+    collabBtn.dataset.viewingUserId = viewingUserId;
+    collabBtn.dataset.username = data.username;
+    collabBtn.dataset.displayName = data.displayName;
+  };
+}
+
+  // Show/hide profile owner controls
+  const isOwnerView = !viewingUserId || viewingUserId === currentUser.uid;
+
+if (!isOwnerView) {
+  editProfileBtn?.remove();
+  analyticsBtn?.remove();
+} else {
+  editProfileBtn.style.display = "inline-block";
+  analyticsBtn.style.display = "inline-block";
+}
+
+userBtns.forEach(btn => {
+  btn.style.display = isOwnerView ? "block" : "none";
+    btn?.remove(); // Completely removes the button from the DOM
+});
+
 
 document.getElementById("usernameText").textContent = data.username || "";
 document.getElementById("pronounsText").innerHTML = data.pronouns ? `<i class="bi bi-person"></i> ${data.pronouns}` : "";
@@ -115,20 +141,25 @@ if (Array.isArray(data.links)) {
 
 
 
-
-
-if (viewingUserId !== currentUser.uid) {
+  // Show follow button only when viewing others
   const followBtn = document.getElementById("followBtn");
-  followBtn.style.display = "inline-block";
-
-  if ((data.followers || []).includes(currentUser.uid)) {
-    followBtn.innerText = "Unfollow";
-    followBtn.onclick = () => unfollowUser(viewingUserId);
+  if (!isOwnerView) {
+    followBtn.style.display = "inline-block";
+    if ((data.followers || []).includes(currentUser.uid)) {
+      followBtn.innerText = "Unfollow";
+      followBtn.onclick = () => unfollowUser(viewingUserId);
+    } else {
+      followBtn.innerText = "Follow";
+      followBtn.onclick = () => followUser(viewingUserId);
+    }
   } else {
-    followBtn.innerText = "Follow";
-    followBtn.onclick = () => followUser(viewingUserId);
+    followBtn.style.display = "none";
+    followBtn?.remove(); // Completely removes the button from the DOM
+
   }
-}
+
+
+
 
 checkNameChangeEligibility(data); 
 loadUserPosts(viewingUserId);
