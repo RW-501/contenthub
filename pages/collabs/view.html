@@ -605,7 +605,7 @@ function showMentionDropdown(query, caretRect) {
   if (!matches.length) return hideMentionDropdown();
 
   dropdown.innerHTML = matches.map(user =>
-    `<button class="dropdown-item" data-uid="${user.uid}" data-name="${user.displayName}">@${user.displayName}</button>`
+    `<button class="dropdown-item" data-uid="${user.uid}" data-name="${user.displayName}">${user.username}</button>`
   ).join("");
 
   dropdown.style.left = `${caretRect.left}px`;
@@ -625,7 +625,7 @@ document.getElementById("mentionsDropdown").addEventListener("click", (e) => {
   const selection = window.getSelection();
   const range = selection.getRangeAt(0);
   range.deleteContents();
-  const node = document.createTextNode(`@${name} `);
+  const node = document.createTextNode(`${name} `);
   range.insertNode(node);
   range.setStartAfter(node);
   selection.removeAllRanges();
@@ -638,7 +638,7 @@ async function loadMentionList() {
   const qSnap = await getDocs(collection(db, "users"));
   mentionList = qSnap.docs.map(doc => ({
     uid: doc.id,
-    displayName: doc.data().displayName || doc.data().email
+    displayName: doc.data().username || doc.data().email
   }));
 }
 loadMentionList();
