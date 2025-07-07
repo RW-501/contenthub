@@ -325,7 +325,7 @@ async function loadUserPosts(uid) {
 // Load Collabs
 async function loadUserCollabs(uid) {
   const list = document.getElementById("collabList");
-  const currentUserId = user?.uid;
+  const currentUserId = uid;
   list.innerHTML = `<li class="list-group-item text-muted">Loading collaborations...</li>`;
 
   try {
