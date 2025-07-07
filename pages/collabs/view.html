@@ -632,7 +632,7 @@ function showMentionDropdown(query, caretRect) {
   if (!matches.length) return hideMentionDropdown();
 
   dropdown.innerHTML = matches.map(user =>
-    `<button class="dropdown-item" data-uid="${user.uid}" data-name="${user.displayName}">${user.username}</button>`
+    `<button class="dropdown-item" data-uid="${user.uid}" data-name="${user.displayName}">${user.displayName}</button>`
   ).join("");
 
   dropdown.style.left = `${caretRect.left}px`;
