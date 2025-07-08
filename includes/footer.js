@@ -8,6 +8,7 @@ document.getElementById('footerYear').textContent = new Date().getFullYear();
 function loadPostScript() {
     const existing = document.querySelector('script[src="https://rw-501.github.io/contenthub/includes/post.js"]');
     if (existing) return;
+  console.log("?post JS ???");
 
     const script = document.createElement('script');
     script.src = "https://rw-501.github.io/contenthub/includes/post.js";

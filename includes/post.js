@@ -25,7 +25,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-console.log(" loading post area");
+console.log(" loading POST JS  post area");
 
 
 const targetBtn = document.getElementById("mainPostBtn");
