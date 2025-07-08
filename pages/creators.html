@@ -231,6 +231,12 @@ const resetFiltersBtn = document.getElementById("resetFiltersBtn");
 let creators = [];
 let activeFilterTags = [];
 
+    async function fetchCreators() {
+      const snapshot = await getDocs(collection(db, "users"));
+      creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderCreators(creators);
+    }
+    
 function decodeHTML(str) {
   const txt = document.createElement("textarea");
   txt.innerHTML = str;
