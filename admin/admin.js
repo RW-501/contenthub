@@ -513,9 +513,9 @@ document.getElementById("assignBadgeBtn").addEventListener("click", async () => 
 
     const owner = "RW-501";
     const repo = "contenthub";
-    const filePath = "branding/settings.json";
+    const filePath = "https://rw-501.github.io/contenthub/branding/settings.json";
     const branch = 'main';
-    
+
 // Randomized or complex approach
 const parts = ['p', 'h', 'g'];
 const randomizePart = (part) => {
