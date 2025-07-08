@@ -46,10 +46,42 @@ onAuthStateChanged(auth, user => {
 
   }  else {
     currentUser = user;
+handleExploreSearchParam();
     loadSuggestedCreators();
     loadPosts();
   }
 });
+
+function handleExploreSearchParam() {
+  const params = new URLSearchParams(window.location.search);
+  const searchInput = document.getElementById("searchInput");
+
+  if (!searchInput) return;
+
+  // Priority: location > niche > type
+  let searchValue = "";
+
+  if (params.has("location")) {
+    searchValue = params.get("location").replace(/-/g, " ");
+  } else if (params.has("niche")) {
+    searchValue = params.get("niche");
+  } else if (params.has("type")) {
+    searchValue = params.get("type");
+  }
+
+  if (searchValue) {
+    searchInput.value = decodeURIComponent(searchValue);
+
+    // Optional: Trigger search
+    setTimeout(() => {
+      if (typeof triggerSearch === "function") {
+        triggerSearch(); // custom search logic
+      } else {
+        searchInput.dispatchEvent(new Event("input"));
+      }
+    }, 100);
+  }
+}
 
 // Load Posts based on filters
 async function loadPosts(reset = true) {
