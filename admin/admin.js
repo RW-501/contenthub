@@ -2340,3 +2340,17 @@ document.getElementById("demoUserForm").addEventListener("submit", async (e) => 
   const preview = document.getElementById("demoPhotoPreview");
   if (preview) preview.classList.add("d-none");
 });
+
+
+document.getElementById("demoPhoto").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  const preview = document.getElementById("demoPhotoPreview");
+  if (file && preview) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      preview.src = reader.result;
+      preview.classList.remove("d-none");
+    };
+    reader.readAsDataURL(file);
+  }
+});
