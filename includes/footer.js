@@ -20,6 +20,7 @@ function loadPostScript() {
     });
 }
 
-window.addEventListener("DOMContentLoaded", loadPostScript);
+//window.addEventListener("DOMContentLoaded", loadPostScript);
 
 
+loadPostScript();
