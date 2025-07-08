@@ -166,4 +166,4 @@ publishBtn.addEventListener("click", async () => {
 }
 
 // Run the script only after DOM is ready
-initPostScript();
+//initPostScript();
