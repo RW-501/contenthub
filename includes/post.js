@@ -36,24 +36,29 @@ export function initPostScript() {
   console.log("✅ mainPostBtn found, running post script...");
 
 
-// 🚀 Enhanced Post Composer UI + Functionality
+// 🚀 Enhanced Post Composer UI + Functionality (Modernized)
 const composerHTML = `
-  <div id="postComposer" class="p-3 border rounded mb-4 bg-white shadow-sm">
-    <div id="caption" contenteditable="true" class="form-control mb-3" style="min-height: 100px; border-radius: 10px;" placeholder="What are you creating today? Share it... 💬"></div>
+  <div id="postComposer" class="p-4 border rounded-4 shadow bg-white mb-4">
+    <div class="d-flex align-items-start mb-3">
+      <img src="/assets/img/avatar-default.png" alt="avatar" class="rounded-circle me-2" style="width:40px; height:40px; object-fit:cover;">
+      <div contenteditable="true" id="caption" class="form-control" style="min-height:100px; border-radius:12px;" placeholder="What are you creating today? Share it with the world... ✨"></div>
+    </div>
 
-    <div id="uploadArea" class="border border-2 rounded p-4 text-center bg-light mb-3">
-      <p class="text-muted">📁 Drag & drop or <span class="text-primary text-decoration-underline" style="cursor:pointer;" onclick="document.getElementById('mediaFile').click()">browse</span> to upload media</p>
+    <div id="uploadArea" class="border border-2 rounded-3 p-4 text-center bg-light mb-3">
+      <p class="text-muted mb-1">📁 Drag & drop or <span class="text-primary text-decoration-underline" style="cursor:pointer;" onclick="document.getElementById('mediaFile').click()">browse</span> to upload media</p>
       <input type="file" id="mediaFile" accept="image/*,video/*" multiple hidden />
       <div id="mediaPreview" class="d-flex flex-wrap gap-2 mt-3"></div>
     </div>
 
-    <input type="text" class="form-control mb-2" id="contributors" placeholder="Tag collaborators with @username or email..." />
+    <input type="text" class="form-control mb-2" id="contributors" placeholder="Tag collaborators using @username or their email..." />
+
     <button class="btn btn-outline-secondary w-100 mb-2" onclick="document.getElementById('scheduleTime').click()">📅 Schedule Post</button>
     <input type="datetime-local" id="scheduleTime" class="form-control mb-2" hidden />
 
     <button id="publishPostBtn" class="btn btn-primary w-100">🚀 Publish Post</button>
   </div>
 `;
+
 
 // Insert composer
 const wrapper = document.createElement("div");
