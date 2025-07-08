@@ -42,8 +42,13 @@ document.getElementById("displayName").innerText = data.displayName || 'Anonymou
   const analyticsBtn = document.getElementById("analyticsBtn");
 const userBtns = document.querySelectorAll(".userBtns");
 
-  // Show/hide collab button
-if (!viewingUserId || viewingUserId === currentUser.uid) {
+
+  // Show/hide profile owner controls
+  const isOwnerView = !viewingUserId || viewingUserId === currentUser.uid;
+
+
+    // Show/hide collab button
+if (isOwnerView) {
   collabBtn?.remove(); // Completely removes the button from the DOM
 } else {
   collabBtn.onclick = () => {
@@ -53,8 +58,6 @@ if (!viewingUserId || viewingUserId === currentUser.uid) {
   };
 }
 
-  // Show/hide profile owner controls
-  const isOwnerView = !viewingUserId || viewingUserId === currentUser.uid;
 
 if (!isOwnerView) {
   editProfileBtn?.remove();
