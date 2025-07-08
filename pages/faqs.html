@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-50">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ - Content Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://rw-501.github.io/contenthub/css/main.css">
+</head>
+<body class="text-gray-800">
+  <div id="toolbarContainer"></div>
+
+  <main class="max-w-2xl mx-auto px-4 py-12 space-y-6">
+    <h1 class="text-3xl font-bold text-center">❓ Frequently Asked Questions</h1>
+    <div id="faqList" class="space-y-4">
+      <!-- FAQ items will go here -->
+    </div>
+
+    <!-- Call-to-Action Buttons -->
+    <div class="mt-10 flex flex-wrap justify-center gap-4 text-center">
+      <a href="https://rw-501.github.io/contenthub/pages/support.html" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow">Visit Support</a>
+      <a href="https://rw-501.github.io/contenthub/pages/feedback.html" class="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl shadow">Give Feedback</a>
+      <a href="https://rw-501.github.io/contenthub/pages/contact-us.html" class="px-5 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-xl shadow">Contact Us</a>
+    </div>
+  </main>
+
+  <div id="footerContainer"></div>
+
+  <!-- Navigation and Footer Injection -->
+  <script type="module">
+    document.getElementById("toolbarContainer").innerHTML = await fetch("https://rw-501.github.io/contenthub/includes/nav.html").then(res => res.text());
+    import("https://rw-501.github.io/contenthub/includes/nav.js");
+
+    document.getElementById("footerContainer").innerHTML = await fetch("https://rw-501.github.io/contenthub/includes/footer.html").then(res => res.text());
+    import("https://rw-501.github.io/contenthub/includes/footer.js");
+  </script>
+
+  <!-- Firebase + FAQ Loader -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+    const db = getFirestore(app);
+
+    const faqList = document.getElementById("faqList");
+
+    async function loadFAQs() {
+      const snapshot = await getDocs(collection(db, "faq"));
+      if (snapshot.empty) {
+        faqList.innerHTML = `<p class="text-center text-gray-500">No FAQs available at the moment.</p>`;
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const { question, answer } = doc.data();
+
+        const item = document.createElement("details");
+        item.className = "bg-white border border-gray-300 rounded-xl p-4 shadow-sm";
+
+        item.innerHTML = `
+          <summary class="font-semibold cursor-pointer text-lg">${question}</summary>
+          <p class="mt-2 text-sm text-gray-700">${answer}</p>
+        `;
+
+        faqList.appendChild(item);
+      });
+    }
+
+    loadFAQs();
+  </script>
+</body>
+</html>
