@@ -232,21 +232,72 @@ window.requestToJoin = requestToJoin;
     const mediaType = post.media?.[0]?.type || "";
     let mediaHTML = "";
 
-    if (mediaUrl) {
-      if (mediaUrl.match(/(youtube\.com|youtu\.be)/i)) {
-        const youtubeEmbed = mediaUrl.includes("youtube.com")
-          ? mediaUrl.replace("watch?v=", "embed/")
-          : mediaUrl.replace("youtu.be/", "youtube.com/embed/");
-        mediaHTML = `<iframe width="100%" height="200" src="${youtubeEmbed}" frameborder="0" allowfullscreen></iframe>`;
-      } else if (mediaUrl.match(/vimeo\.com/)) {
-        const id = mediaUrl.split("/").pop();
-        mediaHTML = `<iframe src="https://player.vimeo.com/video/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
-      } else if (mediaType === "video") {
-        mediaHTML = `<video src="${mediaUrl}" controls muted loop style="width:100%; max-height:200px; object-fit:cover;"></video>`;
-      } else {
-        mediaHTML = `<img src="${mediaUrl}" class="card-img-top" alt="Post image" style="max-height:200px; object-fit:cover;">`;
-      }
-    }
+
+if (mediaUrl) {
+  // YouTube
+  if (/youtube\.com|youtu\.be/.test(mediaUrl)) {
+    const embed = mediaUrl.includes("watch?v=")
+      ? mediaUrl.replace("watch?v=", "embed/")
+      : mediaUrl.replace("youtu.be/", "youtube.com/embed/");
+    mediaHTML = `<iframe width="100%" height="200" src="${embed}" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Vimeo
+  else if (/vimeo\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/").pop();
+    mediaHTML = `<iframe src="https://player.vimeo.com/video/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Dailymotion
+  else if (/dailymotion\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/").pop();
+    mediaHTML = `<iframe src="https://www.dailymotion.com/embed/video/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Twitch
+  else if (/twitch\.tv/.test(mediaUrl)) {
+    const id = mediaUrl.split("/").pop();
+    mediaHTML = `<iframe src="https://player.twitch.tv/?video=${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Facebook
+  else if (/facebook\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/").pop();
+    mediaHTML = `<iframe src="https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/video.php?v=${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Instagram
+  else if (/instagram\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/p/").pop().split("/")[0];
+    mediaHTML = `<iframe src="https://www.instagram.com/p/${id}/embed" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Twitter
+  else if (/twitter\.com/.test(mediaUrl)) {
+    mediaHTML = `<iframe src="https://twitframe.com/show?url=${encodeURIComponent(mediaUrl)}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // TikTok
+  else if (/tiktok\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/video/").pop();
+    mediaHTML = `<iframe src="https://www.tiktok.com/embed/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Firebase Storage or Direct Video Links
+  else if (
+    mediaUrl.includes("firebasestorage.googleapis.com") ||
+    /\.(mp4|webm|ogg)$/i.test(mediaUrl)
+  ) {
+    mediaHTML = `<video src="${mediaUrl}" controls muted loop style="width:100%; max-height:200px; object-fit:cover;"></video>`;
+  }
+
+  // Fallback to image
+  else {
+    mediaHTML = `<img src="${mediaUrl}" alt="Post media" style="width:100%; max-height:200px; object-fit:cover;" />`;
+  }
+
+}
+
 
     const createdAt = post.createdAt?.toDate ? post.createdAt.toDate() : new Date();
     const timeAgo = timeSince(createdAt.getTime());

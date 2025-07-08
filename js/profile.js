@@ -179,7 +179,7 @@ if (Array.isArray(data.links)) {
 
 
 checkNameChangeEligibility(data); 
-loadUserPosts(viewingUserId);
+loadUserPosts(viewingUserId, data.displayName, data.photoURL);
 loadUserCollabs(viewingUserId);
 loadFollowingList(data);
 loadFollowersList(data);
@@ -351,33 +351,134 @@ async function followUser(uid) {
 }
 
 
-// Load Posts
-async function loadUserPosts(uid) {
+async function loadUserPosts(uid, displayName = "User", photoURL = "") {
   const postGrid = document.getElementById("postsGrid");
-  const q = query(collection(db, "posts"), where("owner", "==", uid));
-  const snapshot = await getDocs(q);
   postGrid.innerHTML = "";
+
+  const q = query(collection(db, "posts"), where("owner", "==", uid), orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
     postGrid.innerHTML = `
       <div class="col-12 text-center text-muted mt-3">
         <p>No posts yet.</p>
-        <a href="https://rw-501.github.io/contenthub/pages/post.html" class="btn btn-primary btn-sm">
-          🚀 Create your first post
-        </a>
+        <a href="/pages/post.html" class="btn btn-primary btn-sm">🚀 Create your first post</a>
       </div>`;
     return;
   }
 
-  snapshot.forEach(docSnap => {
+  for (const docSnap of snapshot.docs) {
     const post = docSnap.data();
-    const col = document.createElement("div");
-    col.className = "col-sm-6 col-md-4";
-    col.innerHTML = post.type === 'video'
-      ? `<video src="${post.mediaUrl}" controls class="w-100 rounded shadow-sm"></video>`
-      : `<img src="${post.mediaUrl}" alt="Post" class="img-fluid rounded shadow-sm" />`;
-    postGrid.appendChild(col);
-  });
+    const card = document.createElement("div");
+    card.className = "card mb-3 shadow-sm";
+
+    const mediaUrl = post.media?.[0]?.url || "";
+    const mediaType = post.media?.[0]?.type || "";
+    let mediaHTML = "";
+
+
+
+if (mediaUrl) {
+  // YouTube
+  if (/youtube\.com|youtu\.be/.test(mediaUrl)) {
+    const embed = mediaUrl.includes("watch?v=")
+      ? mediaUrl.replace("watch?v=", "embed/")
+      : mediaUrl.replace("youtu.be/", "youtube.com/embed/");
+    mediaHTML = `<iframe width="100%" height="200" src="${embed}" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Vimeo
+  else if (/vimeo\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/").pop();
+    mediaHTML = `<iframe src="https://player.vimeo.com/video/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Dailymotion
+  else if (/dailymotion\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/").pop();
+    mediaHTML = `<iframe src="https://www.dailymotion.com/embed/video/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Twitch
+  else if (/twitch\.tv/.test(mediaUrl)) {
+    const id = mediaUrl.split("/").pop();
+    mediaHTML = `<iframe src="https://player.twitch.tv/?video=${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Facebook
+  else if (/facebook\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/").pop();
+    mediaHTML = `<iframe src="https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/video.php?v=${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Instagram
+  else if (/instagram\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/p/").pop().split("/")[0];
+    mediaHTML = `<iframe src="https://www.instagram.com/p/${id}/embed" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Twitter
+  else if (/twitter\.com/.test(mediaUrl)) {
+    mediaHTML = `<iframe src="https://twitframe.com/show?url=${encodeURIComponent(mediaUrl)}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // TikTok
+  else if (/tiktok\.com/.test(mediaUrl)) {
+    const id = mediaUrl.split("/video/").pop();
+    mediaHTML = `<iframe src="https://www.tiktok.com/embed/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  // Firebase Storage or Direct Video Links
+  else if (
+    mediaUrl.includes("firebasestorage.googleapis.com") ||
+    /\.(mp4|webm|ogg)$/i.test(mediaUrl)
+  ) {
+    mediaHTML = `<video src="${mediaUrl}" controls muted loop style="width:100%; max-height:200px; object-fit:cover;"></video>`;
+  }
+
+  // Fallback to image
+  else {
+    mediaHTML = `<img src="${mediaUrl}" alt="Post media" style="width:100%; max-height:200px; object-fit:cover;" />`;
+  }
+
+}
+
+
+    const createdAt = post.createdAt?.toDate?.() || new Date();
+    const timeAgo = timeSince(createdAt.getTime());
+
+    card.innerHTML = `
+      ${mediaHTML}
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <img src="${photoURL || 'https://via.placeholder.com/40'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
+          <a href="/pages/profile.html?uid=${uid}" class="fw-bold text-decoration-none">${displayName}</a>
+        </div>
+
+        <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+
+        <small class="text-muted d-block mb-2">${timeAgo} • 
+          <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes • 
+          ${post.views || 0} Views
+        </small>
+
+        <button class="btn btn-sm btn-outline-danger" id="like-btn-${docSnap.id}">
+          ❤️ Like
+        </button>
+      </div>
+    `;
+
+    const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
+    const likeCountEl = card.querySelector(`#like-count-${docSnap.id}`);
+
+    likeBtn.addEventListener("click", async () => {
+      const postRef = doc(db, "posts", docSnap.id);
+      await updateDoc(postRef, { likes: increment(1) });
+      likeCountEl.textContent = (parseInt(likeCountEl.textContent) || 0) + 1;
+    });
+
+    postGrid.appendChild(card);
+  }
 }
 
 
