@@ -202,25 +202,36 @@ async function loadFollowingList(data) {
   const renderNext = async () => {
     const slice = data.following.slice(start, start + limit);
     const userDocs = await Promise.all(slice.map(uid => getUserFromCache(uid)));
-
 userDocs.forEach(u => {
   const li = document.createElement("li");
   li.className = "list-group-item d-flex align-items-center justify-content-between";
 
   const profileLink = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${u.uid}`;
+  const niches = Array.isArray(u.niches) ? u.niches : [];
+
+  // Convert niches to linked badges
+  const badges = niches.map(niche =>
+    `<a href="https://rw-501.github.io/contenthub/pages/explore.html?niche=${encodeURIComponent(niche)}"
+        class="badge bg-primary text-decoration-none me-1">
+      ${niche}
+    </a>`
+  ).join("");
 
   li.innerHTML = `
-    <div class="d-flex align-items-center">
+    <div class="d-flex align-items-center flex-wrap">
       <img src="${u.photoURL || '/assets/default-avatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
       <a href="${profileLink}" class="btn btn-link p-0 m-0 text-decoration-none">
         <strong>${u.displayName || "Unnamed"}</strong>
       </a>
-      <small class="text-muted ms-2">${u.niches || ''}</small>
+      <div class="ms-3 d-flex flex-wrap">
+        ${badges}
+      </div>
     </div>
   `;
 
   list.appendChild(li);
 });
+
 
     start += limit;
 
@@ -260,19 +271,31 @@ userDocs.forEach(u => {
   li.className = "list-group-item d-flex align-items-center justify-content-between";
 
   const profileLink = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${u.uid}`;
+  const niches = Array.isArray(u.niches) ? u.niches : [];
+
+  // Convert niches to linked badges
+  const badges = niches.map(niche =>
+    `<a href="https://rw-501.github.io/contenthub/pages/explore.html?niche=${encodeURIComponent(niche)}"
+        class="badge bg-primary text-decoration-none me-1">
+      ${niche}
+    </a>`
+  ).join("");
 
   li.innerHTML = `
-    <div class="d-flex align-items-center">
+    <div class="d-flex align-items-center flex-wrap">
       <img src="${u.photoURL || '/assets/default-avatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
       <a href="${profileLink}" class="btn btn-link p-0 m-0 text-decoration-none">
         <strong>${u.displayName || "Unnamed"}</strong>
       </a>
-      <small class="text-muted ms-2">${u.niches || ''}</small>
+      <div class="ms-3 d-flex flex-wrap">
+        ${badges}
+      </div>
     </div>
   `;
 
   list.appendChild(li);
 });
+
 
 
     start += limit;
