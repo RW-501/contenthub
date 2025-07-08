@@ -121,6 +121,13 @@ if (userData.status === "removed") {
 
 
 // Load All Users
+// --- Enhancements ---
+// 1. Actions moved into a single modal popup for clarity
+// 2. Role changing is now done through a popover menu
+// 3. Added helper modal + refactor suggestions
+
+// Call this after your DOM is loaded
+// Main User Loader
 async function loadUsers() {
   const userTable = document.getElementById("userTable");
   const users = await getDocs(collection(db, "users"));
@@ -139,43 +146,49 @@ async function loadUsers() {
     const row = `
       <tr>
         <td>${u.email || 'N/A'}</td>
-        <td>${u.niche || ''}</td>
-        <td>
-          <select class="form-select form-select-sm" onchange="setUserRole('${id}', this.value)">
-            <option value="user" ${role === 'user' ? 'selected' : ''}>User</option>
-            <option value="mod" ${role === 'mod' ? 'selected' : ''}>Mod</option>
-            <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
-            <option value="banned" ${role === 'banned' ? 'selected' : ''}>Banned</option>
-          </select>
-        </td>
+        <td>${(u.niches || []).join(", ")}</td>
+        <td><span class="badge bg-info text-dark">${role}</span></td>
         <td><span class="badge bg-${status === 'active' ? 'success' : status === 'blocked' ? 'warning' : 'secondary'}">${status}</span></td>
         <td>${banUntilDisplay}</td>
-<td>
-  ${status === "removed" ? `
-    <button class="btn btn-sm btn-outline-success" onclick="restoreUser('${id}')">♻️ Restore</button>
-  ` : `
-    <button class="btn btn-sm btn-success" onclick="verifyUser('${id}')">✔ Verify</button>
-    <button class="btn btn-sm btn-danger" onclick="openBanModal('${id}')">🚫 Ban</button>
-    <button class="btn btn-sm btn-secondary" onclick="unbanUser('${id}')">🛑 Unban</button>
-    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${id}')">🗑 Remove</button>
-  `}
-</td>
-
+        <td>
+          <button class="btn btn-sm btn-outline-primary" onclick="openActionModal('${id}')">⚙ Actions</button>
+        </td>
       </tr>`;
     userTable.insertAdjacentHTML("beforeend", row);
   });
 }
+window.loadUsers = loadUsers;
 
-function openBanModal(userId) {
-  document.getElementById("banUserId").value = userId;
-  new bootstrap.Modal(document.getElementById("banModal")).show();
+// Open Modal
+function openActionModal(userId) {
+  document.getElementById("actionUserId").value = userId;
+  new bootstrap.Modal(document.getElementById("actionModal")).show();
 }
+window.openActionModal = openActionModal;
 
-document.getElementById("banForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const userId = document.getElementById("banUserId").value;
-  const duration = document.getElementById("banDuration").value;
+// Set Role
+async function setUserRole(role) {
+  const userId = document.getElementById("actionUserId").value;
+  await updateDoc(doc(db, "users", userId), { role });
+  alert(`Role updated to ${role}`);
+  bootstrap.Modal.getInstance(document.getElementById("actionModal")).hide();
+  loadUsers();
+}
+window.setUserRole = setUserRole;
 
+// Verify
+async function verifyUser() {
+  const userId = document.getElementById("actionUserId").value;
+  await updateDoc(doc(db, "users", userId), { verified: true });
+  alert("User verified.");
+  bootstrap.Modal.getInstance(document.getElementById("actionModal")).hide();
+  loadUsers();
+}
+window.verifyUser = verifyUser;
+
+// Ban
+async function banUser(duration) {
+  const userId = document.getElementById("actionUserId").value;
   const banUntil = duration === 'perm'
     ? new Date("2099-12-31")
     : new Date(Date.now() + parseInt(duration) * 24 * 60 * 60 * 1000);
@@ -183,31 +196,31 @@ document.getElementById("banForm").addEventListener("submit", async e => {
   await updateDoc(doc(db, "users", userId), {
     role: "banned",
     status: "blocked",
-    bannedUntil: banUntil
+    bannedUntil
   });
 
-  bootstrap.Modal.getInstance(document.getElementById("banModal")).hide();
+  bootstrap.Modal.getInstance(document.getElementById("actionModal")).hide();
   loadUsers();
-});
+}
+window.banUser = banUser;
 
-async function unbanUser(userId) {
+// Unban
+async function unbanUser() {
+  const userId = document.getElementById("actionUserId").value;
   await updateDoc(doc(db, "users", userId), {
     role: "user",
     status: "active",
     bannedUntil: null
   });
+  bootstrap.Modal.getInstance(document.getElementById("actionModal")).hide();
   loadUsers();
 }
+window.unbanUser = unbanUser;
 
-async function verifyUser(userId) {
-  await updateDoc(doc(db, "users", userId), { verified: true });
-  alert("User verified.");
-  loadUsers();
-}
-
-async function deleteUser(userId) {
-  const confirmDelete = confirm("Are you sure you want to remove this user? They will be marked as 'removed' and lose access.");
-  if (!confirmDelete) return;
+// Delete
+async function deleteUser() {
+  const userId = document.getElementById("actionUserId").value;
+  if (!confirm("Are you sure you want to remove this user?")) return;
 
   await updateDoc(doc(db, "users", userId), {
     status: "removed",
@@ -216,12 +229,15 @@ async function deleteUser(userId) {
   });
 
   alert("User marked as removed.");
+  bootstrap.Modal.getInstance(document.getElementById("actionModal")).hide();
   loadUsers();
 }
+window.deleteUser = deleteUser;
 
-async function restoreUser(userId) {
-  const confirmRestore = confirm("Restore this user and return their account to active?");
-  if (!confirmRestore) return;
+// Restore
+async function restoreUser() {
+  const userId = document.getElementById("actionUserId").value;
+  if (!confirm("Restore this user?")) return;
 
   await updateDoc(doc(db, "users", userId), {
     status: "active",
@@ -230,9 +246,10 @@ async function restoreUser(userId) {
   });
 
   alert("User restored.");
+  bootstrap.Modal.getInstance(document.getElementById("actionModal")).hide();
   loadUsers();
 }
-
+window.restoreUser = restoreUser;
 
 // Load Flagged Content
 async function loadFlaggedPosts() {
