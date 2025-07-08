@@ -25,6 +25,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+console.log(" loading post area");
+
+
 const targetBtn = document.getElementById("mainPostBtn");
 if (!targetBtn) return;
 
@@ -53,6 +56,7 @@ const composerHTML = `
 const wrapper = document.createElement("div");
 wrapper.innerHTML = composerHTML;
 targetBtn.parentNode.insertBefore(wrapper, targetBtn);
+console.log(" loaded post area");
 
 let selectedFiles = [], tags = [], mentionList = [];
 
