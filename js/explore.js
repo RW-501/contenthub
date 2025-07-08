@@ -10,6 +10,7 @@ import {
   query,
   where,
   arrayUnion, 
+  startAfter, 
   getDocs,
   orderBy,   // ✅ add this
   limit      // ✅ and this
@@ -253,17 +254,39 @@ window.requestToJoin = requestToJoin;
     const user = await getDoc(doc(db, "users", post.owner));
     const userData = user.exists() ? user.data() : {};
 
-    card.innerHTML = `
-      ${mediaHTML}
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <img src="${userData.photoURL || 'https://via.placeholder.com/40'}" class="rounded-circle me-2" width="40" height="40" />
-          <a href="/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">${userData.displayName || 'Unknown User'}</a>
-        </div>
-        <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
-        <small class="text-muted">${timeAgo} • Likes: ${post.likes || 0} • Views: ${post.views || 0}</small><br/>
-        <a href="/pages/post.html?id=${docSnap.id}" class="btn btn-sm btn-outline-primary mt-2">View Post</a>
-      </div>`;
+card.innerHTML = `
+  ${mediaHTML}
+  <div class="card-body">
+    <div class="d-flex align-items-center mb-2">
+      <img src="${userData.photoURL || 'https://via.placeholder.com/40'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">${userData.displayName || 'Unknown User'}</a>
+    </div>
+
+    <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+
+    <small class="text-muted d-block mb-2">${timeAgo} • 
+      <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes
+      • ${post.views || 0} Views
+    </small>
+
+    <button class="btn btn-sm btn-outline-danger" id="like-btn-${docSnap.id}">
+      ❤️ Like
+    </button>
+  </div>`;
+
+const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
+const likeCountEl = card.querySelector(`#like-count-${docSnap.id}`);
+
+likeBtn.addEventListener("click", async () => {
+  const postRef = doc(db, "posts", docSnap.id);
+  await updateDoc(postRef, {
+    likes: increment(1)
+  });
+
+  // Update UI instantly (optional UX)
+  const currentLikes = parseInt(likeCountEl.textContent) || 0;
+  likeCountEl.textContent = currentLikes + 1;
+});
 
     postGrid.appendChild(card);
   }
