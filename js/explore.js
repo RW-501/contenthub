@@ -55,7 +55,7 @@ onAuthStateChanged(auth, user => {
 
 // Load Posts based on filters
 async function loadPosts(reset = true) {
-  console.log("[loadPosts] Started loading posts... reset =", reset);
+//  console.log("[loadPosts] Started loading posts... reset =", reset);
   if (loadingMore) {
     console.warn("[loadPosts] Already loading, aborting...");
     return;
@@ -64,7 +64,7 @@ async function loadPosts(reset = true) {
   loadingMore = true;
 
   if (reset) {
-    console.log("[loadPosts] Resetting post grid and pagination.");
+   // console.log("[loadPosts] Resetting post grid and pagination.");
     postGrid.innerHTML = "";
     lastVisiblePost = null;
   }
@@ -88,9 +88,9 @@ async function loadPosts(reset = true) {
         limit(10)
       );
 
-      console.log("[loadPosts] Executing query...");
+   //   console.log("[loadPosts] Executing query...");
       const snap = await getDocs(q);
-      console.log("[loadPosts] Documents fetched:", snap.size);
+  //    console.log("[loadPosts] Documents fetched:", snap.size);
 
       if (snap.empty) {
         console.log("[loadPosts] No posts found.");
@@ -98,7 +98,7 @@ async function loadPosts(reset = true) {
 
       snap.forEach(docSnap => {
         const data = docSnap.data();
-        console.log("[loadPosts] Document data:", data);
+    //    console.log("[loadPosts] Document data:", data);
 
         const card = document.createElement("div");
         card.className = "card p-3 mb-3";
@@ -181,14 +181,14 @@ async function loadPosts(reset = true) {
     });
 
   } catch (error) {
-    console.error("[requestToJoin] Error:", error);
+   // console.error("[requestToJoin] Error:", error);
     alert("❌ Failed to send join request. Please try again.");
   }
 }
 
 window.requestToJoin = requestToJoin;
 
-  console.log("[loadPosts] Collab Zone is OFF. Add non-collab zone logic here.");
+  //console.log("[loadPosts] Collab Zone is OFF. Add non-collab zone logic here.");
   loadingMore = false;
 
   const postsCol = collection(db, "posts");
