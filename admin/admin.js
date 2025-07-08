@@ -566,3 +566,188 @@ const token = part_1 + part_2 + part_3 + part_4;
       document.getElementById('messageDiv').textContent = `Error: ${err.message}`;
     }
   });
+
+
+
+
+  import {
+  doc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+
+async function createDemoProfiles() {
+  const demoUsers = [
+    {
+      displayName: "DreamChaser",
+      username: "@dreamchaser",
+      bio: "Visual artist exploring identity and digital dreams.",
+      pronouns: "they/them",
+      availability: "weekends",
+      userLocation: { country: "USA", state: "CA", city: "Los Angeles" },
+      niches: ["art", "animation"],
+      contentTypes: ["video", "reels"],
+      links: [
+        { platform: "instagram", url: "https://instagram.com/dreamchaser" }
+      ],
+      photo: "demo_avatars/dreamchaser.png"
+    },
+    {
+      displayName: "VisualBeats",
+      username: "@visualbeats",
+      bio: "Motion + sound = magic. Let’s collab.",
+      pronouns: "he/him",
+      availability: "nights",
+      userLocation: { country: "USA", state: "NY", city: "Brooklyn" },
+      niches: ["music", "vfx"],
+      contentTypes: ["audio", "animation"],
+      links: [
+        { platform: "youtube", url: "https://youtube.com/visualbeats" }
+      ],
+      photo: "demo_avatars/visualbeats.png"
+    },
+    {
+      displayName: "CodeMuse",
+      username: "@codemuse",
+      bio: "Frontend wizard crafting magic with pixels & JS.",
+      pronouns: "she/her",
+      availability: "full-time",
+      userLocation: { country: "USA", state: "TX", city: "Austin" },
+      niches: ["webdev", "ux"],
+      contentTypes: ["tutorials", "design"],
+      links: [
+        { platform: "github", url: "https://github.com/codemuse" }
+      ],
+      photo: "demo_avatars/codemuse.png"
+    },
+    {
+      displayName: "VibeWriter",
+      username: "@vibewriter",
+      bio: "Script & spoken word creative looking to connect.",
+      pronouns: "they/them",
+      availability: "mornings",
+      userLocation: { country: "USA", state: "IL", city: "Chicago" },
+      niches: ["writing", "spokenword"],
+      contentTypes: ["scripts", "voiceover"],
+      links: [
+        { platform: "twitter", url: "https://twitter.com/vibewriter" }
+      ],
+      photo: "demo_avatars/vibewriter.png"
+    }
+  ];
+
+  for (const demo of demoUsers) {
+    try {
+      const id = `demo_${demo.username.replace("@", "")}`;
+      const userRef = doc(db, "users", id);
+
+      let photoURL = "";
+      if (demo.photo) {
+        const response = await fetch(`/assets/${demo.photo}`);
+        if (!response.ok) throw new Error(`Could not fetch ${demo.photo}`);
+        const blob = await response.blob();
+        const avatarRef = ref(storage, `avatars/${id}`);
+        await uploadBytes(avatarRef, blob);
+        photoURL = await getDownloadURL(avatarRef);
+      }
+
+      await setDoc(userRef, {
+        displayName: demo.displayName,
+        username: demo.username,
+        bio: demo.bio,
+        pronouns: demo.pronouns,
+        availability: demo.availability,
+        userLocation: demo.userLocation,
+        contentTypes: demo.contentTypes,
+        niches: demo.niches,
+        links: demo.links,
+        createdAt: serverTimestamp(),
+        status: "active",
+        role: "demo",
+        verified: false,
+        photoURL,
+        badge: "🔧 Demo Profile – used to showcase features"
+      });
+
+      console.log(`✅ Created: ${demo.username}`);
+    } catch (err) {
+      console.error(`❌ Error creating ${demo.username}:`, err);
+    }
+  }
+
+  showModal({
+    title: "Demo Users Created",
+    message: "Seeded demo users successfully!",
+    autoClose: 3000
+  });
+}
+
+document.getElementById("seedDemoUsers").addEventListener("click", createDemoProfiles);
+
+document.getElementById("demoUserForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const username = document.getElementById("demoUsername").value.trim().replace('@', '');
+  const id = `demo_${username}`;
+  const userRef = doc(db, "users", id);
+
+  const displayName = document.getElementById("demoDisplayName").value.trim();
+  const bio = document.getElementById("demoBio").value.trim();
+  const pronouns = document.getElementById("demoPronouns").value.trim();
+  const availability = document.getElementById("demoAvailability").value.trim();
+
+  const userLocation = {
+    country: document.getElementById("demoCountry").value.trim(),
+    state: document.getElementById("demoState").value.trim(),
+    city: document.getElementById("demoCity").value.trim()
+  };
+
+  const niches = document.getElementById("demoNiches").value.split(",").map(n => n.trim());
+  const contentTypes = document.getElementById("demoContentTypes").value.split(",").map(c => c.trim());
+
+  const rawLinks = document.getElementById("demoLinks").value.split(",").map(pair => {
+    const [platform, url] = pair.split("|");
+    return { platform: platform.trim(), url: url.trim() };
+  }).filter(link => link.url);
+
+  const file = document.getElementById("demoPhoto").files[0];
+  let photoURL = "";
+
+  if (file) {
+    const avatarRef = ref(storage, `avatars/${id}`);
+    await uploadBytes(avatarRef, file);
+    photoURL = await getDownloadURL(avatarRef);
+  }
+
+  const demoData = {
+    displayName,
+    username: `@${username}`,
+    bio,
+    pronouns,
+    availability,
+    userLocation,
+    contentTypes,
+    niches,
+    links: rawLinks,
+    createdAt: serverTimestamp(),
+    status: "active",
+    role: "demo",
+    verified: false,
+    photoURL,
+    badge: "🔧 Demo Profile – used to showcase features"
+  };
+
+  await setDoc(userRef, demoData);
+
+  showModal({
+    title: "Demo User Saved",
+    message: `@${username} has been added/updated.`,
+    autoClose: 3000
+  });
+
+  e.target.reset();
+});
