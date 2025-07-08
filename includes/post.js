@@ -28,8 +28,13 @@ const storage = getStorage(app);
 console.log(" loading POST JS  post area");
 
 
-const targetBtn = document.getElementById("mainPostBtn");
-if (!targetBtn) return;
+function initPostScript() {
+  const targetBtn = document.getElementById("mainPostBtn");
+  if (!targetBtn) return; // ✅ Now valid because it's inside a function
+
+  // your main post script logic here
+  console.log("✅ mainPostBtn found, running post script...");
+
 
 const composerHTML = `
   <div id="postComposer" class="p-3 border rounded mb-4">
@@ -193,3 +198,8 @@ publishBtn.addEventListener("click", async () => {
 
   location.reload();
 });
+}
+
+// Run the script only after DOM is ready
+window.addEventListener("DOMContentLoaded", initPostScript);
+
