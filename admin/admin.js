@@ -161,29 +161,34 @@ async function loadUsers() {
   const users = await getDocs(collection(db, "users"));
   userTable.innerHTML = "";
 
-  users.forEach(docSnap => {
-    const u = docSnap.data();
-    const id = docSnap.id;
+users.forEach(docSnap => {
+  const u = docSnap.data();
+  const id = docSnap.id;
 
-    const banUntil = u.bannedUntil?.toDate?.();
-    const banUntilDisplay = banUntil ? banUntil.toLocaleDateString() : "";
+  const banUntil = u.bannedUntil?.toDate?.();
+  const banUntilDisplay = banUntil ? banUntil.toLocaleDateString() : "";
 
-    const role = u.role || "user";
-    const status = u.status || "active";
+  const role = u.role || "user";
+  const status = u.status || "active";
 
-    const row = `
-      <tr>
-        <td>${u.email || 'N/A'}</td>
-        <td>${(u.niches || []).join(", ")}</td>
-        <td><span class="badge bg-info text-dark">${role}</span></td>
-        <td><span class="badge bg-${status === 'active' ? 'success' : status === 'blocked' ? 'warning' : 'secondary'}">${status}</span></td>
-        <td>${banUntilDisplay}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary" onclick="openActionModal('${id}')">⚙ Actions</button>
-        </td>
-      </tr>`;
-    userTable.insertAdjacentHTML("beforeend", row);
-  });
+  const actionButtons = `
+    <button class="btn btn-sm btn-outline-primary me-1" onclick="openActionModal('${id}')">⚙ Actions</button>
+    ${role === 'demo' ? `<button class="btn btn-sm btn-outline-success" onclick="editUserProfile('${u}')">✏️ Edit</button>` : ''}
+  `;
+
+  const row = `
+    <tr>
+      <td>${u.email || 'N/A'}</td>
+      <td>${(u.niches || []).join(", ")}</td>
+      <td><span class="badge bg-info text-dark">${role}</span></td>
+      <td><span class="badge bg-${status === 'active' ? 'success' : status === 'blocked' ? 'warning' : 'secondary'}">${status}</span></td>
+      <td>${banUntilDisplay}</td>
+      <td>${actionButtons}</td>
+    </tr>`;
+
+  userTable.insertAdjacentHTML("beforeend", row);
+});
+
 }
 window.loadUsers = loadUsers;
 
@@ -224,7 +229,7 @@ async function banUser(duration) {
   await updateDoc(doc(db, "users", userId), {
     role: "banned",
     status: "blocked",
-    bannedUntil
+    banUntil
   });
 
   bootstrap.Modal.getInstance(document.getElementById("actionModal")).hide();
@@ -2140,15 +2145,7 @@ async function createDemoProfiles() {
       const id = `demo_${demo.username.replace("@", "")}`;
       const userRef = doc(db, "users", id);
 
-      let photoURL = "";
-      if (demo.photo) {
-        const response = await fetch(`/assets/${demo.photo}`);
-        if (!response.ok) throw new Error(`Could not fetch ${demo.photo}`);
-        const blob = await response.blob();
-        const avatarRef = ref(storage, `avatars/${id}`);
-        await uploadBytes(avatarRef, blob);
-        photoURL = await getDownloadURL(avatarRef);
-      }
+ 
 
       await setDoc(userRef, {
         displayName: demo.displayName,
@@ -2164,7 +2161,7 @@ async function createDemoProfiles() {
         status: "active",
         role: "demo",
         verified: false,
-        photoURL,
+        photoURL: demo.photo,
         badge: "🔧 Demo Profile – used to showcase features"
       });
 
@@ -2183,8 +2180,49 @@ async function createDemoProfiles() {
 
 document.getElementById("seedDemoUsers").addEventListener("click", createDemoProfiles);
 
+
+function editUserProfile(demoUserData) {
+  if (!demoUserData) return;
+
+  const username = demoUserData.username?.replace("@", "") || "";
+  const { displayName, bio, pronouns, availability, userLocation, niches, contentTypes, links, photoURL } = demoUserData;
+
+  document.getElementById("demoUsername").value = username;
+  document.getElementById("demoDisplayName").value = displayName || "";
+  document.getElementById("demoBio").value = bio || "";
+  document.getElementById("demoPronouns").value = pronouns || "";
+  document.getElementById("demoAvailability").value = availability || "";
+
+  document.getElementById("demoCountry").value = userLocation?.country || "";
+  document.getElementById("demoState").value = userLocation?.state || "";
+  document.getElementById("demoCity").value = userLocation?.city || "";
+
+  document.getElementById("demoNiches").value = (niches || []).join(", ");
+  document.getElementById("demoContentTypes").value = (contentTypes || []).join(", ");
+
+  // Format links into "platform|url" format
+  document.getElementById("demoLinks").value = (links || []).map(link => `${link.platform}|${link.url}`).join(", ");
+
+  // Optional: show existing photo
+  if (photoURL) {
+    const preview = document.getElementById("demoPhotoPreview");
+    if (preview) {
+      preview.src = photoURL;
+      preview.classList.remove("d-none");
+    }
+  }
+
+  // Optionally scroll to form or open modal if form is hidden
+  const form = document.getElementById("demoUserForm");
+  if (form) {
+    form.scrollIntoView({ behavior: "smooth" });
+    form.classList.remove("d-none"); // if it's hidden by default
+  }
+}
+
 document.getElementById("demoUserForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const username = document.getElementById("demoUsername").value.trim().replace('@', '');
   const id = `demo_${username}`;
   const userRef = doc(db, "users", id);
@@ -2205,16 +2243,23 @@ document.getElementById("demoUserForm").addEventListener("submit", async (e) => 
 
   const rawLinks = document.getElementById("demoLinks").value.split(",").map(pair => {
     const [platform, url] = pair.split("|");
-    return { platform: platform.trim(), url: url.trim() };
+    return { platform: platform?.trim(), url: url?.trim() };
   }).filter(link => link.url);
 
   const file = document.getElementById("demoPhoto").files[0];
-  let photoURL = "";
 
+  let photoURL = "";
+  let isNew = false;
+
+  const existingSnap = await getDoc(userRef);
+
+  // If file is uploaded, replace existing avatar
   if (file) {
     const avatarRef = ref(storage, `avatars/${id}`);
     await uploadBytes(avatarRef, file);
     photoURL = await getDownloadURL(avatarRef);
+  } else {
+    photoURL = existingSnap.exists() ? existingSnap.data().photoURL || "" : "";
   }
 
   const demoData = {
@@ -2227,7 +2272,6 @@ document.getElementById("demoUserForm").addEventListener("submit", async (e) => 
     contentTypes,
     niches,
     links: rawLinks,
-    createdAt: serverTimestamp(),
     status: "active",
     role: "demo",
     verified: false,
@@ -2235,13 +2279,23 @@ document.getElementById("demoUserForm").addEventListener("submit", async (e) => 
     badge: "🔧 Demo Profile – used to showcase features"
   };
 
-  await setDoc(userRef, demoData);
+  // Only set createdAt on new users
+  if (!existingSnap.exists()) {
+    demoData.createdAt = serverTimestamp();
+    isNew = true;
+  }
+
+  await setDoc(userRef, demoData, { merge: true });
 
   showModal({
-    title: "Demo User Saved",
-    message: `@${username} has been added/updated.`,
+    title: isNew ? "Demo User Created" : "Demo User Updated",
+    message: `@${username} has been ${isNew ? 'added' : 'updated'}.`,
     autoClose: 3000
   });
 
   e.target.reset();
+
+  // Optional: hide preview if you're showing it
+  const preview = document.getElementById("demoPhotoPreview");
+  if (preview) preview.classList.add("d-none");
 });
