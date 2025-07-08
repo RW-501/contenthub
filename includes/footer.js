@@ -20,11 +20,4 @@ console.log(" loadPostScript post area");
   // Load it when needed
   loadPostScript();
 
-window.addEventListener("load", () => {
-  // same loadPostScript() function inside here
-  console.log("window loadPostScript");
-
-});
-  console.log("??????????????????");
-
 
