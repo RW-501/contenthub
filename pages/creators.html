@@ -231,11 +231,56 @@ const resetFiltersBtn = document.getElementById("resetFiltersBtn");
 let creators = [];
 let activeFilterTags = [];
 
-    async function fetchCreators() {
-      const snapshot = await getDocs(collection(db, "users"));
-      creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderCreators(creators);
-    }
+function decodeHTML(str) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = str;
+  return txt.value;
+}
+
+function filterCreators() {
+  const search = searchInput.value.toLowerCase();
+  const tagsByType = activeFilterTags.reduce((acc, f) => {
+    acc[f.type] = acc[f.type] || [];
+    acc[f.type].push(f.value.toLowerCase().trim());
+    return acc;
+  }, {});
+
+  let visibleCount = 0;
+
+  document.querySelectorAll("#creatorsGrid > div").forEach(card => {
+    const name = (card.dataset.name || "").toLowerCase();
+    const rawNiches = decodeHTML(card.dataset.niche || "");
+    const rawContent = decodeHTML(card.dataset.content || "");
+    const location = (card.dataset.location || "").toLowerCase();
+
+    const nicheList = rawNiches.split(",").map(n => n.trim().toLowerCase());
+    const contentList = rawContent.split(",").map(c => c.trim().toLowerCase());
+
+    const matchesSearch = name.includes(search);
+    const matchesNiche = !tagsByType.niche || tagsByType.niche.some(tag => nicheList.includes(tag));
+    const matchesContent = !tagsByType.content || tagsByType.content.some(tag => contentList.includes(tag));
+    const matchesLocation = !locationFilter.value || location === locationFilter.value.toLowerCase();
+
+    const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
+
+    card.style.display = visible ? "block" : "none";
+    if (visible) visibleCount++;
+  });
+
+  updateActiveFilters();
+
+  const noResults = document.getElementById("noResultsMessage");
+  if (!noResults) {
+    const msg = document.createElement("p");
+    msg.id = "noResultsMessage";
+    msg.className = "text-center small mt-4";
+    msg.textContent = "No creators match your filters.";
+    creatorsGrid.appendChild(msg);
+  }
+
+  document.getElementById("noResultsMessage").style.display = visibleCount === 0 ? "block" : "none";
+}
+
 
 function addFilterTag(type, value) {
   if (activeFilterTags.find(f => f.type === type && f.value === value)) return;
@@ -439,47 +484,7 @@ noFilters.innerHTML = `<i class="bi bi-funnel-fill me-1"></i>No filters applied`
     return;
   }
 }
-function filterCreators() {
-  const search = searchInput.value.toLowerCase();
-  const tagsByType = activeFilterTags.reduce((acc, f) => {
-    acc[f.type] = acc[f.type] || [];
-    acc[f.type].push(f.value.toLowerCase());
-    return acc;
-  }, {});
 
-  let visibleCount = 0;
-
-  document.querySelectorAll("#creatorsGrid > div").forEach(card => {
-    const name = card.dataset.name?.toLowerCase() || "";
-    const nicheList = card.dataset.niche?.toLowerCase().split(",").map(s => s.trim()) || [];
-    const contentList = card.dataset.content?.toLowerCase().split(",").map(s => s.trim()) || [];
-    const location = card.dataset.location?.toLowerCase() || "";
-
-    const matchesSearch = name.includes(search);
-    const matchesNiche = !tagsByType.niche || tagsByType.niche.some(tag => nicheList.includes(tag));
-    const matchesContent = !tagsByType.content || tagsByType.content.some(tag => contentList.includes(tag));
-    const matchesLocation = !locationFilter.value || location === locationFilter.value.toLowerCase();
-
-    const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
-
-    card.style.display = visible ? "block" : "none";
-    if (visible) visibleCount++;
-  });
-
-  updateActiveFilters();
-
-  // Show message if no cards are visible
-  const noResults = document.getElementById("noResultsMessage");
-  if (!noResults) {
-    const msg = document.createElement("p");
-    msg.id = "noResultsMessage";
-    msg.className = "text-center small mt-4";
-    msg.textContent = "No creators match your filters.";
-    creatorsGrid.appendChild(msg);
-  }
-
-  document.getElementById("noResultsMessage").style.display = visibleCount === 0 ? "block" : "none";
-}
 
 
 searchInput.addEventListener("input", filterCreators);
