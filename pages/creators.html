@@ -236,7 +236,7 @@ let activeFilterTags = [];
       creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       renderCreators(creators);
     }
-    
+
 function decodeHTML(str) {
   const txt = document.createElement("textarea");
   txt.innerHTML = str;
@@ -259,8 +259,12 @@ function filterCreators() {
     const rawContent = decodeHTML(card.dataset.content || "");
     const location = (card.dataset.location || "").toLowerCase();
 
-    const nicheList = rawNiches.split(",").map(n => n.trim().toLowerCase());
-    const contentList = rawContent.split(",").map(c => c.trim().toLowerCase());
+const nicheList = rawNiches.split(",").map(n => n.trim().toLowerCase());
+const contentList = rawContent.split(",").map(c => c.trim().toLowerCase());
+
+console.log("Niches:", rawNiches, "→", nicheList);
+console.log("Content Types:", rawContent, "→", contentList);
+
 
     const matchesSearch = name.includes(search);
     const matchesNiche = !tagsByType.niche || tagsByType.niche.some(tag => nicheList.includes(tag));
