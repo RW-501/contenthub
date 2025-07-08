@@ -59,7 +59,6 @@ const composerHTML = `
   </div>
 `;
 
-
 // Insert composer
 const wrapper = document.createElement("div");
 wrapper.innerHTML = composerHTML;
@@ -137,7 +136,7 @@ publishBtn.addEventListener("click", async () => {
 
   let contributors = [];
   if (contributorsRaw) {
-    const parts = contributorsRaw.split(/[,\s]+/);
+    const parts = contributorsRaw.split(/[\s,]+/);
     for (const input of parts) {
       if (input.startsWith("@")) {
         const username = input.slice(1);
