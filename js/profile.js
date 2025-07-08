@@ -79,14 +79,14 @@ document.getElementById("availabilityText").innerHTML = data.availability ? `<i 
 
 document.getElementById("bioText").innerText = data.bio || '';
 
-// Location (as a link to explore filtered by location if available)
+// Location (as a link to creators filtered by location if available)
 const locationText = document.getElementById("locationText");
 if (data.userLocation?.country) {
   const { city, state, country } = data.userLocation;
   const locationParts = [city, state, country].filter(Boolean);
   const locationStr = locationParts.join(", ");
   const locationParam = encodeURIComponent(locationParts.join("-").toLowerCase());
-  locationText.innerHTML = `<a href="https://rw-501.github.io/contenthub/pages/explore.html?location=${locationParam}" class="text-decoration-none">${locationStr}</a>`;
+  locationText.innerHTML = `<a href="https://rw-501.github.io/contenthub/pages/creators.html?location=${locationParam}" class="text-decoration-none">${locationStr}</a>`;
 } else {
   locationText.innerHTML = '';
 }
@@ -94,7 +94,7 @@ if (data.userLocation?.country) {
 // Content Type Badges with links
 document.getElementById("contentTypeText").innerHTML = Array.isArray(data.contentTypes)
   ? data.contentTypes.map(ct =>
-      `<a href="https://rw-501.github.io/contenthub/pages/explore.html?type=${encodeURIComponent(ct.toLowerCase())}" 
+      `<a href="https://rw-501.github.io/contenthub/pages/creators.html?type=${encodeURIComponent(ct.toLowerCase())}" 
          class="badge bg-secondary text-light me-1 mb-1 text-decoration-none">
          ${ct}
        </a>`
@@ -104,7 +104,7 @@ document.getElementById("contentTypeText").innerHTML = Array.isArray(data.conten
 // Niche Badges with links
 document.getElementById("nicheText").innerHTML = Array.isArray(data.niches)
   ? data.niches.map(n =>
-      `<a href="https://rw-501.github.io/contenthub/pages/explore.html?niche=${encodeURIComponent(n.toLowerCase())}" 
+      `<a href="https://rw-501.github.io/contenthub/pages/creators.html?niche=${encodeURIComponent(n.toLowerCase())}" 
          class="badge bg-light text-dark border me-1 mb-1 text-decoration-none">
          ${n}
        </a>`
@@ -223,7 +223,7 @@ userDocs.forEach(u => {
 
   // Convert niches to linked badges
   const badges = niches.map(niche =>
-    `<a href="https://rw-501.github.io/contenthub/pages/explore.html?niche=${encodeURIComponent(niche)}"
+    `<a href="https://rw-501.github.io/contenthub/pages/creators.html?niche=${encodeURIComponent(niche)}"
         class="badge bg-primary text-decoration-none me-1">
       ${niche}
     </a>`
@@ -287,7 +287,7 @@ userDocs.forEach(u => {
 
   // Convert niches to linked badges
   const badges = niches.map(niche =>
-    `<a href="https://rw-501.github.io/contenthub/pages/explore.html?niche=${encodeURIComponent(niche)}"
+    `<a href="https://rw-501.github.io/contenthub/pages/creators.html?niche=${encodeURIComponent(niche)}"
         class="badge bg-primary text-decoration-none me-1">
       ${niche}
     </a>`

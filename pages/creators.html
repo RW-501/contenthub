@@ -339,6 +339,49 @@ function renderCreators(data) {
   document.querySelectorAll('.content-type-badge').forEach(badge => {
     badge.addEventListener('click', () => addFilterTag('content', badge.dataset.content));
   });
+
+  handleExploreSearchParam();
+
+}
+
+function handleExploreSearchParam() {
+  const params = new URLSearchParams(window.location.search);
+  const searchInput = document.getElementById("searchInput");
+
+  if (!searchInput) return;
+
+  // Priority: location > niche > type
+  let searchValue = "";
+
+  if (params.has("location")) {
+    searchValue = params.get("location").replace(/-/g, " ");
+  } else if (params.has("niche")) {
+    searchValue = params.get("niche");
+  } else if (params.has("type")) {
+    searchValue = params.get("type");
+  }
+
+
+
+  if (searchValue) {
+    searchInput.value = decodeURIComponent(searchValue);
+
+    // Optional: Trigger search
+    setTimeout(() => {
+      if (typeof triggerSearch === "function") {
+  if (params.has("location")) {
+    searchValue = params.get("location").replace(/-/g, " ");
+  } else if (params.has("niche")) {
+    addFilterTag('niche', searchValue);
+  } else if (params.has("type")) {
+    addFilterTag('content', searchValue);
+  }
+
+      } else {
+        searchInput.dispatchEvent(new Event("input"));
+      }
+    }, 100);
+  }
 }
 
 function updateActiveFilters() {
