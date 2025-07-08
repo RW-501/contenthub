@@ -2219,6 +2219,8 @@ function editUserProfile(demoUserData) {
     form.classList.remove("d-none"); // if it's hidden by default
   }
 }
+window.editUserProfile = editUserProfile ;
+
 
 document.getElementById("demoUserForm").addEventListener("submit", async (e) => {
   e.preventDefault();

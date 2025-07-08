@@ -273,8 +273,27 @@
     <textarea id="demoBio" rows="3" placeholder="Short Bio" class="form-textarea w-full"></textarea>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <input type="text" id="demoPronouns" placeholder="Pronouns" class="form-input">
-      <input type="text" id="demoAvailability" placeholder="Availability" class="form-input">
+
+      
+      
+<!-- Pronouns -->
+<select class="form-select demoPronouns" id="demoPronouns">
+  <option value="">Select Pronouns</option>
+  <option value="he/him">He/Him</option>
+  <option value="she/her">She/Her</option>
+  <option value="they/them">They/Them</option>
+  <option value="other">Other</option>
+</select>
+
+
+      <!-- Availability -->
+<select class="form-select form-input" id="demoAvailability">
+  <option value="">Select Availability</option>
+  <option value="Available for Collabs">Available for Collabs</option>
+  <option value="Not Currently Available">Not Currently Available</option>
+  <option value="Open to Offers">Open to Offers</option>
+</select>
+
       <input type="file" id="demoPhoto" class="form-input" accept="image/*">
     </div>
 
