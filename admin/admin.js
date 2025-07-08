@@ -156,6 +156,9 @@ if (userData.status === "removed") {
 
 // Call this after your DOM is loaded
 // Main User Loader
+
+const demoUserMap = {}; // Global map of demo user data
+
 async function loadUsers() {
   const userTable = document.getElementById("userTable");
   const users = await getDocs(collection(db, "users"));
@@ -169,11 +172,16 @@ users.forEach(docSnap => {
   const banUntilDisplay = banUntil ? banUntil.toLocaleDateString() : "";
 
   const role = u.role || "user";
+
+  if (role === "demo") {
+  demoUserMap[id] = u; // Store demo user data by ID
+}
+
   const status = u.status || "active";
 
   const actionButtons = `
     <button class="btn btn-sm btn-outline-primary me-1" onclick="openActionModal('${id}')">⚙ Actions</button>
-    ${role === 'demo' ? `<button class="btn btn-sm btn-outline-success" onclick="editUserProfile('${u}')">✏️ Edit</button>` : ''}
+${role === 'demo' ? `<button class="btn btn-sm btn-outline-success" onclick="editUserProfile('${id}')">✏️ Edit</button>` : ''}
   `;
 
   const row = `
@@ -2199,8 +2207,13 @@ function setSelectValueOrAdd(selectId, value) {
 }
 
 
-function editUserProfile(demoUserData) {
-if (!demoUserData) return;
+function editUserProfile(userId) {
+  const demoUserData = demoUserMap[userId];
+  if (!demoUserData) {
+    console.warn("No demo user data found for:", userId);
+    return;
+  }
+  
 
 console.log("Loading demo user data...");
 
@@ -2210,15 +2223,7 @@ const { displayName, bio, pronouns, availability, userLocation, niches, contentT
 // Log each piece of user data
 console.log("Username:", username);
 console.log("Display Name:", displayName);
-console.log("Bio:", bio);
-console.log("Pronouns:", pronouns);
-console.log("Availability:", availability);
 
-console.log("Location:", userLocation?.country, userLocation?.state, userLocation?.city);
-console.log("Niches:", niches);
-console.log("Content Types:", contentTypes);
-console.log("Links:", links);
-console.log("Photo URL:", photoURL);
 
   document.getElementById("demoUsername").value = username;
   document.getElementById("demoDisplayName").value = displayName || "";
