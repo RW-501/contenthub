@@ -76,12 +76,15 @@ document.addEventListener("DOMContentLoaded", () => {
     script.type = "module";  // 💥 THIS IS REQUIRED
     document.head.appendChild(script);
   }
+console.log(" loadPostScript post area");
 
   // Load it when needed
   loadPostScript();
 });
 window.addEventListener("load", () => {
   // same loadPostScript() function inside here
+  console.log("window loadPostScript");
+
 });
 
 

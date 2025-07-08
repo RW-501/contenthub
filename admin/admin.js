@@ -710,6 +710,42 @@ async function createDemoProfiles() {
     contentTypes: ["Behind-the-Scenes", "Animations"],
     links: [{ platform: "youtube", url: "https://youtube.com/skylarmotion" }],
     photo: "demo_avatars/skylarmotion.png"
+  },
+  {
+    displayName: "BlakeMotion",
+    username: "@blakemotion",
+    bio: "Creative motivation creator sharing real moments.",
+    pronouns: "he/him",
+    availability: "nights",
+    userLocation: { country: "USA", state: "CA", city: "San Diego" },
+    niches: ["Education", "Music"],
+    contentTypes: ["Short Reels", "Vlogs"],
+    links: [{ platform: "twitter", url: "https://twitter.com/blakemotion" }],
+    photo: "demo_avatars/blakemotion.png"
+  },
+  {
+    displayName: "PhoenixDrive",
+    username: "@phoenixdrive",
+    bio: "Passionate photography creator sharing authentic vibes.",
+    pronouns: "he/him",
+    availability: "full-time",
+    userLocation: { country: "USA", state: "IL", city: "Chicago" },
+    niches: ["Spirituality", "Finance & Investing"],
+    contentTypes: ["Tutorials", "Q&A"],
+    links: [{ platform: "tiktok", url: "https://tiktok.com/phoenixdrive" }],
+    photo: "demo_avatars/phoenixdrive.png"
+  },
+  {
+    displayName: "ParkerTrack",
+    username: "@parkertrack",
+    bio: "Passionate motivation creator sharing daily wins.",
+    pronouns: "he/him",
+    availability: "weekends",
+    userLocation: { country: "USA", state: "GA", city: "Atlanta" },
+    niches: ["Lifestyle", "Parenting"],
+    contentTypes: ["Short Reels", "Challenges"],
+    links: [{ platform: "tiktok", url: "https://tiktok.com/parkertrack" }],
+    photo: "demo_avatars/parkertrack.png"
   }
 
 
