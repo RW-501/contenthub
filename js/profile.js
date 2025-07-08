@@ -351,7 +351,7 @@ async function followUser(uid) {
 }
 
 
-async function loadUserPosts(uid, displayName = "User", photoURL = "") {
+async function loadUserPosts(uid, displayName, photoURL) {
   const postGrid = document.getElementById("postsGrid");
   postGrid.innerHTML = "";
 
