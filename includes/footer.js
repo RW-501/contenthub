@@ -20,8 +20,7 @@ function loadPostScript() {
     });
 }
 
-//window.addEventListener("DOMContentLoaded", loadPostScript);
-  console.log("🧠 Loading post.js ");
+
 
 
 loadPostScript();
