@@ -194,7 +194,7 @@ window.loadUsers = loadUsers;
 
 // Open Modal
 function openActionModal(userId) {
-  document.getElementById("actionUserId").value = userId;
+  document.getElementById("actionModal").value = userId;
   new bootstrap.Modal(document.getElementById("actionModal")).show();
 }
 window.openActionModal = openActionModal;
