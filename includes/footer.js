@@ -6,18 +6,20 @@ document.getElementById('footerYear').textContent = new Date().getFullYear();
 
 
 function loadPostScript() {
-    const existing = document.querySelector('script[src="https://rw-501.github.io/contenthub/includes/post.js"]');
-    if (existing) return;
-  console.log("?post JS ???");
+  const targetBtn = document.getElementById("mainPostBtn");
+  if (!targetBtn) return;
 
-    const script = document.createElement('script');
-    script.src = "https://rw-501.github.io/contenthub/includes/post.js";
-    script.type = "module";  // 💥 THIS IS REQUIRED
-    document.head.appendChild(script);
-  }
-console.log(" loadPostScript post area");
+  console.log("🧠 Loading post.js because mainPostBtn exists");
 
-  // Load it when needed
-  loadPostScript();
+  import("https://rw-501.github.io/contenthub/includes/post.js")
+    .then(module => {
+      module.initPostScript();
+    })
+    .catch(err => {
+      console.error("❌ Failed to load post.js:", err);
+    });
+}
+
+window.addEventListener("DOMContentLoaded", loadPostScript);
 
 
