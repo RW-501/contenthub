@@ -2181,6 +2181,24 @@ async function createDemoProfiles() {
 document.getElementById("seedDemoUsers").addEventListener("click", createDemoProfiles);
 
 
+function setSelectValueOrAdd(selectId, value) {
+  const select = document.getElementById(selectId);
+  if (!value) return;
+
+  const match = Array.from(select.options).some(opt => opt.value === value);
+
+  if (!match) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    option.selected = true;
+    select.appendChild(option);
+  } else {
+    select.value = value;
+  }
+}
+
+
 function editUserProfile(demoUserData) {
 if (!demoUserData) return;
 
@@ -2205,8 +2223,10 @@ console.log("Photo URL:", photoURL);
   document.getElementById("demoUsername").value = username;
   document.getElementById("demoDisplayName").value = displayName || "";
   document.getElementById("demoBio").value = bio || "";
-  document.getElementById("demoPronouns").value = pronouns || "";
-  document.getElementById("demoAvailability").value = availability || "";
+
+setSelectValueOrAdd("demoPronouns", pronouns);
+setSelectValueOrAdd("demoAvailability", availability);
+
 
   document.getElementById("demoCountry").value = userLocation?.country || "";
   document.getElementById("demoState").value = userLocation?.state || "";
