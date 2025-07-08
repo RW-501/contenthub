@@ -3,7 +3,7 @@
 
 import {
   ref,
-  uploadBytes,
+  uploadBytes, storage,
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
