@@ -638,7 +638,82 @@ async function createDemoProfiles() {
         { platform: "twitter", url: "https://twitter.com/vibewriter" }
       ],
       photo: "demo_avatars/vibewriter.png"
-    }
+    },
+  {
+    displayName: "User001",
+    username: "@user001",
+    bio: "Passionate real estate creator sharing authentic content.",
+    pronouns: "she/her",
+    availability: "part-time",
+    userLocation: { country: "USA", state: "NY", city: "Brooklyn" },
+    niches: ["Skits & Acting", "Gaming"],
+    contentTypes: ["Challenges", "Livestreams"],
+    links: [{ platform: "github", url: "https://instagram.com/user001" }],
+    photo: "demo_avatars/user001.png"
+  },
+  {
+    displayName: "User002",
+    username: "@user002",
+    bio: "Passionate asmr creator sharing authentic content.",
+    pronouns: "she/her",
+    availability: "part-time",
+    userLocation: { country: "USA", state: "TX", city: "Austin" },
+    niches: ["Lifestyle", "Tutorials"],
+    contentTypes: ["Music Videos", "Animations"],
+    links: [{ platform: "facebook", url: "https://twitter.com/user002" }],
+    photo: "demo_avatars/user002.png"
+  },
+  {
+    displayName: "User003",
+    username: "@user003",
+    bio: "Passionate music creator sharing authentic content.",
+    pronouns: "she/her",
+    availability: "weekends",
+    userLocation: { country: "USA", state: "IL", city: "Chicago" },
+    niches: ["Art & Design", "Tech"],
+    contentTypes: ["Animations", "Skits"],
+    links: [{ platform: "facebook", url: "https://youtube.com/user003" }],
+    photo: "demo_avatars/user003.png"
+  },
+  {
+    displayName: "BlakeTracks",
+    username: "@blaketracks",
+    bio: "Visionary motivation here to collab, connect, and grow.",
+    pronouns: "they/them",
+    availability: "part-time",
+    userLocation: { country: "USA", state: "WA", city: "Miami" },
+    niches: ["Comedy", "Photography"],
+    contentTypes: ["Skits", "Livestreams"],
+    links: [{ platform: "youtube", url: "https://youtube.com/blaketracks" }],
+    photo: "demo_avatars/blaketracks.png"
+  },
+  {
+    displayName: "QuinnBakes",
+    username: "@quinnbakes",
+    bio: "Passionate fitness influencer bringing vibes to your feed.",
+    pronouns: "he/him",
+    availability: "nights",
+    userLocation: { country: "USA", state: "FL", city: "Seattle" },
+    niches: ["Real Estate", "Memes"],
+    contentTypes: ["Vlogs", "Reviews"],
+    links: [{ platform: "instagram", url: "https://instagram.com/quinnbakes" }],
+    photo: "demo_avatars/quinnbakes.png"
+  },
+  {
+    displayName: "SkylarMotion",
+    username: "@skylarmotion",
+    bio: "Creative product reviews influencer bringing vibes to your feed.",
+    pronouns: "they/them",
+    availability: "weekends",
+    userLocation: { country: "USA", state: "IL", city: "Chicago" },
+    niches: ["Product Reviews", "Lifestyle"],
+    contentTypes: ["Behind-the-Scenes", "Animations"],
+    links: [{ platform: "youtube", url: "https://youtube.com/skylarmotion" }],
+    photo: "demo_avatars/skylarmotion.png"
+  }
+
+
+
   ];
 
   for (const demo of demoUsers) {
