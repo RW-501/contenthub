@@ -191,9 +191,8 @@ window.requestToJoin = requestToJoin;
   console.log("[loadPosts] Collab Zone is OFF. Add non-collab zone logic here.");
   loadingMore = false;
 
-
-
   const postsCol = collection(db, "posts");
+
   switch (filter) {
     case "trending":
       q = query(postsCol, orderBy("likes", "desc"), limit(10));
@@ -218,33 +217,91 @@ window.requestToJoin = requestToJoin;
   const snap = await getDocs(q);
   if (!snap.empty) lastVisiblePost = snap.docs[snap.docs.length - 1];
 
-  snap.forEach(docSnap => {
+  for (const docSnap of snap.docs) {
     const post = docSnap.data();
-    if (search) {
-      // Search filtering by caption, tags, or creator displayName
-      const caption = post.caption?.toLowerCase() || "";
-      const tags = post.tags?.join(" ") || "";
-      // Skip posts that don't match search
-      if (!caption.includes(search) && !tags.includes(search)) return;
-    }
-    const card = document.createElement("div");
-    card.className = "card";
+    const caption = post.caption?.toLowerCase() || "";
+    const tags = post.tags?.join(" ") || "";
 
-    if (post.type === "video") {
-      card.innerHTML = `<video src="${post.mediaUrl}" controls muted loop style="width:100%; max-height:200px; object-fit:cover;"></video>`;
-    } else {
-      card.innerHTML = `<img src="${post.mediaUrl}" alt="Post image" />`;
+    if (search && !caption.includes(search.toLowerCase()) && !tags.includes(search.toLowerCase())) continue;
+
+    const card = document.createElement("div");
+    card.className = "card mb-3";
+
+    const mediaUrl = post.media?.[0]?.url || "";
+    const mediaType = post.media?.[0]?.type || "";
+    let mediaHTML = "";
+
+    if (mediaUrl) {
+      if (mediaUrl.match(/(youtube\.com|youtu\.be)/i)) {
+        const youtubeEmbed = mediaUrl.includes("youtube.com")
+          ? mediaUrl.replace("watch?v=", "embed/")
+          : mediaUrl.replace("youtu.be/", "youtube.com/embed/");
+        mediaHTML = `<iframe width="100%" height="200" src="${youtubeEmbed}" frameborder="0" allowfullscreen></iframe>`;
+      } else if (mediaUrl.match(/vimeo\.com/)) {
+        const id = mediaUrl.split("/").pop();
+        mediaHTML = `<iframe src="https://player.vimeo.com/video/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+      } else if (mediaType === "video") {
+        mediaHTML = `<video src="${mediaUrl}" controls muted loop style="width:100%; max-height:200px; object-fit:cover;"></video>`;
+      } else {
+        mediaHTML = `<img src="${mediaUrl}" class="card-img-top" alt="Post image" style="max-height:200px; object-fit:cover;">`;
+      }
     }
-    card.innerHTML += `
+
+    const createdAt = post.createdAt?.toDate ? post.createdAt.toDate() : new Date();
+    const timeAgo = timeSince(createdAt.getTime());
+
+    const user = await getDoc(doc(db, "users", post.owner));
+    const userData = user.exists() ? user.data() : {};
+
+    card.innerHTML = `
+      ${mediaHTML}
       <div class="card-body">
-        <p class="card-text">${post.caption || ""}</p>
-        <small>Likes: ${post.likes || 0} • Views: ${post.views || 0}</small><br/>
-        <a href="/pages/post.html?id=${docSnap.id}" class="btn btn-sm btn-primary mt-2">View Post</a>
+        <div class="d-flex align-items-center mb-2">
+          <img src="${userData.photoURL || 'https://via.placeholder.com/40'}" class="rounded-circle me-2" width="40" height="40" />
+          <a href="/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">${userData.displayName || 'Unknown User'}</a>
+        </div>
+        <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+        <small class="text-muted">${timeAgo} • Likes: ${post.likes || 0} • Views: ${post.views || 0}</small><br/>
+        <a href="/pages/post.html?id=${docSnap.id}" class="btn btn-sm btn-outline-primary mt-2">View Post</a>
       </div>`;
+
     postGrid.appendChild(card);
-  });
+  }
 
   loadingMore = false;
+}
+
+function sanitize(text) {
+  return String(text || "")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function linkify(text) {
+  return text.replace(/(https?:\/\/[\w\.-\/?=&%#]+)/gi, '<a href="$1" target="_blank">$1</a>')
+             .replace(/@([\w]+)/g, '<span class="text-primary">@$1</span>')
+             .replace(/#([\w]+)/g, '<span class="text-info">#$1</span>');
+}
+
+function timeSince(timestamp) {
+  const now = Date.now();
+  const seconds = Math.floor((now - timestamp) / 1000);
+
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+
+  return new Date(timestamp).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 // Infinite scroll handler
