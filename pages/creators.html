@@ -340,7 +340,6 @@ function renderCreators(data) {
     badge.addEventListener('click', () => addFilterTag('content', badge.dataset.content));
   });
 
-  handleExploreSearchParam();
 
 }
 
@@ -492,6 +491,8 @@ resetFiltersBtn.addEventListener("click", resetAllFilters);
 
 fetchCreators();
 updateActiveFilters();
+handleExploreSearchParam();
+
 
   </script>
 
