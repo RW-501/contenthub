@@ -30,7 +30,7 @@ navLinks.forEach(link => {
 });
 
 // Auth handling
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     document.getElementById("signupBtn").classList.add("d-none");
     document.getElementById("userAvatar").classList.remove("d-none");
@@ -38,11 +38,30 @@ onAuthStateChanged(auth, async user => {
     const avatar = user.photoURL || "/assets/default-avatar.png";
     document.getElementById("avatarImg").src = avatar;
 
-    const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
-    if (snap.exists() && snap.data().admin === true) {
-      document.getElementById("adminLink").style.display = "block";
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+
+      if (snap.exists()) {
+        const userData = snap.data();
+        if (userData.role === "admin") {
+          document.getElementById("adminLink").style.display = "block";
+        } else {
+          document.getElementById("adminLink").style.display = "none";
+        }
+      } else {
+        // User doc doesn't exist, hide admin link just in case
+        document.getElementById("adminLink").style.display = "none";
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      document.getElementById("adminLink").style.display = "none";
     }
+  } else {
+    // User not logged in, reset UI accordingly
+    document.getElementById("signupBtn").classList.remove("d-none");
+    document.getElementById("userAvatar").classList.add("d-none");
+    document.getElementById("adminLink").style.display = "none";
   }
 });
 
