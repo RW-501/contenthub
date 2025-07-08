@@ -13,7 +13,7 @@ import {
 import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 
 // ✅ Initialize storage
-const storage = getStorage(app);
+const storage = getStorage(app, "gs://content-hub-11923.firebasestorage.app");
 const auth = getAuth(app);
 const db = getFirestore(app);
 
