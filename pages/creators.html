@@ -440,26 +440,25 @@ noFilters.innerHTML = `<i class="bi bi-funnel-fill me-1"></i>No filters applied`
     return;
   }
 }
-
 function filterCreators() {
   const search = searchInput.value.toLowerCase();
   const tagsByType = activeFilterTags.reduce((acc, f) => {
     acc[f.type] = acc[f.type] || [];
-    acc[f.type].push(f.value);
+    acc[f.type].push(f.value.toLowerCase());
     return acc;
   }, {});
 
   let visibleCount = 0;
 
   document.querySelectorAll("#creatorsGrid > div").forEach(card => {
-    const name = card.dataset.name;
-    const niche = card.dataset.niche;
-    const content = card.dataset.content;
-    const location = card.dataset.location;
+    const name = card.dataset.name?.toLowerCase() || "";
+    const nicheList = card.dataset.niche?.toLowerCase().split(",").map(s => s.trim()) || [];
+    const contentList = card.dataset.content?.toLowerCase().split(",").map(s => s.trim()) || [];
+    const location = card.dataset.location?.toLowerCase() || "";
 
     const matchesSearch = name.includes(search);
-    const matchesNiche = !tagsByType.niche || tagsByType.niche.some(n => niche.includes(n));
-    const matchesContent = !tagsByType.content || tagsByType.content.some(c => content.includes(c));
+    const matchesNiche = !tagsByType.niche || tagsByType.niche.some(tag => nicheList.includes(tag));
+    const matchesContent = !tagsByType.content || tagsByType.content.some(tag => contentList.includes(tag));
     const matchesLocation = !locationFilter.value || location === locationFilter.value.toLowerCase();
 
     const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
@@ -480,7 +479,6 @@ function filterCreators() {
     creatorsGrid.appendChild(msg);
   }
 
-  // Toggle message visibility
   document.getElementById("noResultsMessage").style.display = visibleCount === 0 ? "block" : "none";
 }
 
