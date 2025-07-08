@@ -36,20 +36,18 @@ export function initPostScript() {
   console.log("✅ mainPostBtn found, running post script...");
 
 
+// 🚀 Enhanced Post Composer UI + Functionality
 const composerHTML = `
-  <div id="postComposer" class="p-3 border rounded mb-4">
+  <div id="postComposer" class="p-3 border rounded mb-4 bg-white shadow-sm">
+    <div id="caption" contenteditable="true" class="form-control mb-3" style="min-height: 100px; border-radius: 10px;" placeholder="What are you creating today? Share it... 💬"></div>
+
     <div id="uploadArea" class="border border-2 rounded p-4 text-center bg-light mb-3">
-      <p class="text-muted">📁 Drag & drop or <span class="text-primary" style="cursor:pointer;" onclick="document.getElementById('mediaFile').click()">browse</span></p>
+      <p class="text-muted">📁 Drag & drop or <span class="text-primary text-decoration-underline" style="cursor:pointer;" onclick="document.getElementById('mediaFile').click()">browse</span> to upload media</p>
       <input type="file" id="mediaFile" accept="image/*,video/*" multiple hidden />
       <div id="mediaPreview" class="d-flex flex-wrap gap-2 mt-3"></div>
     </div>
 
-    <div id="caption" contenteditable="true" class="form-control mb-2" placeholder="Write a caption..." style="min-height: 100px;"></div>
-    <input type="text" class="form-control mb-2" id="tagsInput" placeholder="Enter tags..." />
-    <div id="tagContainer" class="mb-2"></div>
-    <div id="tagSuggestions" class="list-group"></div>
-
-    <input type="text" class="form-control mb-2" id="contributors" placeholder="Tag collaborators by email" />
+    <input type="text" class="form-control mb-2" id="contributors" placeholder="Tag collaborators with @username or email..." />
     <button class="btn btn-outline-secondary w-100 mb-2" onclick="document.getElementById('scheduleTime').click()">📅 Schedule Post</button>
     <input type="datetime-local" id="scheduleTime" class="form-control mb-2" hidden />
 
@@ -57,14 +55,13 @@ const composerHTML = `
   </div>
 `;
 
-// Insert composer before the button
+// Insert composer
 const wrapper = document.createElement("div");
 wrapper.innerHTML = composerHTML;
 targetBtn.parentNode.insertBefore(wrapper, targetBtn);
-console.log(" loaded post area");
 
-let selectedFiles = [], tags = [], mentionList = [];
-
+// Media Handling
+let selectedFiles = [];
 const previewContainer = document.getElementById("mediaPreview");
 const mediaInput = document.getElementById("mediaFile");
 
@@ -104,49 +101,11 @@ mediaInput.addEventListener("change", e => {
   renderPreviews();
 });
 
-document.getElementById("uploadArea").addEventListener("dragover", e => {
-  e.preventDefault();
-});
+document.getElementById("uploadArea").addEventListener("dragover", e => e.preventDefault());
 document.getElementById("uploadArea").addEventListener("drop", e => {
   e.preventDefault();
   selectedFiles.push(...Array.from(e.dataTransfer.files));
   renderPreviews();
-});
-
-const tagInput = document.getElementById("tagsInput");
-const tagContainer = document.getElementById("tagContainer");
-const tagSuggestions = document.getElementById("tagSuggestions");
-const suggestedTags = ["vlog", "music", "funny", "tutorial", "podcast"];
-
-function addTag(tag) {
-  const clean = tag.replace(/[#\s]/g, '').toLowerCase();
-  if (!clean || tags.includes(clean)) return;
-  tags.push(clean);
-
-  const badge = document.createElement("span");
-  badge.className = "badge bg-primary me-1 mb-1";
-  badge.textContent = `#${clean}`;
-  tagContainer.appendChild(badge);
-}
-
-tagInput.addEventListener("input", () => {
-  const val = tagInput.value.trim().toLowerCase();
-  tagSuggestions.innerHTML = "";
-  suggestedTags.filter(t => t.startsWith(val)).forEach(tag => {
-    const btn = document.createElement("button");
-    btn.className = "list-group-item list-group-item-action";
-    btn.textContent = `#${tag}`;
-    btn.onclick = () => addTag(tag);
-    tagSuggestions.appendChild(btn);
-  });
-});
-
-tagInput.addEventListener("keydown", e => {
-  if (["Enter", ",", " "].includes(e.key)) {
-    e.preventDefault();
-    addTag(tagInput.value);
-    tagInput.value = "";
-  }
 });
 
 // Publish Handler
@@ -155,9 +114,12 @@ publishBtn.addEventListener("click", async () => {
   const user = auth.currentUser;
   if (!user) return alert("Please sign in.");
 
-  const caption = document.getElementById("caption").innerText.trim();
+  const captionRaw = document.getElementById("caption").innerText.trim();
   const contributorsRaw = document.getElementById("contributors").value;
   const scheduleTime = document.getElementById("scheduleTime").value;
+
+  // Auto detect hashtags from #...
+  const tags = [...captionRaw.matchAll(/#(\w+)/g)].map(m => m[1].toLowerCase());
 
   const uploaded = [];
   for (const file of selectedFiles) {
@@ -170,17 +132,24 @@ publishBtn.addEventListener("click", async () => {
 
   let contributors = [];
   if (contributorsRaw) {
-    const emails = contributorsRaw.split(",").map(e => e.trim());
-    for (const email of emails) {
-      const q = query(collection(db, "users"), where("email", "==", email));
-      const snap = await getDocs(q);
-      snap.forEach(d => contributors.push(d.id));
+    const parts = contributorsRaw.split(/[,\s]+/);
+    for (const input of parts) {
+      if (input.startsWith("@")) {
+        const username = input.slice(1);
+        const q = query(collection(db, "users"), where("username", "==", username));
+        const snap = await getDocs(q);
+        snap.forEach(d => contributors.push(d.id));
+      } else if (input.includes("@")) {
+        const q = query(collection(db, "users"), where("email", "==", input));
+        const snap = await getDocs(q);
+        snap.forEach(d => contributors.push(d.id));
+      }
     }
   }
 
   await addDoc(collection(db, "posts"), {
     owner: user.uid,
-    caption,
+    caption: captionRaw,
     tags,
     contributors,
     media: uploaded,
@@ -190,14 +159,10 @@ publishBtn.addEventListener("click", async () => {
     scheduledAt: scheduleTime ? new Date(scheduleTime) : null
   });
 
-  showModal({
-  title: "Posted!",
-  message: "✅ Post Created!",
-  autoClose: 3000
-});
-
+  showModal({ title: "Posted!", message: "✅ Post Created!", autoClose: 3000 });
   location.reload();
 });
+
 }
 
 // Run the script only after DOM is ready
