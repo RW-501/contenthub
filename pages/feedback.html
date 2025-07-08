@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-50">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Give Feedback</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://rw-501.github.io/contenthub/css/main.css" />
+</head>
+<body class="text-gray-800">
+  <div id="toolbarContainer"></div>
+
+  <main class="flex justify-center items-center min-h-screen px-4">
+    <div class="w-full max-w-xl bg-white shadow-2xl rounded-3xl p-8 space-y-6 animate-fadeIn">
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">💬 We Value Your Feedback</h1>
+
+      <form id="feedbackForm" class="space-y-6">
+
+        <!-- Category Select -->
+        <div>
+          <label for="category" class="block text-sm font-medium mb-1">Feedback Type</label>
+          <select id="category" required
+            class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            <option value="">Select an option</option>
+            <option value="say_hey">👋 Just Saying Hey</option>
+            <option value="bug">🐞 Found a Bug</option>
+            <option value="feature">🌟 Feature Request</option>
+            <option value="ux">🎨 UX Feedback</option>
+            <option value="other">📝 Something Else</option>
+          </select>
+        </div>
+
+        <!-- Message Textarea -->
+        <div>
+          <label for="message" class="block text-sm font-medium mb-1">Your Message</label>
+          <textarea id="message" rows="5" maxlength="500" required
+            class="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 resize-none shadow-sm placeholder:text-sm"
+            placeholder="Let us know how we can improve, or what you love!"></textarea>
+          <p class="text-xs text-gray-500 text-right mt-1" id="charCount">0 / 500</p>
+        </div>
+
+        <!-- Optional Contact -->
+        <div>
+          <label for="email" class="block text-sm font-medium mb-1">Email (optional)</label>
+          <input type="email" id="email" placeholder="you@example.com"
+            class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+        </div>
+
+        <!-- Submit -->
+        <div>
+          <button type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition-shadow shadow-md">
+            🚀 Submit Feedback
+          </button>
+        </div>
+      </form>
+
+      <!-- CTA Back Link -->
+      <div class="text-center pt-2">
+        <a href="https://rw-501.github.io/contenthub/pages/creators.html" class="text-sm text-blue-600 hover:underline">← Back to Creators</a>
+      </div>
+    </div>
+  </main>
+
+  <div id="footerContainer"></div>
+
+  <!-- Navigation & Footer -->
+  <script type="module">
+    document.getElementById("toolbarContainer").innerHTML = await fetch('https://rw-501.github.io/contenthub/includes/nav.html').then(res => res.text());
+    import('https://rw-501.github.io/contenthub/includes/nav.js');
+
+    document.getElementById("footerContainer").innerHTML = await fetch('https://rw-501.github.io/contenthub/includes/footer.html').then(res => res.text());
+    import('https://rw-501.github.io/contenthub/includes/footer.js');
+  </script>
+
+  <!-- Firebase + Form Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { app, db } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+
+    const message = document.getElementById("message");
+    const charCount = document.getElementById("charCount");
+
+    message.addEventListener("input", () => {
+      charCount.textContent = `${message.value.length} / 500`;
+    });
+
+    document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const category = document.getElementById("category").value;
+      const text = message.value.trim();
+      const email = document.getElementById("email").value.trim();
+
+      if (!category || !text) return;
+
+      try {
+        await addDoc(collection(db, "feedback"), {
+          category,
+          message: text,
+          email: email || null,
+          timestamp: new Date()
+        });
+
+        showModal({
+          title: "✅ Submitted!",
+          message: "Thanks for your feedback. We appreciate you!",
+          autoClose: 3000
+        });
+
+        e.target.reset();
+        charCount.textContent = "0 / 500";
+      } catch (err) {
+        alert("Something went wrong submitting your feedback.");
+        console.error(err);
+      }
+    });
+
+ 
+  </script>
+</body>
+</html>
