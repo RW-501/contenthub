@@ -297,12 +297,30 @@
   </form>
 </section>
 
-<div class="modal-footer">
-  <button class="btn btn-sm btn-success" onclick="setUserRole('admin')">Make Admin</button>
-  <button class="btn btn-sm btn-warning" onclick="banUser(7)">Ban 7 Days</button>
-  <button class="btn btn-sm btn-secondary" onclick="unbanUser()">Unban</button>
-  <button class="btn btn-sm btn-info" onclick="verifyUser()">Verify</button>
-  <button class="btn btn-sm btn-danger" onclick="deleteUser()">Remove</button>
+<!-- Modal Structure -->
+<div class="modal fade" id="actionModal" tabindex="-1" aria-labelledby="actionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="actionModalLabel">User Actions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <p id="actionUserLabel">Actions for User ID: <strong id="actionUserIdDisplay"></strong></p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-sm btn-success" onclick="setUserRole(currentActionUserId)">Make Admin</button>
+        <button class="btn btn-sm btn-warning" onclick="banUser(currentActionUserId, 7)">Ban 7 Days</button>
+        <button class="btn btn-sm btn-secondary" onclick="unbanUser(currentActionUserId)">Unban</button>
+        <button class="btn btn-sm btn-info" onclick="verifyUser(currentActionUserId)">Verify</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteUser(currentActionUserId)">Remove</button>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 
