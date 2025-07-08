@@ -28,7 +28,7 @@ const storage = getStorage(app);
 console.log(" loading POST JS  post area");
 
 
-function initPostScript() {
+export function initPostScript() {
   const targetBtn = document.getElementById("mainPostBtn");
   if (!targetBtn) return; // ✅ Now valid because it's inside a function
 
@@ -201,5 +201,4 @@ publishBtn.addEventListener("click", async () => {
 }
 
 // Run the script only after DOM is ready
-window.addEventListener("DOMContentLoaded", initPostScript);
-
+initPostScript();
