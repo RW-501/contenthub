@@ -1,11 +1,8 @@
 // /js/admin.js
 
 
-import {
-  ref,
-  uploadBytes, storage,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+
 
 import {
   getAuth, onAuthStateChanged
@@ -13,8 +10,10 @@ import {
 import {
   getFirestore, collection, query,serverTimestamp, orderBy,getDoc,  getDocs, updateDoc, doc, setDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { app }  from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 
+// ✅ Initialize storage
+const storage = getStorage(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
