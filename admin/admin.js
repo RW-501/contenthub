@@ -19,26 +19,46 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Admin check
-onAuthStateChanged(auth, async user => {
-  if (!user) {
-    const authModal = document.getElementById("auth-login");
-    authModal.classList.remove("d-none");
+onAuthStateChanged(auth, async (user) => {
+  const authModal = document.getElementById("auth-login");
 
-  } 
-  const userDoc = await getDocs(collection(db, "users"));
-  const adminDoc = [...userDoc.docs].find(d => d.id === user.uid);
-  if (!adminDoc || !adminDoc.data().admin) {
-    alert("Access Denied – Admins Only");
-    
-    const authModal = document.getElementById("auth-login");
+  if (!user) {
+    // No user logged in — show login modal
     authModal.classList.remove("d-none");
-  
+    return; // Stop further processing
   }
 
-  loadAnalytics();
-  loadUsers();
-  loadFlaggedPosts();
+  try {
+    // Get user document by user.uid
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+      alert("Access Denied – User record not found.");
+      authModal.classList.remove("d-none");
+      return;
+    }
+
+    const userData = userDocSnap.data();
+
+    if (userData.role !== "admin") {
+      alert("Access Denied – Admins Only");
+      authModal.classList.remove("d-none");
+      return;
+    }
+
+    // If admin, load admin-only data/functions
+    loadAnalytics();
+    loadUsers();
+    loadFlaggedPosts();
+
+  } catch (error) {
+    console.error("Error checking admin role:", error);
+    alert("Error validating admin access.");
+    authModal.classList.remove("d-none");
+  }
 });
+
 
 // Load Stats
 async function loadAnalytics() {
