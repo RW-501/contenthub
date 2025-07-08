@@ -40,7 +40,6 @@ export function initPostScript() {
 const composerHTML = `
   <div id="postComposer" class="p-4 border rounded-4 shadow bg-white mb-4">
     <div class="d-flex align-items-start mb-3">
-      <img src="/assets/img/avatar-default.png" alt="avatar" class="rounded-circle me-2" style="width:40px; height:40px; object-fit:cover;">
       <div contenteditable="true" id="caption" class="form-control" style="min-height:100px; border-radius:12px;" placeholder="What are you creating today? Share it with the world... ✨"></div>
     </div>
 
@@ -63,6 +62,11 @@ const composerHTML = `
 const wrapper = document.createElement("div");
 wrapper.innerHTML = composerHTML;
 targetBtn.parentNode.insertBefore(wrapper, targetBtn);
+
+const captionBox = document.getElementById('caption');
+captionBox.addEventListener('input', () => {
+  captionBox.classList.toggle('empty', captionBox.innerText.trim() === '');
+});
 
 // Media Handling
 let selectedFiles = [];
