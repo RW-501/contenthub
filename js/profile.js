@@ -78,27 +78,39 @@ document.getElementById("availabilityText").innerHTML = data.availability ? `<i 
 
 
 document.getElementById("bioText").innerText = data.bio || '';
-document.getElementById("locationText").innerText =
-  data.userLocation?.city && data.userLocation?.state && data.userLocation?.country
-    ? `${data.userLocation.city}, ${data.userLocation.state}, ${data.userLocation.country}`
-    : data.userLocation?.state && data.userLocation?.country
-      ? `${data.userLocation.state}, ${data.userLocation.country}`
-      : data.userLocation?.country || '';
 
+// Location (as a link to explore filtered by location if available)
+const locationText = document.getElementById("locationText");
+if (data.userLocation?.country) {
+  const { city, state, country } = data.userLocation;
+  const locationParts = [city, state, country].filter(Boolean);
+  const locationStr = locationParts.join(", ");
+  const locationParam = encodeURIComponent(locationParts.join("-").toLowerCase());
+  locationText.innerHTML = `<a href="https://rw-501.github.io/contenthub/pages/explore.html?location=${locationParam}" class="text-decoration-none">${locationStr}</a>`;
+} else {
+  locationText.innerHTML = '';
+}
 
-// Content Type Badges
+// Content Type Badges with links
 document.getElementById("contentTypeText").innerHTML = Array.isArray(data.contentTypes)
   ? data.contentTypes.map(ct =>
-      `<span class="badge bg-secondary text-light me-1 mb-1 content-type-badge" data-content="${ct.toLowerCase()}">${ct}</span>`
+      `<a href="https://rw-501.github.io/contenthub/pages/explore.html?type=${encodeURIComponent(ct.toLowerCase())}" 
+         class="badge bg-secondary text-light me-1 mb-1 text-decoration-none">
+         ${ct}
+       </a>`
     ).join('')
   : '';
 
-// Niche Badges
+// Niche Badges with links
 document.getElementById("nicheText").innerHTML = Array.isArray(data.niches)
   ? data.niches.map(n =>
-      `<span class="badge bg-light text-dark border me-1 mb-1 niche-badge" data-niche="${n.toLowerCase()}">${n}</span>`
+      `<a href="https://rw-501.github.io/contenthub/pages/explore.html?niche=${encodeURIComponent(n.toLowerCase())}" 
+         class="badge bg-light text-dark border me-1 mb-1 text-decoration-none">
+         ${n}
+       </a>`
     ).join('')
   : '';
+
 
 
 document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';
