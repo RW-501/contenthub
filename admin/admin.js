@@ -2182,10 +2182,25 @@ document.getElementById("seedDemoUsers").addEventListener("click", createDemoPro
 
 
 function editUserProfile(demoUserData) {
-  if (!demoUserData) return;
+if (!demoUserData) return;
 
-  const username = demoUserData.username?.replace("@", "") || "";
-  const { displayName, bio, pronouns, availability, userLocation, niches, contentTypes, links, photoURL } = demoUserData;
+console.log("Loading demo user data...");
+
+const username = demoUserData.username?.replace("@", "") || "";
+const { displayName, bio, pronouns, availability, userLocation, niches, contentTypes, links, photoURL } = demoUserData;
+
+// Log each piece of user data
+console.log("Username:", username);
+console.log("Display Name:", displayName);
+console.log("Bio:", bio);
+console.log("Pronouns:", pronouns);
+console.log("Availability:", availability);
+
+console.log("Location:", userLocation?.country, userLocation?.state, userLocation?.city);
+console.log("Niches:", niches);
+console.log("Content Types:", contentTypes);
+console.log("Links:", links);
+console.log("Photo URL:", photoURL);
 
   document.getElementById("demoUsername").value = username;
   document.getElementById("demoDisplayName").value = displayName || "";
