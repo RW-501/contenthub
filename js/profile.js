@@ -176,14 +176,20 @@ if (Array.isArray(data.links)) {
   }
 
 
+let currentPageID = '';
 
+  if (viewingUserId == '') {
+currentPageID = currentUser;
+  }else {
+currentPageID = viewingUserId;
+  }
 
 checkNameChangeEligibility(data); 
-loadUserPosts(viewingUserId, data.displayName, data.photoURL);
+loadUserPosts(currentPageID, data.displayName, data.photoURL);
 loadUserCollabs(viewingUserId);
 loadFollowingList(data);
 loadFollowersList(data);
-loadAnalytics(viewingUserId);
+loadAnalytics(currentPageID);
 
 });
 
