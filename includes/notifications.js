@@ -186,6 +186,8 @@ window.initLiveNotifications = initLiveNotifications();
   setTimeout(async () => {
 document.getElementById("notifBellBtn").addEventListener("click", () => {
  initLiveNotifications();
+   loadNotifications(true);
+
 });
   }, 2000); // ⏱ 2 second delay
 
