@@ -805,7 +805,7 @@ const links = rawLinks.filter(link => link.url !== "");
 
 
     const file = document.getElementById("editPhoto").files[0];
-    
+
     const userRef = doc(db, "users", currentUser.uid);
     const updates = { bio, contentTypes, niches, links, userLocation, displayName, username, pronouns, availability };
 
@@ -1558,19 +1558,7 @@ window.submitReview = submitReview;
 
 
 
-// Open modal
-window.openProjectModal = () => {
-  document.getElementById("projectHistoryForm").reset();
-  document.getElementById("videoPreviewContainer").innerHTML = "";
-  new bootstrap.Modal(document.getElementById("projectModal")).show();
-};
 
-// Live video preview on URL change
-document.getElementById("projectLink").addEventListener("input", () => {
-  const url = document.getElementById("projectLink").value;
-  const preview = document.getElementById("videoPreviewContainer");
-  preview.innerHTML = getVideoEmbedHTML(url);
-});
 
 // Generate embed HTML based on platform
 function getVideoEmbedHTML(videoUrl) {
@@ -1615,6 +1603,21 @@ if (videoUrl.includes("firebasestorage.googleapis.com") || videoUrl.match(/\.(mp
   return `<a href="${videoUrl}" target="_blank">${videoUrl}</a>`;
 }
 document.addEventListener("DOMContentLoaded", () => {
+
+  // Open modal
+window.openProjectModal = () => {
+  document.getElementById("projectHistoryForm").reset();
+  document.getElementById("videoPreviewContainer").innerHTML = "";
+  new bootstrap.Modal(document.getElementById("projectModal")).show();
+};
+
+// Live video preview on URL change
+document.getElementById("projectLink").addEventListener("input", () => {
+  const url = document.getElementById("projectLink").value;
+  const preview = document.getElementById("videoPreviewContainer");
+  preview.innerHTML = getVideoEmbedHTML(url);
+});
+
 
 document.getElementById("openReviewModalBtn").addEventListener("click", () => {
   openReviewModal();
