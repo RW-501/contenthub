@@ -26,14 +26,6 @@ let loadingMore = false;
 
 let groupingMode = "flat"; // or "day"
 
-document.getElementById("toggleGroupMode").addEventListener("click", () => {
-  groupingMode = groupingMode === "flat" ? "day" : "flat";
-  document.getElementById("toggleGroupMode").innerText =
-    groupingMode === "flat" ? "Group by Day" : "Flat View";
-  document.getElementById("notificationList").innerHTML = "";
-  lastVisibleNotif = null;
-  loadNotifications(true);
-});
 
 export async function initLiveNotifications() {
   const user = auth.currentUser;
@@ -175,6 +167,16 @@ notificationsUnsub = onSnapshot(
     avatar.classList.toggle("blink", hasUnread);
   }
 );
+
+document.getElementById("toggleGroupMode").addEventListener("click", () => {
+  groupingMode = groupingMode === "flat" ? "day" : "flat";
+  document.getElementById("toggleGroupMode").innerText =
+    groupingMode === "flat" ? "Group by Day" : "Flat View";
+  document.getElementById("notificationList").innerHTML = "";
+  lastVisibleNotif = null;
+  loadNotifications(true);
+});
+
 
 }
 

@@ -24,3 +24,19 @@ function loadPostScript() {
 
 
 loadPostScript();
+
+function loadNotificationScript() {
+
+  import("https://rw-501.github.io/contenthub/includes/notifications.js")
+    .then(module => {
+      module.initLiveNotifications();
+    })
+    .catch(err => {
+      console.error("❌ Failed to loadNotificationScript:", err);
+    });
+}
+
+
+
+
+loadNotificationScript();
