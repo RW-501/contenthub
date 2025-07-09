@@ -194,7 +194,7 @@ const muteCache = {};
 
 async function isMuted(toUid, type) {
   if (!muteCache[toUid]) {
-    const settingsDoc = await getDoc(doc(db, `users/${userId}/preferences/notificationSettings`));
+    const settingsDoc = await getDoc(doc(db, `users/${toUid}/preferences/notificationSettings`));
     muteCache[toUid] = settingsDoc.exists() ? settingsDoc.data() : {};
   }
 
