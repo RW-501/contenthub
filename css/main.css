@@ -31,7 +31,7 @@ body {
   padding: 0;
 }
 
-.modal-dialog.modal-content,
+.modal-dialog .modal-content,
 .modal.modal-content {
   color: var(--text-light);
   background-color: var(--bg-dark);
