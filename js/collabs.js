@@ -388,3 +388,6 @@ const q = query(reviewRef, where("confirmedByTarget", "==", false));
 }
 
 window.loadPendingReviews = loadPendingReviews;
+
+
+

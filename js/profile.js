@@ -1395,7 +1395,7 @@ form.addEventListener("submit", async (e) => {
       return;
     }
   }
-  
+
   const rating = parseInt(document.getElementById("reviewRating").value);
   const collabType = document.getElementById("collabType").value.trim();
   const reviewText = document.getElementById("reviewText").value.trim();
@@ -1514,3 +1514,208 @@ async function submitReview() {
 }
 
 window.submitReview = submitReview;
+
+
+
+// Open modal
+window.openProjectModal = () => {
+  document.getElementById("projectHistoryForm").reset();
+  document.getElementById("videoPreviewContainer").innerHTML = "";
+  new bootstrap.Modal(document.getElementById("projectModal")).show();
+};
+
+// Live video preview on URL change
+document.getElementById("projectUrl").addEventListener("input", () => {
+  const url = document.getElementById("projectUrl").value;
+  const preview = document.getElementById("videoPreviewContainer");
+  preview.innerHTML = getVideoEmbedHTML(url);
+});
+
+// Generate embed HTML based on platform
+function getVideoEmbedHTML(videoUrl) {
+  if (!videoUrl) return "";
+if (videoUrl.includes("firebasestorage.googleapis.com") || videoUrl.match(/\.(mp4|webm|ogg)$/i)) {
+  const ext = videoUrl.split('.').pop().toLowerCase();
+  let type = "video/mp4";
+  if (ext === "webm") type = "video/webm";
+  else if (ext === "ogg") type = "video/ogg";
+
+  return `<video width="100%" controls>
+            <source src="${videoUrl}" type="${type}">
+            Your browser does not support the video tag.
+          </video>`;
+}
+ else if (videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be")) {
+    const youtubeEmbed = videoUrl.includes("youtube.com")
+      ? videoUrl.replace("watch?v=", "embed/")
+      : videoUrl.replace("youtu.be/", "youtube.com/embed/");
+    return `<iframe width="100%" height="315" src="${youtubeEmbed}" frameborder="0" allowfullscreen></iframe>`;
+  } else if (videoUrl.includes("vimeo.com")) {
+    const vimeoId = videoUrl.split("/").pop();
+    return `<iframe src="https://player.vimeo.com/video/${vimeoId}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+  } else if (videoUrl.includes("dailymotion.com")) {
+    const id = videoUrl.split("/").pop();
+    return `<iframe src="https://www.dailymotion.com/embed/video/${id}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+  } else if (videoUrl.includes("twitch.tv")) {
+    const id = videoUrl.split("/").pop();
+    return `<iframe src="https://player.twitch.tv/?video=${id}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+  } else if (videoUrl.includes("facebook.com")) {
+    return `<iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(videoUrl)}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+  } else if (videoUrl.includes("instagram.com")) {
+    const id = videoUrl.split("/p/").pop().split("/")[0];
+    return `<iframe src="https://www.instagram.com/p/${id}/embed" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+  } else if (videoUrl.includes("twitter.com")) {
+    return `<iframe src="https://twitframe.com/show?url=${encodeURIComponent(videoUrl)}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+  } else if (videoUrl.includes("tiktok.com")) {
+    const id = videoUrl.split("/video/").pop();
+    return `<iframe src="https://www.tiktok.com/embed/${id}" width="100%" height="315" frameborder="0" allowfullscreen></iframe>`;
+  }
+
+  return `<a href="${videoUrl}" target="_blank">${videoUrl}</a>`;
+}
+const descInput = document.getElementById("projectDescription");
+
+descInput.addEventListener("input", (e) => {
+  const cursorPos = descInput.selectionStart;
+  const textBeforeCursor = descInput.value.slice(0, cursorPos);
+  const atIndex = textBeforeCursor.lastIndexOf("@");
+
+  if (atIndex !== -1) {
+    const query = textBeforeCursor.slice(atIndex + 1);
+    if (query.length >= 1) {
+      // Calculate caret position for dropdown (basic approximation)
+      const rect = descInput.getBoundingClientRect();
+      showMentionDropdown(query, { left: rect.left + 10, bottom: rect.bottom + 10 }); 
+      return;
+    }
+  }
+  hideMentionDropdown();
+});
+
+
+// Submit project form
+document.getElementById("projectHistoryForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const currentUser = auth.currentUser;
+  if (!currentUser) return alert("Login required");
+
+  const title = document.getElementById("projectTitle").value.trim();
+
+
+const url = document.getElementById("projectUrl").value.trim();
+
+const description = document.getElementById("projectDescription").value.trim();
+const taggedUserIds = extractTaggedUserIds(description);
+
+// Save project with taggedUserIds field
+await addDoc(collection(db, `users/${currentUser.uid}/projectHistory`), {
+  title,
+  description,
+  url,
+  taggedUserIds,
+  createdAt: serverTimestamp()
+});
+
+
+  bootstrap.Modal.getInstance(document.getElementById("projectModal")).hide();
+  loadProjectHistory(currentUser.uid);
+});
+
+// Load and display projects
+async function loadProjectHistory(userId) {
+  const container = document.getElementById("projectHistoryContainer");
+  container.innerHTML = "";
+
+  const q = query(
+    collection(db, `users/${userId}/projectHistory`),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    container.innerHTML = `
+      <div class="alert alert-light text-center">
+        <strong>No projects added yet.</strong><br>
+        Invite or encourage them to share project links!
+      </div>`;
+    return;
+  }
+
+  snap.forEach(doc => {
+    const p = doc.data();
+    const videoEmbed = getVideoEmbedHTML(p.url);
+
+const taggedHtml = renderTaggedUsers(p.taggedUserIds);
+
+const card = `
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">${p.title}</h5>
+      <p class="card-text">${p.description}</p>
+      <div>${taggedHtml}</div>
+      <div class="ratio ratio-16x9">${videoEmbed}</div>
+    </div>
+  </div>`;
+
+    container.insertAdjacentHTML("beforeend", card);
+  });
+}
+
+window.loadProjectHistory = loadProjectHistory;
+
+
+async function loadMentionList() {
+  const usersSnap = await getDocs(collection(db, "users"));
+  mentionList = usersSnap.docs.map(doc => {
+    const data = doc.data();
+    return { uid: doc.id, displayName: data.displayName || "Unknown" };
+  });
+}
+
+// Call this once on page load
+loadMentionList();
+
+
+function showMentionDropdown(query, caretRect) {
+  const dropdown = document.getElementById("mentionsDropdown");
+  const matches = mentionList.filter(u => u.displayName.toLowerCase().startsWith(query.toLowerCase()));
+
+  if (!matches.length) return hideMentionDropdown();
+
+  dropdown.innerHTML = matches.map(user =>
+    `<button type="button" class="dropdown-item" data-uid="${user.uid}" data-name="${user.displayName}">${user.displayName}</button>`
+  ).join("");
+
+  dropdown.style.left = `${caretRect.left}px`;
+  dropdown.style.top = `${caretRect.bottom}px`;
+  dropdown.style.display = "block";
+}
+
+function hideMentionDropdown() {
+  document.getElementById("mentionsDropdown").style.display = "none";
+}
+
+
+function extractTaggedUserIds(text) {
+  const regex = /@([\w\s]+)/g;  // Matches @username (you can tweak if needed)
+  let match;
+  let taggedUsers = [];
+
+  while ((match = regex.exec(text)) !== null) {
+    const name = match[1].trim().toLowerCase();
+    const user = mentionList.find(u => u.displayName.toLowerCase() === name);
+    if (user) taggedUsers.push(user.uid);
+  }
+  return [...new Set(taggedUsers)]; // unique
+}
+
+
+function renderTaggedUsers(taggedUserIds) {
+  if (!taggedUserIds?.length) return "";
+  return taggedUserIds.map(uid => {
+    const user = mentionList.find(u => u.uid === uid);
+    if (!user) return "";
+    return `<a href="profile.html?uid=${uid}" class="badge bg-primary me-1">@${user.displayName}</a>`;
+  }).join("");
+}

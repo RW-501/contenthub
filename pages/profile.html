@@ -95,6 +95,7 @@
     <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#posts">Posts</a></li>
     <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#collabReviews">Feedback</a></li>
     <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#collabs">Collabs</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#projectHistory">Project History</a></li>
     <li class="nav-item userBtns"><a class="nav-link" data-bs-toggle="tab" href="#following">Following</a></li>
     <li class="nav-item userBtns"><a class="nav-link" data-bs-toggle="tab" href="#followers">Followers</a></li>
     <li class="nav-item" id="analyticsBtn"><a class="nav-link" data-bs-toggle="tab" href="#analytics">Analytics</a></li>
@@ -118,9 +119,17 @@
   <div id="collabReviewsContainer"></div>
 </section>
     </div>
-    
-    <div class="tab-pane fade" id="collabs">
+
+        <div class="tab-pane fade" id="collabs">
       <ul class="list-group mt-3" id="collabList"></ul>
+    </div>
+
+        <div class="tab-pane fade" id="projectHistory">
+          <!-- Button to trigger modal -->
+<button class="btn btn-outline-primary mb-3 userBtns" onclick="openProjectModal()">Add Project</button>
+
+<!-- Container for project history -->
+<div id="projectHistoryContainer"></div>
     </div>
 
     <div class="tab-pane fade" id="following">
