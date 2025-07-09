@@ -1370,11 +1370,32 @@ window.openReviewModal = function(toUserId) {
 const form = document.getElementById("collabReviewForm");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
   const currentUser = auth.currentUser;
-  if (!currentUser) return alert("You must be logged in to submit a review.");
+  if (!currentUser) return alert("You must be logged in.");
 
   const toUserId = document.getElementById("toUserId").value;
+  const reviewerId = currentUser.uid;
+
+  // Check for recent review
+  const q = query(
+    collection(db, `users/${toUserId}/reviews`),
+    where("fromUserId", "==", reviewerId),
+    orderBy("submittedAt", "desc"),
+    limit(1)
+  );
+  const recentSnap = await getDocs(q);
+  if (!recentSnap.empty) {
+    const lastReview = recentSnap.docs[0].data();
+    const lastDate = lastReview.submittedAt?.toDate?.();
+    const now = new Date();
+    const days = (now - lastDate) / (1000 * 60 * 60 * 24);
+
+    if (days < 30) {
+      alert("You can only leave one review per user every 30 days.");
+      return;
+    }
+  }
+  
   const rating = parseInt(document.getElementById("reviewRating").value);
   const collabType = document.getElementById("collabType").value.trim();
   const reviewText = document.getElementById("reviewText").value.trim();
@@ -1402,25 +1423,39 @@ form.addEventListener("submit", async (e) => {
 // Display reviews on profile
 async function loadUserReviews(toUserId) {
   const container = document.getElementById("collabReviewsContainer");
+  const repScore = document.getElementById("reputationScore");
+
   container.innerHTML = "";
+  repScore.innerHTML = "";
+
   const q = query(collection(db, `users/${toUserId}/reviews`), where("approved", "==", true));
   const snap = await getDocs(q);
 
   if (snap.empty) {
-    container.innerHTML = `<p class='text-muted'>No reviews yet.</p>`;
+    container.innerHTML = `
+      <div class="alert alert-info text-center">
+        No reviews yet. Invite someone you've collaborated with to leave feedback.
+      </div>`;
     return;
   }
 
+  let totalRating = 0;
+
   snap.forEach(doc => {
     const r = doc.data();
+    totalRating += r.rating || 0;
+
     container.innerHTML += `
-      <div class="border rounded p-3 mb-2">
+      <div class="border rounded p-3 mb-3">
         <div class="fw-bold">⭐ ${r.rating} – ${r.collabType}</div>
         <p>${r.review}</p>
         ${r.projectLink ? `<a href="${r.projectLink}" target="_blank">🔗 Project</a>` : ""}
-        <div class="text-muted small">Submitted on ${r.submittedAt.toDate().toLocaleDateString()}</div>
+        <div class="text-muted small">Submitted on ${r.submittedAt?.toDate().toLocaleDateString() || "Unknown"}</div>
       </div>`;
   });
+
+  const avgRating = (totalRating / snap.size).toFixed(1);
+  repScore.textContent = `⭐ Reputation Score: ${avgRating} / 5`;
 }
 
 window.loadUserReviews = loadUserReviews;
