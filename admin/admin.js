@@ -156,7 +156,6 @@ if (userData.status === "removed") {
 // Call this after your DOM is loaded
 // Main User Loader
 
-const demoUserMap = {}; // Global map of demo user data
 const userMap = {}; // Global map of demo user data
 
 async function loadUsers() {
@@ -173,11 +172,9 @@ users.forEach(docSnap => {
 
   const role = u.role || "user";
 
-  if (role === "demo") {
-  demoUserMap[id] = u; // Store demo user data by ID
-}else {
+
   userMap[id] = u;
-}
+
 
   const status = u.status || "active";
 
@@ -204,7 +201,7 @@ window.loadUsers = loadUsers;
 
 // Open Modal
 function openActionModal(userId) {
-    const userData = demoUserMap[userId];
+    const userData = userMap[userId];
 
 const username = userMap.username?.replace("@", "") || "";
   const {
@@ -2275,7 +2272,7 @@ function setSelectValueOrAdd(selectId, value) {
 
 
 function editUserProfile(userId) {
-  const demoUserData = demoUserMap[userId];
+  const demoUserData = userMap[userId];
   if (!demoUserData) {
     console.warn("No demo user data found for:", userId);
     return;
@@ -2385,7 +2382,7 @@ document.getElementById("demoUserForm").addEventListener("submit", async (e) => 
     role: "demo",
     verified: false,
     photoURL,
-    badge: "🔧 Demo Profile – used to showcase features"
+    badge: "🔧 Demo"
   };
 
   // Only set createdAt on new users
