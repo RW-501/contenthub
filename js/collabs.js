@@ -347,11 +347,9 @@ async function loadPendingReviews() {
   const currentUser = auth.currentUser;
   if (!currentUser) return;
 
-  const q = query(
-    collection(db, "reviews"),
-    where("targetUserId", "==", currentUser.uid),
-    where("confirmedByTarget", "==", false)
-  );
+const reviewRef = collection(db, `users/${currentUser.uid}/reviews`);
+const q = query(reviewRef, where("confirmedByTarget", "==", false));
+
 
   const snapshot = await getDocs(q);
   const container = document.getElementById("pendingReviewsContainer");
