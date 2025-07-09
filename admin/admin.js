@@ -203,7 +203,6 @@ window.loadUsers = loadUsers;
 function openActionModal(userId) {
     const userData = userMap[userId];
 
-const username = userMap.username?.replace("@", "") || "";
   const {
     displayName = "Unknown",
     bio = "No bio available",
@@ -215,6 +214,9 @@ const username = userMap.username?.replace("@", "") || "";
     links = [],
     photoURL = "https://via.placeholder.com/100"
   } = userData;
+
+const username = userData.username?.replace("@", "") || "";
+
 
   // Avatar and name
   document.getElementById("userAvatar").src = photoURL;
