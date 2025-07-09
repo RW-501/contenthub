@@ -805,6 +805,7 @@ const links = rawLinks.filter(link => link.url !== "");
 
 
     const file = document.getElementById("editPhoto").files[0];
+    
     const userRef = doc(db, "users", currentUser.uid);
     const updates = { bio, contentTypes, niches, links, userLocation, displayName, username, pronouns, availability };
 
