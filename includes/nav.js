@@ -14,6 +14,7 @@ import {
 
 // ✅ Import your Firebase app config
 import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+import { sendNotification, NOTIFICATION_TEMPLATES, markAllNotificationsRead } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 // ✅ Init services
 const auth = getAuth(app);
