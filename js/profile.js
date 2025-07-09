@@ -1861,8 +1861,8 @@ function renderTaggedUsers(taggedUserIds) {
 }
 
 
-
-console.log("📦 DOM fully loaded, running viewer notification logic...");
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("📦 DOM fully loaded, running viewer notification logic...");
 
   const avatar = document.getElementById("userAvatar");
   if (!avatar) {
@@ -1904,3 +1904,7 @@ console.log("📦 DOM fully loaded, running viewer notification logic...");
     message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
     type: "profileView",
   });
+
+  console.log("✅ Notification sent successfully.");
+});
+  console.log(">>>>>>>>>>>>>>");
