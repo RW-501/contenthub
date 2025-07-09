@@ -239,6 +239,7 @@ export async function markAllNotificationsRead() {
   await batch.commit();
 }
 
+initLiveNotifications();
 
 /*
 
