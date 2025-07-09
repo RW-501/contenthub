@@ -53,8 +53,13 @@ if (actingAsUser.uid !== currentUser.uid) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  console.log("📦 DOM fully loaded, running viewer notification logic...");
+
   const avatar = document.getElementById("userAvatar");
-  if (!avatar) return; // safely exit if not found
+  if (!avatar) {
+    console.warn("⚠️ Avatar element not found.");
+    return;
+  }
 
   const viewerUserId = avatar.dataset.uid;
   const viewerDisplayName = avatar.dataset.displayname;
@@ -62,11 +67,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   const viewerUsername = avatar.dataset.username;
   const viewerUserPhotoURL = avatar.dataset.photo;
 
-  // Optional: confirm all required fields exist
-  if (!viewerUserId || !viewerDisplayName || !viewerUserPhotoURL) return;
+  console.log("👤 Viewer Info:", {
+    viewerUserId,
+    viewerDisplayName,
+    viewerRole,
+    viewerUsername,
+    viewerUserPhotoURL
+  });
 
-  // Assuming viewingUserId is defined elsewhere (or replace with actual logic)
-  if (typeof viewingUserId !== "string") return;
+  if (!viewerUserId || !viewerDisplayName || !viewerUserPhotoURL) {
+    console.warn("⚠️ Missing viewer data. Skipping notification.");
+    return;
+  }
+
+  if (typeof viewingUserId !== "string") {
+    console.warn("⚠️ viewingUserId is undefined or invalid.");
+    return;
+  }
+
+  console.log(`📨 Sending profileView notification to ${viewingUserId} from ${viewerUserId}`);
 
   await sendNotification({
     toUid: viewingUserId,
@@ -76,6 +95,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
     type: "profileView",
   });
+
+  console.log("✅ Notification sent successfully.");
 });
 
 
