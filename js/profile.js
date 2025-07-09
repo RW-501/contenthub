@@ -240,10 +240,15 @@ const userCache = {};
 async function getUserFromCache(uid) {
   if (!userCache[uid]) {
     const docSnap = await getDoc(doc(db, "users", uid));
-    userCache[uid] = docSnap.data();
+    if (docSnap.exists()) {
+      userCache[uid] = { uid, ...docSnap.data() };
+    } else {
+      userCache[uid] = null; // Optionally mark as not found
+    }
   }
   return userCache[uid];
 }
+
 
 async function loadFollowingList(data) {
   const list = document.getElementById("followingList");
