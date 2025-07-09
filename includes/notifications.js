@@ -190,24 +190,14 @@ export const NOTIFICATION_TEMPLATES = {
   updateProjectHistory: (user) => `🔧 @${user} updated their ProjectHistory.`,
 };
 
-const muteCache = {};
 
-async function isMuted(toUid, type) {
-  if (!muteCache[toUid]) {
-    const settingsDoc = '';// = await getDoc(doc(db, `users/${toUid}/preferences/notificationSettings`));
-    muteCache[toUid] = settingsDoc.exists() ? settingsDoc.data() : {};
-  }
 
-  return muteCache[toUid]?.mutedTypes?.includes(type);
-}
 
 
 export async function sendNotification({ toUid, fromUid, message, type = "general", fromDisplayName, fromuserAvatar }) {
   if (!toUid || !message) return;
 
-  const muted = await isMuted(toUid, type);
-  if (muted) return; // Skip if user muted this type
-
+  
   await addDoc(collection(db, `users/${toUid}/notifications`), {
     message,
     fromUid,
