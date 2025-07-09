@@ -93,6 +93,7 @@
   <!-- Tabbed Content -->
   <ul class="nav nav-tabs" id="profileTabs">
     <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#posts">Posts</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#collabReviews">Feedback</a></li>
     <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#collabs">Collabs</a></li>
     <li class="nav-item userBtns"><a class="nav-link" data-bs-toggle="tab" href="#following">Following</a></li>
     <li class="nav-item userBtns"><a class="nav-link" data-bs-toggle="tab" href="#followers">Followers</a></li>
@@ -106,6 +107,11 @@
       <div class="row g-3 mt-3 media-grid" id="postsGrid"></div>
     </div>
 
+
+    <div class="tab-pane fade" id="collabReviews">
+      <ul class="list-group mt-3" id="collabReviewsContainer"></ul>
+    </div>
+    
     <div class="tab-pane fade" id="collabs">
       <ul class="list-group mt-3" id="collabList"></ul>
     </div>
@@ -170,6 +176,13 @@
   <option value="Not Currently Available">Not Currently Available</option>
   <option value="Open to Offers">Open to Offers</option>
 </select>
+
+        <!-- 📍 userRating Section -->
+<div class="mb-3">
+  <label class="form-label">Rating</label>
+  <div id='userRating' class="d-flex flex-column gap-2">
+</div>
+</div>
 
         <!-- Bio -->
         <textarea class="form-control mb-2" id="editBio" placeholder="Short Bio (max 160 chars)" maxlength="160"></textarea>

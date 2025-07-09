@@ -79,8 +79,16 @@ document.getElementById("usernameText").textContent = data.username || "";
 document.getElementById("pronounsText").innerHTML = data.pronouns ? `<i class="bi bi-person"></i> ${data.pronouns}` : "";
 document.getElementById("availabilityText").innerHTML = data.availability ? `<i class="bi bi-clock-history"></i> ${data.availability}` : "";
 
+  const avgRating = userData.ratingCount > 0
+    ? (userData.ratingTotal / userData.ratingCount).toFixed(1)
+    : "No ratings yet";
 
 document.getElementById("bioText").innerText = data.bio || '';
+  document.getElementById("userRating").innerHTML = `
+      <span class="badge bg-warning text-dark">⭐ ${avgRating}</span>
+    </div>
+  `;
+
 
 // Location (as a link to creators filtered by location if available)
 const locationText = document.getElementById("locationText");
@@ -184,6 +192,7 @@ currentPageID = currentUser;
 currentPageID = viewingUserId;
   }
 
+loadUserReviews(currentPageID);
 checkNameChangeEligibility(data); 
 loadUserPosts(currentPageID, data.displayName, data.photoURL);
 loadUserCollabs(viewingUserId);
@@ -1311,3 +1320,162 @@ modalEl.addEventListener('shown.bs.modal', () => {
 
 
 
+
+// HTML (you can place this inside your profile or modal area)
+const reviewModalHTML = `
+<div class="modal fade" id="reviewModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="collabReviewForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Leave a Collab Review</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="toUserId">
+          <div class="mb-2">
+            <label>Rating (1-5)</label>
+            <input type="number" id="reviewRating" min="1" max="5" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label>Type of Collab</label>
+            <input type="text" id="collabType" class="form-control" placeholder="e.g. Podcast Guest, Video Edit" required>
+          </div>
+          <div class="mb-2">
+            <label>Review</label>
+            <textarea id="reviewText" class="form-control" rows="3" placeholder="Share your experience..." required></textarea>
+          </div>
+          <div class="mb-2">
+            <label>Project Link (optional)</label>
+            <input type="url" id="projectLink" class="form-control" placeholder="https://">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Submit Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>`;
+
+document.body.insertAdjacentHTML("beforeend", reviewModalHTML);
+
+// Attach to button click (when you want to review someone)
+window.openReviewModal = function(toUserId) {
+  document.getElementById("toUserId").value = toUserId;
+  new bootstrap.Modal(document.getElementById("reviewModal")).show();
+};
+
+// Submit review form
+const form = document.getElementById("collabReviewForm");
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const currentUser = auth.currentUser;
+  if (!currentUser) return alert("You must be logged in to submit a review.");
+
+  const toUserId = document.getElementById("toUserId").value;
+  const rating = parseInt(document.getElementById("reviewRating").value);
+  const collabType = document.getElementById("collabType").value.trim();
+  const reviewText = document.getElementById("reviewText").value.trim();
+  const projectLink = document.getElementById("projectLink").value.trim();
+
+  const reviewData = {
+    fromUserId: currentUser.uid,
+    toUserId,
+    rating,
+    review: reviewText,
+    collabType,
+    projectLink,
+    submittedAt: Timestamp.now(),
+    confirmedByTarget: false,
+    approved: false
+  };
+
+  await addDoc(collection(db, `users/${toUserId}/reviews`), reviewData);
+
+  alert("Review submitted! Waiting for confirmation by the other creator.");
+  bootstrap.Modal.getInstance(document.getElementById("reviewModal")).hide();
+});
+
+
+// Display reviews on profile
+async function loadUserReviews(toUserId) {
+  const container = document.getElementById("collabReviewsContainer");
+  container.innerHTML = "";
+  const q = query(collection(db, `users/${toUserId}/reviews`), where("approved", "==", true));
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    container.innerHTML = `<p class='text-muted'>No reviews yet.</p>`;
+    return;
+  }
+
+  snap.forEach(doc => {
+    const r = doc.data();
+    container.innerHTML += `
+      <div class="border rounded p-3 mb-2">
+        <div class="fw-bold">⭐ ${r.rating} – ${r.collabType}</div>
+        <p>${r.review}</p>
+        ${r.projectLink ? `<a href="${r.projectLink}" target="_blank">🔗 Project</a>` : ""}
+        <div class="text-muted small">Submitted on ${r.submittedAt.toDate().toLocaleDateString()}</div>
+      </div>`;
+  });
+}
+
+window.loadUserReviews = loadUserReviews;
+
+async function submitReview() {
+  const targetUserId = document.getElementById("reviewTargetUserId").value;
+  const reviewerId = auth.currentUser.uid;
+  const reviewRef = collection(db, "reviews");
+
+  // Check for existing recent review
+  const recentQuery = query(
+    reviewRef,
+    where("targetUserId", "==", targetUserId),
+    where("reviewerId", "==", reviewerId),
+    orderBy("timestamp", "desc"),
+    limit(1)
+  );
+  const snapshot = await getDocs(recentQuery);
+  const recentReview = snapshot.docs[0];
+
+  if (recentReview) {
+    const lastTime = recentReview.data().timestamp?.toDate?.();
+    const now = new Date();
+    const diff = (now - lastTime) / (1000 * 60 * 60 * 24); // days
+    if (diff < 30) {
+      alert("You can only leave one review per user every 30 days.");
+      return;
+    }
+  }
+
+  // Proceed with submission
+  const rating = parseInt(document.getElementById("reviewRating").value);
+  const text = document.getElementById("reviewText").value.trim();
+  const type = document.getElementById("collabType").value.trim();
+  const projectLink = document.getElementById("projectLink").value.trim();
+
+  await addDoc(reviewRef, {
+    reviewerId,
+    targetUserId,
+    rating,
+    text,
+    type,
+    projectLink,
+    timestamp: serverTimestamp(),
+    confirmedByTarget: false,
+    approved: false
+  });
+
+  showModal({
+    title: "Review Submitted",
+    message: "Your review was submitted for approval.",
+    autoClose: 3000
+  });
+
+  bootstrap.Modal.getInstance(document.getElementById("reviewModal")).hide();
+}
+
+window.submitReview = submitReview;
