@@ -176,6 +176,10 @@ display: block;
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="https://rw-501.github.io/contenthub/pages/profile.html">My Profile</a></li>
+          <!-- Notification Button (inside dropdown) -->
+<li><button id="notifBellBtn" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#notifModal">
+  🔔 Notifications
+</button></li>
           <li><a class="dropdown-item" href="https://rw-501.github.io/contenthub/pages/collabs/">Collab</a></li>
           <li><button class="dropdown-item" id="logoutBtn">Logout</button></li>
         </ul>
@@ -259,6 +263,26 @@ display: block;
     right: 1rem;
     top: 1rem;
   }
+
+
+
+@keyframes glow {
+  0% { box-shadow: 0 0 8px 3px lime; }
+  50% { box-shadow: 0 0 4px 2px lime; }
+  100% { box-shadow: 0 0 8px 3px lime; }
+}
+.blink {
+  animation: glow 1s infinite;
+}
+
+@keyframes blinkEffect {
+  50% {
+    box-shadow: 0 0 8px 3px rgb(195, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 8px 3px transparent;
+  }
+}
 </style>
 
 <!-- Reusable Modal -->
@@ -274,4 +298,30 @@ display: block;
     </div>
   </div>
 </div>
+
+
+<!-- Notification Modal -->
+<div class="modal fade" id="notifModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Your Notifications</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <button id="toggleGroupMode" class="btn btn-sm btn-outline-primary">Group by Day</button>
+          </div>
+          <div>
+            <button class="btn btn-sm btn-outline-danger" onclick="markAllNotificationsRead()">Mark All Read</button>
+          </div>
+        </div>
+        <div id="notificationList" class="list-group"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 

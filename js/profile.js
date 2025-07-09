@@ -32,13 +32,37 @@ const params = new URLSearchParams(location.search);
 viewingUserId = params.get('uid') || currentUser.uid;
 
 const userDoc = await getDoc(doc(db, "users", viewingUserId));
-const data = userDoc.data();
+const userData = userDoc.data();
+
+let actingAsUser = user; // default to current authenticated user
+
+// If current user is admin and viewing a demo profile
+if (currentUser && viewingUserId !== currentUser.uid && userData?.role === "demo") {
+  const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
+  const currentUserData = currentUserDoc.data();
+
+  if (currentUserData?.role === "admin") {
+    console.warn("Acting as demo user:", viewingUserId);
+    actingAsUser = { ...user, uid: viewingUserId }; // simulate demo user
+  }
+}
 
 
+if (actingAsUser.uid !== currentUser.uid) {
+  document.getElementById("impersonationBanner").classList.remove("d-none");
+}
 
 
+  await sendNotification({
+    toUid: viewedUserId,
+    fromUid: viewer.uid,
+    fromDisplayName: userData.displayName,
+    fromuserAvatar: userData.photoURL,
+    message: NOTIFICATION_TEMPLATES.profileView(userData.displayName),
+    type: "profileView",
+  });
 
-document.getElementById("displayName").innerText = data.displayName || 'Anonymous';
+document.getElementById("displayName").innerText = userData.displayName || 'Anonymous';
 
 
   // Grab DOM elements
@@ -49,7 +73,7 @@ const userBtns = document.querySelectorAll(".userBtns");
 
 
   // Show/hide profile owner controls
-  const isOwnerView = !viewingUserId || viewingUserId === currentUser.uid;
+  const isOwnerView = !viewingUserId || viewingUserId === actingAsUser.uid;
 
 
     // Show/hide collab button
@@ -58,8 +82,8 @@ if (isOwnerView) {
 } else {
   collabBtn.onclick = () => {
     collabBtn.dataset.viewingUserId = viewingUserId;
-    collabBtn.dataset.username = data.username;
-    collabBtn.dataset.displayName = data.displayName;
+    collabBtn.dataset.username = userData.username;
+    collabBtn.dataset.displayName = userData.displayName;
   };
 }
 
@@ -80,15 +104,15 @@ userBtns.forEach(btn => {
 
 
 
-document.getElementById("usernameText").textContent = data.username || "";
-document.getElementById("pronounsText").innerHTML = data.pronouns ? `<i class="bi bi-person"></i> ${data.pronouns}` : "";
-document.getElementById("availabilityText").innerHTML = data.availability ? `<i class="bi bi-clock-history"></i> ${data.availability}` : "";
+document.getElementById("usernameText").textContent = userData.username || "";
+document.getElementById("pronounsText").innerHTML = userData.pronouns ? `<i class="bi bi-person"></i> ${data.pronouns}` : "";
+document.getElementById("availabilityText").innerHTML = userData.availability ? `<i class="bi bi-clock-history"></i> ${data.availability}` : "";
 
-  const avgRating = data.ratingCount > 0
-    ? (data.ratingTotal / data.ratingCount).toFixed(1)
+  const avgRating = userData.ratingCount > 0
+    ? (userData.ratingTotal / userData.ratingCount).toFixed(1)
     : "No ratings yet";
 
-document.getElementById("bioText").innerText = data.bio || '';
+document.getElementById("bioText").innerText = userData.bio || '';
   document.getElementById("userRatingyText").innerHTML = `
       <span class="badge bg-warning text-dark">⭐ ${avgRating}</span>
     </div>
@@ -97,8 +121,8 @@ document.getElementById("bioText").innerText = data.bio || '';
 
 // Location (as a link to creators filtered by location if available)
 const locationText = document.getElementById("locationText");
-if (data.userLocation?.country) {
-  const { city, state, country } = data.userLocation;
+if (userData.userLocation?.country) {
+  const { city, state, country } = userData.userLocation;
   const locationParts = [city, state, country].filter(Boolean);
   const locationStr = locationParts.join(", ");
   const locationParam = encodeURIComponent(locationParts.join("-").toLowerCase());
@@ -108,8 +132,8 @@ if (data.userLocation?.country) {
 }
 
 // Content Type Badges with links
-document.getElementById("contentTypeText").innerHTML = Array.isArray(data.contentTypes)
-  ? data.contentTypes.map(ct =>
+document.getElementById("contentTypeText").innerHTML = Array.isArray(userData.contentTypes)
+  ? userData.contentTypes.map(ct =>
       `<a href="https://rw-501.github.io/contenthub/pages/creators.html?type=${encodeURIComponent(ct.toLowerCase())}" 
          class="badge bg-secondary text-light me-1 mb-1 text-decoration-none">
          ${ct}
@@ -118,8 +142,8 @@ document.getElementById("contentTypeText").innerHTML = Array.isArray(data.conten
   : '';
 
 // Niche Badges with links
-document.getElementById("nicheText").innerHTML = Array.isArray(data.niches)
-  ? data.niches.map(n =>
+document.getElementById("nicheText").innerHTML = Array.isArray(userData.niches)
+  ? userData.niches.map(n =>
       `<a href="https://rw-501.github.io/contenthub/pages/creators.html?niche=${encodeURIComponent(n.toLowerCase())}" 
          class="badge bg-light text-dark border me-1 mb-1 text-decoration-none">
          ${n}
@@ -129,7 +153,7 @@ document.getElementById("nicheText").innerHTML = Array.isArray(data.niches)
 
 
 
-document.getElementById("profilePhoto").src = data.photoURL || '/assets/default-avatar.png';
+document.getElementById("profilePhoto").src = userData.photoURL || '/assets/default-avatar.png';
 
 const socialContainer = document.getElementById("socialLinks");
 socialContainer.innerHTML = "";
@@ -150,11 +174,11 @@ const platformIcons = {
   other: "bi bi-link-45deg"
 };
 
-if (Array.isArray(data.links)) {
-  data.links.forEach(linkObj => {
+if (Array.isArray(userData.links)) {
+  userData.links.forEach(linkObj => {
     const { platform, url } = linkObj;
     const icon = platformIcons[platform?.toLowerCase()] || platformIcons.other;
-    const isVerified = data.verifiedPlatforms?.[platform.toLowerCase()] === true;
+    const isVerified = userData.verifiedPlatforms?.[platform.toLowerCase()] === true;
 
     const a = document.createElement("a");
     a.href = url.trim();
@@ -175,7 +199,7 @@ if (Array.isArray(data.links)) {
   const followBtn = document.getElementById("followBtn");
   if (!isOwnerView) {
     followBtn.style.display = "inline-block";
-    if ((data.followers || []).includes(currentUser.uid)) {
+    if ((userData.followers || []).includes(actingAsUser.uid)) {
       followBtn.innerText = "Unfollow";
       followBtn.onclick = () => unfollowUser(viewingUserId);
     } else {
@@ -192,17 +216,17 @@ if (Array.isArray(data.links)) {
 let currentPageID = '';
 
   if (viewingUserId == '') {
-currentPageID = currentUser;
+currentPageID = actingAsUser;
   }else {
 currentPageID = viewingUserId;
   }
 
 loadUserReviews(currentPageID);
-checkNameChangeEligibility(data); 
-loadUserPosts(currentPageID, data.displayName, data.photoURL);
+checkNameChangeEligibility(userData); 
+loadUserPosts(currentPageID, userData.displayName, userData.photoURL);
 loadUserCollabs(viewingUserId);
-loadFollowingList(data);
-loadFollowersList(data);
+loadFollowingList(userData);
+loadFollowersList(userData);
 loadAnalytics(currentPageID);
 loadProjectHistory(currentPageID);
 
