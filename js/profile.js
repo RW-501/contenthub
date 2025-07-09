@@ -7,10 +7,8 @@ import {
 import {
   getStorage, ref, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
-import { app }  from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+import { app, db, auth, sendNotification  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
-const auth = getAuth(app);
-const db = getFirestore(app);
 const storage = getStorage(app);
 
 let currentUser, viewingUserId;
