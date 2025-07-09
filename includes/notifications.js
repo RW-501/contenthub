@@ -182,9 +182,12 @@ document.getElementById("toggleGroupMode").addEventListener("click", () => {
 }
 
 window.initLiveNotifications = initLiveNotifications();
+
+  setTimeout(async () => {
 document.getElementById("notifBellBtn").addEventListener("click", () => {
  initLiveNotifications();
 });
+  }, 2000); // ⏱ 2 second delay
 
 export const NOTIFICATION_TEMPLATES = {
   likePost: (user) => `🔥 ${user} liked your post.`,
