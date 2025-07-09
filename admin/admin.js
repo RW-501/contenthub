@@ -219,7 +219,7 @@ const username = userData.username?.replace("@", "") || "";
 
 
   // Avatar and name
-const avatarImg = document.getElementById("userAvatar");
+const avatarImg = document.getElementById("userAvatarView");
 if (avatarImg && photoURL) {
   avatarImg.src = photoURL;
 } else {
