@@ -33,6 +33,11 @@ viewingUserId = params.get('uid') || currentUser.uid;
 
 const userDoc = await getDoc(doc(db, "users", viewingUserId));
 const data = userDoc.data();
+
+
+
+
+
 document.getElementById("displayName").innerText = data.displayName || 'Anonymous';
 
 
@@ -1615,10 +1620,24 @@ document.getElementById("openReviewModalBtn").addEventListener("click", () => {
 });
 
   
+let mentionList; 
+async function loadMentionList() {
+  const usersSnap = await getDocs(collection(db, "users"));
+  mentionList = usersSnap.docs.map(doc => {
+    const data = doc.data();
+    return { uid: doc.id, displayName: data.displayName || "Unknown" };
+  });
+}
+
+
   const descInput = document.getElementById("projectDescription");
   if (!descInput) return;
 
   descInput.addEventListener("input", (e) => {
+
+    // Call this once on page load
+loadMentionList();
+
     const cursorPos = descInput.selectionStart;
     const textBeforeCursor = descInput.value.slice(0, cursorPos);
     const atIndex = textBeforeCursor.lastIndexOf("@");
@@ -1708,17 +1727,7 @@ const card = `
 
 window.loadProjectHistory = loadProjectHistory;
 
-let mentionList; 
-async function loadMentionList() {
-  const usersSnap = await getDocs(collection(db, "users"));
-  mentionList = usersSnap.docs.map(doc => {
-    const data = doc.data();
-    return { uid: doc.id, displayName: data.displayName || "Unknown" };
-  });
-}
 
-// Call this once on page load
-loadMentionList();
 
 
 function showMentionDropdown(query, caretRect) {
