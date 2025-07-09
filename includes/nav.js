@@ -18,7 +18,6 @@ import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 // ✅ Init services
 const auth = getAuth(app);
 const db = getFirestore(app);
-import { sendNotification } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 
 const currentPath = location.pathname.replace(/\/$/, '').toLowerCase();
@@ -86,6 +85,19 @@ function loadAuthScript() {
 // Load it when needed
 loadAuthScript();
 
+function loadNotificationScript() {
+  const existing = document.querySelector('script[src="https://rw-501.github.io/contenthub/includes/notifications.js"]');
+  if (existing) return;
+
+  const script = document.createElement('script');
+  script.src = "https://rw-501.github.io/contenthub/includes/notifications.js";
+  script.type = "module";  // 💥 THIS IS REQUIRED
+  document.head.appendChild(script);
+}
+
+// Load it when needed
+loadNotificationScript();
+initLiveNotifications();
 
 
 window.showModal = function({
