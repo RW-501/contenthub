@@ -157,6 +157,7 @@ if (userData.status === "removed") {
 // Main User Loader
 
 const demoUserMap = {}; // Global map of demo user data
+const userMap = {}; // Global map of demo user data
 
 async function loadUsers() {
   const userTable = document.getElementById("userTable");
@@ -174,6 +175,8 @@ users.forEach(docSnap => {
 
   if (role === "demo") {
   demoUserMap[id] = u; // Store demo user data by ID
+}else {
+  userMap[id] = u;
 }
 
   const status = u.status || "active";
@@ -185,7 +188,7 @@ ${role === 'demo' ? `<button class="btn btn-sm btn-outline-success" onclick="edi
 
   const row = `
     <tr>
-      <td>${u.email || 'N/A'}</td>
+      <td>${u.displayName || 'N/A'}</td>
       <td>${(u.niches || []).join(", ")}</td>
       <td><span class="badge bg-info text-dark">${role}</span></td>
       <td><span class="badge bg-${status === 'active' ? 'success' : status === 'blocked' ? 'warning' : 'secondary'}">${status}</span></td>
@@ -201,6 +204,71 @@ window.loadUsers = loadUsers;
 
 // Open Modal
 function openActionModal(userId) {
+    const userData = demoUserMap[userId];
+
+const username = userMap.username?.replace("@", "") || "";
+  const {
+    displayName = "Unknown",
+    bio = "No bio available",
+    pronouns = "—",
+    availability = "—",
+    userLocation = {},
+    niches = [],
+    contentTypes = [],
+    links = [],
+    photoURL = "https://via.placeholder.com/100"
+  } = userData;
+
+  // Avatar and name
+  document.getElementById("userAvatar").src = photoURL;
+  document.getElementById("userDisplayName").innerText = displayName;
+  document.getElementById("actionUserNameDisplay").innerText = username;
+
+  // Other fields
+  document.getElementById("userBio").innerText = bio;
+  document.getElementById("userPronouns").innerText = pronouns;
+  document.getElementById("userAvailability").innerText = availability;
+
+  // Location
+  const { city = "", state = "", country = "" } = userLocation;
+  const locationText = [city, state, country].filter(Boolean).join(", ");
+  document.getElementById("userLocation").innerText = locationText || "—";
+
+  // Niches
+  const nichesContainer = document.getElementById("userNiches");
+  nichesContainer.innerHTML = "";
+  niches.forEach(niche => {
+    const span = document.createElement("span");
+    span.className = "badge bg-secondary";
+    span.innerText = niche;
+    nichesContainer.appendChild(span);
+  });
+
+  // Content Types
+  const contentContainer = document.getElementById("userContentTypes");
+  contentContainer.innerHTML = "";
+  contentTypes.forEach(type => {
+    const span = document.createElement("span");
+    span.className = "badge bg-info text-dark";
+    span.innerText = type;
+    contentContainer.appendChild(span);
+  });
+
+  // Links
+  const linksContainer = document.getElementById("userLinks");
+  linksContainer.innerHTML = "";
+  links.forEach(link => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = link.url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.innerText = `${link.platform || "Link"}`;
+    li.appendChild(a);
+    linksContainer.appendChild(li);
+  });
+
+
   document.getElementById("actionModal").value = userId;
   new bootstrap.Modal(document.getElementById("actionModal")).show();
 }
