@@ -2337,7 +2337,7 @@ document.getElementById("demoUserForm").addEventListener("submit", async (e) => 
   e.preventDefault();
 
   const username = document.getElementById("demoUsername").value.trim().replace('@', '');
-  const id = `${username}`;
+  const id = `demo_${username}`;
   const userRef = doc(db, "users", id);
 
   const displayName = document.getElementById("demoDisplayName").value.trim();
