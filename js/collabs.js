@@ -22,6 +22,8 @@ const tabs = {
 
 onAuthStateChanged(auth, user => {
   if (user) loadDashboard(user.uid);
+      loadPendingReviews();
+
 });
 
 async function loadDashboard(uid) {
@@ -283,3 +285,108 @@ showChatPopup(uid)
     new bootstrap.Modal(document.getElementById('groupChatModal')).show();
   }
 
+function openReviewConfirmModal(reviewId) {
+  document.getElementById("confirmReviewId").value = reviewId;
+  new bootstrap.Modal(document.getElementById("reviewConfirmModal")).show();
+}
+window.openReviewConfirmModal = openReviewConfirmModal;
+
+
+document.getElementById("confirmReviewForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const reviewId = document.getElementById("confirmReviewId").value;
+  const rating = parseInt(document.getElementById("responseRating").value);
+  const text = document.getElementById("responseFeedback").value.trim();
+
+  const reviewDocRef = doc(db, "reviews", reviewId);
+  const reviewSnap = await getDoc(reviewDocRef);
+  if (!reviewSnap.exists()) return;
+
+  const review = reviewSnap.data();
+
+  const batch = writeBatch(db);
+
+  // Confirm the original review
+  batch.update(reviewDocRef, { confirmedByTarget: true });
+
+  // Add response review if user submitted rating or feedback
+  if (rating || text) {
+    const responseReview = {
+      reviewerId: review.targetUserId,
+      targetUserId: review.reviewerId,
+      rating,
+      text,
+      type: "reply",
+      projectLink: "",
+      timestamp: serverTimestamp(),
+      approved: true,
+      confirmedByTarget: true
+    };
+    const responseRef = doc(collection(db, "reviews"));
+    batch.set(responseRef, responseReview);
+
+    // Update rating of the original reviewer
+    const userRef = doc(db, "users", review.reviewerId);
+    if (rating) {
+      batch.update(userRef, {
+        ratingTotal: increment(rating),
+        ratingCount: increment(1)
+      });
+    }
+  }
+
+  await batch.commit();
+
+  bootstrap.Modal.getInstance(document.getElementById("reviewConfirmModal")).hide();
+  showModal({ title: "Thank You!", message: "Response recorded.", autoClose: 3000 });
+});
+
+
+async function loadPendingReviews() {
+  const currentUser = auth.currentUser;
+  if (!currentUser) return;
+
+  const q = query(
+    collection(db, "reviews"),
+    where("targetUserId", "==", currentUser.uid),
+    where("confirmedByTarget", "==", false)
+  );
+
+  const snapshot = await getDocs(q);
+  const container = document.getElementById("pendingReviewsContainer");
+
+  container.innerHTML = "";
+
+  if (snapshot.empty) {
+    container.innerHTML = `
+      <div class="alert alert-info text-center">
+        <strong>Haven’t been reviewed yet?</strong><br>
+        Invite someone you've collaborated with to leave feedback!
+      </div>`;
+    return;
+  }
+
+  snapshot.forEach(docSnap => {
+    const review = docSnap.data();
+    const docId = docSnap.id;
+
+    const stars = "⭐".repeat(review.rating || 0);
+    const textPreview = review.text?.slice(0, 100) || "No comment";
+
+    const card = `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="card-title">${stars || "Unrated Review"}</h6>
+          <p class="card-text">${textPreview}</p>
+          <button class="btn btn-sm btn-outline-primary" onclick="openReviewConfirmModal('${docId}')">
+            Confirm & Respond
+          </button>
+        </div>
+      </div>
+    `;
+    container.insertAdjacentHTML("beforeend", card);
+  });
+}
+
+window.loadPendingReviews = loadPendingReviews;
