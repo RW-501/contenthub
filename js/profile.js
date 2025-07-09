@@ -200,6 +200,14 @@ loadFollowingList(data);
 loadFollowersList(data);
 loadAnalytics(currentPageID);
 
+
+// Attach to button click (when you want to review someone)
+window.openReviewModal = function(viewingUserId) {
+  document.getElementById("toUserId").value = toUserId;
+  new bootstrap.Modal(document.getElementById("reviewModal")).show();
+};
+
+
 });
 
 const userCache = {};
@@ -1360,12 +1368,6 @@ const reviewModalHTML = `
 
 document.body.insertAdjacentHTML("beforeend", reviewModalHTML);
 
-// Attach to button click (when you want to review someone)
-window.openReviewModal = function(toUserId) {
-  document.getElementById("toUserId").value = toUserId;
-  new bootstrap.Modal(document.getElementById("reviewModal")).show();
-};
-
 // Submit review form
 const form = document.getElementById("collabReviewForm");
 form.addEventListener("submit", async (e) => {
@@ -1525,8 +1527,8 @@ window.openProjectModal = () => {
 };
 
 // Live video preview on URL change
-document.getElementById("projectUrl").addEventListener("input", () => {
-  const url = document.getElementById("projectUrl").value;
+document.getElementById("projectLink").addEventListener("input", () => {
+  const url = document.getElementById("projectLink").value;
   const preview = document.getElementById("videoPreviewContainer");
   preview.innerHTML = getVideoEmbedHTML(url);
 });
