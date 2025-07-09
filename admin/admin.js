@@ -212,7 +212,7 @@ function openActionModal(userId) {
     niches = [],
     contentTypes = [],
     links = [],
-    photoURL = "https://via.placeholder.com/100"
+    photoURL 
   } = userData;
 
 const username = userData.username?.replace("@", "") || "";
