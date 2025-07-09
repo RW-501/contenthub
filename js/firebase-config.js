@@ -9,6 +9,7 @@ import {
   getDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { sendNotification } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyALJLxSJthWI2tnQZ-WnK1DDQNEelUCr7s",
@@ -55,7 +56,7 @@ function getCurrentUserData() {
 
 window.getCurrentUserData = getCurrentUserData;
 
-export { app, auth, db, getAuth, onAuthStateChanged, signOut };
+export { app, auth, db, getAuth, onAuthStateChanged, signOut, sendNotification };
 
 function insertBootstrapCSS() {
   if (!document.querySelector('link[href*="bootstrap.min.css"]')) {
