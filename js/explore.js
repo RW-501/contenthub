@@ -18,7 +18,7 @@ import {
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
 // Your config import (must expose the initialized app)
-import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+import { app,  sendNotification } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 
 // Firebase instances
 const auth = getAuth(app);
