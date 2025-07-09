@@ -1708,7 +1708,7 @@ const card = `
 
 window.loadProjectHistory = loadProjectHistory;
 
-
+let mentionList; 
 async function loadMentionList() {
   const usersSnap = await getDocs(collection(db, "users"));
   mentionList = usersSnap.docs.map(doc => {
