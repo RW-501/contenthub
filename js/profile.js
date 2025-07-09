@@ -63,7 +63,7 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     toUid: viewingUserId,
     fromUid: viewerUserId,
     fromDisplayName: viewerDisplayName,
-    fromuserAvatar: r,
+    fromuserAvatar: viewerUserPhotoURL,
     message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
     type: "profileView",
   });
