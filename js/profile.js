@@ -8,7 +8,7 @@ import {
   getStorage, ref, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 import { app, db, auth  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
-import { sendNotification } from "https://rw-501.github.io/contenthub/includes/notifications.js";
+//import { sendNotification } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 const storage = getStorage(app);
 
@@ -34,6 +34,7 @@ const userDoc = await getDoc(doc(db, "users", viewingUserId));
 const userData = userDoc.data();
 
 let actingAsUser = user; // default to current authenticated user
+let currentUserData;
 
 // If current user is admin and viewing a demo profile
 if (currentUser && viewingUserId !== currentUser.uid && userData?.role === "demo") {
@@ -53,11 +54,11 @@ if (actingAsUser.uid !== currentUser.uid) {
 
 
   await sendNotification({
-    toUid: viewedUserId,
-    fromUid: viewer.uid,
-    fromDisplayName: userData.displayName,
-    fromuserAvatar: userData.photoURL,
-    message: NOTIFICATION_TEMPLATES.profileView(userData.displayName),
+    toUid: viewingUserId,
+    fromUid: currentUserData.uid,
+    fromDisplayName: currentUserData.displayName,
+    fromuserAvatar: currentUserData.photoURL,
+    message: NOTIFICATION_TEMPLATES.profileView(currentUserData.displayName),
     type: "profileView",
   });
 

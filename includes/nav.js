@@ -18,6 +18,7 @@ import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 // ✅ Init services
 const auth = getAuth(app);
 const db = getFirestore(app);
+import { sendNotification } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 
 const currentPath = location.pathname.replace(/\/$/, '').toLowerCase();
