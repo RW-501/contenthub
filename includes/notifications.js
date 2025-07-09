@@ -136,6 +136,11 @@ function createNotificationHTML(n, ref, id) {
   item.className = `list-group-item d-flex justify-content-between align-items-start ${n.read ? '' : 'fw-bold'}`;
   item.innerHTML = `
     <div>
+    <div>
+          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${n.fromUid}" class="text-decoration-none">
+        <img  src="${n.fromuserAvatar}" class="avatar mb-3" alt="Profile Picture"/>
+        </a>
+</div>
       <div>${n.message}</div>
       <small class="text-muted">${timestamp}</small>
     </div>
