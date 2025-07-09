@@ -8,7 +8,7 @@ import {
   getStorage, ref, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 import { app, db, auth  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
-import { sendNotification } from "https://rw-501.github.io/contenthub/includes/notifications.js";
+//import { sendNotification } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 const storage = getStorage(app);
 
@@ -55,7 +55,7 @@ if (actingAsUser.uid !== currentUser.uid) {
 
   await sendNotification({
     toUid: viewingUserId,
-    fromUid: currentUserData.uid,
+    fromUid: currentUser.uid,
     fromDisplayName: currentUserData.displayName,
     fromuserAvatar: currentUserData.photoURL,
     message: NOTIFICATION_TEMPLATES.profileView(currentUserData.displayName),
