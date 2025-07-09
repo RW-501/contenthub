@@ -217,11 +217,9 @@ function openActionModal(userId) {
 
 const username = userData.username?.replace("@", "") || "";
 
-console.log("photoURL:", photoURL);
-console.log("photoURL userData:", userData.photoURL);
 
   // Avatar and name
-  document.getElementById("userAvatar").src = photoURL;
+  document.getElementById("avatarImg").src = photoURL;
   document.getElementById("userDisplayName").innerText = displayName;
   document.getElementById("actionUserNameDisplay").innerText = username;
 
