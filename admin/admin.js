@@ -219,7 +219,12 @@ const username = userData.username?.replace("@", "") || "";
 
 
   // Avatar and name
-  document.getElementById("avatarImg").src = photoURL;
+const avatarImg = document.getElementById("userAvatar");
+if (avatarImg && photoURL) {
+  avatarImg.src = photoURL;
+} else {
+  console.warn("Avatar image element not found or photoURL missing:", avatarImg, photoURL);
+}
   document.getElementById("userDisplayName").innerText = displayName;
   document.getElementById("actionUserNameDisplay").innerText = username;
 
