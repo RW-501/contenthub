@@ -1575,23 +1575,26 @@ if (videoUrl.includes("firebasestorage.googleapis.com") || videoUrl.match(/\.(mp
 
   return `<a href="${videoUrl}" target="_blank">${videoUrl}</a>`;
 }
-const descInput = document.getElementById("projectDescription");
+document.addEventListener("DOMContentLoaded", () => {
+  const descInput = document.getElementById("projectDescription");
+  if (!descInput) return;
 
-descInput.addEventListener("input", (e) => {
-  const cursorPos = descInput.selectionStart;
-  const textBeforeCursor = descInput.value.slice(0, cursorPos);
-  const atIndex = textBeforeCursor.lastIndexOf("@");
+  descInput.addEventListener("input", (e) => {
+    const cursorPos = descInput.selectionStart;
+    const textBeforeCursor = descInput.value.slice(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf("@");
 
-  if (atIndex !== -1) {
-    const query = textBeforeCursor.slice(atIndex + 1);
-    if (query.length >= 1) {
-      // Calculate caret position for dropdown (basic approximation)
-      const rect = descInput.getBoundingClientRect();
-      showMentionDropdown(query, { left: rect.left + 10, bottom: rect.bottom + 10 }); 
-      return;
+    if (atIndex !== -1) {
+      const query = textBeforeCursor.slice(atIndex + 1);
+      if (query.length >= 1) {
+        // Calculate caret position for dropdown (basic approximation)
+        const rect = descInput.getBoundingClientRect();
+        showMentionDropdown(query, { left: rect.left + 10, bottom: rect.bottom + 10 });
+        return;
+      }
     }
-  }
-  hideMentionDropdown();
+    hideMentionDropdown();
+  });
 });
 
 
