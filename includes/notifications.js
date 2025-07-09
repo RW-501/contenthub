@@ -180,6 +180,11 @@ document.getElementById("toggleGroupMode").addEventListener("click", () => {
 
 }
 
+window.initLiveNotifications = initLiveNotifications();
+document.getElementById("notifBellBtn").addEventListener("click", () => {
+ initLiveNotifications();
+});
+
 export const NOTIFICATION_TEMPLATES = {
   likePost: (user) => `🔥 ${user} liked your post.`,
   profileView: (user) => `👀 ${user} viewed your profile.`,
@@ -230,7 +235,6 @@ export async function markAllNotificationsRead() {
   await batch.commit();
 }
 
-initLiveNotifications();
 
 /*
 
