@@ -187,6 +187,7 @@ export const NOTIFICATION_TEMPLATES = {
   feedback: (user) => `📝 @${user} left you feedback.`,
   projectAdd: (user) => `📁 @${user} added a new project.`,
   profileUpdate: (user) => `🔧 @${user} updated their profile.`,
+  updateProjectHistory: (user) => `🔧 @${user} updated their ProjectHistory.`,
 };
 
 const muteCache = {};
@@ -265,18 +266,21 @@ export const NOTIFICATION_TEMPLATES = {
 };
 
 
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
+
   await sendNotification({
-    toUid: viewedUserId,
-    fromUid: viewer.uid,
-    fromDisplayName: name,
-    fromuserAvatar: fromuserAvatar,
-    message: NOTIFICATION_TEMPLATES.profileView(name),
-    type: "profileView",
+    toUid: viewerUserId,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
+    type: "updateProjectHistory",
   });
-*/
-
-
-
 // Add to CSS
 /*
 export function stopLiveNotifications() {

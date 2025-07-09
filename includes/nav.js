@@ -39,20 +39,42 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("avatarImg").src = avatar;
 
     try {
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
+const userRef = doc(db, "users", user.uid);
+const snap = await getDoc(userRef);
 
-      if (snap.exists()) {
-        const userData = snap.data();
-        if (userData.role === "admin") {
-          document.getElementById("adminLink").style.display = "block";
-        } else {
-          document.getElementById("adminLink").style.display = "none";
-        }
-      } else {
-        // User doc doesn't exist, hide admin link just in case
-        document.getElementById("adminLink").style.display = "none";
-      }
+const avatar = document.getElementById("userAvatar");
+
+if (snap.exists()) {
+  const userData = snap.data();
+
+  // Show admin link if needed
+  if (userData.role === "admin") {
+    document.getElementById("adminLink").style.display = "block";
+  } else {
+    document.getElementById("adminLink").style.display = "none";
+  }
+
+  // Cache in DOM
+  avatar.dataset.uid = user.uid;
+  avatar.dataset.role = userData.role || "";
+  avatar.dataset.displayname = userData.displayName || "";
+  avatar.dataset.photo = userData.photoURL || "/assets/default-avatar.png";
+  avatar.dataset.username = userData.username || "";
+  avatar.dataset.email = user.email || "";
+  avatar.dataset.location = userData.userLocation?.city || "";
+  avatar.dataset.niches = (userData.niches || []).join(",");
+  avatar.dataset.pronouns = userData.pronouns || "";
+
+  // Set avatar image
+  document.getElementById("avatarImg").src = userData.photoURL || "/assets/default-avatar.png";
+
+  // Show avatar
+  avatar.classList.remove("d-none");
+
+} else {
+  document.getElementById("adminLink").style.display = "none";
+}
+
     } catch (error) {
       console.error("Error fetching user data:", error);
       document.getElementById("adminLink").style.display = "none";

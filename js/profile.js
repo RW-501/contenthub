@@ -52,13 +52,19 @@ if (actingAsUser.uid !== currentUser.uid) {
   document.getElementById("impersonationBanner").classList.remove("d-none");
 }
 
+const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
 
   await sendNotification({
     toUid: viewingUserId,
-    fromUid: currentUser.uid,
-    fromDisplayName: currentUserData.displayName,
-    fromuserAvatar: currentUserData.photoURL,
-    message: NOTIFICATION_TEMPLATES.profileView(currentUserData.displayName),
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: r,
+    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
     type: "profileView",
   });
 
@@ -623,15 +629,33 @@ async function requestToJoin(collabId, ownerId) {
       return;
     }
 
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
+
+  await sendNotification({
+    toUid: ownerId,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
+    type: "collabRequest",
+  });
     // Create the request
     await addDoc(requestsRef, {
       userId: user.uid,
+      userPhotoUrl: viewerUserPhotoURL,
+      userDisplayName: viewerDisplayName,
       collabId,
       ownerId,
       status: "pending",
       timestamp: serverTimestamp()
     });
 
+    
     console.log("[requestToJoin] Request successfully submitted");
 
     showModal({
@@ -845,6 +869,22 @@ const links = rawLinks.filter(link => link.url !== "");
       updates.photoURL = url;
     }
 
+    
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
+
+  await sendNotification({
+    toUid: currentUser.uid,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
+    type: "profileUpdate",
+  });
     await updateDoc(userRef, updates);
 
     
@@ -1477,7 +1517,22 @@ form.addEventListener("submit", async (e) => {
     confirmedByTarget: false,
     approved: false
   };
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
 
+  await sendNotification({
+    toUid: toUserId,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
+    type: "feedback",
+  });
+  
   await addDoc(collection(db, `users/${toUserId}/reviews`), reviewData);
 
   alert("Review submitted! Waiting for confirmation by the other creator.");
@@ -1525,6 +1580,7 @@ async function loadUserReviews(toUserId) {
 
 window.loadUserReviews = loadUserReviews;
 
+/*
 async function submitReview() {
   const targetUserId = document.getElementById("reviewTargetUserId").value;
   const reviewerId = auth.currentUser.uid;
@@ -1579,7 +1635,7 @@ async function submitReview() {
 }
 
 window.submitReview = submitReview;
-
+*/
 
 
 
@@ -1706,7 +1762,21 @@ await addDoc(collection(db, `users/${currentUser.uid}/projectHistory`), {
   taggedUserIds,
   createdAt: serverTimestamp()
 });
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
 
+  await sendNotification({
+    toUid: viewerUserId,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
+    type: "updateProjectHistory",
+  });
 
   bootstrap.Modal.getInstance(document.getElementById("projectModal")).hide();
   loadProjectHistory(currentUser.uid);

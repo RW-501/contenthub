@@ -164,9 +164,28 @@ async function loadPosts(reset = true) {
       return;
     }
 
+    
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
+
+  await sendNotification({
+    toUid: ownerId,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
+    type: "collabRequest",
+  });
+
     // Create the request
     await addDoc(requestsRef, {
       userId: user.uid,
+      userPhotoUrl: viewerUserPhotoURL,
+      userDisplayName: viewerDisplayName,
       collabId,
       ownerId,
       status: "pending",
@@ -328,11 +347,30 @@ card.innerHTML = `
 const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
 const likeCountEl = card.querySelector(`#like-count-${docSnap.id}`);
 
+
+    
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
+
+  await sendNotification({
+    toUid: post.owner,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: `@${user} liked your post ${post.caption}`,
+    type: "likePost"
+  });
+
 likeBtn.addEventListener("click", async () => {
   const postRef = doc(db, "posts", docSnap.id);
   await updateDoc(postRef, {
     likes: increment(1)
   });
+
 
   // Update UI instantly (optional UX)
   const currentLikes = parseInt(likeCountEl.textContent) || 0;
@@ -415,6 +453,23 @@ window.followUser = async (uid) => {
 
   const userRef = doc(db, "users", currentUser.uid); // Current user
   const targetRef = doc(db, "users", uid); // Profile being viewed
+
+      
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
+
+  await sendNotification({
+    toUid: uid,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: `@${user} follows you`,
+    type: "following"
+  });
 
   await updateDoc(userRef, {
     following: arrayUnion(uid)
