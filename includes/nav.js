@@ -35,7 +35,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("signupBtn").classList.add("d-none");
     document.getElementById("userAvatar").classList.remove("d-none");
 
-    const avatar = user.photoURL || "/assets/default-avatar.png";
+    const avatar = user.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
     document.getElementById("avatarImg").src = avatar;
 
     try {
@@ -58,7 +58,7 @@ if (snap.exists()) {
   avatar.dataset.uid = user.uid;
   avatar.dataset.role = userData.role || "";
   avatar.dataset.displayname = userData.displayName || "";
-  avatar.dataset.photo = userData.photoURL || "/assets/default-avatar.png";
+  avatar.dataset.photo = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
   avatar.dataset.username = userData.username || "";
   avatar.dataset.email = user.email || "";
   avatar.dataset.location = userData.userLocation?.city || "";
@@ -66,7 +66,7 @@ if (snap.exists()) {
   avatar.dataset.pronouns = userData.pronouns || "";
 
   // Set avatar image
-  document.getElementById("avatarImg").src = userData.photoURL || "/assets/default-avatar.png";
+  document.getElementById("avatarImg").src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
 
   // Show avatar
   avatar.classList.remove("d-none");

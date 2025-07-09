@@ -159,7 +159,7 @@ document.getElementById("nicheText").innerHTML = Array.isArray(userData.niches)
 
 
 
-document.getElementById("profilePhoto").src = userData.photoURL || '/assets/default-avatar.png';
+document.getElementById("profilePhoto").src = userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png';
 
 const socialContainer = document.getElementById("socialLinks");
 socialContainer.innerHTML = "";
@@ -293,7 +293,7 @@ userDocs.forEach(u => {
 
   li.innerHTML = `
     <div class="d-flex align-items-center flex-wrap">
-      <img src="${u.photoURL || '/assets/default-avatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+      <img src="${u.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
       <a href="${profileLink}" class="btn btn-link p-0 m-0 text-decoration-none">
         <strong>${u.displayName || "Unnamed"}</strong>
       </a>
@@ -357,7 +357,7 @@ userDocs.forEach(u => {
 
   li.innerHTML = `
     <div class="d-flex align-items-center flex-wrap">
-      <img src="${u.photoURL || '/assets/default-avatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+      <img src="${u.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
       <a href="${profileLink}" class="btn btn-link p-0 m-0 text-decoration-none">
         <strong>${u.displayName || "Unnamed"}</strong>
       </a>

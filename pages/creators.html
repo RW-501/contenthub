@@ -357,7 +357,7 @@ function renderCreators(data) {
       <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.id}" class="text-decoration-none text-dark">
         <div class="card shadow-sm h-100">
           <div class="text-center pt-3">
-            <img src="${user.photoURL || '/assets/default-avatar.png'}"
+            <img src="${user.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
               class="rounded-circle border ${avatarBorder}"
               style="width: 100px; height: 100px; object-fit: cover;"
               alt="${user.displayName || 'User'}" />

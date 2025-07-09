@@ -544,7 +544,7 @@ document.getElementById("assignBadgeBtn").addEventListener("click", async () => 
     }
 
     function showProfile(profile) {
-      document.getElementById('profileImage').src = profile.profilePic || '/assets/default-avatar.png';
+      document.getElementById('profileImage').src = profile.profilePic || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png';
       document.getElementById('profileName').textContent = profile.displayName || profile.username;
       document.getElementById('profileUsername').textContent = `@${profile.username}`;
       document.getElementById('profileFollowers').textContent = `Followers: ${profile.followers || 'N/A'}`;

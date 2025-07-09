@@ -436,7 +436,7 @@ async function loadSuggestedCreators() {
     const div = document.createElement("div");
     div.className = "creator-suggest";
     div.innerHTML = `
-      <img src="${u.photoURL || '/assets/default-avatar.png'}" alt="avatar" class="creator-avatar" />
+      <img src="${u.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" alt="avatar" class="creator-avatar" />
       <div>
         <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${docSnap.id}">${u.displayName || 'Unknown'}</a><br/>
         <small>${u.niches || ''}</small>
