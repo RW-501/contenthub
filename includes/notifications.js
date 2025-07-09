@@ -177,6 +177,7 @@ document.getElementById("toggleGroupMode").addEventListener("click", () => {
   loadNotifications(true);
 });
 
+    console.log("✅ Notification ???????????????/");
 
 }
 
