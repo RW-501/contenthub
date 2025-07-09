@@ -72,6 +72,9 @@
 <!-- Availability -->
 <p id="availabilityText"><i class="bi bi-clock-history"></i> Available for Collabs</p>
 
+        <!--  userRating Section -->
+<p id="userRatingyText"></p>
+
 
 <!-- Collab Button (hidden until ready) -->
 <button id="collabBtn" class="btn btn-outline-primary d-none" data-viewing-user-id="" data-bs-toggle="modal" data-bs-target="#collabRequestModal">
@@ -193,12 +196,7 @@
   <option value="Open to Offers">Open to Offers</option>
 </select>
 
-        <!-- 📍 userRating Section -->
-<div class="mb-3">
-  <label class="form-label">Rating</label>
-  <div id='userRating' class="d-flex flex-column gap-2">
-</div>
-</div>
+
 
         <!-- Bio -->
         <textarea class="form-control mb-2" id="editBio" placeholder="Short Bio (max 160 chars)" maxlength="160"></textarea>
@@ -514,6 +512,38 @@
 </div>
 
 
+<!-- Project Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="projectHistoryForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Project</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="projectId">
+          <div class="mb-2">
+            <label>Title</label>
+            <input type="text" id="projectTitle" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label>Description</label>
+            <textarea id="projectDescription" class="form-control" required></textarea>
+          </div>
+          <div class="mb-2">
+            <label>Video or Project URL</label>
+            <input type="url" id="projectUrl" class="form-control" required>
+          </div>
+          <div id="videoPreviewContainer" class="mt-3"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
   </main>
 
 <!-- Add this at the bottom of <body> -->

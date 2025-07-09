@@ -89,7 +89,7 @@ document.getElementById("availabilityText").innerHTML = data.availability ? `<i 
     : "No ratings yet";
 
 document.getElementById("bioText").innerText = data.bio || '';
-  document.getElementById("userRating").innerHTML = `
+  document.getElementById("userRatingyText").innerHTML = `
       <span class="badge bg-warning text-dark">⭐ ${avgRating}</span>
     </div>
   `;
@@ -204,6 +204,7 @@ loadUserCollabs(viewingUserId);
 loadFollowingList(data);
 loadFollowersList(data);
 loadAnalytics(currentPageID);
+loadProjectHistory(currentPageID);
 
 
 // Attach to button click (when you want to review someone)
@@ -230,7 +231,7 @@ async function loadFollowingList(data) {
   list.innerHTML = `<small class="text-muted">${data.following?.length || 0} Following</small>`;
 
   if (!data.following || data.following.length === 0) {
-    list.innerHTML += `<li class='list-group-item text-muted'>Not following anyone yet.       
+    list.innerHTML += `<li class='alert alert-info text-center'>Not following anyone yet.       
      <br>
         <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
           🤝 Follow some creators 
@@ -298,7 +299,7 @@ async function loadFollowersList(data) {
   list.innerHTML = `<small class="text-muted">${data.followers?.length || 0} Followers</small>`;
 
   if (!data.followers || data.followers.length === 0) {
-    list.innerHTML += "<li class='list-group-item text-muted'>No followers yet.</li>";
+    list.innerHTML += "<li class='alert alert-info text-center'>No followers yet.</li>";
     return;
   }
 
@@ -388,9 +389,8 @@ async function loadUserPosts(uid, displayName, photoURL) {
 
   if (snapshot.empty) {
     postGrid.innerHTML = `
-      <div class="col-12 text-center text-muted mt-3">
-        <p>No posts yet.</p>
-        <a href="/pages/post.html" class="btn btn-primary btn-sm">🚀 Create your first post</a>
+      <div class="alert alert-info text-center">
+        <p>No posts yet, 🚀 Create your first post</p>
       </div>`;
     return;
   }
@@ -523,7 +523,7 @@ async function loadUserCollabs(uid) {
 
     if (snapshot.empty) {
       list.innerHTML = `
-        <li class="list-group-item text-muted text-center">
+        <li class="alert alert-info text-center">
           No collaborations yet.
           <br>
           <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
