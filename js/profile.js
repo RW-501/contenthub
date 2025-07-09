@@ -1861,50 +1861,53 @@ function renderTaggedUsers(taggedUserIds) {
 }
 
 
-document.addEventListener("DOMContentLoaded", async () => {
-  console.log("📦 DOM fully loaded, running viewer notification logic...");
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(async () => {
+    console.log("⏳ 2-second delay passed, running viewer notification logic...");
 
-  const avatar = document.getElementById("userAvatar");
-  if (!avatar) {
-    console.warn("⚠️ Avatar element not found.");
-    return;
-  }
+    const avatar = document.getElementById("userAvatar");
+    if (!avatar) {
+      console.warn("⚠️ Avatar element not found.");
+      return;
+    }
 
-  const viewerUserId = avatar.dataset.uid;
-  const viewerDisplayName = avatar.dataset.displayname;
-  const viewerRole = avatar.dataset.role;
-  const viewerUsername = avatar.dataset.username;
-  const viewerUserPhotoURL = avatar.dataset.photo;
+    const viewerUserId = avatar.dataset.uid;
+    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerRole = avatar.dataset.role;
+    const viewerUsername = avatar.dataset.username;
+    const viewerUserPhotoURL = avatar.dataset.photo;
 
-  console.log("👤 Viewer Info:", {
-    viewerUserId,
-    viewerDisplayName,
-    viewerRole,
-    viewerUsername,
-    viewerUserPhotoURL
-  });
+    console.log("👤 Viewer Info:", {
+      viewerUserId,
+      viewerDisplayName,
+      viewerRole,
+      viewerUsername,
+      viewerUserPhotoURL
+    });
 
-  if (!viewerUserId || !viewerDisplayName || !viewerUserPhotoURL) {
-    console.warn("⚠️ Missing viewer data. Skipping notification.");
-    return;
-  }
+    if (!viewerUserId || !viewerDisplayName || !viewerUserPhotoURL) {
+      console.warn("⚠️ Missing viewer data. Skipping notification.");
+      return;
+    }
 
-  if (typeof viewingUserId !== "string") {
-    console.warn("⚠️ viewingUserId is undefined or invalid.");
-    return;
-  }
+    if (typeof viewingUserId !== "string") {
+      console.warn("⚠️ viewingUserId is undefined or invalid.");
+      return;
+    }
 
-  console.log(`📨 Sending profileView notification to ${viewingUserId} from ${viewerUserId}`);
+    console.log(`📨 Sending profileView notification to ${viewingUserId} from ${viewerUserId}`);
 
-  await sendNotification({
-    toUid: viewingUserId,
-    fromUid: viewerUserId,
-    fromDisplayName: viewerDisplayName,
-    fromuserAvatar: viewerUserPhotoURL,
-    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
-    type: "profileView",
-  });
+    await sendNotification({
+      toUid: viewingUserId,
+      fromUid: viewerUserId,
+      fromDisplayName: viewerDisplayName,
+      fromuserAvatar: viewerUserPhotoURL,
+      message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
+      type: "profileView",
+    });
 
-  console.log("✅ Notification sent successfully.");
+    console.log("✅ Notification sent successfully.");
+  }, 2000); // ⏱ 2 second delay
 });
+
   console.log(">>>>>>>>>>>>>>");
