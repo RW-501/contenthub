@@ -1609,6 +1609,12 @@ if (videoUrl.includes("firebasestorage.googleapis.com") || videoUrl.match(/\.(mp
   return `<a href="${videoUrl}" target="_blank">${videoUrl}</a>`;
 }
 document.addEventListener("DOMContentLoaded", () => {
+
+document.getElementById("openReviewModalBtn").addEventListener("click", () => {
+  openReviewModal();
+});
+
+  
   const descInput = document.getElementById("projectDescription");
   if (!descInput) return;
 
