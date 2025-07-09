@@ -181,13 +181,13 @@ document.getElementById("toggleGroupMode").addEventListener("click", () => {
 }
 
 export const NOTIFICATION_TEMPLATES = {
-  likePost: (user) => `🔥 @${user} liked your post.`,
-  profileView: (user) => `👀 @${user} viewed your profile.`,
-  collabRequest: (user) => `🤝 @${user} requested to collaborate.`,
-  feedback: (user) => `📝 @${user} left you feedback.`,
-  projectAdd: (user) => `📁 @${user} added a new project.`,
-  profileUpdate: (user) => `🔧 @${user} updated their profile.`,
-  updateProjectHistory: (user) => `🔧 @${user} updated their ProjectHistory.`,
+  likePost: (user) => `🔥 ${user} liked your post.`,
+  profileView: (user) => `👀 ${user} viewed your profile.`,
+  collabRequest: (user) => `🤝 ${user} requested to collaborate.`,
+  feedback: (user) => `📝 ${user} left you feedback.`,
+  projectAdd: (user) => `📁 ${user} added a new project.`,
+  profileUpdate: (user) => `🔧 ${user} updated their profile.`,
+  updateProjectHistory: (user) => `🔧 ${user} updated their ProjectHistory.`,
 };
 
 
