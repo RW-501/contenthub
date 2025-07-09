@@ -79,8 +79,8 @@ document.getElementById("usernameText").textContent = data.username || "";
 document.getElementById("pronounsText").innerHTML = data.pronouns ? `<i class="bi bi-person"></i> ${data.pronouns}` : "";
 document.getElementById("availabilityText").innerHTML = data.availability ? `<i class="bi bi-clock-history"></i> ${data.availability}` : "";
 
-  const avgRating = userData.ratingCount > 0
-    ? (userData.ratingTotal / userData.ratingCount).toFixed(1)
+  const avgRating = data.ratingCount > 0
+    ? (data.ratingTotal / data.ratingCount).toFixed(1)
     : "No ratings yet";
 
 document.getElementById("bioText").innerText = data.bio || '';
