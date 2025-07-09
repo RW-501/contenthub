@@ -52,12 +52,21 @@ if (actingAsUser.uid !== currentUser.uid) {
   document.getElementById("impersonationBanner").classList.remove("d-none");
 }
 
-const avatar = document.getElementById("userAvatar");
-const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
-const viewerRole = avatar.dataset.role;
-const viewerUsername = avatar.dataset.username;
-const viewerUserPhotoURL = avatar.dataset.photo;
+document.addEventListener("DOMContentLoaded", async () => {
+  const avatar = document.getElementById("userAvatar");
+  if (!avatar) return; // safely exit if not found
+
+  const viewerUserId = avatar.dataset.uid;
+  const viewerDisplayName = avatar.dataset.displayname;
+  const viewerRole = avatar.dataset.role;
+  const viewerUsername = avatar.dataset.username;
+  const viewerUserPhotoURL = avatar.dataset.photo;
+
+  // Optional: confirm all required fields exist
+  if (!viewerUserId || !viewerDisplayName || !viewerUserPhotoURL) return;
+
+  // Assuming viewingUserId is defined elsewhere (or replace with actual logic)
+  if (typeof viewingUserId !== "string") return;
 
   await sendNotification({
     toUid: viewingUserId,
@@ -67,6 +76,8 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
     type: "profileView",
   });
+});
+
 
 document.getElementById("displayName").innerText = userData.displayName || 'Anonymous';
 
