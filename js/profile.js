@@ -1628,7 +1628,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     hideMentionDropdown();
   });
-});
 
 
 // Submit project form
@@ -1658,6 +1657,7 @@ await addDoc(collection(db, `users/${currentUser.uid}/projectHistory`), {
 
   bootstrap.Modal.getInstance(document.getElementById("projectModal")).hide();
   loadProjectHistory(currentUser.uid);
+});
 });
 
 // Load and display projects
