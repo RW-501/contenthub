@@ -2430,53 +2430,10 @@ document.getElementById("demoPhoto").addEventListener("change", (e) => {
 
 
 
-import { getDocs, query, collection, where } from "firebase/firestore";
 
-import {
-  getDocs,
-  query,
-  collection,
-  where,
-  addDoc,
-  serverTimestamp,
-} from "firebase/firestore";
 
-async function getDemoUserIds() {
-  const q = query(collection(db, "users"), where("role", "==", "demo"));
-  const snapshot = await getDocs(q);
-  const ids = snapshot.docs.map(doc => doc.id);
-  console.log("✅ Demo User IDs:", ids);
-  return ids;
-}
 
-async function addProjectHistoryToUser(userId, {
-  title,
-  description,
-  url = "",
-  taggedUserIds = [],
-  projectDate = new Date()
-}) {
-  if (!userId || !title || !description) {
-    console.error("❌ Missing required fields.");
-    return;
-  }
 
-  const ref = collection(db, `users/${userId}/projectHistory`);
-
-  await addDoc(ref, {
-    title,
-    description,
-    url,
-    taggedUserIds,
-    projectDate: new Date(projectDate),
-    createdAt: serverTimestamp()
-  });
-
-  console.log(`✅ Project history added to user: ${userId}`);
-}
-
-async function seedDemoUserProjects() {
-  const demoUserIds = await getDemoUserIds();
 
 const projectTemplates = [
   {
@@ -2707,6 +2664,10 @@ async function seedDemoUserProjects() {
   console.log("🎉 All demo users seeded with project history.");
 }
 
+
+
+
+
 const ENABLE_PROJECT_SEEDING = true;
 
 if (ENABLE_PROJECT_SEEDING) {
@@ -2714,7 +2675,3 @@ if (ENABLE_PROJECT_SEEDING) {
     seedDemoUserProjects().catch(console.error);
   });
 }
-
-
-}
-
