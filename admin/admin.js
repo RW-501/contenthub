@@ -2936,7 +2936,7 @@ const sampleReviews = [
 }
 
 
-
+/*
 const ENABLE_REVIEW_SEEDING = true;
 
 if (ENABLE_REVIEW_SEEDING) {
@@ -2946,3 +2946,156 @@ if (ENABLE_REVIEW_SEEDING) {
     }, 1000); // ⏱ wait for Firebase auth/init
   });
 }
+
+
+*/
+
+
+
+const demoPostTemplates = [
+  { caption: "Launching my new creator site soon! Feedback welcome 🚀", type: "general" },
+  { caption: "Looking for a music editor for my upcoming reel 🎶", type: "collab", projectGoal: "Music editor, reel experience" },
+  { caption: "Can someone help me troubleshoot a Firebase rule error?", type: "help", projectGoal: "Firebase security rules" },
+  { caption: "Just published a collab video with 3 amazing creators! 🎬", type: "general" },
+  { caption: "Need a podcast intro jingle—any audio folks here? 🎧", type: "collab", projectGoal: "Audio producer or editor" },
+  { caption: "What’s the best way to grow on Instagram in 2025? 🤔", type: "help" },
+  { caption: "I finally launched my creator blog 💻 — excited for feedback!", type: "general" },
+  { caption: "Looking for video scriptwriters to collab on skits 📜", type: "collab", projectGoal: "Creative writing, humor, Gen Z tone" },
+  { caption: "What's your go-to content planning tool? 💡", type: "general" },
+  { caption: "Need help fixing a layout bug in Bootstrap, who got me? 🛠️", type: "help", projectGoal: "CSS/Flexbox expert" },
+  { caption: "Filmed my first cooking tutorial—nervous but excited! 🍳", type: "general" },
+  { caption: "Looking for voice actors for my animated short 🎤", type: "collab", projectGoal: "Voice acting, animation sync" },
+  { caption: "Having trouble connecting my domain to Firebase Hosting.", type: "help", projectGoal: "DNS and Firebase setup" },
+  { caption: "Started a new IG Reels series—episode 1 out now!", type: "general" },
+  { caption: "Need a motion graphics designer for 15-sec outro 🎞️", type: "collab", projectGoal: "After Effects or Canva Pro user" },
+  { caption: "Best tips to stay consistent with posting? 📆", type: "help" },
+  { caption: "Dropped a new spoken word piece 🎙️🔥", type: "general" },
+  { caption: "Searching for a creative partner to launch a YouTube challenge series 🎥", type: "collab", projectGoal: "Creative YouTuber, good on camera" },
+  { caption: "Why is my CSS animation not firing on scroll?", type: "help", projectGoal: "IntersectionObserver / CSS" },
+  { caption: "My first mini-documentary is live now. Feedback welcome! 🎬", type: "general" },
+  { caption: "Need a content strategist to help brainstorm TikTok series", type: "collab", projectGoal: "Growth-focused strategist" },
+  { caption: "How do you price brand deals as a micro-influencer?", type: "help" },
+  { caption: "I finally hit 1k followers! Appreciate you all 💯", type: "general" },
+  { caption: "Looking for a UX designer to help with my creator dashboard", type: "collab", projectGoal: "UX audits, Figma wireframes" },
+  { caption: "Need help choosing a payment system for my site 💸", type: "help", projectGoal: "Stripe vs. PayPal advice" },
+  { caption: "Just tested out DaVinci Resolve for the first time 🎬", type: "general" },
+  { caption: "Looking for a graphic designer to create podcast cover art 🎨", type: "collab", projectGoal: "Bold, modern branding" },
+  { caption: "Stuck on how to create an Instagram carousel template 😩", type: "help", projectGoal: "Figma / Canva help" },
+  { caption: "My first vlog is finally edited and posted! 🎥✂️", type: "general" },
+  { caption: "Seeking someone to co-host a weekly live stream 🎙️", type: "collab", projectGoal: "Charisma, consistency" },
+  { caption: "Why is my engagement dropping all of a sudden?", type: "help" },
+  { caption: "New blog post: 5 Tools Every Creator Needs 🔧", type: "general" },
+  { caption: "Looking for an accountability buddy for 30 days 💪", type: "collab", projectGoal: "Daily check-ins, positive vibes" },
+  { caption: "Can someone help me create a link-in-bio landing page?", type: "help", projectGoal: "Webflow / Carrd / HTML" },
+  { caption: "Weekly wins: finished a script, edited a video, posted 3x 🔥", type: "general" },
+  { caption: "Need help with YouTube thumbnail design 🖼️", type: "collab", projectGoal: "CTR-optimized designer" },
+  { caption: "Struggling to get my Mailchimp forms to trigger automation.", type: "help" },
+  { caption: "Just did a collab with a brand and got reposted! 🙌", type: "general" },
+  { caption: "Need an editor for a fast-turnaround promo clip ⏱️", type: "collab", projectGoal: "Quick, high-quality cut" },
+  { caption: "What's the best no-code platform for client portfolios?", type: "help" },
+  { caption: "Finally feel confident calling myself a 'creator' 💡", type: "general" },
+  { caption: "Looking for a collab: 3 creators, 3 cities, 1 project 🌍", type: "collab", projectGoal: "Photographers or vloggers" },
+  { caption: "Why does my TikTok audio not sync after upload?", type: "help" },
+  { caption: "New free resource: my Notion content calendar template 📅", type: "general" },
+  { caption: "Seeking a partner for a virtual event series 🎤", type: "collab", projectGoal: "Hosts, event marketing" },
+  { caption: "Can't figure out why my analytics aren't showing views 🤔", type: "help" },
+  { caption: "Just got featured in a local newsletter! 🎉", type: "general" },
+  { caption: "Need a designer for a short animated explainer ✏️", type: "collab", projectGoal: "2D animation, clear visuals" },
+  { caption: "Best video hosting site for free creators?", type: "help" },
+  { caption: "Finally got my content batching system locked in 🔒", type: "general" },
+  { caption: "Looking for a guest for my next podcast ep 🎙️", type: "collab", projectGoal: "Creative voice, unique story" },
+  { caption: "How do you find trending audios early? 🔍", type: "help" },
+  { caption: "Celebrating 100 videos uploaded! 📹💯", type: "general" },
+  { caption: "Need someone to review my digital product landing page 💬", type: "collab", projectGoal: "Copywriting & conversion feedback" },
+  { caption: "Why isn’t my Instagram link showing in bio?", type: "help" },
+  { caption: "Posting my first YouTube Short today. Let’s go! 🎬", type: "general" },
+  { caption: "Seeking a design partner for a merch line collab 👕", type: "collab", projectGoal: "Clothing designer / branding" },
+  { caption: "What's the best time to post on Threads?", type: "help" },
+  { caption: "I made my first 3D render today! 🧊", type: "general" },
+  { caption: "Need a co-editor for a weekly gaming recap 🔥", type: "collab", projectGoal: "Quick turnaround, attention to detail" },
+  { caption: "Any tips for setting up OBS for dual screens?", type: "help" },
+  { caption: "New milestone: 1K newsletter subs! 🎉", type: "general" },
+  { caption: "Seeking a lyricist to turn my poetry into music 🎶", type: "collab", projectGoal: "Lyric writing, flow" },
+  { caption: "Why is my site loading slow on mobile?", type: "help" },
+  { caption: "Today I tried AI voiceovers. Thoughts?", type: "general" },
+  { caption: "Want to co-create a parody skit for TikTok? 🤡", type: "collab", projectGoal: "Scriptwriting, acting, editing" },
+  { caption: "Need help making a transparent PNG in Canva 🖼️", type: "help" },
+  { caption: "Shared my latest 1-minute doc—super proud of it 🎥", type: "general" },
+  { caption: "Looking for a photographer to collab on a portrait reel 📸", type: "collab", projectGoal: "Moody, cinematic style" },
+  { caption: "My video keeps getting flagged—why?", type: "help" },
+  { caption: "Just found a new AI tool that helps write captions 🤖", type: "general" },
+  { caption: "Seeking fashion creators for cross-platform collab 👠", type: "collab", projectGoal: "Instagram & TikTok creators" },
+  { caption: "How do you track client invoices?", type: "help" },
+  { caption: "Posted a new reel every day this week 😮‍💨", type: "general" },
+  { caption: "Looking for someone to co-manage a meme page 😂", type: "collab", projectGoal: "Funny, fast content" },
+  { caption: "Can't get my embeds to load on my site.", type: "help" },
+  { caption: "Dropped a new song—produced it all myself 🎧", type: "general" },
+  { caption: "Who wants to team up for a 24hr content challenge?", type: "collab", projectGoal: "Fast turn, creative ideas" },
+  { caption: "What do I need to get verified on Threads?", type: "help" },
+  { caption: "Just wrapped a 3-part docuseries—exhausted but proud 🧠", type: "general" },
+  { caption: "Seeking voiceover artist for comedy skit series 🎤", type: "collab", projectGoal: "Fun, expressive voice" },
+  { caption: "Can’t connect Google Analytics to my creator site.", type: "help" },
+  { caption: "Today’s lesson: always back up your files 😩", type: "general" },
+  { caption: "Want to do a creative TikTok duet? 🎭", type: "collab", projectGoal: "Actor/creator, fun energy" },
+  { caption: "Need help writing a cold pitch for a brand email 📧", type: "help" },
+  { caption: "Launched my first digital product today 🛍️", type: "general" },
+  { caption: "Looking to collab on a 'day in the life' style edit 🎥", type: "collab", projectGoal: "Quick turn video" },
+  { caption: "How do you grow a Discord server from scratch?", type: "help" },
+  { caption: "Just wrapped a photo shoot with neon lights 🔦", type: "general" },
+  { caption: "Need someone to help design YouTube channel banner 🎨", type: "collab", projectGoal: "Bold, clean aesthetic" },
+  { caption: "Why does my mic sound staticky on Zoom?", type: "help" }
+];
+
+
+async function seedDemoUserPosts() {
+  const demoUsersSnap = await getDocs(query(collection(db, "users"), where("role", "==", "demo")));
+  const demoUsers = demoUsersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  for (const user of demoUsers) {
+    const postCount = Math.floor(Math.random() * 3) + 2; // 2–4 posts per user
+    const selectedPosts = [...demoPostTemplates]
+      .sort(() => 0.5 - Math.random())
+      .slice(0, postCount);
+
+    for (const post of selectedPosts) {
+      const isFuture = Math.random() < 0.3;
+      const dateOffset = Math.floor(Math.random() * 15) + 1;
+      const createdAt = new Date();
+      createdAt.setDate(createdAt.getDate() + (isFuture ? dateOffset : -dateOffset));
+      const scheduledAt = isFuture ? createdAt : null;
+
+      const likes = Math.floor(Math.random() * 100);
+      const helpful = Math.floor(Math.random() * 20);
+      const interested = Math.floor(Math.random() * 15);
+
+      const docData = {
+        owner: user.id,
+        caption: post.caption,
+        tags: [...(post.caption.match(/#(\w+)/g) || [])].map(t => t.slice(1)),
+        contributors: [],
+        media: [],
+        likes,
+        helpful,
+        interested,
+        views: Math.floor(likes * 2.5),
+        type: post.type,
+        projectGoal: post.projectGoal || null,
+        createdAt,
+        scheduledAt,
+      };
+
+      await addDoc(collection(db, "posts"), docData);
+      console.log(`✅ Seeded post for ${user.displayName || user.id}: "${post.caption}"`);
+    }
+  }
+
+  console.log("📢 Finished seeding demo user posts.");
+}
+
+
+window.addEventListener("DOMContentLoaded", () => {
+  const ENABLE_DEMO_POST_SEEDING = true;
+  if (ENABLE_DEMO_POST_SEEDING) {
+    seedDemoUserPosts().catch(console.error);
+  }
+});
