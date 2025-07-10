@@ -74,6 +74,7 @@ const avatar = document.getElementById("userAvatar");
 
 if (actingAsUser.uid !== currentUser.uid) {
   document.getElementById("impersonationBanner").classList.remove("d-none");
+  currentUser = actingAsUser;
 }
 
 
