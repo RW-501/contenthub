@@ -27,83 +27,65 @@ const storage = getStorage(app);
 
 console.log(" loading POST JS  post area");
 
-
 export function initPostScript() {
   const targetBtn = document.getElementById("mainPostBtn");
-  if (!targetBtn) return; // ✅ Now valid because it's inside a function
+  if (!targetBtn) return;
 
-  // your main post script logic here
   console.log("✅ mainPostBtn found, running post script...");
 
-
-// 🚀 Enhanced Post Composer UI + Functionality (Modernized)
-const composerHTML = `
-  <div id="postComposer" class="border rounded-4 shadow-sm bg-white mb-4 p-3">
-
-    <!-- Profile pic + Post input -->
-    <div class="d-flex align-items-start mb-3">
-      <img  id="postAvatar" src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
-           width="48" height="48" class="rounded-circle me-3" />
-
-      <div class="flex-grow-1">
-        <div contenteditable="true"
-             id="caption"
-             class="form-control empty"
-             data-placeholder="What are you working on? Share an update or request help... ✨"
-             style="min-height: 80px; border-radius: 12px;">
+  // Insert composer UI early
+  const composerHTML = `
+    <div id="postComposer" class="border rounded-4 shadow-sm bg-white mb-4 p-3">
+      <div class="d-flex align-items-start mb-3">
+        <img id="postAvatar" src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
+             width="48" height="48" class="rounded-circle me-3" />
+        <div class="flex-grow-1">
+          <div contenteditable="true"
+               id="caption"
+               class="form-control empty"
+               data-placeholder="What are you working on? Share an update or request help... ✨"
+               style="min-height: 80px; border-radius: 12px;">
+          </div>
         </div>
       </div>
+
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <select id="postType" class="form-select form-select-sm w-auto">
+          <option value="general">📝 General</option>
+          <option value="collab">🤝 Collab Request</option>
+          <option value="help">🆘 Need Help</option>
+        </select>
+
+        <button class="btn btn-outline-secondary btn-sm"
+                onclick="document.getElementById('mediaFile').click()">📎 Add Media</button>
+        <input type="file" id="mediaFile" accept="image/*,video/*" multiple hidden />
+      </div>
+
+      <div id="goalWrapper" class="mb-3" style="display:none;">
+        <input type="text" class="form-control" id="projectGoal"
+               placeholder="What skills or roles are you looking for?" />
+      </div>
+
+      <div id="mediaPreview" class="d-flex flex-wrap gap-2 mb-3"></div>
+
+      <input type="text" class="form-control mb-2"
+             id="contributors"
+             placeholder="Tag collaborators using @username or email..." />
+
+      <input type="datetime-local" id="scheduleTime" class="form-control mb-2" hidden />
+
+      <button id="publishPostBtn" class="btn btn-primary w-100">🚀 Publish</button>
     </div>
+  `;
 
-    <!-- Toolbar: Post type + Upload -->
-    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-
-      <select id="postType" class="form-select form-select-sm w-auto">
-        <option value="general">📝 General</option>
-        <option value="collab">🤝 Collab Request</option>
-        <option value="help">🆘 Need Help</option>
-      </select>
-
-      <button class="btn btn-outline-secondary btn-sm"
-              onclick="document.getElementById('mediaFile').click()">📎 Add Media</button>
-      <input type="file" id="mediaFile" accept="image/*,video/*" multiple hidden />
-    </div>
-
-    <!-- Project Goal (Conditional) -->
-    <div id="goalWrapper" class="mb-3" style="display:none;">
-      <input type="text" class="form-control" id="projectGoal"
-             placeholder="What skills or roles are you looking for?" />
-    </div>
-
-    <!-- Media Preview -->
-    <div id="mediaPreview" class="d-flex flex-wrap gap-2 mb-3"></div>
-
-    <!-- Tag Contributors -->
-    <input type="text" class="form-control mb-2"
-           id="contributors"
-           placeholder="Tag collaborators using @username or email..." />
-
-    <!-- Optional Schedule (Hidden for now) -->
-    <input type="datetime-local" id="scheduleTime" class="form-control mb-2" hidden />
-
-    <!-- Publish -->
-    <button id="publishPostBtn" class="btn btn-primary w-100">🚀 Publish</button>
-  </div>
-`;
-
-// Insert composer
-const wrapper = document.createElement("div");
-wrapper.innerHTML = composerHTML;
-targetBtn.parentNode.insertBefore(wrapper, targetBtn);
-
-const captionBox = document.getElementById('caption');
-captionBox.addEventListener('input', () => {
-  captionBox.classList.toggle('empty', captionBox.innerText.trim() === '');
-});
-
-
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = composerHTML;
+  targetBtn.parentNode.insertBefore(wrapper, targetBtn);
 
   const caption = document.getElementById("caption");
+  const postTypeSelect = document.getElementById("postType");
+  const projectGoalWrapper = document.getElementById("goalWrapper");
+  const captionBox = document.getElementById("caption");
 
   function updatePlaceholderState() {
     const isEmpty = !caption.textContent.trim();
@@ -113,54 +95,54 @@ captionBox.addEventListener('input', () => {
   caption.addEventListener("input", updatePlaceholderState);
   caption.addEventListener("focus", updatePlaceholderState);
   caption.addEventListener("blur", updatePlaceholderState);
-
-  // Initial check
-  updatePlaceholderState()
-
-  const postTypeSelect = document.getElementById("postType");
-const projectGoalWrapper = document.getElementById("goalWrapper");
-
-postTypeSelect.addEventListener("change", () => {
-  const type = postTypeSelect.value;
-
-setTimeout(async () => {
-
-  const avatar = document.getElementById("userAvatar");
-  if (!avatar) {
-    console.warn("⚠️ Avatar element not found.");
-    return;
-  }
-
-  const viewerUserId = avatar.dataset.uid;
-  const viewerDisplayName = avatar.dataset.displayname || "creator";
-  const viewerRole = avatar.dataset.role;
-  const viewerUsername = avatar.dataset.username;
-  const viewerUserPhotoURL = avatar.dataset.photo;
-
-  const postAvatar = document.getElementById("postAvatar");
-  if (postAvatar) postAvatar.src = viewerUserPhotoURL;
-
-  // Build dynamic placeholders using display name
-  const name = viewerDisplayName.split(" ")[0]; // First name only
-  placeholderMap = {
-    general: `What's on your mind, ${name}? ✨`,
-    collab: `Hey ${name}, describe your project and who you're looking for... 🤝`,
-    help: `Need help, ${name}? Explain your issue or what kind of support you need. 🆘`
-  };
-
-  const type = postTypeSelect?.value || "general";
-  caption.setAttribute("data-placeholder", placeholderMap[type]);
   updatePlaceholderState();
-}, 1000);
+
+  let placeholderMap = {};
+  let name = "creator";
+
+  // Delay to allow DOM + avatar data to load
+  setTimeout(() => {
+    const avatar = document.getElementById("userAvatar");
+    if (!avatar) {
+      console.warn("⚠️ Avatar element not found.");
+      return;
+    }
+
+    const viewerDisplayName = avatar.dataset.displayname || avatar.dataset.username || "creator";
+    name = viewerDisplayName.includes("@")
+      ? viewerDisplayName.split("@")[0]
+      : viewerDisplayName.split(" ")[0];
+
+    const viewerUserPhotoURL = avatar.dataset.photo;
+    const postAvatar = document.getElementById("postAvatar");
+    if (postAvatar && viewerUserPhotoURL) postAvatar.src = viewerUserPhotoURL;
+
+    // Update placeholderMap dynamically using first name
+    placeholderMap = {
+      general: `What's on your mind, ${name}? ✨`,
+      collab: `Hey ${name}, describe your project and who you're looking for... 🤝`,
+      help: `Need help, ${name}? Explain your issue or what kind of support you need. 🆘`
+    };
+
+    // Set initial placeholder
+    const type = postTypeSelect.value || "general";
+    caption.setAttribute("data-placeholder", placeholderMap[type]);
+    updatePlaceholderState();
+  }, 1000);
+
+  // Handle post type change
+  postTypeSelect.addEventListener("change", () => {
+    const type = postTypeSelect.value;
+
+    if (placeholderMap[type]) {
+      caption.setAttribute("data-placeholder", placeholderMap[type]);
+      updatePlaceholderState();
+    }
+
+    projectGoalWrapper.style.display = (type === "collab" || type === "help") ? "block" : "none";
+  });
 
 
-  // Show/hide the project goal input
-  if (type === "collab" || type === "help") {
-    projectGoalWrapper.style.display = "block";
-  } else {
-    projectGoalWrapper.style.display = "none";
-  }
-});
 
 // Media Handling
 let selectedFiles = [];
