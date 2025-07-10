@@ -112,7 +112,7 @@ function createCollabCard(data, collabId) {
 
   card.innerHTML = `
     <strong>${data.title || "Untitled Collab"}</strong><br/>
-    <small>Requested by <a href="/pages/profile.html?uid=${data.owner}">Creator</a></small><br/>
+    <small>Requested by <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${data.owner}">Creator</a></small><br/>
     <p>${data.description || ""}</p>
     <div class="progress my-2" style="height: 20px;">
       <div class="progress-bar" role="progressbar" style="width: ${progress}%">${progress}%</div>
@@ -252,7 +252,7 @@ async function createPostCard(post, postId) {
     <div class="card-body">
       <div class="d-flex align-items-center mb-2">
         <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
-        <a href="/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">${userData.displayName || 'Unknown User'}</a>
+        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">${userData.displayName || 'Unknown User'}</a>
       </div>
       <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
       <small class="text-muted d-block mb-2">${timeAgo} • <span id="like-count-${postId}">${post.likes || 0}</span> Likes • ${post.views || 0} Views</small>

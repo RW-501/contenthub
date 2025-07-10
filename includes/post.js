@@ -40,8 +40,13 @@ export function initPostScript() {
 const composerHTML = `
   <div id="postComposer" class="p-4 border rounded-4 shadow bg-white mb-4">
     <div class="d-flex align-items-start mb-3">
-      <div contenteditable="true" id="caption" class="form-control" style="min-height:100px; border-radius:12px;" placeholder="What are you creating today? Share it with the world... ✨"></div>
-    </div>
+<div contenteditable="true"
+     id="caption"
+     class="form-control empty"
+     data-placeholder="What are you looking for in your next project?">
+</div>
+
+</div>
 
     <div id="uploadArea" class="border border-2 rounded-3 p-4 text-center bg-light mb-3">
       <p class="text-muted mb-1">📁 Drag & drop or <span class="text-primary text-decoration-underline" style="cursor:pointer;" onclick="document.getElementById('mediaFile').click()">browse</span> to upload media</p>
@@ -51,7 +56,7 @@ const composerHTML = `
 
     <input type="text" class="form-control mb-2" id="contributors" placeholder="Tag collaborators using @username or their email..." />
 
-    <button class="btn btn-outline-secondary w-100 mb-2" onclick="document.getElementById('scheduleTime').click()">📅 Schedule Post</button>
+    <button hidden class="btn btn-outline-secondary w-100 mb-2" onclick="document.getElementById('scheduleTime').click()">📅 Schedule Post</button>
     <input type="datetime-local" id="scheduleTime" class="form-control mb-2" hidden />
 
     <button id="publishPostBtn" class="btn btn-primary w-100">🚀 Publish Post</button>
@@ -67,6 +72,23 @@ const captionBox = document.getElementById('caption');
 captionBox.addEventListener('input', () => {
   captionBox.classList.toggle('empty', captionBox.innerText.trim() === '');
 });
+
+
+
+
+  const caption = document.getElementById("caption");
+
+  function updatePlaceholderState() {
+    const isEmpty = !caption.textContent.trim();
+    caption.classList.toggle("empty", isEmpty);
+  }
+
+  caption.addEventListener("input", updatePlaceholderState);
+  caption.addEventListener("focus", updatePlaceholderState);
+  caption.addEventListener("blur", updatePlaceholderState);
+
+  // Initial check
+  updatePlaceholderState()
 
 // Media Handling
 let selectedFiles = [];
