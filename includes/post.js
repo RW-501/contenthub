@@ -244,6 +244,8 @@ await addDoc(collection(db, "posts"), {
   contributors,
   media: uploaded,
   likes: 0,
+  helpful: 0,
+  interested: 0,
   views: 0,
   type: postTypeSelect.value,  // 🔥 new field
   projectGoal: projectGoal || null,

@@ -1649,9 +1649,18 @@ form.addEventListener("submit", async (e) => {
   const reviewText = document.getElementById("reviewText").value.trim();
   const projectLink = document.getElementById("projectLink").value.trim();
 
+
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
+
   const reviewData = {
     fromUserId: currentUser.uid,
     toUserId,
+    fromUserPhotoURL: viewerUserPhotoURL,
     rating,
     review: reviewText,
     collabType,
@@ -1660,13 +1669,6 @@ form.addEventListener("submit", async (e) => {
     confirmedByTarget: false,
     approved: false
   };
-    const avatar = document.getElementById("userAvatar");
-const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
-const viewerRole = avatar.dataset.role;
-const viewerUsername = avatar.dataset.username;
-const viewerUserPhotoURL = avatar.dataset.photo;
-
   await sendNotification({
     toUid: toUserId,
     fromUid: viewerUserId,

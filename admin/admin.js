@@ -2709,3 +2709,239 @@ if (ENABLE_PROJECT_SEEDING) {
 }
 
 */
+
+
+
+async function seedDemoUserReviews() {
+  const demoUserIds = await getDemoUserIds();
+
+const sampleReviews = [
+  {
+    rating: 5,
+    review: "Amazing collaborator! Communicated clearly and delivered on time.",
+    collabType: "Video Project",
+    projectLink: "https://demo-contenthub.com/project1"
+  },
+  {
+    rating: 4,
+    review: "Great work overall. A few bumps but we made it through!",
+    collabType: "Podcast Interview",
+    projectLink: "https://demo-contenthub.com/project2"
+  },
+  {
+    rating: 5,
+    review: "Super creative and motivated—loved working together!",
+    collabType: "IG Reel Collaboration",
+    projectLink: "https://demo-contenthub.com/project3"
+  },
+  {
+    rating: 4,
+    review: "Responsive and helpful. Would team up again!",
+    collabType: "Music Video Edit",
+    projectLink: "https://demo-contenthub.com/project4"
+  },
+  {
+    rating: 5,
+    review: "Went above and beyond! Top-tier professionalism.",
+    collabType: "Brand Deal",
+    projectLink: "https://demo-contenthub.com/project5"
+  },
+  {
+    rating: 5,
+    review: "Their energy brought the whole collab to life. So fun to work with!",
+    collabType: "YouTube Collab",
+    projectLink: "https://demo-contenthub.com/project6"
+  },
+  {
+    rating: 4,
+    review: "Loved their editing style. Clean transitions and creative cuts.",
+    collabType: "Short Film",
+    projectLink: "https://demo-contenthub.com/project7"
+  },
+  {
+    rating: 5,
+    review: "Helped boost my IG engagement big time. A real strategist.",
+    collabType: "Instagram Takeover",
+    projectLink: "https://demo-contenthub.com/project8"
+  },
+  {
+    rating: 5,
+    review: "Fast turnaround and clear communication. Would collab again.",
+    collabType: "TikTok Duet",
+    projectLink: "https://demo-contenthub.com/project9"
+  },
+  {
+    rating: 4,
+    review: "Delivered quality work, even under pressure. Respect!",
+    collabType: "Ad Campaign",
+    projectLink: "https://demo-contenthub.com/project10"
+  },
+  {
+    rating: 5,
+    review: "Concept to launch in under a week. Seriously impressive!",
+    collabType: "Mini Course Launch",
+    projectLink: "https://demo-contenthub.com/project11"
+  },
+  {
+    rating: 5,
+    review: "They made the content go viral. Real marketing chops!",
+    collabType: "Viral Challenge",
+    projectLink: "https://demo-contenthub.com/project12"
+  },
+  {
+    rating: 4,
+    review: "A solid partner and great with feedback loops.",
+    collabType: "Reels Editing",
+    projectLink: "https://demo-contenthub.com/project13"
+  },
+  {
+    rating: 5,
+    review: "Every clip they sent was gold. Excellent creative eye.",
+    collabType: "Highlight Reel",
+    projectLink: "https://demo-contenthub.com/project14"
+  },
+  {
+    rating: 5,
+    review: "Smart, chill, and super organized. Would collab again.",
+    collabType: "Live Stream Event",
+    projectLink: "https://demo-contenthub.com/project15"
+  },
+  {
+    rating: 5,
+    review: "Smoothest collab I've had in months. We crushed it.",
+    collabType: "Tutorial Series",
+    projectLink: "https://demo-contenthub.com/project16"
+  },
+  {
+    rating: 4,
+    review: "Very responsive and supportive during content creation.",
+    collabType: "Behind-the-Scenes Feature",
+    projectLink: "https://demo-contenthub.com/project17"
+  },
+  {
+    rating: 5,
+    review: "They added unexpected value to every phase of the project.",
+    collabType: "Brand Partnership",
+    projectLink: "https://demo-contenthub.com/project18"
+  },
+  {
+    rating: 4,
+    review: "Tons of insight and experience. Really elevated the content.",
+    collabType: "Course Collaboration",
+    projectLink: "https://demo-contenthub.com/project19"
+  },
+  {
+    rating: 5,
+    review: "Professional, reliable, and full of creative ideas.",
+    collabType: "Content Planning Session",
+    projectLink: "https://demo-contenthub.com/project20"
+  },
+  {
+    rating: 5,
+    review: "They crushed the voiceover and visuals. 🔥🔥🔥",
+    collabType: "Promo Video",
+    projectLink: "https://demo-contenthub.com/project21"
+  },
+  {
+    rating: 5,
+    review: "Quick, clean, and on-brand. Perfect execution.",
+    collabType: "Media Kit Design",
+    projectLink: "https://demo-contenthub.com/project22"
+  },
+  {
+    rating: 4,
+    review: "Great communicator and really got the brand tone.",
+    collabType: "Podcast Guest Spot",
+    projectLink: "https://demo-contenthub.com/project23"
+  },
+  {
+    rating: 5,
+    review: "Brought great vibes and ideas to our shoot day.",
+    collabType: "Photoshoot Session",
+    projectLink: "https://demo-contenthub.com/project24"
+  },
+  {
+    rating: 5,
+    review: "Scriptwriting was tight and witty—perfect for the audience.",
+    collabType: "Script Collaboration",
+    projectLink: "https://demo-contenthub.com/project25"
+  },
+  {
+    rating: 4,
+    review: "Tuned into my needs and helped shape the final product.",
+    collabType: "Workshop Co-Host",
+    projectLink: "https://demo-contenthub.com/project26"
+  },
+  {
+    rating: 5,
+    review: "A powerhouse on camera. Charisma + clarity = 💯",
+    collabType: "Live Collab Stream",
+    projectLink: "https://demo-contenthub.com/project27"
+  },
+  {
+    rating: 4,
+    review: "Solid editing work and great use of transitions.",
+    collabType: "Social Media Ad",
+    projectLink: "https://demo-contenthub.com/project28"
+  },
+  {
+    rating: 5,
+    review: "Creative genius and super humble. Rare combo.",
+    collabType: "Creative Direction",
+    projectLink: "https://demo-contenthub.com/project29"
+  },
+  {
+    rating: 5,
+    review: "Helped with outreach and content delivery. MVP.",
+    collabType: "Community Campaign",
+    projectLink: "https://demo-contenthub.com/project30"
+  }
+];
+
+
+  for (const toUserId of demoUserIds) {
+    const fromUserPool = demoUserIds.filter(id => id !== toUserId);
+    const fromUsersShuffled = fromUserPool.sort(() => 0.5 - Math.random());
+    const selectedFromUsers = fromUsersShuffled.slice(0, Math.floor(Math.random() * 2) + 2); // 2–3 reviews
+
+    for (const fromUserId of selectedFromUsers) {
+      // Fetch fromUser profile data
+      const fromSnap = await getDoc(doc(db, "users", fromUserId));
+      if (!fromSnap.exists()) continue;
+      const fromUserData = fromSnap.data();
+
+      // Pick random review template
+      const review = sampleReviews[Math.floor(Math.random() * sampleReviews.length)];
+
+      const reviewData = {
+        fromUserId,
+        toUserId,
+        fromUserPhotoURL: fromUserData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
+        rating: review.rating,
+        review: review.review,
+        collabType: review.collabType,
+        projectLink: review.projectLink,
+        submittedAt: Timestamp.now(),
+        confirmedByTarget: false,
+        approved: true
+      };
+
+      await addDoc(collection(db, `users/${toUserId}/reviews`), reviewData);
+      console.log(`✅ Review from ${fromUserId} ➡ ${toUserId}`);
+    }
+  }
+
+  console.log("🎯 All demo users seeded with reviews.");
+}
+
+
+
+const ENABLE_REVIEW_SEEDING = true;
+
+if (ENABLE_REVIEW_SEEDING) {
+  window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      seedDemoUserReviews().catch(console.error);
+    }, 1000); // ⏱ wait for Firebase auth/init
+  });
+}
