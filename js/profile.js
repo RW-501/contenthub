@@ -1804,7 +1804,7 @@ async function loadMentionList() {
     return { uid: doc.id, displayName: data.displayName || "Unknown" };
   });
 }
-
+window.loadMentionList = loadMentionList;
 
   const descInput = document.getElementById("projectDescription");
   if (!descInput) return;
