@@ -42,7 +42,7 @@ const composerHTML = `
 
     <!-- Profile pic + Post input -->
     <div class="d-flex align-items-start mb-3">
-      <img src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
+      <img  id="postAvatar" src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
            width="48" height="48" class="rounded-circle me-3" />
 
       <div class="flex-grow-1">
@@ -103,7 +103,6 @@ captionBox.addEventListener('input', () => {
 
 
 
-
   const caption = document.getElementById("caption");
 
   function updatePlaceholderState() {
@@ -124,14 +123,37 @@ const projectGoalWrapper = document.getElementById("goalWrapper");
 postTypeSelect.addEventListener("change", () => {
   const type = postTypeSelect.value;
 
-  // Update placeholder text dynamically
-  const placeholderMap = {
-    general: "What are you creating today? Share it with the world... ✨",
-    collab: "Looking for collaborators? Describe your project and who you're looking for...",
-    help: "Need help on a project? Describe the issue or support you need..."
+setTimeout(async () => {
+  if (isOwnerView) return;
+
+  const avatar = document.getElementById("userAvatar");
+  if (!avatar) {
+    console.warn("⚠️ Avatar element not found.");
+    return;
+  }
+
+  const viewerUserId = avatar.dataset.uid;
+  const viewerDisplayName = avatar.dataset.displayname || "creator";
+  const viewerRole = avatar.dataset.role;
+  const viewerUsername = avatar.dataset.username;
+  const viewerUserPhotoURL = avatar.dataset.photo;
+
+  const postAvatar = document.getElementById("postAvatar");
+  if (postAvatar) postAvatar.src = viewerUserPhotoURL;
+
+  // Build dynamic placeholders using display name
+  const name = viewerDisplayName.split(" ")[0]; // First name only
+  placeholderMap = {
+    general: `What's on your mind, ${name}? ✨`,
+    collab: `Hey ${name}, describe your project and who you're looking for... 🤝`,
+    help: `Need help, ${name}? Explain your issue or what kind of support you need. 🆘`
   };
+
+  const type = postTypeSelect?.value || "general";
   caption.setAttribute("data-placeholder", placeholderMap[type]);
   updatePlaceholderState();
+}, 1000);
+
 
   // Show/hide the project goal input
   if (type === "collab" || type === "help") {

@@ -48,9 +48,21 @@ function generateUsername(base) {
     .replace(/[^a-z0-9]/g, '')     // remove non-alphanumeric chars
     .slice(0, 8);                 // trim to 8 characters
 }
+function getCleanName(displayName, email) {
+  if (displayName && displayName.includes(" ")) {
+    return displayName.split(" ")[0]; // get first name
+  } else if (displayName && displayName.includes("@")) {
+    return displayName.split("@")[0]; // email prefix
+  } else if (displayName) {
+    return displayName;
+  } else if (email) {
+    return email.split("@")[0]; // fallback to email prefix
+  }
+  return "user";
+}
 
 const userData = { 
-  displayName: user.displayName || user.email || "Unnamed",
+  displayName: getCleanName(user.displayName, user.email) || "Unnamed",
   username: generateUsername(rawName),
   email: user.email || null,
   photoURL: user.photoURL || "",
