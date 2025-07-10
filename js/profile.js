@@ -1796,15 +1796,6 @@ document.getElementById("openReviewModalBtn").addEventListener("click", () => {
   openReviewModal();
 });
 
-  
-async function loadMentionList() {
-  const usersSnap = await getDocs(collection(db, "users"));
-  mentionList = usersSnap.docs.map(doc => {
-    const data = doc.data();
-    return { uid: doc.id, displayName: data.displayName || "Unknown" };
-  });
-}
-window.loadMentionList = loadMentionList;
 
   const descInput = document.getElementById("projectDescription");
   if (!descInput) return;
@@ -1880,6 +1871,8 @@ async function loadProjectHistory(userId) {
   const container = document.getElementById("projectHistoryContainer");
   container.innerHTML = "";
 
+  await loadMentionList(); // ⏳ Ensure mentionList is loaded first
+
   const q = query(
     collection(db, `users/${userId}/projectHistory`),
     orderBy("createdAt", "desc")
@@ -1894,33 +1887,40 @@ async function loadProjectHistory(userId) {
       </div>`;
     return;
   }
-    // Call this once on page load
-loadMentionList();
 
   snap.forEach(doc => {
     const p = doc.data();
     const videoEmbed = getVideoEmbedHTML(p.url);
+    const taggedHtml = renderTaggedUsers(p.taggedUserIds);
 
-const taggedHtml = renderTaggedUsers(p.taggedUserIds);
-
-const card = `
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5 class="card-title">${p.title}</h5>
-      <p class="card-text">${p.description}</p>
-      <div>${taggedHtml}</div>
-      <div class="ratio ratio-16x9">${videoEmbed}</div>
-    </div>
-  </div>`;
-
+    const card = `
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">${p.title}</h5>
+          <p class="card-text">${p.description}</p>
+          <div>${taggedHtml}</div>
+          <div class="ratio ratio-16x9">${videoEmbed}</div>
+        </div>
+      </div>`;
+      
     container.insertAdjacentHTML("beforeend", card);
   });
 }
+
 
 window.loadProjectHistory = loadProjectHistory;
 
 
 
+  
+async function loadMentionList() {
+  const usersSnap = await getDocs(collection(db, "users"));
+  mentionList = usersSnap.docs.map(doc => {
+    const data = doc.data();
+    return { uid: doc.id, displayName: data.displayName || "Unknown" };
+  });
+}
+window.loadMentionList = loadMentionList;
 
 function showMentionDropdown(query, caretRect) {
   const dropdown = document.getElementById("mentionsDropdown");
@@ -1957,11 +1957,12 @@ function extractTaggedUserIds(text) {
 
 
 function renderTaggedUsers(taggedUserIds) {
-  if (!taggedUserIds?.length) return "";
+  if (!Array.isArray(taggedUserIds) || !taggedUserIds.length) return "";
+  if (!Array.isArray(mentionList) || !mentionList.length) return "";
+
   return taggedUserIds.map(uid => {
     const user = mentionList.find(u => u.uid === uid);
     if (!user) return "";
     return `<a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${uid}" class="badge bg-primary me-1">@${user.displayName}</a>`;
   }).join("");
 }
-
