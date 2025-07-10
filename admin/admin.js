@@ -2916,6 +2916,7 @@ const sampleReviews = [
       const reviewData = {
         fromUserId,
         toUserId,
+        fromUserDisplayName:fromUserData.displayName,
         fromUserPhotoURL: fromUserData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
         rating: review.rating,
         review: review.review,

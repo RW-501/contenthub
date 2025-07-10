@@ -1660,6 +1660,7 @@ const viewerUserPhotoURL = avatar.dataset.photo;
   const reviewData = {
     fromUserId: currentUser.uid,
     toUserId,
+    fromUserDisplayName: viewerDisplayName,
     fromUserPhotoURL: viewerUserPhotoURL,
     rating,
     review: reviewText,
@@ -1710,13 +1711,26 @@ async function loadUserReviews(toUserId) {
     const r = doc.data();
     totalRating += r.rating || 0;
 
-    container.innerHTML += `
-      <div class="border rounded p-3 mb-3">
-        <div class="fw-bold">⭐ ${r.rating} – ${r.collabType}</div>
-        <p>${r.review}</p>
-        ${r.projectLink ? `<a href="${r.projectLink}" target="_blank">🔗 Project</a>` : ""}
-        <div class="text-muted small">Submitted on ${r.submittedAt?.toDate().toLocaleDateString() || "Unknown"}</div>
-      </div>`;
+    
+container.innerHTML += `
+  <div class="border rounded p-3 mb-3">
+    <div class="d-flex align-items-center mb-2">
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${r.fromUserId}" class="d-flex align-items-center text-decoration-none">
+        <img src="${r.fromUserPhotoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" 
+             width="50" height="50" class="rounded-circle me-2" alt="${r.fromUserDisplayName}" />
+        <strong>${r.fromUserDisplayName || "Anonymous"}</strong>
+      </a>
+    </div>
+
+    <div class="fw-bold">⭐ ${r.rating} – ${r.collabType}</div>
+    <p>${r.review}</p>
+    ${r.projectLink ? `<a href="${r.projectLink}" target="_blank">🔗 Project</a>` : ""}
+    <div class="text-muted small">
+      Submitted on ${r.submittedAt?.toDate().toLocaleDateString() || "Unknown"}
+    </div>
+  </div>
+`;
+
   });
 
   const avgRating = (totalRating / snap.size).toFixed(1);
