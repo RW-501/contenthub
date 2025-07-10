@@ -124,7 +124,6 @@ postTypeSelect.addEventListener("change", () => {
   const type = postTypeSelect.value;
 
 setTimeout(async () => {
-  if (isOwnerView) return;
 
   const avatar = document.getElementById("userAvatar");
   if (!avatar) {
