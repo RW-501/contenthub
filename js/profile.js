@@ -59,11 +59,13 @@ if (actingAsUser.uid !== currentUser.uid) {
   document.getElementById("impersonationBanner").classList.remove("d-none");
   currentUser = actingAsUser;
 
-  
-const avatar = document.getElementById("userAvatar");
+setTimeout(() => {
+  const avatar = document.getElementById("userAvatar");
+  if (!avatar) {
+    console.warn("⚠️ Avatar element not found.");
+    return;
+  }
 
-  // Cache in DOM
-  //avatar.dataset.uid = user.uid;
   avatar.dataset.role = userData.role || "";
   avatar.dataset.displayname = userData.displayName || "";
   avatar.dataset.photo = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
@@ -74,7 +76,11 @@ const avatar = document.getElementById("userAvatar");
   avatar.dataset.pronouns = userData.pronouns || "";
 
   // Set avatar image
-  document.getElementById("avatarImg").src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  const avatarImg = document.getElementById("avatarImg");
+  if (avatarImg) {
+    avatarImg.src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  }
+}, 500);
 
 
 }
@@ -1763,6 +1769,12 @@ if (videoUrl.includes("firebasestorage.googleapis.com") || videoUrl.match(/\.(mp
 
   return `<a href="${videoUrl}" target="_blank">${videoUrl}</a>`;
 }
+
+
+
+
+let mentionList; 
+
 document.addEventListener("DOMContentLoaded", () => {
 
   // Open modal
@@ -1779,7 +1791,6 @@ document.getElementById("projectLink").addEventListener("input", () => {
   preview.innerHTML = getVideoEmbedHTML(url);
 });
 
-let mentionList; 
 
 document.getElementById("openReviewModalBtn").addEventListener("click", () => {
   openReviewModal();
