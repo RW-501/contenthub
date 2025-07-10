@@ -246,7 +246,7 @@ export async function markAllNotificationsRead() {
   await batch.commit();
 }
 
-
+window.markAllNotificationsRead = markAllNotificationsRead();
 /*
 
 import { sendNotification } from "https://rw-501.github.io/contenthub/includes/notifications.js";
