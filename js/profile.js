@@ -108,12 +108,14 @@ document.getElementById("availabilityText").innerHTML = userData.availability ? 
   const avgRating = userData.ratingCount > 0
     ? (userData.ratingTotal / userData.ratingCount).toFixed(1)
     : "No ratings yet";
-
-document.getElementById("bioText").innerText = userData.bio || '';
   document.getElementById("userRatingyText").innerHTML = `
-      <span class="badge bg-warning text-dark">⭐ ${avgRating}</span>
+      <span class="badge bg-secondary text-light">⭐ ${avgRating}</span>
     </div>
   `;
+document.getElementById("bioText").innerText = userData.bio || '';
+
+
+
 
 
 // Location (as a link to creators filtered by location if available)
