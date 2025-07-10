@@ -1811,8 +1811,6 @@ async function loadMentionList() {
 
   descInput.addEventListener("input", (e) => {
 
-    // Call this once on page load
-loadMentionList();
 
     const cursorPos = descInput.selectionStart;
     const textBeforeCursor = descInput.value.slice(0, cursorPos);
@@ -1896,6 +1894,8 @@ async function loadProjectHistory(userId) {
       </div>`;
     return;
   }
+    // Call this once on page load
+loadMentionList();
 
   snap.forEach(doc => {
     const p = doc.data();
