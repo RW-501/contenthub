@@ -179,9 +179,15 @@ users.forEach(docSnap => {
   const status = u.status || "active";
 
   const actionButtons = `
-    <button class="btn btn-sm btn-outline-primary me-1" onclick="openActionModal('${id}')">⚙ Actions</button>
+    <button class="usersCard btn btn-sm btn-outline-primary me-1" onclick="openActionModal('${id}')">⚙ Actions</button>
 ${role === 'demo' ? `<button class="btn btn-sm btn-outline-success" onclick="editUserProfile('${id}')">✏️ Edit</button>` : ''}
   `;
+
+
+if (u.featured) {
+  usersCard.classList.add("border-warning");
+  usersCard.innerHTML += `<div class="badge bg-warning text-dark">⭐ Featured</div>`;
+}
 
   const row = `
     <tr>
@@ -198,6 +204,9 @@ ${role === 'demo' ? `<button class="btn btn-sm btn-outline-success" onclick="edi
 
 }
 window.loadUsers = loadUsers;
+
+
+
 
 // Open Modal
 function openActionModal(userId) {
@@ -217,6 +226,19 @@ function openActionModal(userId) {
 
 const username = userData.username?.replace("@", "") || "";
 
+const featureBtn = document.getElementById("featureUserBtn");
+featureBtn.onclick = async () => {
+  if (!userId) return alert("Missing user ID.");
+  try {
+await updateDoc(doc(db, "users", userId), {
+  featured: userData.featured ? false : true
+});
+    alert("🎉 Creator marked as featured!");
+  } catch (err) {
+    console.error("Error featuring user:", err);
+    alert("❌ Failed to feature creator.");
+  }
+};
 
   // Avatar and name
 const avatarImg = document.getElementById("userAvatarView");
