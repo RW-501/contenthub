@@ -286,7 +286,7 @@ async function createPostCard(post, postId) {
 
       <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
 
-      <small class="text-muted d-block mb-2">
+      <small class="d-block mb-2">
         ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes • ${post.views || 0} Views
       </small>
 
