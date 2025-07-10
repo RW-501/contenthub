@@ -71,6 +71,8 @@ export async function initLiveNotifications() {
   loadingMore = false;
 }
 
+window.loadNotifications = loadNotifications;
+
   window.dismissNotif = async (refPath) => {
     const notifRef = doc(db, refPath);
     await updateDoc(notifRef, { status: "removed", read: true });
@@ -182,19 +184,21 @@ document.getElementById("toggleGroupMode").addEventListener("click", () => {
   loadNotifications(true);
 });
 
-    console.log("✅ Notification ???????????????/");
-
-}
-
-window.initLiveNotifications = initLiveNotifications();
 
   setTimeout(async () => {
 document.getElementById("notifBellBtn").addEventListener("click", () => {
- initLiveNotifications();
    loadNotifications(true);
 
 });
   }, 2000); // ⏱ 2 second delay
+    console.log("✅ Notification ???????????????/");
+
+}
+
+window.initLiveNotifications = initLiveNotifications;
+
+
+ initLiveNotifications();
 
 export const NOTIFICATION_TEMPLATES = {
   likePost: (user) => `🔥 ${user} liked your post.`,
