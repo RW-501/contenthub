@@ -49,23 +49,6 @@ if (currentUser && viewingUserId !== currentUser.uid && userData?.role === "demo
     actingAsUser = { ...user, uid: viewingUserId }; // simulate demo user
 
 
-const avatar = document.getElementById("userAvatar");
-
-  // Cache in DOM
-  //avatar.dataset.uid = user.uid;
-  avatar.dataset.role = currentUserData.role || "";
-  avatar.dataset.displayname = currentUserData.displayName || "";
-  avatar.dataset.photo = currentUserData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
-  avatar.dataset.username = currentUserData.username || "";
-  avatar.dataset.email = currentUserData.email || "";
-  avatar.dataset.location = currentUserData.userLocation?.city || "";
-  avatar.dataset.niches = (currentUserData.niches || []).join(",");
-  avatar.dataset.pronouns = currentUserData.pronouns || "";
-
-  // Set avatar image
-  document.getElementById("avatarImg").src = currentUserData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
-
-
 
 
   }
@@ -75,6 +58,25 @@ const avatar = document.getElementById("userAvatar");
 if (actingAsUser.uid !== currentUser.uid) {
   document.getElementById("impersonationBanner").classList.remove("d-none");
   currentUser = actingAsUser;
+
+  
+const avatar = document.getElementById("userAvatar");
+
+  // Cache in DOM
+  //avatar.dataset.uid = user.uid;
+  avatar.dataset.role = userData.role || "";
+  avatar.dataset.displayname = userData.displayName || "";
+  avatar.dataset.photo = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  avatar.dataset.username = userData.username || "";
+  avatar.dataset.email = userData.email || "";
+  avatar.dataset.location = userData.userLocation?.city || "";
+  avatar.dataset.niches = (userData.niches || []).join(",");
+  avatar.dataset.pronouns = userData.pronouns || "";
+
+  // Set avatar image
+  document.getElementById("avatarImg").src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+
+
 }
 
 
