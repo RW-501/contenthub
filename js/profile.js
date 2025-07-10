@@ -80,7 +80,7 @@ setTimeout(() => {
   if (avatarImg) {
     avatarImg.src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
   }
-}, 500);
+}, 900);
 
 
 }
