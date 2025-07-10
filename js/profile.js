@@ -585,35 +585,56 @@ if (mediaUrl) {
     const createdAt = post.createdAt?.toDate?.() || new Date();
     const timeAgo = timeSince(createdAt.getTime());
 
-    card.innerHTML = `
-      ${mediaHTML}
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <img src="${photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
-          <a href="/pages/profile.html?uid=${uid}" class="fw-bold text-decoration-none">${displayName}</a>
-        </div>
+card.innerHTML = `
+  ${mediaHTML}
+  <div class="card-body">
+    <div class="d-flex align-items-center mb-2">
+      <img src="${photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
+           class="creator-avata rounded-circle me-2"
+           width="40" height="40" />
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${uid}"
+         class="fw-bold text-decoration-none">${displayName}</a>
+    </div>
 
-        <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+    <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
 
-        <small class="text-muted d-block mb-2">${timeAgo} • 
-          <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes • 
-          ${post.views || 0} Views
-        </small>
+    <small class="text-muted d-block mb-2">
+      ${timeAgo} • 
+      <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes • 
+      ${post.views || 0} Views
+    </small>
 
-        <button class="btn btn-sm btn-outline-danger" id="like-btn-${docSnap.id}">
-          ❤️ Like
-        </button>
-      </div>
-    `;
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-sm btn-outline-danger" id="like-btn-${docSnap.id}">❤️ Like</button>
+      <button class="btn btn-sm btn-outline-success" id="helpful-btn-${docSnap.id}">🙌 Helpful</button>
+      <button class="btn btn-sm btn-outline-info" id="interested-btn-${docSnap.id}">⭐ Interested</button>
+    </div>
+  </div>
+`;
 
-    const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
-    const likeCountEl = card.querySelector(`#like-count-${docSnap.id}`);
 
-    likeBtn.addEventListener("click", async () => {
-      const postRef = doc(db, "posts", docSnap.id);
-      await updateDoc(postRef, { likes: increment(1) });
-      likeCountEl.textContent = (parseInt(likeCountEl.textContent) || 0) + 1;
-    });
+const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
+const likeCountEl = card.querySelector(`#like-count-${docSnap.id}`);
+const helpfulBtn = card.querySelector(`#helpful-btn-${docSnap.id}`);
+const interestedBtn = card.querySelector(`#interested-btn-${docSnap.id}`);
+
+// ❤️ Like button logic
+likeBtn.addEventListener("click", async () => {
+  const postRef = doc(db, "posts", docSnap.id);
+  await updateDoc(postRef, { likes: increment(1) });
+  likeCountEl.textContent = (parseInt(likeCountEl.textContent) || 0) + 1;
+});
+
+// 🙌 Helpful button logic
+helpfulBtn.addEventListener("click", () =>
+  reactToPost(docSnap.id, "helpful", post.owner, post.caption)
+);
+
+// ⭐ Interested button logic
+interestedBtn.addEventListener("click", () =>
+  reactToPost(docSnap.id, "interested", post.owner, post.caption)
+);
+
 
     postGrid.appendChild(card);
   }
@@ -755,15 +776,49 @@ window.requestToJoin = requestToJoin;
 // Load Analytics
 async function loadAnalytics(uid) {
   const list = document.getElementById("analyticsList");
+  list.innerHTML = `<div class="alert alert-info text-center">Loading...</div>`;
+
   const q = query(collection(db, "posts"), where("owner", "==", uid));
   const snapshot = await getDocs(q);
-  const posts = snapshot.docs.map(doc => doc.data());
-  const sorted = posts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-  list.innerHTML = "";
+
+  if (snapshot.empty) {
+    list.innerHTML = `<div class="alert alert-info text-center">No posts yet.</div>`;
+    return;
+  }
+
+  const posts = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+
+  // Sort by total engagement (likes + helpful + interested)
+  const sorted = posts.sort((a, b) =>
+    ((b.likes || 0) + (b.helpful || 0) + (b.interested || 0)) -
+    ((a.likes || 0) + (a.helpful || 0) + (a.interested || 0))
+  );
+
+  list.innerHTML = ""; // Clear before render
+
   sorted.slice(0, 5).forEach(post => {
+    const { caption = "", likes = 0, helpful = 0, interested = 0 } = post;
+
     const item = document.createElement("li");
-    item.className = "list-group-item";
-    item.innerText = `${post.caption || 'Post'} - Likes: ${post.likes || 0}`;
+    item.className = "list-group-item d-flex justify-content-between align-items-start";
+
+    const displayCaption = caption.length > 60 ? caption.slice(0, 60) + "…" : caption;
+
+    item.innerHTML = `
+      <div class="me-auto">
+        <div class="fw-bold">${displayCaption || "Untitled Post"}</div>
+        <small class="text-muted">Post ID: ${post.id}</small>
+      </div>
+      <div class="text-end">
+        <span class="badge bg-danger me-1">❤️ ${likes}</span>
+        <span class="badge bg-success me-1">🙌 ${helpful}</span>
+        <span class="badge bg-info text-dark">⭐ ${interested}</span>
+      </div>
+    `;
+
     list.appendChild(item);
   });
 }
@@ -1660,62 +1715,6 @@ async function loadUserReviews(toUserId) {
 
 window.loadUserReviews = loadUserReviews;
 
-/*
-async function submitReview() {
-  const targetUserId = document.getElementById("reviewTargetUserId").value;
-  const reviewerId = auth.currentUser.uid;
-  const reviewRef = collection(db, "reviews");
-
-  // Check for existing recent review
-  const recentQuery = query(
-    reviewRef,
-    where("targetUserId", "==", targetUserId),
-    where("reviewerId", "==", reviewerId),
-    orderBy("timestamp", "desc"),
-    limit(1)
-  );
-  const snapshot = await getDocs(recentQuery);
-  const recentReview = snapshot.docs[0];
-
-  if (recentReview) {
-    const lastTime = recentReview.data().timestamp?.toDate?.();
-    const now = new Date();
-    const diff = (now - lastTime) / (1000 * 60 * 60 * 24); // days
-    if (diff < 30) {
-      alert("You can only leave one review per user every 30 days.");
-      return;
-    }
-  }
-
-  // Proceed with submission
-  const rating = parseInt(document.getElementById("reviewRating").value);
-  const text = document.getElementById("reviewText").value.trim();
-  const type = document.getElementById("collabType").value.trim();
-  const projectLink = document.getElementById("projectLink").value.trim();
-
-  await addDoc(reviewRef, {
-    reviewerId,
-    targetUserId,
-    rating,
-    text,
-    type,
-    projectLink,
-    timestamp: serverTimestamp(),
-    confirmedByTarget: false,
-    approved: false
-  });
-
-  showModal({
-    title: "Review Submitted",
-    message: "Your review was submitted for approval.",
-    autoClose: 3000
-  });
-
-  bootstrap.Modal.getInstance(document.getElementById("reviewModal")).hide();
-}
-
-window.submitReview = submitReview;
-*/
 
 
 
@@ -1947,7 +1946,7 @@ function renderTaggedUsers(taggedUserIds) {
   return taggedUserIds.map(uid => {
     const user = mentionList.find(u => u.uid === uid);
     if (!user) return "";
-    return `<a href="profile.html?uid=${uid}" class="badge bg-primary me-1">@${user.displayName}</a>`;
+    return `<a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${uid}" class="badge bg-primary me-1">@${user.displayName}</a>`;
   }).join("");
 }
 
