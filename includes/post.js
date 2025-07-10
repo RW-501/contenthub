@@ -38,39 +38,56 @@ export function initPostScript() {
 
 // 🚀 Enhanced Post Composer UI + Functionality (Modernized)
 const composerHTML = `
-  <div id="postComposer" class="p-4 border rounded-4 shadow bg-white mb-4">
+  <div id="postComposer" class="border rounded-4 shadow-sm bg-white mb-4 p-3">
+
+    <!-- Profile pic + Post input -->
     <div class="d-flex align-items-start mb-3">
+      <img src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
+           width="48" height="48" class="rounded-circle me-3" />
 
-    <div class="mb-3">
-  <label for="postType" class="form-label">Post Type</label>
-  <select id="postType" class="form-select">
-    <option value="general">📝 General Post</option>
-    <option value="collab">🤝 Collaboration Request</option>
-    <option value="help">🆘 Looking for Help</option>
-  </select>
-</div>
-
-<div contenteditable="true"
-     id="caption"
-     class="form-control empty"
-     data-placeholder="What are you looking for in your next project?">
-</div>
-
-</div>
-
-    <div id="uploadArea" class="border border-2 rounded-3 p-4 text-center bg-light mb-3">
-      <p class="text-muted mb-1">📁 Drag & drop or <span class="text-primary text-decoration-underline" style="cursor:pointer;" onclick="document.getElementById('mediaFile').click()">browse</span> to upload media</p>
-      <input type="file" id="mediaFile" accept="image/*,video/*" multiple hidden />
-      <div id="mediaPreview" class="d-flex flex-wrap gap-2 mt-3"></div>
+      <div class="flex-grow-1">
+        <div contenteditable="true"
+             id="caption"
+             class="form-control empty"
+             data-placeholder="What are you working on? Share an update or request help... ✨"
+             style="min-height: 80px; border-radius: 12px;">
+        </div>
+      </div>
     </div>
 
-    <input type="text" class="form-control mb-2" id="contributors" placeholder="Tag collaborators using @username or their email..." />
-<input type="text" class="form-control mb-2" id="projectGoal" placeholder="(Optional) What skills or roles are you looking for?" />
+    <!-- Toolbar: Post type + Upload -->
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
 
-    <button hidden class="btn btn-outline-secondary w-100 mb-2" onclick="document.getElementById('scheduleTime').click()">📅 Schedule Post</button>
+      <select id="postType" class="form-select form-select-sm w-auto">
+        <option value="general">📝 General</option>
+        <option value="collab">🤝 Collab Request</option>
+        <option value="help">🆘 Need Help</option>
+      </select>
+
+      <button class="btn btn-outline-secondary btn-sm"
+              onclick="document.getElementById('mediaFile').click()">📎 Add Media</button>
+      <input type="file" id="mediaFile" accept="image/*,video/*" multiple hidden />
+    </div>
+
+    <!-- Project Goal (Conditional) -->
+    <div id="goalWrapper" class="mb-3" style="display:none;">
+      <input type="text" class="form-control" id="projectGoal"
+             placeholder="What skills or roles are you looking for?" />
+    </div>
+
+    <!-- Media Preview -->
+    <div id="mediaPreview" class="d-flex flex-wrap gap-2 mb-3"></div>
+
+    <!-- Tag Contributors -->
+    <input type="text" class="form-control mb-2"
+           id="contributors"
+           placeholder="Tag collaborators using @username or email..." />
+
+    <!-- Optional Schedule (Hidden for now) -->
     <input type="datetime-local" id="scheduleTime" class="form-control mb-2" hidden />
 
-    <button id="publishPostBtn" class="btn btn-primary w-100">🚀 Publish Post</button>
+    <!-- Publish -->
+    <button id="publishPostBtn" class="btn btn-primary w-100">🚀 Publish</button>
   </div>
 `;
 
@@ -102,15 +119,26 @@ captionBox.addEventListener('input', () => {
   updatePlaceholderState()
 
   const postTypeSelect = document.getElementById("postType");
+const projectGoalWrapper = document.getElementById("goalWrapper");
+
 postTypeSelect.addEventListener("change", () => {
   const type = postTypeSelect.value;
+
+  // Update placeholder text dynamically
   const placeholderMap = {
     general: "What are you creating today? Share it with the world... ✨",
     collab: "Looking for collaborators? Describe your project and who you're looking for...",
-    help: "Need help on a project? Describe the issue or assistance you need..."
+    help: "Need help on a project? Describe the issue or support you need..."
   };
   caption.setAttribute("data-placeholder", placeholderMap[type]);
-  updatePlaceholderState(); // refresh placeholder visibility
+  updatePlaceholderState();
+
+  // Show/hide the project goal input
+  if (type === "collab" || type === "help") {
+    projectGoalWrapper.style.display = "block";
+  } else {
+    projectGoalWrapper.style.display = "none";
+  }
 });
 
 // Media Handling
