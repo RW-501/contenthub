@@ -503,7 +503,7 @@ if (mediaUrl) {
       ${mediaHTML}
       <div class="card-body">
         <div class="d-flex align-items-center mb-2">
-          <img src="${photoURL || 'https://via.placeholder.com/40'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
+          <img src="${photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
           <a href="/pages/profile.html?uid=${uid}" class="fw-bold text-decoration-none">${displayName}</a>
         </div>
 

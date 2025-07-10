@@ -329,7 +329,7 @@ card.innerHTML = `
   ${mediaHTML}
   <div class="card-body">
     <div class="d-flex align-items-center mb-2">
-      <img src="${userData.photoURL || 'https://via.placeholder.com/40'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
+      <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
       <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">${userData.displayName || 'Unknown User'}</a>
     </div>
 

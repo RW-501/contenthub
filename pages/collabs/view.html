@@ -1172,7 +1172,7 @@ async function loadParticipants(collabId) {
 
   for (const uid of participants) {
     const userDoc = await getDoc(doc(db, "users", uid));
-    const userInfo = userDoc.exists() ? userDoc.data() : { displayName: "User", photoURL: "https://via.placeholder.com/40" };
+    const userInfo = userDoc.exists() ? userDoc.data() : { displayName: "User", photoURL: "https://rw-501.github.io/contenthub/images/defaultAvatar.png" };
 
     const userDiv = document.createElement("div");
     userDiv.className = "d-flex align-items-center justify-content-between mb-2";
@@ -1221,7 +1221,7 @@ async function loadJoinRequests() {
     const req = docSnap.data();
     const userDoc = await getDoc(doc(db, "users", req.userId));
     const userInfo = userDoc.exists() ? userDoc.data() : {};
-    const avatar = userInfo.photoURL || "https://via.placeholder.com/40";
+    const avatar = userInfo.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
 
     const reqCard = document.createElement("div");
     reqCard.className = "d-flex align-items-center justify-content-between border p-3 mb-2 rounded bg-light";
