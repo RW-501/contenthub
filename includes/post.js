@@ -204,12 +204,6 @@ mediaInput.addEventListener("change", e => {
   renderPreviews();
 });
 
-document.getElementById("uploadArea").addEventListener("dragover", e => e.preventDefault());
-document.getElementById("uploadArea").addEventListener("drop", e => {
-  e.preventDefault();
-  selectedFiles.push(...Array.from(e.dataTransfer.files));
-  renderPreviews();
-});
 
 // Publish Handler
 const publishBtn = document.getElementById("publishPostBtn");
