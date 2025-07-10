@@ -1792,7 +1792,7 @@ async function loadProjectHistory(userId) {
 
   if (snap.empty) {
     container.innerHTML = `
-      <div class="alert alert-light text-center">
+      <div class="alert alert-info text-center">
         <strong>No projects added yet.</strong><br>
         Invite or encourage them to share project links!
       </div>`;
