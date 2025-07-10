@@ -38,17 +38,31 @@ export async function ensureUserExists(user) {
 
   } else {
     // 🆕 Create New User Profile
-    const userData = {
-      displayName: user.displayName || user.email || "Unnamed",
-      email: user.email || null,
-      photoURL: user.photoURL || "",
-      createdAt: new Date(),
-      lastLogin: new Date(),
-      status: "active",
-      role: "user",
-      verified: false
-    };
-    await setDoc(userRef, userData);
+const rawName = user.displayName || user.email || "unnamed";
+
+// Helper function to generate a username
+function generateUsername(base) {
+  return base
+    .toLowerCase()
+    .replace(/\s+/g, '')           // remove spaces
+    .replace(/[^a-z0-9]/g, '')     // remove non-alphanumeric chars
+    .slice(0, 8);                 // trim to 8 characters
+}
+
+const userData = { 
+  displayName: user.displayName || user.email || "Unnamed",
+  username: generateUsername(rawName),
+  email: user.email || null,
+  photoURL: user.photoURL || "",
+  createdAt: new Date(),
+  lastLogin: new Date(),
+  status: "active",
+  role: "user",
+  verified: false
+};
+
+await setDoc(userRef, userData);
+
   }
 }
 // 📱 Invisible reCAPTCHA verifier (phone login)
