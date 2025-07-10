@@ -427,26 +427,37 @@ window.addEventListener("scroll", () => {
 // Suggested creators
 async function loadSuggestedCreators() {
   const usersCol = collection(db, "users");
-  const q = query(usersCol, limit(5));
+  const q = query(usersCol, limit(20)); // Grab more for randomness
   const snap = await getDocs(q);
   suggestedCreatorsDiv.innerHTML = "";
 
+  let users = [];
   snap.forEach(docSnap => {
     const u = docSnap.data();
-    if (u.uid === currentUser?.uid) return; // skip self
+    if (u.uid !== currentUser?.uid) {
+      users.push({ id: docSnap.id, ...u });
+    }
+  });
+
+  // Shuffle array
+  users = users.sort(() => 0.5 - Math.random());
+
+  // Take first 5 after shuffle
+  users.slice(0, 5).forEach(u => {
     const div = document.createElement("div");
     div.className = "creator-suggest";
     div.innerHTML = `
       <img src="${u.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" alt="avatar" class="creator-avatar" />
       <div>
-        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${docSnap.id}">${u.displayName || 'Unknown'}</a><br/>
+        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${u.id}">${u.displayName || 'Unknown'}</a><br/>
         <small>${u.niches || ''}</small>
       </div>
-      <button class="btn btn-sm btn-outline-primary ms-auto" onclick="followUser('${docSnap.id}')">Follow</button>
+      <button class="btn btn-sm btn-outline-primary ms-auto" onclick="followUser('${u.id}')">Follow</button>
     `;
     suggestedCreatorsDiv.appendChild(div);
   });
 }
+
 
 // Follow user
 window.followUser = async (uid) => {

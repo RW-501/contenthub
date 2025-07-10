@@ -218,11 +218,19 @@ const resetFiltersBtn = document.getElementById("resetFiltersBtn");
 let creators = [];
 let activeFilterTags = [];
 
-    async function fetchCreators() {
-      const snapshot = await getDocs(collection(db, "users"));
-      creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderCreators(creators);
-    }
+async function fetchCreators() {
+  const snapshot = await getDocs(collection(db, "users"));
+  creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  // Shuffle the array using Fisher-Yates (Durstenfeld) algorithm
+  for (let i = creators.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [creators[i], creators[j]] = [creators[j], creators[i]];
+  }
+
+  renderCreators(creators);
+}
+
 
 function decodeHTML(str) {
   const txt = document.createElement("textarea");
