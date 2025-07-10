@@ -75,6 +75,7 @@ const userBtns = document.querySelectorAll(".userBtns");
 if (isOwnerView) {
   collabBtn?.remove(); // Completely removes the button from the DOM
 } else {
+  collabBtn.style.display = "block";
   collabBtn.onclick = () => {
     collabBtn.dataset.viewingUserId = viewingUserId;
     collabBtn.dataset.username = userData.username;
