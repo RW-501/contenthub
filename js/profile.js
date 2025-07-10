@@ -234,9 +234,10 @@ loadProjectHistory(currentPageID);
 
 
 
-document.addEventListener("DOMContentLoaded", () => {
   setTimeout(async () => {
-
+    console.log("👤 Viewer isOwnerView:", {
+  isOwnerView
+    });
       if (isOwnerView) { return};
 
     const avatar = document.getElementById("userAvatar");
@@ -282,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("✅ Notification sent successfully.");
   }, 2000); // ⏱ 2 second delay
-});
+
 
   console.log(">>>>>>>>>>>>>>");
 
