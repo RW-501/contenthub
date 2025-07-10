@@ -2426,3 +2426,295 @@ document.getElementById("demoPhoto").addEventListener("change", (e) => {
     reader.readAsDataURL(file);
   }
 });
+
+
+
+
+import { getDocs, query, collection, where } from "firebase/firestore";
+
+import {
+  getDocs,
+  query,
+  collection,
+  where,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+
+async function getDemoUserIds() {
+  const q = query(collection(db, "users"), where("role", "==", "demo"));
+  const snapshot = await getDocs(q);
+  const ids = snapshot.docs.map(doc => doc.id);
+  console.log("✅ Demo User IDs:", ids);
+  return ids;
+}
+
+async function addProjectHistoryToUser(userId, {
+  title,
+  description,
+  url = "",
+  taggedUserIds = [],
+  projectDate = new Date()
+}) {
+  if (!userId || !title || !description) {
+    console.error("❌ Missing required fields.");
+    return;
+  }
+
+  const ref = collection(db, `users/${userId}/projectHistory`);
+
+  await addDoc(ref, {
+    title,
+    description,
+    url,
+    taggedUserIds,
+    projectDate: new Date(projectDate),
+    createdAt: serverTimestamp()
+  });
+
+  console.log(`✅ Project history added to user: ${userId}`);
+}
+
+async function seedDemoUserProjects() {
+  const demoUserIds = await getDemoUserIds();
+
+const projectTemplates = [
+  {
+    title: "Built a portfolio website",
+    description: "Created a fully responsive portfolio using HTML, CSS, JS, and Firebase.",
+    url: "https://portfolio-demo.web.app",
+    projectDate: "2024-12-15"
+  },
+  {
+    title: "Launched a blog platform",
+    description: "Designed and launched a blog CMS using Firestore and Bootstrap.",
+    url: "https://blog-demo.web.app",
+    projectDate: "2025-01-10"
+  },
+  {
+    title: "Collaborated on a music app",
+    description: "Worked on a full-stack music sharing platform with real-time features.",
+    url: "https://musichub-demo.web.app",
+    projectDate: "2025-02-20"
+  },
+  {
+    title: "Hosted a live podcast series",
+    description: "Produced a 6-part podcast focused on creative entrepreneurship.",
+    url: "https://spotify.com/show/creative-voices",
+    projectDate: "2025-03-05"
+  },
+  {
+    title: "Created a YouTube mini doc",
+    description: "Directed and edited a mini-documentary on streetwear culture.",
+    url: "https://youtube.com/shorts/streetweardoc",
+    projectDate: "2025-02-01"
+  },
+  {
+    title: "Launched a creator merch store",
+    description: "Built and launched an online merch store using Shopify and Printful.",
+    url: "https://creator-merch.web.app",
+    projectDate: "2024-11-22"
+  },
+  {
+    title: "Ran a 7-day content challenge",
+    description: "Hosted a content sprint to help new creators post daily for a week.",
+    url: "https://contenthub.io/challenge7",
+    projectDate: "2025-04-10"
+  },
+  {
+    title: "Edited a viral TikTok series",
+    description: "Created and edited a viral 5-part TikTok series on creative hustle.",
+    url: "https://tiktok.com/@creatorvision",
+    projectDate: "2025-03-21"
+  },
+  {
+    title: "Released a Notion template pack",
+    description: "Published a productivity + content planner for creators.",
+    url: "https://notion.so/creator-pack",
+    projectDate: "2024-12-01"
+  },
+  {
+    title: "Built an IG Reel automation tool",
+    description: "Built a simple automation to extract trending IG Reels audio.",
+    url: "https://tools.contenthub.io/reel-audio-finder",
+    projectDate: "2025-01-18"
+  },
+  {
+    title: "Filmed a brand partnership vlog",
+    description: "Produced a vlog documenting a behind-the-scenes brand shoot.",
+    url: "https://youtube.com/watch?v=brandvlog001",
+    projectDate: "2025-01-28"
+  },
+  {
+    title: "Wrote a creator income guide",
+    description: "Published a blog post breaking down 5 income streams for creators.",
+    url: "https://blog.contenthub.io/income-guide",
+    projectDate: "2025-02-09"
+  },
+  {
+    title: "Built a digital resume page",
+    description: "Created a modern, scrollable resume with embedded projects.",
+    url: "https://resume-demo.web.app",
+    projectDate: "2025-03-01"
+  },
+  {
+    title: "Co-hosted a live collab workshop",
+    description: "Facilitated a virtual event to pair creators for collab opportunities.",
+    url: "https://eventbrite.com/e/collab-workshop",
+    projectDate: "2025-02-13"
+  },
+  {
+    title: "Launched a meme content page",
+    description: "Grew a comedy meme account from 0 to 5k followers in 3 months.",
+    url: "https://instagram.com/creator_memes",
+    projectDate: "2024-10-19"
+  },
+  {
+    title: "Published a storytelling course",
+    description: "Designed and launched a 4-week course on digital storytelling.",
+    url: "https://gumroad.com/l/storytelling",
+    projectDate: "2025-04-02"
+  },
+  {
+    title: "Started a weekly newsletter",
+    description: "Launched a Substack covering creator tools + AI resources.",
+    url: "https://creatordigest.substack.com",
+    projectDate: "2025-01-06"
+  },
+  {
+    title: "Curated a niche creator directory",
+    description: "Built a discovery tool to connect creators by genre and location.",
+    url: "https://creatormap.contenthub.io",
+    projectDate: "2025-03-11"
+  },
+  {
+    title: "Created a reel transition pack",
+    description: "Designed and gave away free video transition effects for Reels.",
+    url: "https://gumroad.com/l/reel-transitions",
+    projectDate: "2025-02-04"
+  },
+  {
+    title: "Made a short film with friends",
+    description: "Shot and edited a 10-min short film with a team of 4.",
+    url: "https://youtube.com/shortfilm-collab",
+    projectDate: "2025-03-28"
+  },
+  {
+    title: "Started a creative accountability group",
+    description: "Organized a small peer group to meet weekly and share updates.",
+    url: "https://discord.gg/creative-checkin",
+    projectDate: "2025-01-15"
+  },
+  {
+    title: "Built a micro-influencer media kit",
+    description: "Designed a shareable pitch deck for securing brand deals.",
+    url: "https://canva.com/influencer-kit",
+    projectDate: "2025-02-25"
+  },
+  {
+    title: "Contributed to a community zine",
+    description: "Designed two pages for a visual zine with 10+ other creatives.",
+    url: "https://zinehub.io/creatorsvol1",
+    projectDate: "2024-11-05"
+  },
+  {
+    title: "Dropped a digital photo preset pack",
+    description: "Released a Lightroom preset pack with signature editing styles.",
+    url: "https://sellfy.com/photo-presets",
+    projectDate: "2025-01-23"
+  },
+  {
+    title: "Built a creator booking page",
+    description: "Integrated Calendly to simplify brand call scheduling.",
+    url: "https://bookme-demo.web.app",
+    projectDate: "2025-03-16"
+  },
+  {
+    title: "Filmed a collab skit series",
+    description: "Wrote and filmed comedy skits with 3 other creators.",
+    url: "https://youtube.com/skitsquad",
+    projectDate: "2025-02-12"
+  },
+  {
+    title: "Launched a public resources hub",
+    description: "Curated a Notion page for free tools and templates.",
+    url: "https://notion.so/creator-tools-hub",
+    projectDate: "2025-04-05"
+  },
+  {
+    title: "Hosted a creator Q&A livestream",
+    description: "Went live on IG to answer questions from aspiring creators.",
+    url: "https://instagram.com/live/qna",
+    projectDate: "2025-03-19"
+  },
+  {
+    title: "Contributed to a group short story",
+    description: "Wrote a 1,000-word piece as part of a collaborative fiction project.",
+    url: "https://medium.com/creativefiction",
+    projectDate: "2025-01-09"
+  },
+  {
+    title: "Participated in a global collab reel",
+    description: "Shot a 10-second clip as part of an international collab reel project.",
+    url: "https://instagram.com/p/global-reel",
+    projectDate: "2025-03-08"
+  }
+];
+async function getDemoUserIds() {
+  const q = query(collection(db, "users"), where("role", "==", "demo"));
+  const snapshot = await getDocs(q);
+  const ids = snapshot.docs.map(doc => doc.id);
+  console.log("✅ Demo User IDs:", ids);
+  return ids;
+}
+
+async function getExistingProjectTitles(userId) {
+  const q = query(collection(db, `users/${userId}/projectHistory`));
+  const snap = await getDocs(q);
+  return snap.docs.map(doc => doc.data().title);
+}
+
+async function seedDemoUserProjects() {
+  const demoUserIds = await getDemoUserIds();
+
+  for (const userId of demoUserIds) {
+    const existingTitles = await getExistingProjectTitles(userId);
+    const otherUsers = demoUserIds.filter(id => id !== userId);
+
+    // Shuffle and pick 2–3 unique new projects
+    const shuffledProjects = [...projectTemplates].sort(() => 0.5 - Math.random());
+    const uniqueProjects = shuffledProjects.filter(p => !existingTitles.includes(p.title));
+    const selectedProjects = uniqueProjects.slice(0, Math.floor(Math.random() * 2) + 2);
+
+    for (const project of selectedProjects) {
+      const taggedUserIds = [];
+
+      // Tag 1–2 other demo users randomly
+      if (otherUsers.length) {
+        const shuffled = [...otherUsers].sort(() => 0.5 - Math.random());
+        taggedUserIds.push(...shuffled.slice(0, Math.floor(Math.random() * 2) + 1));
+      }
+
+      await addProjectHistoryToUser(userId, {
+        ...project,
+        taggedUserIds
+      });
+    }
+
+    console.log(`📦 Seeded ${selectedProjects.length} projects for ${userId}`);
+  }
+
+  console.log("🎉 All demo users seeded with project history.");
+}
+
+const ENABLE_PROJECT_SEEDING = true;
+
+if (ENABLE_PROJECT_SEEDING) {
+  window.addEventListener("DOMContentLoaded", () => {
+    seedDemoUserProjects().catch(console.error);
+  });
+}
+
+
+}
+
