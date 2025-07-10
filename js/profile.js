@@ -83,11 +83,13 @@ if (isOwnerView) {
   };
 }
 const openReviewModalBtn = document.getElementById("openReviewModalBtn");
+const postComposer = document.getElementById("postComposer");
 
 
 if (!isOwnerView) {
   editProfileBtn?.remove();
   analyticsBtn?.remove();
+  postComposer.style.display = "none";
 } else {
   editProfileBtn.style.display = "inline-block";
   analyticsBtn.style.display = "inline-block";
