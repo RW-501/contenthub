@@ -41,9 +41,33 @@ if (currentUser && viewingUserId !== currentUser.uid && userData?.role === "demo
   const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
   const currentUserData = currentUserDoc.data();
 
+
+
+
   if (currentUserData?.role === "admin") {
     console.warn("Acting as demo user:", viewingUserId);
     actingAsUser = { ...user, uid: viewingUserId }; // simulate demo user
+
+
+const avatar = document.getElementById("userAvatar");
+
+  // Cache in DOM
+  //avatar.dataset.uid = user.uid;
+  avatar.dataset.role = currentUserData.role || "";
+  avatar.dataset.displayname = currentUserData.displayName || "";
+  avatar.dataset.photo = currentUserData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  avatar.dataset.username = currentUserData.username || "";
+  avatar.dataset.email = currentUserData.email || "";
+  avatar.dataset.location = currentUserData.userLocation?.city || "";
+  avatar.dataset.niches = (currentUserData.niches || []).join(",");
+  avatar.dataset.pronouns = currentUserData.pronouns || "";
+
+  // Set avatar image
+  document.getElementById("avatarImg").src = currentUserData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+
+
+
+
   }
 }
 
