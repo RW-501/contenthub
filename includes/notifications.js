@@ -26,7 +26,6 @@ let loadingMore = false;
 
 let groupingMode = "flat"; // or "day"
 
-
 export async function initLiveNotifications() {
   const user = auth.currentUser;
   if (!user) return;
@@ -34,171 +33,174 @@ export async function initLiveNotifications() {
   const notifList = document.getElementById("notificationList");
   const avatar = document.getElementById("userAvatar");
   const notifBtn = document.getElementById("notifBellBtn");
+  const modalBody = document.querySelector("#notifModal .modal-body");
+  const toggleBtn = document.getElementById("toggleGroupMode");
 
- async function loadNotifications(initial = true) {
-  if (loadingMore) return;
-  loadingMore = true;
+  let lastVisibleNotif = null;
+  let loadingMore = false;
+  let groupingMode = "day";
+  let notificationsUnsub = null;
 
-  const baseRef = collection(db, `users/${user.uid}/notifications`);
-  let q = query(baseRef, orderBy("timestamp", "desc"), limit(20));
+  // ✉️ Load notifications
+  async function loadNotifications(initial = true) {
+    if (loadingMore) return;
+    loadingMore = true;
 
-  if (!initial && lastVisibleNotif) {
-    q = query(baseRef, orderBy("timestamp", "desc"), startAfter(lastVisibleNotif), limit(20));
+    const baseRef = collection(db, `users/${user.uid}/notifications`);
+    let q = query(baseRef, orderBy("timestamp", "desc"), limit(20));
+
+    if (!initial && lastVisibleNotif) {
+      q = query(baseRef, orderBy("timestamp", "desc"), startAfter(lastVisibleNotif), limit(20));
+    }
+
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      loadingMore = false;
+      return;
+    }
+
+    lastVisibleNotif = snap.docs[snap.docs.length - 1];
+
+    if (groupingMode === "day") {
+      const groups = {};
+
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        const dayKey = getDayLabel(data.timestamp?.toDate?.());
+        if (!groups[dayKey]) groups[dayKey] = [];
+        groups[dayKey].push({ ...data, id: docSnap.id, ref: docSnap.ref });
+      });
+
+      renderGroupedByDay(groups);
+    } else {
+      snap.forEach(docSnap => {
+        renderNotificationItem(docSnap.data(), docSnap.ref, docSnap.id);
+      });
+    }
+
+    loadingMore = false;
   }
 
-  const snap = await getDocs(q);
-  if (snap.empty) return;
+  // 🗓 Grouping label logic
+  function getDayLabel(date) {
+    const now = new Date();
+    const d = new Date(date);
+    const today = now.toDateString();
+    const yesterday = new Date(now.setDate(now.getDate() - 1)).toDateString();
 
-  lastVisibleNotif = snap.docs[snap.docs.length - 1];
+    if (d.toDateString() === today) return "Today";
+    if (d.toDateString() === yesterday) return "Yesterday";
 
-  if (groupingMode === "day") {
-    const groups = {};
+    const diff = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
+    return diff <= 7 ? "This Week" : "Older";
+  }
 
-    snap.forEach(docSnap => {
-      const data = docSnap.data();
-      const dayKey = getDayLabel(data.timestamp?.toDate());
-      if (!groups[dayKey]) groups[dayKey] = [];
-      groups[dayKey].push({ ...data, id: docSnap.id, ref: docSnap.ref });
-    });
+  // 📅 Grouped UI
+  function renderGroupedByDay(groups) {
+    notifList.innerHTML = "";
+    Object.entries(groups).forEach(([day, items]) => {
+      const collapseId = `notif-group-${day.replace(/\s/g, "-")}`;
 
-    renderGroupedByDay(groups);
-  } else {
-    snap.forEach(docSnap => {
-      renderNotificationItem(docSnap.data(), docSnap.ref, docSnap.id);
+      notifList.insertAdjacentHTML("beforeend", `
+        <button class="btn btn-light w-100 text-start mb-2" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+          ${day} (${items.length})
+        </button>
+        <div id="${collapseId}" class="collapse show"></div>
+      `);
+
+      const groupEl = document.getElementById(collapseId);
+      items.forEach(n => {
+        const item = createNotificationHTML(n, n.ref, n.id);
+        groupEl.appendChild(item);
+      });
     });
   }
 
-  loadingMore = false;
-}
+  // 🧱 Flat list item render
+  function renderNotificationItem(data, ref, id) {
+    const item = createNotificationHTML(data, ref, id);
+    notifList.appendChild(item);
+  }
 
-window.loadNotifications = loadNotifications;
+  // 🔔 HTML generator
+  function createNotificationHTML(n, ref, id) {
+    const item = document.createElement("div");
+    const timestamp = n.timestamp?.toDate?.() ? new Date(n.timestamp.toDate()).toLocaleString() : "Just now";
 
+    item.className = `list-group-item d-flex justify-content-between align-items-start ${n.read ? '' : 'fw-bold'}`;
+    item.innerHTML = `
+      <div>
+        <div>
+          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${n.fromUid}" class="text-decoration-none">
+            <img src="${n.fromuserAvatar}" class="avatar mb-2 me-2" style="width:32px;height:32px;border-radius:50%;" />
+          </a>
+        </div>
+        <div>${n.message}</div>
+        <small class="text-muted">${timestamp}</small>
+      </div>
+      <button class="btn btn-sm btn-link text-danger" title="Dismiss" onclick="dismissNotif('${ref.path}')">✖</button>
+    `;
+
+    item.onclick = async () => {
+      await updateDoc(ref, { read: true });
+      item.classList.remove("fw-bold");
+    };
+
+    return item;
+  }
+
+  // ❌ Dismiss handler
   window.dismissNotif = async (refPath) => {
     const notifRef = doc(db, refPath);
     await updateDoc(notifRef, { status: "removed", read: true });
     document.querySelector(`[onclick="dismissNotif('${refPath}')"]`)?.closest(".list-group-item")?.remove();
   };
 
-notifBtn.onclick = () => {
-  document.getElementById("notificationList").innerHTML = "";
-  lastVisibleNotif = null;
-  loadNotifications(true);
-
-  const modal = new bootstrap.Modal(document.getElementById("notifModal"));
-  modal.show();
-};
-
-
-  function getDayLabel(date) {
-  const now = new Date();
-  const d = new Date(date);
-
-  const isToday = d.toDateString() === now.toDateString();
-  const isYesterday = new Date(now.setDate(now.getDate() - 1)).toDateString() === d.toDateString();
-
-  if (isToday) return "Today";
-  if (isYesterday) return "Yesterday";
-
-  const diff = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
-  return diff <= 7 ? "This Week" : "Older";
-}
-
-function renderGroupedByDay(groups) {
-  const container = document.getElementById("notificationList");
-  container.innerHTML = "";
-
-  Object.entries(groups).forEach(([day, items]) => {
-    const collapseId = `notif-group-${day.replace(/\s/g, '-')}`;
-
-    container.insertAdjacentHTML("beforeend", `
-      <button class="btn btn-light w-100 text-start mb-2" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
-        ${day} (${items.length})
-      </button>
-      <div id="${collapseId}" class="collapse show"></div>
-    `);
-
-    const groupEl = document.getElementById(collapseId);
-    items.forEach(n => {
-      const item = createNotificationHTML(n, n.ref, n.id);
-      groupEl.appendChild(item);
-    });
-  });
-}
-
-function renderNotificationItem(data, ref, id) {
-  const container = document.getElementById("notificationList");
-  const item = createNotificationHTML(data, ref, id);
-  container.appendChild(item);
-}
-
-function createNotificationHTML(n, ref, id) {
-  const item = document.createElement("div");
-  const timestamp = n.timestamp?.toDate ? new Date(n.timestamp.toDate()).toLocaleString() : "Just now";
-
-  item.className = `list-group-item d-flex justify-content-between align-items-start ${n.read ? '' : 'fw-bold'}`;
-  item.innerHTML = `
-    <div>
-    <div>
-          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${n.fromUid}" class="text-decoration-none">
-        <img  src="${n.fromuserAvatar}" class="avatar mb-3" alt="Profile Picture"/>
-        </a>
-</div>
-      <div>${n.message}</div>
-      <small class="text-muted">${timestamp}</small>
-    </div>
-    <button class="btn btn-sm btn-link text-danger" title="Dismiss" onclick="dismissNotif('${ref.path}')">✖</button>
-  `;
-
-  item.onclick = async () => {
-    await updateDoc(ref, { read: true });
-    item.classList.remove("fw-bold");
-  };
-
-  return item;
-}
-
-  // Scroll pagination
-  const modalBody = document.querySelector("#notifModal .modal-body");
+  // 🔁 Scroll pagination
   modalBody.onscroll = () => {
     if (modalBody.scrollTop + modalBody.clientHeight >= modalBody.scrollHeight - 10) {
       loadNotifications(false);
     }
   };
 
-  // Live glow
-notificationsUnsub = onSnapshot(
-  query(collection(db, `users/${user.uid}/notifications`), where("read", "==", false)),
-  (unreadSnap) => {
-    const hasUnread = !unreadSnap.empty;
-    avatar.style.boxShadow = hasUnread ? "0 0 8px 3px lime" : "none";
-    avatar.classList.toggle("blink", hasUnread);
-  }
-);
+  // 🔴 Real-time glow effect on new
+  notificationsUnsub = onSnapshot(
+    query(collection(db, `users/${user.uid}/notifications`), where("read", "==", false)),
+    (unreadSnap) => {
+      const hasUnread = !unreadSnap.empty;
+      avatar.style.boxShadow = hasUnread ? "0 0 8px 3px lime" : "none";
+      avatar.classList.toggle("blink", hasUnread);
+    }
+  );
 
-document.getElementById("toggleGroupMode").addEventListener("click", () => {
-  groupingMode = groupingMode === "flat" ? "day" : "flat";
-  document.getElementById("toggleGroupMode").innerText =
-    groupingMode === "flat" ? "Group by Day" : "Flat View";
-  document.getElementById("notificationList").innerHTML = "";
-  lastVisibleNotif = null;
-  loadNotifications(true);
-});
+  // 🔘 Toggle group mode
+  toggleBtn?.addEventListener("click", () => {
+    groupingMode = groupingMode === "flat" ? "day" : "flat";
+    toggleBtn.innerText = groupingMode === "flat" ? "Group by Day" : "Flat View";
+    notifList.innerHTML = "";
+    lastVisibleNotif = null;
+    loadNotifications(true);
+  });
 
+  // 🔔 Open modal + load
+  notifBtn?.addEventListener("click", () => {
+    notifList.innerHTML = "";
+    lastVisibleNotif = null;
+    loadNotifications(true);
+    new bootstrap.Modal(document.getElementById("notifModal")).show();
+  });
 
-  setTimeout(async () => {
-document.getElementById("notifBellBtn").addEventListener("click", () => {
-   loadNotifications(true);
-
-});
-  }, 2000); // ⏱ 2 second delay
-    console.log("✅ Notification ???????????????/");
-
+  console.log("✅ Live notifications initialized");
 }
 
 window.initLiveNotifications = initLiveNotifications;
 
 
- initLiveNotifications();
+
+setTimeout(() => {
+  initLiveNotifications();
+}, 1000); // ⏱ 1 second = 1000ms
+
 
 export const NOTIFICATION_TEMPLATES = {
   likePost: (user) => `🔥 ${user} liked your post.`,
@@ -252,6 +254,7 @@ export async function markAllNotificationsRead() {
 
 window.markAllNotificationsRead = markAllNotificationsRead();
 /*
+if (hasUnread) notifBtn.innerHTML = '🔔 <span class="badge bg-danger">!</span>';
 
 import { sendNotification } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
