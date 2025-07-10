@@ -57,98 +57,81 @@ onAuthStateChanged(auth, user => {
 
 // Load Posts based on filters
 async function loadPosts(reset = true) {
-//  console.log("[loadPosts] Started loading posts... reset =", reset);
-  if (loadingMore) {
-    console.warn("[loadPosts] Already loading, aborting...");
-    return;
-  }
-
+  if (loadingMore) return console.warn("[loadPosts] Already loading, aborting...");
   loadingMore = true;
-
-  if (reset) {
-   // console.log("[loadPosts] Resetting post grid and pagination.");
-    postGrid.innerHTML = "";
-    lastVisiblePost = null;
-  }
+  if (reset) resetPostGrid();
 
   const collabZone = collabZoneToggle.checked;
   const filter = filterSelect.value;
   const search = searchInput.value.trim().toLowerCase();
 
-  console.log("[loadPosts] collabZone:", collabZone);
-  console.log("[loadPosts] filter:", filter);
-  console.log("[loadPosts] search:", search);
+  console.log("[loadPosts] collabZone:", collabZone, "| filter:", filter, "| search:", search);
 
   if (collabZone) {
-    try {
-      console.log("[loadPosts] Building Firestore query for collaborations...");
-
-      const q = query(
-        collection(db, "collaborations"),
-        where("isPublic", "==", true),
-        orderBy("createdAt", "desc"),
-        limit(10)
-      );
-
-   //   console.log("[loadPosts] Executing query...");
-      const snap = await getDocs(q);
-  //    console.log("[loadPosts] Documents fetched:", snap.size);
-
-      if (snap.empty) {
-        console.log("[loadPosts] No posts found.");
-      }
-
-      snap.forEach(docSnap => {
-        const data = docSnap.data();
-    //    console.log("[loadPosts] Document data:", data);
-
-        const card = document.createElement("div");
-        card.className = "card p-3 mb-3";
-
-        const progress = data.progress || 0;
-        const totalTasks = data.totalTasks || 0;
-
-        card.innerHTML = `
-          <strong>${data.title || "Untitled Collab"}</strong><br/>
-          <small>Requested by <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${data.owner}">Creator</a></small><br/>
-          <p>${data.description || ""}</p>
-          <div class="progress my-2" style="height: 20px;">
-            <div class="progress-bar" role="progressbar" style="width: ${progress}%" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
-              ${progress}% Complete
-            </div>
-          </div>
-          <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
-          <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${docSnap.id}', '${data.owner}')">Request to Join</button>
-            <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
-          </div>
-        `;
-
-        postGrid.appendChild(card);
-      });
-    } catch (error) {
-      console.error("[loadPosts] Error loading posts:", error);
-    }
-
-    loadingMore = false;
-    console.log("[loadPosts] Done loading.");
-    return;
+    await loadCollabPosts();
+  } else {
+    await loadRegularPosts(filter, search);
   }
 
-  async function requestToJoin(collabId, ownerId) {
-  try {
-    if (!user || !user.uid) {
-      alert("⚠️ Please log in to request to join.");
-      return;
-    }
+  loadingMore = false;
+}
 
-    console.log("[requestToJoin] userId:", user.uid);
-    console.log("[requestToJoin] collabId:", collabId);
-    console.log("[requestToJoin] ownerId:", ownerId);
+
+function resetPostGrid() {
+  postGrid.innerHTML = "";
+  lastVisiblePost = null;
+}
+
+async function loadCollabPosts() {
+  try {
+    const q = query(
+      collection(db, "collaborations"),
+      where("isPublic", "==", true),
+      orderBy("createdAt", "desc"),
+      limit(10)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return console.log("[loadCollabPosts] No collab posts found.");
+
+    snap.forEach(docSnap => {
+      const data = docSnap.data();
+      const card = createCollabCard(data, docSnap.id);
+      postGrid.appendChild(card);
+    });
+  } catch (error) {
+    console.error("[loadCollabPosts] Error:", error);
+  }
+}
+
+
+function createCollabCard(data, collabId) {
+  const card = document.createElement("div");
+  card.className = "card p-3 mb-3";
+  const progress = data.progress || 0;
+  const totalTasks = data.totalTasks || 0;
+
+  card.innerHTML = `
+    <strong>${data.title || "Untitled Collab"}</strong><br/>
+    <small>Requested by <a href="/pages/profile.html?uid=${data.owner}">Creator</a></small><br/>
+    <p>${data.description || ""}</p>
+    <div class="progress my-2" style="height: 20px;">
+      <div class="progress-bar" role="progressbar" style="width: ${progress}%">${progress}%</div>
+    </div>
+    <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${collabId}', '${data.owner}')">Request to Join</button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
+    </div>
+  `;
+  return card;
+}
+
+
+async function requestToJoin(collabId, ownerId) {
+  try {
+    if (!user || !user.uid) return alert("⚠️ Please log in to request to join.");
 
     const requestsRef = collection(db, "collabJoinRequests");
-
-    // Check if request already exists
     const existingSnap = await getDocs(query(
       requestsRef,
       where("userId", "==", user.uid),
@@ -157,61 +140,59 @@ async function loadPosts(reset = true) {
     ));
 
     if (!existingSnap.empty) {
-      showModal({
+      return showModal({
         title: "Already Requested",
         message: "You've already requested to join this collaboration.",
         autoClose: 3000
       });
-      return;
     }
 
-    
-    const avatar = document.getElementById("userAvatar");
-const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
-const viewerRole = avatar.dataset.role;
-const viewerUsername = avatar.dataset.username;
-const viewerUserPhotoURL = avatar.dataset.photo;
+    const viewer = getViewerData();
+    await sendNotification({
+      toUid: ownerId,
+      fromUid: viewer.uid,
+      fromDisplayName: viewer.name,
+      fromuserAvatar: viewer.photo,
+      message: NOTIFICATION_TEMPLATES.profileView(viewer.name),
+      type: "collabRequest",
+    });
 
-  await sendNotification({
-    toUid: ownerId,
-    fromUid: viewerUserId,
-    fromDisplayName: viewerDisplayName,
-    fromuserAvatar: viewerUserPhotoURL,
-    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
-    type: "collabRequest",
-  });
-
-    // Create the request
     await addDoc(requestsRef, {
-      userId: user.uid,
-      userPhotoUrl: viewerUserPhotoURL,
-      userDisplayName: viewerDisplayName,
+      userId: viewer.uid,
+      userPhotoUrl: viewer.photo,
+      userDisplayName: viewer.name,
       collabId,
       ownerId,
       status: "pending",
       timestamp: serverTimestamp()
     });
 
-    console.log("[requestToJoin] Request successfully submitted");
-
     showModal({
       title: "Request Sent",
       message: "Your request to join has been sent.",
       autoClose: 3000
     });
-
   } catch (error) {
-   // console.error("[requestToJoin] Error:", error);
     alert("❌ Failed to send join request. Please try again.");
   }
 }
-
 window.requestToJoin = requestToJoin;
 
-  //console.log("[loadPosts] Collab Zone is OFF. Add non-collab zone logic here.");
-  loadingMore = false;
 
+function getViewerData() {
+  const avatar = document.getElementById("userAvatar");
+  return {
+    uid: avatar.dataset.uid,
+    name: avatar.dataset.displayname,
+    role: avatar.dataset.role,
+    username: avatar.dataset.username,
+    photo: avatar.dataset.photo
+  };
+}
+
+
+async function loadRegularPosts(filter, search) {
+  let q;
   const postsCol = collection(db, "posts");
 
   switch (filter) {
@@ -240,148 +221,142 @@ window.requestToJoin = requestToJoin;
 
   for (const docSnap of snap.docs) {
     const post = docSnap.data();
-    const caption = post.caption?.toLowerCase() || "";
-    const tags = post.tags?.join(" ") || "";
-
-    if (search && !caption.includes(search.toLowerCase()) && !tags.includes(search.toLowerCase())) continue;
-
-    const card = document.createElement("div");
-    card.className = "card mb-3";
-
-    const mediaUrl = post.media?.[0]?.url || "";
-    const mediaType = post.media?.[0]?.type || "";
-    let mediaHTML = "";
+    if (shouldSkipPost(post, search)) continue;
+    const card = await createPostCard(post, docSnap.id);
+    postGrid.appendChild(card);
+  }
+}
 
 
-if (mediaUrl) {
+
+
+function shouldSkipPost(post, search) {
+  const caption = post.caption?.toLowerCase() || "";
+  const tags = post.tags?.join(" ") || "";
+  return search && !caption.includes(search) && !tags.includes(search);
+}
+
+async function createPostCard(post, postId) {
+  const card = document.createElement("div");
+  card.className = "card mb-3";
+
+  const mediaHTML = renderMedia(post.media?.[0]);
+  const createdAt = post.createdAt?.toDate?.() || new Date();
+  const timeAgo = timeSince(createdAt.getTime());
+
+  const userSnap = await getDoc(doc(db, "users", post.owner));
+  const userData = userSnap.exists() ? userSnap.data() : {};
+
+  card.innerHTML = `
+    ${mediaHTML}
+    <div class="card-body">
+      <div class="d-flex align-items-center mb-2">
+        <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
+        <a href="/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">${userData.displayName || 'Unknown User'}</a>
+      </div>
+      <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+      <small class="text-muted d-block mb-2">${timeAgo} • <span id="like-count-${postId}">${post.likes || 0}</span> Likes • ${post.views || 0} Views</small>
+      <button class="btn btn-sm btn-outline-danger" id="like-btn-${postId}">❤️ Like</button>
+    </div>
+  `;
+
+  const likeBtn = card.querySelector(`#like-btn-${postId}`);
+  const likeCountEl = card.querySelector(`#like-count-${postId}`);
+  likeBtn.addEventListener("click", () => likePost(postId, likeCountEl, post.owner, post.caption));
+
+  return card;
+}
+
+async function likePost(postId, likeCountEl, ownerId, caption) {
+  const postRef = doc(db, "posts", postId);
+  await updateDoc(postRef, { likes: increment(1) });
+
+  const currentLikes = parseInt(likeCountEl.textContent) || 0;
+  likeCountEl.textContent = currentLikes + 1;
+
+  const viewer = getViewerData();
+  await sendNotification({
+    toUid: ownerId,
+    fromUid: viewer.uid,
+    fromDisplayName: viewer.name,
+    fromuserAvatar: viewer.photo,
+    message: `@${viewer.username} liked your post: "${caption}"`,
+    type: "likePost"
+  });
+}
+function renderMedia(media) {
+  if (!media || !media.url) return "";
+
+  const url = media.url;
+  const lowerUrl = url.toLowerCase();
+
+  let mediaHTML = "";
+
   // YouTube
-  if (/youtube\.com|youtu\.be/.test(mediaUrl)) {
-    const embed = mediaUrl.includes("watch?v=")
-      ? mediaUrl.replace("watch?v=", "embed/")
-      : mediaUrl.replace("youtu.be/", "youtube.com/embed/");
-    mediaHTML = `<iframe width="100%" height="200" src="${embed}" frameborder="0" allowfullscreen></iframe>`;
+  if (/youtube\.com|youtu\.be/.test(lowerUrl)) {
+    const embedUrl = lowerUrl.includes("watch?v=")
+      ? lowerUrl.replace("watch?v=", "embed/")
+      : lowerUrl.replace("youtu.be/", "youtube.com/embed/");
+    mediaHTML = `<iframe width="100%" height="200" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
   }
 
   // Vimeo
-  else if (/vimeo\.com/.test(mediaUrl)) {
-    const id = mediaUrl.split("/").pop();
+  else if (/vimeo\.com/.test(lowerUrl)) {
+    const id = url.split("/").pop();
     mediaHTML = `<iframe src="https://player.vimeo.com/video/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
   }
 
   // Dailymotion
-  else if (/dailymotion\.com/.test(mediaUrl)) {
-    const id = mediaUrl.split("/").pop();
+  else if (/dailymotion\.com/.test(lowerUrl)) {
+    const id = url.split("/").pop();
     mediaHTML = `<iframe src="https://www.dailymotion.com/embed/video/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
   }
 
   // Twitch
-  else if (/twitch\.tv/.test(mediaUrl)) {
-    const id = mediaUrl.split("/").pop();
+  else if (/twitch\.tv/.test(lowerUrl)) {
+    const id = url.split("/").pop();
     mediaHTML = `<iframe src="https://player.twitch.tv/?video=${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
   }
 
   // Facebook
-  else if (/facebook\.com/.test(mediaUrl)) {
-    const id = mediaUrl.split("/").pop();
-    mediaHTML = `<iframe src="https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/video.php?v=${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  else if (/facebook\.com/.test(lowerUrl)) {
+    const id = url.split("/").pop();
+    const encodedUrl = encodeURIComponent(`https://www.facebook.com/video.php?v=${id}`);
+    mediaHTML = `<iframe src="https://www.facebook.com/plugins/video.php?href=${encodedUrl}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
   }
 
   // Instagram
-  else if (/instagram\.com/.test(mediaUrl)) {
-    const id = mediaUrl.split("/p/").pop().split("/")[0];
+  else if (/instagram\.com/.test(lowerUrl)) {
+    const id = url.split("/p/").pop()?.split("/")[0];
     mediaHTML = `<iframe src="https://www.instagram.com/p/${id}/embed" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
   }
 
   // Twitter
-  else if (/twitter\.com/.test(mediaUrl)) {
-    mediaHTML = `<iframe src="https://twitframe.com/show?url=${encodeURIComponent(mediaUrl)}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
+  else if (/twitter\.com/.test(lowerUrl)) {
+    const encodedUrl = encodeURIComponent(url);
+    mediaHTML = `<iframe src="https://twitframe.com/show?url=${encodedUrl}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
   }
 
   // TikTok
-  else if (/tiktok\.com/.test(mediaUrl)) {
-    const id = mediaUrl.split("/video/").pop();
+  else if (/tiktok\.com/.test(lowerUrl)) {
+    const id = url.split("/video/").pop()?.split("?")[0];
     mediaHTML = `<iframe src="https://www.tiktok.com/embed/${id}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>`;
   }
 
-  // Firebase Storage or Direct Video Links
+  // Firebase Storage or direct video links
   else if (
-    mediaUrl.includes("firebasestorage.googleapis.com") ||
-    /\.(mp4|webm|ogg)$/i.test(mediaUrl)
+    url.includes("firebasestorage.googleapis.com") ||
+    /\.(mp4|webm|ogg)$/i.test(url)
   ) {
-    mediaHTML = `<video src="${mediaUrl}" controls muted loop style="width:100%; max-height:200px; object-fit:cover;"></video>`;
+    mediaHTML = `<video src="${url}" controls muted loop style="width:100%; max-height:200px; object-fit:cover;"></video>`;
   }
 
   // Fallback to image
   else {
-    mediaHTML = `<img src="${mediaUrl}" alt="Post media" style="width:100%; max-height:200px; object-fit:cover;" />`;
+    mediaHTML = `<img src="${url}" alt="Post media" style="width:100%; max-height:200px; object-fit:cover;" />`;
   }
 
-}
-
-
-    const createdAt = post.createdAt?.toDate ? post.createdAt.toDate() : new Date();
-    const timeAgo = timeSince(createdAt.getTime());
-
-    const user = await getDoc(doc(db, "users", post.owner));
-    const userData = user.exists() ? user.data() : {};
-
-card.innerHTML = `
-  ${mediaHTML}
-  <div class="card-body">
-    <div class="d-flex align-items-center mb-2">
-      <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
-      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">${userData.displayName || 'Unknown User'}</a>
-    </div>
-
-    <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
-
-    <small class="text-muted d-block mb-2">${timeAgo} • 
-      <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes
-      • ${post.views || 0} Views
-    </small>
-
-    <button class="btn btn-sm btn-outline-danger" id="like-btn-${docSnap.id}">
-      ❤️ Like
-    </button>
-  </div>`;
-
-const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
-const likeCountEl = card.querySelector(`#like-count-${docSnap.id}`);
-
-
-    
-    const avatar = document.getElementById("userAvatar");
-const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
-const viewerRole = avatar.dataset.role;
-const viewerUsername = avatar.dataset.username;
-const viewerUserPhotoURL = avatar.dataset.photo;
-
-  await sendNotification({
-    toUid: post.owner,
-    fromUid: viewerUserId,
-    fromDisplayName: viewerDisplayName,
-    fromuserAvatar: viewerUserPhotoURL,
-    message: `@${user} liked your post ${post.caption}`,
-    type: "likePost"
-  });
-
-likeBtn.addEventListener("click", async () => {
-  const postRef = doc(db, "posts", docSnap.id);
-  await updateDoc(postRef, {
-    likes: increment(1)
-  });
-
-
-  // Update UI instantly (optional UX)
-  const currentLikes = parseInt(likeCountEl.textContent) || 0;
-  likeCountEl.textContent = currentLikes + 1;
-});
-
-    postGrid.appendChild(card);
-  }
-
-  loadingMore = false;
+  return mediaHTML;
 }
 
 function sanitize(text) {
