@@ -1831,6 +1831,7 @@ document.getElementById("projectHistoryForm").addEventListener("submit", async (
 const url = document.getElementById("projectUrl").value.trim();
 
 const description = document.getElementById("projectDescription").value.trim();
+const projectDate = document.getElementById("projectDate").value;
 const taggedUserIds = extractTaggedUserIds(description);
 
 // Save project with taggedUserIds field
@@ -1839,6 +1840,7 @@ await addDoc(collection(db, `users/${currentUser.uid}/projectHistory`), {
   description,
   url,
   taggedUserIds,
+  projectDate,
   createdAt: serverTimestamp()
 });
     const avatar = document.getElementById("userAvatar");
