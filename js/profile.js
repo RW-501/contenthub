@@ -1777,13 +1777,13 @@ document.getElementById("projectLink").addEventListener("input", () => {
   preview.innerHTML = getVideoEmbedHTML(url);
 });
 
+let mentionList; 
 
 document.getElementById("openReviewModalBtn").addEventListener("click", () => {
   openReviewModal();
 });
 
   
-let mentionList; 
 async function loadMentionList() {
   const usersSnap = await getDocs(collection(db, "users"));
   mentionList = usersSnap.docs.map(doc => {
