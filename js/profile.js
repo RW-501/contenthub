@@ -81,6 +81,7 @@ if (isOwnerView) {
     collabBtn.dataset.displayName = userData.displayName;
   };
 }
+const openReviewModalBtn = document.getElementById("openReviewModalBtn");
 
 
 if (!isOwnerView) {
@@ -89,6 +90,7 @@ if (!isOwnerView) {
 } else {
   editProfileBtn.style.display = "inline-block";
   analyticsBtn.style.display = "inline-block";
+  openReviewModalBtn?.remove();
 }
 
 userBtns.forEach(btn => {
