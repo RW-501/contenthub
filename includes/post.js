@@ -40,12 +40,14 @@ export function initPostScript() {
         <img id="postAvatar" src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
              width="48" height="48" class="rounded-circle me-3" />
         <div class="flex-grow-1">
-          <div contenteditable="true"
-               id="caption"
-               class="form-control empty"
-               data-placeholder="What are you working on? Share an update or request help... ✨"
-               style="min-height: 80px; border-radius: 12px;">
-          </div>
+<div contenteditable="true"
+     id="caption"
+     class="form-control empty"
+     data-suggested="What are you working on? Share an update or request help... ✨"
+     data-placeholder="What are you working on? Share an update or request help... ✨"
+     style="min-height: 80px; border-radius: 12px;">
+</div>
+
         </div>
       </div>
 
@@ -62,8 +64,10 @@ export function initPostScript() {
       </div>
 
       <div id="goalWrapper" class="mb-3" style="display:none;">
-        <input type="text" class="form-control" id="projectGoal"
-               placeholder="What skills or roles are you looking for?" />
+<input type="text" class="form-control" id="projectGoal"
+       placeholder="What skills or roles are you looking for?"
+       data-suggested="What skills or roles are you looking for?" />
+
       </div>
 
       <div id="mediaPreview" class="d-flex flex-wrap gap-2 mb-3"></div>
@@ -126,7 +130,8 @@ export function initPostScript() {
 
     // Set initial placeholder
     const type = postTypeSelect.value || "general";
-    caption.setAttribute("data-placeholder", placeholderMap[type]);
+caption.dataset.suggested = placeholderMap[type];
+caption.setAttribute("data-placeholder", placeholderMap[type]);
     updatePlaceholderState();
   }, 1000);
 
@@ -135,11 +140,17 @@ export function initPostScript() {
     const type = postTypeSelect.value;
 
     if (placeholderMap[type]) {
-      caption.setAttribute("data-placeholder", placeholderMap[type]);
+caption.dataset.suggested = placeholderMap[type];
+caption.setAttribute("data-placeholder", placeholderMap[type]);
       updatePlaceholderState();
     }
 
     projectGoalWrapper.style.display = (type === "collab" || type === "help") ? "block" : "none";
+    const goalInput = document.getElementById("projectGoal");
+if ((type === "collab" || type === "help") && goalInput.value.trim() === "") {
+  goalInput.value = goalInput.dataset.suggested;
+}
+
   });
 
 
