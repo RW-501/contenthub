@@ -2617,6 +2617,35 @@ const projectTemplates = [
     projectDate: "2025-03-08"
   }
 ];
+
+
+
+async function addProjectHistoryToUser(userId, {
+  title,
+  description,
+  url = "",
+  taggedUserIds = [],
+  projectDate = new Date()
+}) {
+  if (!userId || !title || !description) {
+    console.error("Missing required fields.");
+    return;
+  }
+
+  const ref = collection(db, `users/${userId}/projectHistory`);
+
+  await addDoc(ref, {
+    title,
+    description,
+    url,
+    taggedUserIds,
+    projectDate: new Date(projectDate),
+    createdAt: serverTimestamp()
+  });
+
+  console.log(`✅ Project history added to user: ${userId}`);
+}
+
 async function getDemoUserIds() {
   const q = query(collection(db, "users"), where("role", "==", "demo"));
   const snapshot = await getDocs(q);
