@@ -247,21 +247,61 @@ async function createPostCard(post, postId) {
   const userSnap = await getDoc(doc(db, "users", post.owner));
   const userData = userSnap.exists() ? userSnap.data() : {};
 
+  // 🏷️ Type badge (optional visual cue)
+  let typeBadge = "";
+  if (post.type === "collab") {
+    typeBadge = `<span class="badge bg-primary me-2">🤝 Collaboration Request</span>`;
+  } else if (post.type === "help") {
+    typeBadge = `<span class="badge bg-warning text-dark me-2">🆘 Help Wanted</span>`;
+  }
+
+  // 🧩 Join Request Button
+  let joinButton = "";
+  if (["collab", "help"].includes(post.type)) {
+    joinButton = `
+      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${postId}', '${post.owner}')">
+        Request to Join
+      </button>
+    `;
+  }
+
+  // ❤️ Like button
+  const likeBtnId = `like-btn-${postId}`;
+  const likeCountId = `like-count-${postId}`;
+
+  // 🧱 Card HTML
   card.innerHTML = `
     ${mediaHTML}
     <div class="card-body">
       <div class="d-flex align-items-center mb-2">
-        <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" class="creator-avata rounded-circle me-2" width="40" height="40" />
-        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">${userData.displayName || 'Unknown User'}</a>
+        <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
+             class="creator-avata rounded-circle me-2"
+             width="40" height="40" />
+        <div>
+          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
+             class="fw-bold text-decoration-none">
+             ${userData.displayName || 'Unknown User'}
+          </a><br/>
+          ${typeBadge}
+        </div>
       </div>
+
       <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
-      <small class="text-muted d-block mb-2">${timeAgo} • <span id="like-count-${postId}">${post.likes || 0}</span> Likes • ${post.views || 0} Views</small>
-      <button class="btn btn-sm btn-outline-danger" id="like-btn-${postId}">❤️ Like</button>
+
+      <small class="text-muted d-block mb-2">
+        ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes • ${post.views || 0} Views
+      </small>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-danger" id="${likeBtnId}">❤️ Like</button>
+        ${joinButton}
+      </div>
     </div>
   `;
 
-  const likeBtn = card.querySelector(`#like-btn-${postId}`);
-  const likeCountEl = card.querySelector(`#like-count-${postId}`);
+  // ❤️ Like logic
+  const likeBtn = card.querySelector(`#${likeBtnId}`);
+  const likeCountEl = card.querySelector(`#${likeCountId}`);
   likeBtn.addEventListener("click", () => likePost(postId, likeCountEl, post.owner, post.caption));
 
   return card;

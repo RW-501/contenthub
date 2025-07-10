@@ -40,6 +40,16 @@ export function initPostScript() {
 const composerHTML = `
   <div id="postComposer" class="p-4 border rounded-4 shadow bg-white mb-4">
     <div class="d-flex align-items-start mb-3">
+
+    <div class="mb-3">
+  <label for="postType" class="form-label">Post Type</label>
+  <select id="postType" class="form-select">
+    <option value="general">📝 General Post</option>
+    <option value="collab">🤝 Collaboration Request</option>
+    <option value="help">🆘 Looking for Help</option>
+  </select>
+</div>
+
 <div contenteditable="true"
      id="caption"
      class="form-control empty"
@@ -55,6 +65,7 @@ const composerHTML = `
     </div>
 
     <input type="text" class="form-control mb-2" id="contributors" placeholder="Tag collaborators using @username or their email..." />
+<input type="text" class="form-control mb-2" id="projectGoal" placeholder="(Optional) What skills or roles are you looking for?" />
 
     <button hidden class="btn btn-outline-secondary w-100 mb-2" onclick="document.getElementById('scheduleTime').click()">📅 Schedule Post</button>
     <input type="datetime-local" id="scheduleTime" class="form-control mb-2" hidden />
@@ -89,6 +100,18 @@ captionBox.addEventListener('input', () => {
 
   // Initial check
   updatePlaceholderState()
+
+  const postTypeSelect = document.getElementById("postType");
+postTypeSelect.addEventListener("change", () => {
+  const type = postTypeSelect.value;
+  const placeholderMap = {
+    general: "What are you creating today? Share it with the world... ✨",
+    collab: "Looking for collaborators? Describe your project and who you're looking for...",
+    help: "Need help on a project? Describe the issue or assistance you need..."
+  };
+  caption.setAttribute("data-placeholder", placeholderMap[type]);
+  updatePlaceholderState(); // refresh placeholder visibility
+});
 
 // Media Handling
 let selectedFiles = [];
@@ -147,6 +170,7 @@ publishBtn.addEventListener("click", async () => {
   const captionRaw = document.getElementById("caption").innerText.trim();
   const contributorsRaw = document.getElementById("contributors").value;
   const scheduleTime = document.getElementById("scheduleTime").value;
+  const projectGoal = document.getElementById("projectGoal").value.trim();
 
   // Auto detect hashtags from #...
   const tags = [...captionRaw.matchAll(/#(\w+)/g)].map(m => m[1].toLowerCase());
@@ -177,17 +201,20 @@ publishBtn.addEventListener("click", async () => {
     }
   }
 
-  await addDoc(collection(db, "posts"), {
-    owner: user.uid,
-    caption: captionRaw,
-    tags,
-    contributors,
-    media: uploaded,
-    likes: 0,
-    views: 0,
-    createdAt: new Date(),
-    scheduledAt: scheduleTime ? new Date(scheduleTime) : null
-  });
+await addDoc(collection(db, "posts"), {
+  owner: user.uid,
+  caption: captionRaw,
+  tags,
+  contributors,
+  media: uploaded,
+  likes: 0,
+  views: 0,
+  type: postTypeSelect.value,  // 🔥 new field
+  projectGoal: projectGoal || null,
+  createdAt: new Date(),
+  scheduledAt: scheduleTime ? new Date(scheduleTime) : null
+});
+
 
   showModal({ title: "Posted!", message: "✅ Post Created!", autoClose: 3000 });
   location.reload();
