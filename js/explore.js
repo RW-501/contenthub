@@ -247,7 +247,6 @@ async function createPostCard(post, postId) {
   const userSnap = await getDoc(doc(db, "users", post.owner));
   const userData = userSnap.exists() ? userSnap.data() : {};
 
-  // 🏷️ Type badge (optional visual cue)
   let typeBadge = "";
   if (post.type === "collab") {
     typeBadge = `<span class="badge bg-primary me-2">🤝 Collaboration Request</span>`;
@@ -255,7 +254,6 @@ async function createPostCard(post, postId) {
     typeBadge = `<span class="badge bg-warning text-dark me-2">🆘 Help Wanted</span>`;
   }
 
-  // 🧩 Join Request Button
   let joinButton = "";
   if (["collab", "help"].includes(post.type)) {
     joinButton = `
@@ -265,11 +263,11 @@ async function createPostCard(post, postId) {
     `;
   }
 
-  // ❤️ Like button
   const likeBtnId = `like-btn-${postId}`;
+  const helpfulBtnId = `helpful-btn-${postId}`;
+  const interestedBtnId = `interested-btn-${postId}`;
   const likeCountId = `like-count-${postId}`;
 
-  // 🧱 Card HTML
   card.innerHTML = `
     ${mediaHTML}
     <div class="card-body">
@@ -292,8 +290,10 @@ async function createPostCard(post, postId) {
         ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes • ${post.views || 0} Views
       </small>
 
-      <div class="d-flex gap-2">
+      <div class="d-flex flex-wrap gap-2">
         <button class="btn btn-sm btn-outline-danger" id="${likeBtnId}">❤️ Like</button>
+        <button class="btn btn-sm btn-outline-success" id="${helpfulBtnId}">🙌 Helpful</button>
+        <button class="btn btn-sm btn-outline-info" id="${interestedBtnId}">⭐ Interested</button>
         ${joinButton}
       </div>
     </div>
@@ -304,26 +304,39 @@ async function createPostCard(post, postId) {
   const likeCountEl = card.querySelector(`#${likeCountId}`);
   likeBtn.addEventListener("click", () => likePost(postId, likeCountEl, post.owner, post.caption));
 
+  // 🙌 Helpful button logic
+  const helpfulBtn = card.querySelector(`#${helpfulBtnId}`);
+  helpfulBtn.addEventListener("click", () =>
+    reactToPost(postId, "helpful", post.owner, post.caption)
+  );
+
+  // ⭐ Interested button logic
+  const interestedBtn = card.querySelector(`#${interestedBtnId}`);
+  interestedBtn.addEventListener("click", () =>
+    reactToPost(postId, "interested", post.owner, post.caption)
+  );
+
   return card;
 }
 
-async function likePost(postId, likeCountEl, ownerId, caption) {
-  const postRef = doc(db, "posts", postId);
-  await updateDoc(postRef, { likes: increment(1) });
 
-  const currentLikes = parseInt(likeCountEl.textContent) || 0;
-  likeCountEl.textContent = currentLikes + 1;
+async function reactToPost(postId, type, ownerId, caption) {
+  const postRef = doc(db, "posts", postId);
+  await updateDoc(postRef, { [`${type}Count`]: increment(1) });
 
   const viewer = getViewerData();
+  const emoji = type === "helpful" ? "🙌" : "⭐";
+
   await sendNotification({
     toUid: ownerId,
     fromUid: viewer.uid,
     fromDisplayName: viewer.name,
     fromuserAvatar: viewer.photo,
-    message: `@${viewer.username} liked your post: "${caption}"`,
-    type: "likePost"
+    message: `${viewer.username} marked your post as ${type} ${emoji}: "${caption}"`,
+    type: `${type}Post`
   });
 }
+
 function renderMedia(media) {
   if (!media || !media.url) return "";
 
