@@ -2699,7 +2699,7 @@ async function seedDemoUserProjects() {
 
 
 
-
+/*
 const ENABLE_PROJECT_SEEDING = true;
 
 if (ENABLE_PROJECT_SEEDING) {
@@ -2707,3 +2707,5 @@ if (ENABLE_PROJECT_SEEDING) {
     seedDemoUserProjects().catch(console.error);
   });
 }
+
+*/
