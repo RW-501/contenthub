@@ -2646,6 +2646,9 @@ async function addProjectHistoryToUser(userId, {
   console.log(`✅ Project history added to user: ${userId}`);
 }
 
+window.addProjectHistoryToUser  = addProjectHistoryToUser;
+
+
 async function getDemoUserIds() {
   const q = query(collection(db, "users"), where("role", "==", "demo"));
   const snapshot = await getDocs(q);
