@@ -2922,7 +2922,7 @@ const sampleReviews = [
         collabType: review.collabType,
         projectLink: review.projectLink,
         submittedAt: Timestamp.now(),
-        confirmedByTarget: false,
+        confirmedByTarget: true,
         approved: true
       };
 
