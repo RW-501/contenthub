@@ -345,7 +345,7 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
     <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
     <div class="badge-name">${task.reward.badge}</div>
     <div class="badge-type">${task.type}</div>
-    <div class="badge-points text-muted small">${task.reward.points} pts</div>
+    <div class="badge-points small">${task.reward.points} pts</div>
     ${completedDate}
   `;
 
