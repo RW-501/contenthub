@@ -618,14 +618,14 @@ async function loadUserPosts(uid, displayName, photoURL) {
           ${post.views || 0} Views
         </small>
 
-        <div class="d-flex gap-2 flex-wrap">
+        <div class="d-flex gap-2  mb-2">
           <button class="btn btn-sm btn-outline-danger" id="like-btn-${docSnap.id}">❤️ Like</button>
           <button class="btn btn-sm btn-outline-success" id="helpful-btn-${docSnap.id}">🙌 Helpful</button>
           <button class="btn btn-sm btn-outline-info" id="interested-btn-${docSnap.id}">⭐ Interested</button>
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2  mb-2">
         ${joinButton}
       </div>
-    <button class="btn btn-sm btn-outline-primary" data-post-id="${docSnap.id}" onclick="openComments('${docSnap.id}')">
+    <button class="btn btn-sm btn-outline-primary  mb-2" data-post-id="${docSnap.id}" onclick="openComments('${docSnap.id}')">
       💬 Comments
     </button>
           </div>

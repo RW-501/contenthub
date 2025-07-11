@@ -308,15 +308,15 @@ async function createPostCard(post, postId) {
         ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes • ${post.views || 0} Views
       </small>
 
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2  mb-2">
         <button class="btn btn-sm btn-outline-danger" id="${likeBtnId}">❤️ Like</button>
         <button class="btn btn-sm btn-outline-success" id="${helpfulBtnId}">🙌 Helpful</button>
         <button class="btn btn-sm btn-outline-info" id="${interestedBtnId}">⭐ Interested</button>
       </div>
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 mb-2">
         ${joinButton}
       </div>
-    <button class="btn btn-sm btn-outline-primary" data-post-id="${postId}" onclick="openComments('${postId}')">
+    <button class="btn btn-sm btn-outline-primary  mb-2" data-post-id="${postId}" onclick="openComments('${postId}')">
       💬 Comments
     </button>
     </div>
