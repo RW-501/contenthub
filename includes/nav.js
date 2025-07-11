@@ -336,7 +336,7 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
     : "";
 
   return `
-    <div class="col badge-tile ${badgeType} ${earnedClass}" onclick="showBadgeDetail(${JSON.stringify(task)}, ${isDone})">
+    <div class="col badge-tile ${badgeType} ${earnedClass}" onclick="showBadgeDetail(${task}, ${isDone})">
       <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
       <div class="badge-name">${task.reward.badge}</div>
       <div class="badge-type">${task.type}</div>
