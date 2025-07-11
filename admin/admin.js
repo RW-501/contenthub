@@ -491,25 +491,115 @@ window.deletePost = async (postId, reportId) => {
 };
 
 // Feature Management
-document.getElementById("setFeaturedBtn").addEventListener("click", async () => {
-  const uid = document.getElementById("featureCreatorUID").value.trim();
-  if (!uid) return alert("Enter UID");
-  await updateDoc(doc(db, "users", uid), { featured: true });
-  alert("Creator featured!");
-});
+let allFeaturedUsers = [];
+let currentPage = 1;
+const usersPerPage = 6;
 
-document.getElementById("assignBadgeBtn").addEventListener("click", async () => {
-  const badge = document.getElementById("badgeName").value.trim();
-  const uid = document.getElementById("badgeUserUID").value.trim();
-  if (!badge || !uid) return alert("Missing fields");
-  await setDoc(doc(db, "badges", `${uid}_${badge}`), {
-    userId: uid,
-    badge,
-    assignedAt: new Date()
+document.getElementById("loadFeaturedBtn").addEventListener("click", loadAndRenderFeaturedUsers);
+document.getElementById("sortFeaturedSelect").addEventListener("change", renderFeaturedPage);
+document.getElementById("searchFeaturedInput").addEventListener("input", renderFeaturedPage);
+document.getElementById("prevPageBtn").addEventListener("click", () => changePage(-1));
+document.getElementById("nextPageBtn").addEventListener("click", () => changePage(1));
+
+async function loadAndRenderFeaturedUsers() {
+  const snapshot = await getDocs(query(collection(db, "users"), where("featured.isFeatured", "==", true)));
+  allFeaturedUsers = [];
+
+  snapshot.forEach(doc => {
+    const user = doc.data();
+    const id = doc.id;
+    const featured = user.featured || {};
+    const startDate = featured.startDate?.toDate?.();
+    const endDate = featured.featuredUntil?.toDate?.();
+
+    if (endDate && endDate > new Date()) {
+      allFeaturedUsers.push({
+        id,
+        displayName: user.displayName || "Unnamed",
+        photoURL: user.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
+        reason: featured.reason || "Featured Creator",
+        rank: featured.rank || 99,
+        startDate,
+        featuredUntil: endDate
+      });
+    }
   });
-  alert("Badge assigned!");
-});
 
+  currentPage = 1;
+  renderFeaturedPage();
+}
+
+function renderFeaturedPage() {
+  const list = document.getElementById("featuredUsersList");
+  const sortBy = document.getElementById("sortFeaturedSelect").value;
+  const query = document.getElementById("searchFeaturedInput").value.toLowerCase();
+
+  let filtered = allFeaturedUsers.filter(u => u.displayName.toLowerCase().includes(query));
+
+  if (sortBy === "rank") {
+    filtered.sort((a, b) => a.rank - b.rank);
+  } else {
+    filtered.sort((a, b) => new Date(a.startDate || 0) - new Date(b.startDate || 0));
+  }
+
+  const totalPages = Math.ceil(filtered.length / usersPerPage);
+  const startIdx = (currentPage - 1) * usersPerPage;
+  const paginated = filtered.slice(startIdx, startIdx + usersPerPage);
+
+  list.innerHTML = "";
+
+  if (paginated.length === 0) {
+    list.innerHTML = `<div class="col-12 text-muted text-center">No featured users found.</div>`;
+  }
+
+  paginated.forEach(user => {
+    const daysLeft = Math.max(0, Math.ceil((user.featuredUntil - new Date()) / (1000 * 60 * 60 * 24)));
+
+    const card = `
+      <div class="col">
+        <div class="card h-100 border-warning shadow-sm">
+          <div class="card-body text-center">
+            <img src="${user.photoURL}" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+            <h6 class="fw-bold mb-0">${user.displayName}</h6>
+            <small class="text-muted d-block mb-2">Rank: ${user.rank} | ${daysLeft} day(s) left</small>
+            <div class="mb-2"><span class="badge bg-warning text-dark">${user.reason}</span></div>
+            <button onclick="unfeatureUser('${user.id}')" class="btn btn-sm btn-outline-danger">❌ Remove</button>
+          </div>
+        </div>
+      </div>
+    `;
+    list.insertAdjacentHTML("beforeend", card);
+  });
+
+  document.getElementById("pageIndicator").innerText = `Page ${currentPage} / ${totalPages}`;
+  document.getElementById("prevPageBtn").disabled = currentPage === 1;
+  document.getElementById("nextPageBtn").disabled = currentPage === totalPages;
+}
+
+function changePage(direction) {
+  const totalPages = Math.ceil(allFeaturedUsers.length / usersPerPage);
+  currentPage += direction;
+  currentPage = Math.max(1, Math.min(currentPage, totalPages));
+  renderFeaturedPage();
+}
+
+async function unfeatureUser(uid) {
+  const confirmMsg = confirm("Are you sure you want to remove this user from featured?");
+  if (!confirmMsg) return;
+
+  try {
+    await updateDoc(doc(db, "users", uid), {
+      "featured.isFeatured": false
+    });
+    alert("✅ User has been unfeatured.");
+    loadAndRenderFeaturedUsers(); // refresh the list
+  } catch (err) {
+    console.error("Error unfeaturing user:", err);
+    alert("❌ Failed to unfeature user.");
+  }
+}
+
+window.unfeatureUser = unfeatureUser;
 
 
 
