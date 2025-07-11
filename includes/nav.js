@@ -14,7 +14,7 @@ import {
 
 // ✅ Import your Firebase app config
 import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
-import { sendNotification, NOTIFICATION_TEMPLATES, markAllNotificationsRead } from "https://rw-501.github.io/contenthub/includes/notifications.js";
+import { sendNotification, NOTIFICATION_TEMPLATES, markAllNotificationsRead, rewardTasks } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 // ✅ Init services
 const auth = getAuth(app);
@@ -229,3 +229,46 @@ showModal({
 
 
 
+
+async function loadRewardModal() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const uid = user.uid;
+  const userSnap = await getDoc(doc(db, "users", uid));
+  const userData = userSnap.exists() ? userSnap.data() : {};
+
+  const grid = document.getElementById("rewardGrid");
+  grid.innerHTML = "";
+
+  const completed = userData.rewardsCompleted || [];
+
+  let nextTask = null;
+
+  for (const task of rewardTasks) {
+    const isDone = completed.includes(task.id);
+    const icon = isDone ? "🏅" : "🔓";
+    const tile = document.createElement("div");
+    tile.className = `col badge-tile ${isDone ? 'earned' : ''}`;
+    tile.innerHTML = `
+      <div class="badge-icon">${icon}</div>
+      <div class="badge-name">${task.reward.badge}</div>
+      <div class="badge-type">${task.type}</div>
+      <div class="badge-points text-muted small">${task.reward.points} pts</div>
+    `;
+    grid.appendChild(tile);
+
+    // Find the next unearned task
+    if (!isDone && !nextTask) nextTask = task;
+  }
+
+  const next = document.getElementById("nextTask");
+  next.innerHTML = nextTask
+    ? `🎯 <strong>${nextTask.reward.badge}</strong> — ${Object.entries(nextTask.condition)[0].join(": ")}`
+    : "🏆 All rewards completed!";
+}
+
+
+document.getElementById("viewRewardsBtn")?.addEventListener("click", () => {
+  loadRewardModal();
+});

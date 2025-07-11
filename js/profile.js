@@ -1648,9 +1648,27 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     type: "feedback",
   });
   
-  await addDoc(collection(db, `users/${toUserId}/reviews`), reviewData);
+// Inside your existing event listener for review submission
+await addDoc(collection(db, `users/${toUserId}/reviews`), reviewData);
 
-  alert("Review submitted! Waiting for confirmation by the other creator.");
+// 🔥 Update feedback count
+const userRef = doc(db, "users", currentUser.uid);
+await updateDoc(userRef, {
+  feedbackCount: increment(1)
+});
+
+// ✅ Re-check for task rewards
+const updatedSnap = await getDoc(userRef);
+const updatedData = updatedSnap.data();
+await checkAndAwardTasks(currentUser.uid, updatedData);
+
+  showModal({
+    title: `🎉 ${task.reward.badge || "Task Complete"}`,
+    message: `You earned ${task.reward.points || 0} points!`,
+    autoClose: 4000
+  });
+  
+  
   bootstrap.Modal.getInstance(document.getElementById("reviewModal")).hide();
 });
 

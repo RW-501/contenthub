@@ -166,7 +166,16 @@ async function requestToJoin(collabId, ownerId) {
       status: "pending",
       timestamp: serverTimestamp()
     });
+    // ✅ Increment collabRequestsSent on user
+    const userRef = doc(db, "users", viewer.uid);
+    await updateDoc(userRef, {
+      collabRequestsSent: increment(1)
+    });
 
+    // ✅ Re-check reward task progress
+    const updatedSnap = await getDoc(userRef);
+    const updatedUser = updatedSnap.data();
+    await checkAndAwardTasks(viewer.uid, updatedUser);
     showModal({
       title: "Request Sent",
       message: "Your request to join has been sent.",

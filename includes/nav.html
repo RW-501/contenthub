@@ -140,6 +140,37 @@ display: block;
 }
 
 
+#rewardsModal {
+.badge-tile {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: 0.3s;
+  border: 2px solid transparent;
+}
+.badge-tile.earned {
+  border-color: #28a745;
+  box-shadow: 0 0 10px rgba(40,167,69,0.3);
+}
+.badge-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.badge-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.badge-type {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+}
+
+
+
 
 
 </style>
@@ -190,7 +221,11 @@ display: block;
 <li><button id="notifBellBtn" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#notifModal">
    Notifications
 </button></li>
-          <li><a class="dropdown-item" href="https://rw-501.github.io/contenthub/pages/collabs/">Collab</a></li>
+        <li><a class="dropdown-item" href="https://rw-501.github.io/contenthub/pages/collabs/">Collab</a></li>
+        <li><button id="viewRewardsBtn" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#rewardsModal">
+  🎖️ View Rewards
+</button></li>
+
         <li><a class="dropdown-item" href="https://rw-501.github.io/contenthub/pages/invite.html">Invites</a></li>
 
           <li><button class="dropdown-item" id="logoutBtn">Logout</button></li>
@@ -237,6 +272,27 @@ display: block;
   </div>
 </div>
 
+<!-- Rewards Modal -->
+<div class="modal fade" id="rewardsModal" tabindex="-1" aria-labelledby="rewardsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="rewardsModalLabel">🎖️ Your Rewards & Badges</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div id="rewardGrid" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3"></div>
+
+        <hr>
+        <div class="text-center mt-4">
+          <h6 class="text-muted">Next Up...</h6>
+          <div id="nextTask" class="mt-2 text-primary fw-semibold"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <style>
     #reusableModal {

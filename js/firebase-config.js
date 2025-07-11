@@ -10,6 +10,7 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyALJLxSJthWI2tnQZ-WnK1DDQNEelUCr7s",
   authDomain: "content-hub-11923.firebaseapp.com",
@@ -26,6 +27,8 @@ const db = getFirestore(app);
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
+  
+
     const userSnap = await getDoc(doc(db, "users", user.uid));
     const data = userSnap.data();
 
@@ -40,6 +43,8 @@ onAuthStateChanged(auth, async (user) => {
     localStorage.setItem("currentUserData", JSON.stringify(safeUserData));
   }
 });
+
+
 
 function getCurrentUserData() {
   if (window.currentUserData) return window.currentUserData;
@@ -78,3 +83,8 @@ function insertBootstrapCSS() {
 
 // Call it early in your script
 insertBootstrapIcons();
+
+
+
+
+

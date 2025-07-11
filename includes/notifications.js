@@ -8,7 +8,7 @@ import {
   onSnapshot,
   addDoc,
   serverTimestamp,
-  updateDoc,
+  updateDoc, increment,
   doc,
   getDocs,
   getDoc,
@@ -17,6 +17,7 @@ import {
   limit,
   startAfter
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
 
 let notificationsUnsub;
 
@@ -29,6 +30,8 @@ let groupingMode = "flat"; // or "day"
 export async function initLiveNotifications() {
   const user = auth.currentUser;
   if (!user) return;
+  
+  checkDailyLoginReward(user);
 
   const notifList = document.getElementById("notificationList");
   const avatar = document.getElementById("userAvatar");
@@ -318,7 +321,7 @@ document.getElementById("saveNotifSettingsBtn").addEventListener("click", async 
 */
 
 
-const rewardTasks = [
+export const rewardTasks = [ 
   {
     id: "referral-5",
     type: "referral",
@@ -362,14 +365,59 @@ const rewardTasks = [
     condition: { postCount: 25 },
     reward: { badge: "25 Posts", points: 200 }
   },
+ {
+    id: "feedback-1",
+    type: "feedback",
+    condition: { feedbackCount: 1 },
+    reward: { badge: "First Feedback", points: 20 }
+  },
   {
-    id: "first-collab",
-    type: "collaboration",
-    condition: { collabsCompleted: 1 },
-    reward: { badge: "First Collab", points: 30 }
-  }
+    id: "feedback-5",
+    type: "feedback",
+    condition: { feedbackCount: 5 },
+    reward: { badge: "Feedback Giver Lv.1", points: 50 }
+  },
+  {
+    id: "feedback-10",
+    type: "feedback",
+    condition: { feedbackCount: 10 },
+    reward: { badge: "Feedback Giver Lv.2", points: 100 }
+  },{
+  id: "collab-request-1",
+  type: "collab",
+  condition: { collabRequestsSent: 1 },
+  reward: { badge: "First Collab Request", points: 10 }
+},
+{
+  id: "collab-request-5",
+  type: "collab",
+  condition: { collabRequestsSent: 5 },
+  reward: { badge: "Collab Seeker Lv.1", points: 30 }
+},
+ { id: "login-1",   type: "dailyLogin", condition: { dailyLogins: 1 },   reward: { badge: "Logged In 1 Day", points: 10 } },
+  { id: "login-2",   type: "dailyLogin", condition: { dailyLogins: 2 },   reward: { badge: "2-Day Streak", points: 15 } },
+  { id: "login-3",   type: "dailyLogin", condition: { dailyLogins: 3 },   reward: { badge: "3-Day Streak", points: 20 } },
+  { id: "login-4",   type: "dailyLogin", condition: { dailyLogins: 4 },   reward: { badge: "4-Day Streak", points: 25 } },
+  { id: "login-5",   type: "dailyLogin", condition: { dailyLogins: 5 },   reward: { badge: "5-Day Streak", points: 30 } },
+  { id: "login-6",   type: "dailyLogin", condition: { dailyLogins: 6 },   reward: { badge: "6-Day Streak", points: 35 } },
+  { id: "login-7",   type: "dailyLogin", condition: { dailyLogins: 7 },   reward: { badge: "7-Day Champion", points: 40 } },
+
+  { id: "login-14",  type: "dailyLogin", condition: { dailyLogins: 14 },  reward: { badge: "2 Weeks Strong", points: 60 } },
+  { id: "login-20",  type: "dailyLogin", condition: { dailyLogins: 20 },  reward: { badge: "20 Days Logged", points: 80 } },
+  { id: "login-30",  type: "dailyLogin", condition: { dailyLogins: 30 },  reward: { badge: "30-Day Warrior", points: 100 } },
+  { id: "login-100", type: "dailyLogin", condition: { dailyLogins: 100 }, reward: { badge: "Century Club", points: 200 } },
+  { id: "login-200", type: "dailyLogin", condition: { dailyLogins: 200 }, reward: { badge: "Login Legend", points: 400 } }
+
+
+
 ];
 
+function showRewardToast(task) {
+  const msg = task.reward.badge
+    ? `🎉 You earned the "${task.reward.badge}" badge!`
+    : `🎁 You earned ${task.reward.points} points!`;
+  showModal({ title: "Reward Earned", message: msg, autoClose: 4000 });
+}
 
 export async function checkAndAwardTasks(uid, userData) {
   const userRef = doc(db, "users", uid);
@@ -415,7 +463,50 @@ export async function checkAndAwardTasks(uid, userData) {
       }
 
       await updateDoc(userRef, updates);
+
+      showRewardToast(task);
+
       console.log(`✅ Awarded task ${task.id} to ${uid}`);
     }
   }
 }
+
+
+
+
+async function checkDailyLoginReward(user) {
+  const uid = user.uid;
+  const todayKey = `dailyLoginCheck_${uid}_${new Date().toDateString()}`;
+
+  // ✅ Already checked today? Skip
+  if (localStorage.getItem(todayKey)) {
+    console.log("🟡 Daily login already checked in this session.");
+    return;
+  }
+
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+  const userData = userSnap.exists() ? userSnap.data() : {};
+  const lastLogin = userData.lastLogin?.toDate?.();
+  const todayStr = new Date().toDateString();
+
+  // 🟡 Check if user already logged in today in Firestore
+  if (lastLogin && new Date(lastLogin).toDateString() === todayStr) {
+    console.log("✅ Already logged in today (Firestore).");
+    localStorage.setItem(todayKey, "true"); // ✅ Save local flag
+    return;
+  }
+
+  // ✅ Update Firestore and localStorage
+  await updateDoc(userRef, {
+    lastLogin: serverTimestamp(),
+    dailyLogins: increment(1)
+  });
+
+  const updatedSnap = await getDoc(userRef);
+  await checkAndAwardTasks(uid, updatedSnap.data());
+
+  localStorage.setItem(todayKey, "true");
+  console.log("🎉 Daily login reward recorded!");
+}
+
