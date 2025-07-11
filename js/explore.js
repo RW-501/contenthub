@@ -219,13 +219,21 @@ async function loadRegularPosts(filter, search) {
   const snap = await getDocs(q);
   if (!snap.empty) lastVisiblePost = snap.docs[snap.docs.length - 1];
 
+  const now = new Date();
+
   for (const docSnap of snap.docs) {
     const post = docSnap.data();
+
+    // Skip post if scheduledAt is in the future
+    if (post.scheduledAt && post.scheduledAt.toDate() > now) continue;
+
     if (shouldSkipPost(post, search)) continue;
+
     const card = await createPostCard(post, docSnap.id);
     postGrid.appendChild(card);
   }
 }
+
 
 
 

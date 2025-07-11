@@ -3114,10 +3114,13 @@ async function seedDemoUserPosts() {
   console.log("📢 Finished seeding demo user posts.");
 }
 
-
+/*
 window.addEventListener("DOMContentLoaded", () => {
   const ENABLE_DEMO_POST_SEEDING = true;
   if (ENABLE_DEMO_POST_SEEDING) {
     seedDemoUserPosts().catch(console.error);
   }
 });
+
+
+*/
