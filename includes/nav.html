@@ -142,29 +142,91 @@ display: block;
 
 #rewardsModal {
 .badge-tile {
-  background: #f8f9fa;
+  border: 2px solid #ccc;
   border-radius: 12px;
-  padding: 16px;
+  padding: 12px;
+  margin-bottom: 15px;
+  background: #fff;
   text-align: center;
-  transition: 0.3s;
-  border: 2px solid transparent;
+  transition: all 0.3s ease;
 }
 .badge-tile.earned {
-  border-color: #28a745;
-  box-shadow: 0 0 10px rgba(40,167,69,0.3);
+  border-color: #4caf50;
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.3);
 }
+
 .badge-icon {
   font-size: 2rem;
-  display: block;
   margin-bottom: 8px;
 }
 .badge-name {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 .badge-type {
   font-size: 0.75rem;
   color: #666;
+}
+.badge-points {
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+/* ------------------------------
+   Badge Themes by Type
+------------------------------ */
+
+.badge-type-post {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #442a1d;
+  border-color: #ffa07a;
+}
+.badge-type-feedback {
+  background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+  color: #3c2170;
+  border-color: #ab7bee;
+}
+.badge-type-referral {
+  background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+  color: #2d6a4f;
+  border-color: #52b788;
+}
+.badge-type-collab {
+  background: linear-gradient(135deg, #c2e9fb 0%, #a1c4fd 100%);
+  color: #1e3a8a;
+  border-color: #60a5fa;
+}
+.badge-type-dailyLogin {
+  background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);
+  color: #775700;
+  border-color: #ffc107;
+}
+.badge-type-profile {
+  background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+  color: #4a148c;
+  border-color: #ce93d8;
+}
+.badge-type-viewsGiven,
+.badge-type-viewsReceived {
+  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  color: #374151;
+  border-color: #cbd5e1;
+}
+.badge-type-reaction {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+  color: #5d0b0b;
+  border-color: #f87171;
+}
+.badge-type-special {
+  background: linear-gradient(135deg, #a1ffce 0%, #faffd1 100%);
+  color: #003d2f;
+  border-color: #7dd3fc;
+}
+
+/* Optional: Hover Effect */
+.badge-tile:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 18px rgba(0,0,0,0.15);
 }
 
 }
@@ -223,7 +285,7 @@ display: block;
 </button></li>
         <li><a class="dropdown-item" href="https://rw-501.github.io/contenthub/pages/collabs/">Collab</a></li>
         <li><button id="viewRewardsBtn" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#rewardsModal">
-  🎖️ View Rewards
+   View Rewards
 </button></li>
 
         <li><a class="dropdown-item" href="https://rw-501.github.io/contenthub/pages/invite.html">Invites</a></li>

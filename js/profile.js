@@ -312,6 +312,31 @@ loadProjectHistory(currentPageID);
       type: "profileView",
     });
 
+// 🔥 1. Increment profileViews for the viewed user
+await updateDoc(doc(db, "users", viewingUserId), {
+  profileViews: increment(1)
+});
+
+// 🔥 2. Increment profilesViewed for the viewer
+await updateDoc(doc(db, "users", viewerUserId), {
+  profilesViewed: increment(1)
+});
+
+// ✅ 3. Check & award for both
+const [viewedSnap, viewerSnap] = await Promise.all([
+  getDoc(doc(db, "users", viewingUserId)),
+  getDoc(doc(db, "users", viewerUserId))
+]);
+
+if (viewedSnap.exists()) {
+  await checkAndAwardTasks(viewingUserId, viewedSnap.data());
+}
+if (viewerSnap.exists()) {
+  await checkAndAwardTasks(viewerUserId, viewerSnap.data());
+}
+
+
+
     console.log("✅ Notification sent successfully.");
   }, 2000); // ⏱ 2 second delay
 
@@ -615,6 +640,36 @@ async function loadUserPosts(uid, displayName, photoURL) {
 
     postGrid.appendChild(card);
   }
+}
+async function reactToPost(postId, type, ownerId, caption) {
+  const postRef = doc(db, "posts", postId);
+  const userRef = doc(db, "users", ownerId);
+
+  await updateDoc(postRef, { [`${type}Count`]: increment(1) });
+  await updateDoc(userRef, {
+    [`receivedReactions.${type}`]: increment(1)
+  });
+
+  const viewer = getViewerData();
+  const emojiMap = {
+    helpful: "🙌",
+    interested: "⭐",
+    like: "❤️"
+  };
+  const emoji = emojiMap[type] || "✨";
+
+  await sendNotification({
+    toUid: ownerId,
+    fromUid: viewer.uid,
+    fromDisplayName: viewer.name,
+    fromuserAvatar: viewer.photo,
+    message: `${viewer.username} marked your post as ${type} ${emoji}: "${caption}"`,
+    type: `${type}Post`
+  });
+
+  // 🎯 Optionally check for reward
+  const updatedSnap = await getDoc(userRef);
+  await checkAndAwardTasks(ownerId, updatedSnap.data());
 }
 
 
@@ -924,6 +979,12 @@ const selectedNiches = new Set();
   }
 });
 
+
+
+
+
+
+
   // Save profile changes
   document.getElementById("editProfileForm").addEventListener("submit", async e => {
     e.preventDefault();
@@ -997,7 +1058,32 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
     type: "profileUpdate",
   });
-    await updateDoc(userRef, updates);
+
+// After updating Firestore...
+await updateDoc(userRef, updates);
+
+// ⬇️ Fetch the updated user data for reward checks
+const snap = await getDoc(userRef);
+const newUserData = snap.data();
+
+// Track task-related conditions
+newUserData.avatarUploaded = !!updates.photoURL;
+newUserData.socialLinksCount = links.length;
+newUserData.nicheCount = niches.length;
+newUserData.profileUpdated = true;
+
+newUserData.profileComplete = Boolean(
+  updates.bio &&
+  updates.displayName &&
+  updates.username &&
+  updates.contentTypes?.length &&
+  updates.niches?.length &&
+  updates.userLocation?.country
+);
+
+// Call reward checker
+await checkAndAwardTasks(currentUser.uid, newUserData);
+
 
     
 const modalEl = document.getElementById("editModal");

@@ -407,6 +407,128 @@ export const rewardTasks = [
   { id: "login-30",  type: "dailyLogin", condition: { dailyLogins: 30 },  reward: { badge: "30-Day Warrior", points: 100 } },
   { id: "login-100", type: "dailyLogin", condition: { dailyLogins: 100 }, reward: { badge: "Century Club", points: 200 } },
   { id: "login-200", type: "dailyLogin", condition: { dailyLogins: 200 }, reward: { badge: "Login Legend", points: 400 } }
+,{
+  id: "profile-complete",
+  type: "profile",
+  condition: { profileComplete: true },
+  reward: { badge: "Profile Pro", points: 20 }
+},
+{
+  id: "avatar-uploaded",
+  type: "profile",
+  condition: { avatarUploaded: true },
+  reward: { badge: "Face of the Hub", points: 10 }
+},
+{
+  id: "social-links-added",
+  type: "profile",
+  condition: { socialLinksCount: 2 },
+  reward: { badge: "Plugged In", points: 15 }
+},
+
+{
+  id: "profile-updated",
+  type: "profile",
+  condition: { profileUpdated: true },
+  reward: { badge: "Profile Updated", points: 5 }
+},
+{
+  id: "niche-master",
+  type: "profile",
+  condition: { nicheCount: 3 },
+  reward: { badge: "Niche Master", points: 25 }
+},
+// ✅ Viewed other profiles
+{ id: "viewed-1",  type: "viewsGiven",  condition: { profilesViewed: 1 },  reward: { badge: "Explorer Lv.1", points: 5 } },
+{ id: "viewed-5",  type: "viewsGiven",  condition: { profilesViewed: 5 },  reward: { badge: "Explorer Lv.2", points: 10 } },
+{ id: "viewed-10", type: "viewsGiven",  condition: { profilesViewed: 10 }, reward: { badge: "Explorer Lv.3", points: 20 } },
+{ id: "viewed-25", type: "viewsGiven",  condition: { profilesViewed: 25 }, reward: { badge: "Explorer Lv.4", points: 40 } },
+
+// ✅ Got your profile viewed
+{ id: "viewed-by-1",  type: "viewsReceived",  condition: { profileViews: 1 },  reward: { badge: "Noticed", points: 5 } },
+{ id: "viewed-by-5",  type: "viewsReceived",  condition: { profileViews: 5 },  reward: { badge: "Turning Heads", points: 10 } },
+{ id: "viewed-by-10", type: "viewsReceived",  condition: { profileViews: 10 }, reward: { badge: "Getting Popular", points: 20 } },
+{ id: "viewed-by-50", type: "viewsReceived",  condition: { profileViews: 50 }, reward: { badge: "Fan Favorite", points: 50 } }
+,
+  // 🌙 Night Owl Badge
+  {
+    id: "night-owl",
+    type: "special",
+    condition: { loggedInAtNight: true },
+    reward: { badge: "Night Owl", points: 10 }
+  },
+
+  // 📅 Weekend Poster Badge
+  {
+    id: "weekend-builder",
+    type: "special",
+    condition: { postedOnWeekend: true },
+    reward: { badge: "Weekend Warrior", points: 15 }
+  },
+
+  // 🚀 Early Adopter Badge
+  {
+    id: "early-user",
+    type: "special",
+    condition: { isEarlyUser: true },
+    reward: { badge: "Founding Member", points: 100 }
+  },
+  {
+  id: "received-helpful-5",
+  type: "reaction",
+  condition: { "receivedReactions.helpful": 5 },
+  reward: { badge: "Helpful Lv.1", points: 30 }
+},
+{
+  id: "received-helpful-15",
+  type: "reaction",
+  condition: { "receivedReactions.helpful": 15 },
+  reward: { badge: "Helpful Lv.2", points: 60 }
+},
+{
+  id: "received-helpful-30",
+  type: "reaction",
+  condition: { "receivedReactions.helpful": 30 },
+  reward: { badge: "Helpful Lv.3", points: 100 }
+},
+{
+  id: "received-interested-5",
+  type: "reaction",
+  condition: { "receivedReactions.interested": 5 },
+  reward: { badge: "Interesting Content Lv.1", points: 30 }
+},
+{
+  id: "received-interested-15",
+  type: "reaction",
+  condition: { "receivedReactions.interested": 15 },
+  reward: { badge: "Interesting Content Lv.2", points: 60 }
+},
+{
+  id: "received-interested-30",
+  type: "reaction",
+  condition: { "receivedReactions.interested": 30 },
+  reward: { badge: "Interesting Content Lv.3", points: 100 }
+},
+{
+  id: "received-like-10",
+  type: "reaction",
+  condition: { "receivedReactions.like": 10 },
+  reward: { badge: "Liked By Many Lv.1", points: 50 }
+},
+{
+  id: "received-like-25",
+  type: "reaction",
+  condition: { "receivedReactions.like": 25 },
+  reward: { badge: "Liked By Many Lv.2", points: 90 }
+},
+{
+  id: "received-like-50",
+  type: "reaction",
+  condition: { "receivedReactions.like": 50 },
+  reward: { badge: "Liked By Many Lv.3", points: 150 }
+}
+
+
 
 
 
@@ -477,6 +599,7 @@ export async function checkAndAwardTasks(uid, userData) {
 async function checkDailyLoginReward(user) {
   const uid = user.uid;
   const todayKey = `dailyLoginCheck_${uid}_${new Date().toDateString()}`;
+    checkAndSetSpecialFlags(uid); // new one
 
   // ✅ Already checked today? Skip
   if (localStorage.getItem(todayKey)) {
@@ -510,3 +633,46 @@ async function checkDailyLoginReward(user) {
   console.log("🎉 Daily login reward recorded!");
 }
 
+
+export async function checkAndSetSpecialFlags(uid) {
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) return;
+
+  const userData = userSnap.data();
+  const updates = {};
+
+  const now = new Date();
+  const hour = now.getHours();
+  const day = now.getDay(); // 0 = Sun, 6 = Sat
+
+  // 🌙 Night Owl: Between 12am–5am
+  if (hour >= 0 && hour <= 5 && !userData.loggedInAtNight) {
+    updates.loggedInAtNight = true;
+  }
+
+  // 📅 Weekend Builder: Saturday or Sunday
+  if ((day === 0 || day === 6) && !userData.postedOnWeekend) {
+    updates.postedOnWeekend = true;
+  }
+
+  // 🚀 Early User: Joined before a certain date (change as needed)
+  const cutoffDate = new Date("2025-08-01");
+  const createdAt = userData.createdAt?.toDate?.();
+
+  if (createdAt && createdAt < cutoffDate && !userData.isEarlyUser) {
+    updates.isEarlyUser = true;
+  }
+
+  // If any updates exist, apply them and check for rewards
+  if (Object.keys(updates).length > 0) {
+    await updateDoc(userRef, updates);
+
+    const updatedSnap = await getDoc(userRef);
+    const updatedData = updatedSnap.data();
+    await checkAndAwardTasks(uid, updatedData);
+
+    console.log("🎯 Special flags updated and tasks checked:", updates);
+  }
+}

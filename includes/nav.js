@@ -249,7 +249,7 @@ async function loadRewardModal() {
     const isDone = completed.includes(task.id);
     const icon = isDone ? "🏅" : "🔓";
     const tile = document.createElement("div");
-    tile.className = `col badge-tile ${isDone ? 'earned' : ''}`;
+    tile.className = `col badge-tile badge-type-${task.type} ${isDone ? 'earned' : ''}`;
     tile.innerHTML = `
       <div class="badge-icon">${icon}</div>
       <div class="badge-name">${task.reward.badge}</div>

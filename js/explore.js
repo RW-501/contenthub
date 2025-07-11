@@ -339,10 +339,20 @@ async function createPostCard(post, postId) {
 
 async function reactToPost(postId, type, ownerId, caption) {
   const postRef = doc(db, "posts", postId);
+  const userRef = doc(db, "users", ownerId);
+
   await updateDoc(postRef, { [`${type}Count`]: increment(1) });
+  await updateDoc(userRef, {
+    [`receivedReactions.${type}`]: increment(1)
+  });
 
   const viewer = getViewerData();
-  const emoji = type === "helpful" ? "🙌" : "⭐";
+  const emojiMap = {
+    helpful: "🙌",
+    interested: "⭐",
+    like: "❤️"
+  };
+  const emoji = emojiMap[type] || "✨";
 
   await sendNotification({
     toUid: ownerId,
@@ -352,7 +362,12 @@ async function reactToPost(postId, type, ownerId, caption) {
     message: `${viewer.username} marked your post as ${type} ${emoji}: "${caption}"`,
     type: `${type}Post`
   });
+
+  // 🎯 Optionally check for reward
+  const updatedSnap = await getDoc(userRef);
+  await checkAndAwardTasks(ownerId, updatedSnap.data());
 }
+
 
 function renderMedia(media) {
   if (!media || !media.url) return "";
