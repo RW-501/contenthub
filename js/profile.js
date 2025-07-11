@@ -637,11 +637,16 @@ async function loadUserPosts(uid, displayName, photoURL) {
     const helpfulBtn = card.querySelector(`#helpful-btn-${docSnap.id}`);
     const interestedBtn = card.querySelector(`#interested-btn-${docSnap.id}`);
 
-    likeBtn.addEventListener("click", async () => {
-      const postRef = doc(db, "posts", docSnap.id);
-      await updateDoc(postRef, { likes: increment(1) });
-      likeCountEl.textContent = (parseInt(likeCountEl.textContent) || 0) + 1;
-    });
+  // ❤️ Like logic
+
+  
+if (likeCountEl) {
+  const current = parseInt(likeCountEl.innerText) || 0;
+  likeCountEl.innerText = current + 1;
+}
+  likeBtn.addEventListener("click", () =>
+    reactToPost(postId, "like", post.owner, post.caption)
+  );
 
     helpfulBtn.addEventListener("click", () =>
       reactToPost(docSnap.id, "helpful", post.owner, post.caption)
