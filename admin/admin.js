@@ -328,19 +328,22 @@ document.getElementById("confirmFeatureBtn").onclick = async () => {
   const reason = document.getElementById("featureReasonInput").value || "Featured Creator";
   const rank = parseInt(document.getElementById("featureRankSelect").value) || 1;
 
+  const startDateInput = document.getElementById("featureStartDate").value;
+  const days = parseInt(document.getElementById("featureDaysSelect").value) || 7;
+
   const now = new Date();
-  let startDate = now;
+  let startDate = startDateInput ? new Date(startDateInput) : now;
 
-  let featuredUntil = new Date(now);
-  featuredUntil.setDate(featuredUntil.getDate() + 7);
+  let featuredUntil = new Date(startDate);
+  featuredUntil.setDate(featuredUntil.getDate() + days);
 
-  // Use selectedUserData and selectedUserId
+  // Extend if already featured and date is still active
   const existing = selectedUserData?.featured;
   if (existing?.isFeatured) {
     const currentEnd = existing.featuredUntil?.toDate?.();
     if (currentEnd && currentEnd > now) {
       featuredUntil = new Date(currentEnd);
-      featuredUntil.setDate(featuredUntil.getDate() + 7);
+      featuredUntil.setDate(featuredUntil.getDate() + days);
       startDate = existing.startDate?.toDate?.() || now;
     }
   }
@@ -364,6 +367,7 @@ document.getElementById("confirmFeatureBtn").onclick = async () => {
     alert("❌ Failed to update feature.");
   }
 };
+
 
 window.setUserRole = setUserRole;
 

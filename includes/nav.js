@@ -346,14 +346,16 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
     ${completedDate}
   `;
 
-  div.addEventListener("click", () => showBadgeDetail(task, isDone));
+  div.addEventListener("click", () => showBadgeDetail(task, isDone),
+  console.log("hello?/")
+);
 
   return div.outerHTML;
 }
 
 function showBadgeDetail(task, isDone) {
   console.log("????????????????????????????/");
-  
+
   const detail = document.getElementById("badgeDetailContent");
   const cond = Object.entries(task.condition)[0];
   detail.innerHTML = `

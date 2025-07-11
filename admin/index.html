@@ -113,19 +113,23 @@
 
 
   <!-- Feature Management -->
-  <h3 class="section-title">Feature Management</h3>
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <input type="text" class="form-control mb-2" placeholder="Creator UID" id="featureCreatorUID">
-      <button class="btn btn-success w-100" id="setFeaturedBtn">Promote Creator of the Week</button>
-    </div>
-    <div class="col-md-6">
-      <input type="text" class="form-control mb-2" placeholder="Badge Name" id="badgeName">
-      <input type="text" class="form-control mb-2" placeholder="User UID" id="badgeUserUID">
-      <button class="btn btn-primary w-100" id="assignBadgeBtn">Assign Badge</button>
-    </div>
+<section class="my-5">
+  <h5 class="mb-3">🌟 Manage Featured Creators</h5>
+
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <button id="loadFeaturedBtn" class="btn btn-warning">🔄 Load Featured Users</button>
+
+    <select id="sortFeaturedSelect" class="form-select w-auto">
+      <option value="rank">Sort by Rank</option>
+      <option value="startDate">Sort by Start Date</option>
+    </select>
+
+    <input type="text" id="searchFeaturedInput" class="form-control w-auto" placeholder="Search by name">
   </div>
-</div>
+
+  <div id="featuredUsersList" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"></div>
+</section>
+
 
 <div class="container py-4">
     <h5 class="mb-3">Find a Creator Profile</h5>
@@ -397,8 +401,22 @@
             <option value="3">⭐ Rank 3</option>
           </select>
         </div>
+<div class="mb-3">
+  <label for="featureStartDate" class="form-label">Start Date</label>
+  <input type="date" class="form-control" id="featureStartDate">
+</div>
 
-        <div class="text-muted small">Feature will last 7 days from today or extend current time if already featured.</div>
+<div class="mb-3">
+  <label for="featureDaysSelect" class="form-label">Days to Feature</label>
+  <select class="form-select" id="featureDaysSelect">
+    <option value="3">3 Days</option>
+    <option value="5">5 Days</option>
+    <option value="7" selected>7 Days</option>
+    <option value="14">14 Days</option>
+    <option value="30">30 Days</option>
+  </select>
+</div>
+
 
       </div>
       <div class="modal-footer">
