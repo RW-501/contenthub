@@ -607,6 +607,115 @@ async function unfeatureUser(uid) {
   }
 }
 
+window.unfeatureUser = unfeatureUser;
+
+
+
+
+const calendarWrapper = document.getElementById("calendarWrapper");
+const toggleCalendarBtn = document.getElementById("toggleCalendarBtn");
+
+let scheduledPostsByDate = {}; // Format: { "2025-07-11": [post1, post2] }
+
+toggleCalendarBtn.addEventListener("click", async () => {
+  calendarWrapper.classList.toggle("d-none");
+
+  if (!calendarWrapper.dataset.loaded) {
+    await loadScheduledPosts();
+    renderCalendar();
+    calendarWrapper.dataset.loaded = true;
+  }
+});
+
+async function loadScheduledPosts() {
+  const q = query(
+    collection(db, "posts"),
+    where("scheduledAt", "!=", null)
+  );
+  const snapshot = await getDocs(q);
+
+  scheduledPostsByDate = {};
+
+  snapshot.forEach(doc => {
+    const post = doc.data();
+    const date = post.scheduledAt?.toDate?.();
+    if (!date) return;
+
+    const dateKey = date.toISOString().split("T")[0];
+    if (!scheduledPostsByDate[dateKey]) {
+      scheduledPostsByDate[dateKey] = [];
+    }
+    scheduledPostsByDate[dateKey].push(post);
+  });
+}
+
+function renderCalendar(monthsToShow = 3) {
+  const now = new Date();
+  calendarWrapper.innerHTML = ""; // Clear existing
+
+  for (let i = 0; i < monthsToShow; i++) {
+    const monthDate = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const monthYearStr = monthDate.toLocaleString("default", { month: "long", year: "numeric" });
+
+    const monthDiv = document.createElement("div");
+    monthDiv.className = "mb-4";
+
+    monthDiv.innerHTML = `<h5>${monthYearStr}</h5>`;
+    const table = document.createElement("table");
+    table.className = "table table-bordered text-center small";
+
+    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const headerRow = document.createElement("tr");
+    daysOfWeek.forEach(day => {
+      const th = document.createElement("th");
+      th.innerText = day;
+      headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+
+    const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+
+    let currentRow = document.createElement("tr");
+    for (let d = 0; d < firstDay.getDay(); d++) {
+      currentRow.appendChild(document.createElement("td"));
+    }
+
+    for (let dateNum = 1; dateNum <= lastDay.getDate(); dateNum++) {
+      const dayDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), dateNum);
+      const dateKey = dayDate.toISOString().split("T")[0];
+
+      const td = document.createElement("td");
+
+      if (scheduledPostsByDate[dateKey]) {
+        td.innerHTML = `<button class="btn btn-sm btn-warning w-100" data-date="${dateKey}">
+          ${dateNum}<br><small>${scheduledPostsByDate[dateKey].length} post(s)</small>
+        </button>`;
+      } else {
+        td.innerHTML = `<div class="text-muted">${dateNum}</div>`;
+      }
+
+      currentRow.appendChild(td);
+
+      if (dayDate.getDay() === 6 || dateNum === lastDay.getDate()) {
+        table.appendChild(currentRow);
+        currentRow = document.createElement("tr");
+      }
+    }
+
+    monthDiv.appendChild(table);
+    calendarWrapper.appendChild(monthDiv);
+  }
+
+  // Optional: add click event for future modal viewing
+  calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const date = btn.dataset.date;
+      const posts = scheduledPostsByDate[date];
+      alert(`📅 ${date}\n\n${posts.map(p => p.caption).join("\n")}`);
+    });
+  });
+}
 
 
 
