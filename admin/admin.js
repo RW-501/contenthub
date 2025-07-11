@@ -841,7 +841,7 @@ function renderModalForDate(date) {
 
   modalBody.innerHTML = blocks.length ? blocks.join("") : `<p class="text-muted">No scheduled items.</p>`;
 }
-
+window.renderModalForDate = renderModalForDate;
 
 
 function openPostCreationForm(dateStr) {
