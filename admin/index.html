@@ -359,9 +359,7 @@
       </div>
 
       <div class="modal-footer">
-  <button id="featureUserBtn" class="btn btn-outline-warning w-100 my-2">
-    ⭐ Feature This Creator
-  </button>
+
         <button class="btn btn-sm btn-success" onclick="setUserRole(currentActionUserId)">Make Admin</button>
         <button class="btn btn-sm btn-warning" onclick="banUser(currentActionUserId, 7)">Ban 7 Days</button>
         <button class="btn btn-sm btn-secondary" onclick="unbanUser(currentActionUserId)">Unban</button>
@@ -369,6 +367,41 @@
         <button class="btn btn-sm btn-danger" onclick="deleteUser(currentActionUserId)">Remove</button>
       </div>
 
+    </div>
+  </div>
+</div>
+
+
+<!-- Feature User Modal -->
+<div class="modal fade" id="featureModal" tabindex="-1" aria-labelledby="featureModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="featureModalLabel">🌟 Feature This Creator</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <div class="mb-3">
+          <label for="featureReason" class="form-label">Reason</label>
+          <input type="text" id="featureReasonInput" class="form-control" placeholder="e.g. Top Collaborator">
+        </div>
+
+        <div class="mb-3">
+          <label for="featureRank" class="form-label">Rank</label>
+          <select id="featureRankSelect" class="form-select">
+            <option value="1">⭐ Rank 1 (Top Priority)</option>
+            <option value="2">⭐ Rank 2</option>
+            <option value="3">⭐ Rank 3</option>
+          </select>
+        </div>
+
+        <div class="text-muted small">Feature will last 7 days from today or extend current time if already featured.</div>
+
+      </div>
+      <div class="modal-footer">
+        <button id="confirmFeatureBtn" type="button" class="btn btn-primary w-100">✅ Confirm Feature</button>
+      </div>
     </div>
   </div>
 </div>

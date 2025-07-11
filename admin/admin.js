@@ -227,18 +227,37 @@ function openActionModal(userId) {
 const username = userData.username?.replace("@", "") || "";
 
 const featureBtn = document.getElementById("featureUserBtn");
-featureBtn.onclick = async () => {
-  if (!userId) return alert("Missing user ID.");
-  try {
-await updateDoc(doc(db, "users", userId), {
-  featured: userData.featured ? false : true
-});
-    alert("🎉 Creator marked as featured!");
-  } catch (err) {
-    console.error("Error featuring user:", err);
-    alert("❌ Failed to feature creator.");
+
+featureBtn.textContent = userData.featured?.isFeatured ? "❌ Remove Feature" : "⭐ Feature This Creator";
+featureBtn.className = userData.featured?.isFeatured
+  ? "btn btn-outline-danger w-100 my-2"
+  : "btn btn-outline-warning w-100 my-2";
+
+featureBtn.onclick = () => {
+  if (!userId) return;
+
+  if (userData.featured?.isFeatured) {
+    const confirmUnfeature = confirm("Remove this creator from the featured list?");
+    if (!confirmUnfeature) return;
+
+    updateDoc(doc(db, "users", userId), {
+      "featured.isFeatured": false
+    }).then(() => {
+      alert("✅ Creator has been unfeatured.");
+    }).catch(err => {
+      console.error("Error unfeaturing user:", err);
+      alert("❌ Failed to update.");
+    });
+  } else {
+    // Prefill modal values
+    document.getElementById("featureReasonInput").value = userData.featured?.reason || "Active contributor";
+    document.getElementById("featureRankSelect").value = userData.featured?.rank || "1";
+    new bootstrap.Modal(document.getElementById("featureModal")).show();
   }
 };
+
+
+
 
   // Avatar and name
 const avatarImg = document.getElementById("userAvatarView");
@@ -299,6 +318,48 @@ if (avatarImg && photoURL) {
   new bootstrap.Modal(document.getElementById("actionModal")).show();
 }
 window.openActionModal = openActionModal;
+
+
+document.getElementById("confirmFeatureBtn").onclick = async () => {
+  const reason = document.getElementById("featureReasonInput").value || "Featured Creator";
+  const rank = parseInt(document.getElementById("featureRankSelect").value) || 1;
+
+  const now = new Date();
+  let startDate = now;
+
+  let featuredUntil = new Date(now);
+  featuredUntil.setDate(featuredUntil.getDate() + 7);
+
+  // If already featured and not expired, extend current
+  const existing = userData.featured;
+  if (existing?.isFeatured) {
+    const currentEnd = existing.featuredUntil?.toDate?.();
+    if (currentEnd && currentEnd > now) {
+      featuredUntil = new Date(currentEnd);
+      featuredUntil.setDate(featuredUntil.getDate() + 7);
+      startDate = existing.startDate?.toDate?.() || now;
+    }
+  }
+
+  try {
+    await updateDoc(doc(db, "users", userId), {
+      featured: {
+        isFeatured: true,
+        reason,
+        rank,
+        startDate: Timestamp.fromDate(startDate),
+        featuredUntil: Timestamp.fromDate(featuredUntil),
+        addedBy: "admin",
+        addedAt: serverTimestamp()
+      }
+    });
+    alert("🎉 Creator has been featured!");
+    bootstrap.Modal.getInstance(document.getElementById("featureModal")).hide();
+  } catch (err) {
+    console.error("Error setting feature:", err);
+    alert("❌ Failed to update feature.");
+  }
+};
 
 // Set Role
 async function setUserRole(role) {
