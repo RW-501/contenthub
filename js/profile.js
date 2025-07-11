@@ -625,7 +625,7 @@ async function loadUserPosts(uid, displayName, photoURL) {
       <div class="d-flex gap-2">
         ${joinButton}
       </div>
-    <button class="btn btn-sm btn-outline-primary" data-post-id="${docSnap.id}" onclick="openComments('${postId}')">
+    <button class="btn btn-sm btn-outline-primary" data-post-id="${docSnap.id}" onclick="openComments('${docSnap.id}')">
       💬 Comments
     </button>
           </div>
