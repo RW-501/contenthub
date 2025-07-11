@@ -352,6 +352,8 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
 }
 
 function showBadgeDetail(task, isDone) {
+  console.log("????????????????????????????/");
+  
   const detail = document.getElementById("badgeDetailContent");
   const cond = Object.entries(task.condition)[0];
   detail.innerHTML = `
