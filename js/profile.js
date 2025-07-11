@@ -141,13 +141,11 @@ document.getElementById("usernameText").textContent = userData.username || "";
 document.getElementById("pronounsText").innerHTML = userData.pronouns ? `<i class="bi bi-person"></i> ${userData.pronouns}` : "";
 document.getElementById("availabilityText").innerHTML = userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : "";
 
-  const avgRating = userData.ratingCount > 0
-    ? (userData.ratingTotal / userData.ratingCount).toFixed(1)
-    : "No ratings yet";
-  document.getElementById("userRatingyText").innerHTML = `
-      <span class="badge bg-secondary text-light">⭐ ${avgRating}</span>
-    </div>
-  `;
+
+
+
+
+
 document.getElementById("bioText").innerText = userData.bio || '';
 
 
@@ -1668,6 +1666,29 @@ async function loadUserReviews(toUserId) {
   const q = query(collection(db, `users/${toUserId}/reviews`), where("approved", "==", true));
   const snap = await getDocs(q);
 
+
+ const ratingText = document.getElementById("userRatingyText");
+  ratingText.innerHTML = ""; // Clear old content
+  const reviews = snap.docs.map(doc => doc.data());
+
+  
+  if (!reviews.length) {
+    ratingText.innerHTML = `<span class="badge bg-secondary">No ratings yet</span>`;
+    return;
+  }
+
+  let totalRatingTop = 0;
+  reviews.forEach(r => {
+    totalRatingTop += r.rating || 0;
+  });
+
+  const avgRatingTop = (totalRatingTop / reviews.length).toFixed(1);
+
+  ratingText.innerHTML = `
+    <span class="badge bg-warning text-dark">⭐ ${avgRatingTop} (${reviews.length})</span>
+  `;
+
+
   if (snap.empty) {
     container.innerHTML = `
       <div class="alert alert-info text-center">
@@ -1675,7 +1696,6 @@ async function loadUserReviews(toUserId) {
       </div>`;
     return;
   }
-
   let totalRating = 0;
 
   snap.forEach(doc => {
@@ -1683,6 +1703,7 @@ async function loadUserReviews(toUserId) {
     totalRating += r.rating || 0;
 
 
+    
 container.innerHTML += `
   <div class="border rounded p-3 mb-3">
     <div class="d-flex align-items-center mb-2">
