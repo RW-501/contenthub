@@ -617,6 +617,8 @@ const calendarWrapper = document.getElementById("calendarWrapper");
 const toggleCalendarBtn = document.getElementById("toggleCalendarBtn");
 
 let scheduledPostsByDate = {}; // Format: { "2025-07-11": [post1, post2] }
+let calendarStartOffset = 0; // 0 = current month, 1 = next month, etc.
+const monthsToShow = 3;
 
 
 
@@ -699,7 +701,7 @@ function renderCalendar(monthsToShow = 3) {
   calendarWrapper.innerHTML = ""; // Clear existing
 
   for (let i = 0; i < monthsToShow; i++) {
-    const monthDate = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const monthDate = new Date(now.getFullYear(), now.getMonth() + calendarStartOffset + i, 1);
     const monthYearStr = monthDate.toLocaleString("default", { month: "long", year: "numeric" });
 
     const monthDiv = document.createElement("div");
@@ -754,6 +756,21 @@ if (dayData) {
     monthDiv.appendChild(table);
     calendarWrapper.appendChild(monthDiv);
   }
+// Update page indicator
+document.getElementById("pageIndicator").textContent = `Showing: ${new Date(now.getFullYear(), now.getMonth() + calendarStartOffset, 1).toLocaleString('default', { month: 'long', year: 'numeric' })} → ${new Date(now.getFullYear(), now.getMonth() + calendarStartOffset + monthsToShow - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' })}`;
+document.getElementById("prevPageBtn").addEventListener("click", () => {
+  if (calendarStartOffset > 0) {
+    calendarStartOffset -= monthsToShow;
+    renderCalendar();
+  }
+});
+
+document.getElementById("nextPageBtn").addEventListener("click", () => {
+  calendarStartOffset += monthsToShow;
+  renderCalendar();
+});
+
+
 
   // Optional: add click event for future modal viewing
   calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
@@ -874,6 +891,37 @@ function openPostCreationForm(dateStr) {
   }
 }
 
+document.getElementById("saveEventBtn").addEventListener("click", async () => {
+  const dateStr = document.getElementById("eventDateInput").value;
+  const title = document.getElementById("eventTitleInput").value.trim();
+  const description = document.getElementById("eventDescInput").value.trim();
+
+  if (!title || !dateStr) {
+    alert("Event title and date are required.");
+    return;
+  }
+
+  const dateObj = new Date(dateStr);
+
+  try {
+    await addDoc(collection(db, "events"), {
+      title,
+      description,
+      date: Timestamp.fromDate(dateObj),
+      createdAt: serverTimestamp(),
+    });
+
+    // Refresh calendar
+    await loadCalendarItems();
+    renderCalendar();
+
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById("addEventModal")).hide();
+  } catch (error) {
+    console.error("Failed to save event:", error);
+    alert("Failed to save event. Check console.");
+  }
+});
 
 
 
