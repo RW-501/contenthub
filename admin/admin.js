@@ -712,8 +712,44 @@ function renderCalendar(monthsToShow = 3) {
     btn.addEventListener("click", () => {
       const date = btn.dataset.date;
       const posts = scheduledPostsByDate[date];
-      alert(`📅 ${date}\n\n${posts.map(p => p.caption).join("\n")}`);
-    });
+calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const date = btn.dataset.date;
+    const posts = scheduledPostsByDate[date] || [];
+
+    const modalTitle = document.getElementById("calendarModalDate");
+    const modalBody = document.getElementById("calendarModalBody");
+    modalTitle.textContent = date;
+
+    if (posts.length === 0) {
+      modalBody.innerHTML = `<p class="text-muted">No scheduled posts.</p>`;
+    } else {
+      modalBody.innerHTML = posts.map((post, i) => `
+        <div class="card mb-2">
+          <div class="card-body">
+            <h6>${post.caption || "Untitled Post"}</h6>
+            <p class="mb-1"><strong>Type:</strong> ${post.type || "N/A"}</p>
+            <p class="mb-1"><strong>Goal:</strong> ${post.projectGoal || "—"}</p>
+            <div class="d-flex justify-content-end gap-2">
+              <button class="btn btn-sm btn-primary" onclick="editScheduledPost('${post.id}')">✏️ Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteScheduledPost('${post.id}', '${date}')">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // Add post button logic
+    document.getElementById("addNewPostForDate").onclick = () => {
+      openPostCreationForm(date); // This should open your post form with pre-filled date
+    };
+
+    new bootstrap.Modal(document.getElementById("calendarDayModal")).show();
+  });
+});
+
+
+});
   });
 }
 

@@ -339,20 +339,28 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
   const div = document.createElement("div");
   div.className = `col badge-tile ${badgeType} ${earnedClass}`;
   div.innerHTML = `
+  // In renderBadgeTile:
+<div class="badge-tile" data-task-id="${task.id}">
     <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
     <div class="badge-name">${task.reward.badge}</div>
     <div class="badge-type">${task.type}</div>
     <div class="badge-points text-muted small">${task.reward.points} pts</div>
     ${completedDate}
+    </div>
   `;
 
- div.addEventListener("click", () => {
-  console.log("Badge tile clicked!");
-  showBadgeDetail(task, isDone);
+document.querySelectorAll(".badge-tile").forEach(tile => {
+  tile.addEventListener("click", () => {
+    const taskId = tile.dataset.taskId;
+    const task = rewardTasks.find(t => t.id === taskId);
+    const isDone = completedMap?.[taskId];
+    showBadgeDetail(task, isDone);
+  });
 });
 
 
-  return div.outerHTML;
+
+  return div; // NOT outerHTML
 }
 
 function showBadgeDetail(task, isDone) {
