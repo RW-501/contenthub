@@ -332,11 +332,35 @@ const rewardTasks = [
     condition: { invitesJoined: 10 },
     reward: { badge: "Referral Lv.10", points: 100 }
   },
+{
+    id: "first-post",
+    type: "post",
+    condition: { postCount: 1 },
+    reward: { badge: "First Post", points: 20 }
+  },
   {
-    id: "creator-streak-7days",
+    id: "post-5",
+    type: "post",
+    condition: { postCount: 5 },
+    reward: { badge: "5 Posts", points: 40 }
+  },
+  {
+    id: "post-10",
+    type: "post",
+    condition: { postCount: 10 },
+    reward: { badge: "10 Posts", points: 80 }
+  },
+  {
+    id: "streak-3",
     type: "postStreak",
-    condition: { dailyPosts: 7 },
-    reward: { badge: "7 Day Streak", points: 100 }
+    condition: { postStreak: 3 },
+    reward: { badge: "3 Day Streak", points: 100 }
+  },
+  {
+    id: "post-25",
+    type: "post",
+    condition: { postCount: 25 },
+    reward: { badge: "25 Posts", points: 200 }
   },
   {
     id: "first-collab",

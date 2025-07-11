@@ -254,6 +254,17 @@ await addDoc(collection(db, "posts"), {
   scheduledAt: scheduleTime ? new Date(scheduleTime) : null
 });
 
+  // 🔥 Increment post count (assume you're tracking it on user doc)
+  const userRef = doc(db, "users", user.uid);
+  await updateDoc(userRef, {
+    postCount: increment(1),
+    lastPostDate: new Date()
+  });
+
+  // ✅ Fetch updated user and check for any post-related rewards
+  const snap = await getDoc(userRef);
+  const userData = snap.data();
+  await checkAndAwardTasks(user.uid, { ...userData, postCount: (userData.postCount || 0) + 1 });
 
   showModal({ title: "Posted!", message: "✅ Post Created!", autoClose: 3000 });
   location.reload();
