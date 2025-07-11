@@ -206,10 +206,15 @@ window.loadUsers = loadUsers;
 
 
 
+let selectedUserId = null;
+let selectedUserData = null;
 
 // Open Modal
 function openActionModal(userId) {
-    const userData = userMap[userId];
+  const userData = userMap[userId];
+  selectedUserId = userId;
+  selectedUserData = userData;
+
 
   const {
     displayName = "Unknown",
@@ -329,8 +334,8 @@ document.getElementById("confirmFeatureBtn").onclick = async () => {
   let featuredUntil = new Date(now);
   featuredUntil.setDate(featuredUntil.getDate() + 7);
 
-  // If already featured and not expired, extend current
-  const existing = userData.featured;
+  // Use selectedUserData and selectedUserId
+  const existing = selectedUserData?.featured;
   if (existing?.isFeatured) {
     const currentEnd = existing.featuredUntil?.toDate?.();
     if (currentEnd && currentEnd > now) {
@@ -341,7 +346,7 @@ document.getElementById("confirmFeatureBtn").onclick = async () => {
   }
 
   try {
-    await updateDoc(doc(db, "users", userId), {
+    await updateDoc(doc(db, "users", selectedUserId), {
       featured: {
         isFeatured: true,
         reason,
@@ -360,14 +365,6 @@ document.getElementById("confirmFeatureBtn").onclick = async () => {
   }
 };
 
-// Set Role
-async function setUserRole(role) {
-  const userId = document.getElementById("actionUserId").value;
-  await updateDoc(doc(db, "users", userId), { role });
-  alert(`Role updated to ${role}`);
-  bootstrap.Modal.getInstance(document.getElementById("actionModal")).hide();
-  loadUsers();
-}
 window.setUserRole = setUserRole;
 
 // Verify
