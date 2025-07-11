@@ -130,12 +130,12 @@ function createCollabCard(data, collabId) {
 async function requestToJoin(collabId, ownerId) {
 
   try {
-    if (!user || !user.uid) return alert("⚠️ Please log in to request to join.");
+    if (!collabId || !ownerId) return alert("⚠️ Please log in to request to join.");
 
     const requestsRef = collection(db, "collabJoinRequests");
     const existingSnap = await getDocs(query(
       requestsRef,
-      where("userId", "==", user.uid),
+      where("userId", "==", ownerId),
       where("collabId", "==", collabId),
       where("status", "in", ["pending", "approved"])
     ));
