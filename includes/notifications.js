@@ -316,3 +316,82 @@ document.getElementById("saveNotifSettingsBtn").addEventListener("click", async 
 <!-- Repeat for other types -->
 
 */
+
+
+const rewardTasks = [
+  {
+    id: "referral-5",
+    type: "referral",
+    condition: { invitesJoined: 5 },
+    reward: { badge: "Referral Lv.5", points: 50 },
+    autoFeature: { days: 7, reason: "Referred 5 creators" }
+  },
+  {
+    id: "referral-10",
+    type: "referral",
+    condition: { invitesJoined: 10 },
+    reward: { badge: "Referral Lv.10", points: 100 }
+  },
+  {
+    id: "creator-streak-7days",
+    type: "postStreak",
+    condition: { dailyPosts: 7 },
+    reward: { badge: "7 Day Streak", points: 100 }
+  },
+  {
+    id: "first-collab",
+    type: "collaboration",
+    condition: { collabsCompleted: 1 },
+    reward: { badge: "First Collab", points: 30 }
+  }
+];
+
+
+export async function checkAndAwardTasks(uid, userData) {
+  const userRef = doc(db, "users", uid);
+  const completed = userData.rewardsCompleted || [];
+
+  for (const task of rewardTasks) {
+    if (completed.includes(task.id)) continue; // already done
+
+    const condition = task.condition;
+    const meetsRequirement = Object.keys(condition).every(key => {
+      return (userData[key] || 0) >= condition[key];
+    });
+
+    if (meetsRequirement) {
+      const updates = {
+        rewardsCompleted: arrayUnion(task.id),
+        points: (userData.points || 0) + (task.reward.points || 0)
+      };
+
+      if (task.reward.badge) {
+        updates[`badges.${task.type}`] = {
+          ...(userData.badges?.[task.type] || {}),
+          levels: [
+            ...new Set([
+              ...(userData.badges?.[task.type]?.levels || []),
+              parseInt(task.condition[Object.keys(task.condition)[0]])
+            ])
+          ],
+          lastEarned: serverTimestamp()
+        };
+      }
+
+      if (task.autoFeature) {
+        const featuredUntil = new Date();
+        featuredUntil.setDate(featuredUntil.getDate() + task.autoFeature.days);
+        updates.featured = {
+          isFeatured: true,
+          reason: task.autoFeature.reason,
+          featuredUntil: Timestamp.fromDate(featuredUntil),
+          addedBy: "system",
+          addedAt: serverTimestamp()
+        };
+      }
+
+      await updateDoc(userRef, updates);
+      console.log(`✅ Awarded task ${task.id} to ${uid}`);
+    }
+  }
+}

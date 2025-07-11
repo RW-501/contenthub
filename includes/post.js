@@ -20,6 +20,7 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 import { app } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 const auth = getAuth(app);
 const db = getFirestore(app);

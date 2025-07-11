@@ -127,8 +127,8 @@
 
 <script type="module">
 // Your config import (must expose the initialized app)
-import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
-import { sendNotification, NOTIFICATION_TEMPLATES } from "https://rw-501.github.io/contenthub/includes/notifications.js";
+import { app, auth } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks } from "https://rw-501.github.io/contenthub/includes/notifications.js";
   import {
     doc, getDoc, updateDoc, increment, setDoc, collection, addDoc
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -156,25 +156,25 @@ renderShareArea(refLink, currentUser.displayName || "me");
 });
 
 
-  async function loadInviteStats(uid) {
-    const refDoc = await getDoc(doc(db, "referrals", uid));
-    const joined = refDoc.exists() ? (refDoc.data().invitesJoined || 0) : 0;
+async function loadInviteStats(uid) {
+  const refDoc = await getDoc(doc(db, "referrals", uid));
+  const joined = refDoc.exists() ? (refDoc.data().invitesJoined || 0) : 0;
 
-    joinedCountEl.textContent = joined;
-    const percent = Math.min((joined / 5) * 100, 100);
-    inviteBar.style.width = `${percent}%`;
-    inviteBar.textContent = `${Math.round(percent)}%`;
+  joinedCountEl.textContent = joined;
+  const percent = Math.min((joined / 5) * 100, 100);
+  inviteBar.style.width = `${percent}%`;
+  inviteBar.textContent = `${Math.round(percent)}%`;
 
-    const badgeLevels = [5, 10, 15, 20, 25];
-badgeLevels.forEach(level => {
-  if (joined >= level && !existingBadges.includes(`Referral Lv.${level}`)) {
-    updateDoc(doc(db, "users", uid), {
-      badges: arrayUnion(`Referral Lv.${level}`)
-    });
-  }
-});
+  const userSnap = await getDoc(doc(db, "users", uid));
+  const userData = userSnap.data();
 
-  }
+  await checkAndAwardTasks(uid, { ...userData, invitesJoined: joined });
+}
+
+
+
+
+
 
   function startCountdownTimer(daysLeft = 3) {
     const end = new Date();
