@@ -318,9 +318,14 @@ async function createPostCard(post, postId) {
 
   // ❤️ Like logic
   const likeBtn = card.querySelector(`#${likeBtnId}`);
-  const likeCountEl = card.querySelector(`#${likeCountId}`);
-  likeBtn.addEventListener("click", () => likePost(postId, likeCountEl, post.owner, post.caption));
-
+const likeCountEl = card.querySelector(`#${likeCountId}`);
+if (likeCountEl) {
+  const current = parseInt(likeCountEl.innerText) || 0;
+  likeCountEl.innerText = current + 1;
+}
+  likeBtn.addEventListener("click", () =>
+    reactToPost(postId, "like", post.owner, post.caption)
+  );
   // 🙌 Helpful button logic
   const helpfulBtn = card.querySelector(`#${helpfulBtnId}`);
   helpfulBtn.addEventListener("click", () =>
