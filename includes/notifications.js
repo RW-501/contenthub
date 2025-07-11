@@ -534,37 +534,65 @@ export const rewardTasks = [
 
 ];
 
-function showRewardToast(task) {
+function showRewardToast(task, userData = {}, newTotalPoints = 0) {
+  setTimeout(() => {
+    const msg = task.reward.badge
+      ? `🎉 You earned the "${task.reward.badge}" badge!`
+      : `🎁 You earned ${task.reward.points} points!`;
 
-      setTimeout(() => {
-  const msg = task.reward.badge
-    ? `🎉 You earned the "${task.reward.badge}" badge!`
-    : `🎁 You earned ${task.reward.points} points!`;
-          confetti({
-  particleCount: 120,
-  spread: 80,
-  origin: { y: 0.6 }
-});
-  showModal({ title: "Reward Earned", message: msg, autoClose: 4000 });
+    // Confetti animation
+    confetti({
+      particleCount: 120,
+      spread: 80,
+      origin: { y: 0.6 }
+    });
 
+    // Show the badge/points reward modal
+    showModal({
+      title: "Reward Earned",
+      message: msg,
+      autoClose: 4000
+    });
 
-      setTimeout(() => {
+    // Run milestone checks after slight delay
+    setTimeout(() => {
+      const notYetFeatured = !userData.featured?.isFeatured;
 
-  if (newTotalPoints >= 100 && !userData.featured?.isFeatured) {
-  // ... feature logic ...
-  showModal({
-    title: "🎉 You're Featured!",
-    message: "You've earned over 100 points and have been featured for a week! 🚀",
-    autoClose: 5000
-  });
+      if (newTotalPoints >= 100 && newTotalPoints < 500 && notYetFeatured) {
+        showModal({
+          title: "🎉 You're Featured!",
+          message: "You've earned over 100 points and have been featured for a week! 🚀",
+          autoClose: 5000
+        });
+      }
+
+      if (newTotalPoints >= 500 && !userData.milestones?.includes("star")) {
+        showModal({
+          title: "🌟 You're a Content Star!",
+          message: "You've earned over 500 points. You're rising fast! 🌠",
+          autoClose: 6000
+        });
+        updateDoc(doc(db, "users", userData.uid), {
+          "milestones": arrayUnion("star")
+        });
+      }
+
+      if (newTotalPoints >= 1000 && !userData.milestones?.includes("elite")) {
+        showModal({
+          title: "🚀 Elite Creator Unlocked!",
+          message: "1,000+ points! You're one of the top creators on the platform 🔥",
+          autoClose: 6000
+        });
+        updateDoc(doc(db, "users", userData.uid), {
+          "milestones": arrayUnion("elite")
+        });
+      }
+
+    }, 5000); // Trigger milestone modal after reward
+  }, 1000);
 }
-      }, 5000);
-
-      }, 1000);
 
 
-
-}
 
 export async function checkAndAwardTasks(uid, userData) {
   const userRef = doc(db, "users", uid);
@@ -613,24 +641,11 @@ export async function checkAndAwardTasks(uid, userData) {
 
 // Check if user now has 100+ points and feature them if not already
 const newTotalPoints = (userData.points || 0) + (task.reward.points || 0);
-if (newTotalPoints >= 100 && !userData.featured?.isFeatured) {
-  const featuredUntil = new Date();
-  featuredUntil.setDate(featuredUntil.getDate() + 7);
+await updateDoc(userRef, updates);
 
-  await updateDoc(userRef, {
-    featured: {
-      isFeatured: true,
-      reason: "Earned 100+ reward points",
-      featuredUntil: Timestamp.fromDate(featuredUntil),
-      addedBy: "system",
-      addedAt: serverTimestamp()
-    }
-  });
+// Trigger animated badge + milestone logic
+showRewardToast(task, userData, newTotalPoints);
 
-  console.log("🌟 User featured for earning 100+ points!");
-}
-
-      showRewardToast(task);
 
 
 

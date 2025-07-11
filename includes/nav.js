@@ -253,38 +253,115 @@ async function loadRewardModal() {
   const completed = userData.rewardsCompleted || [];
   const points = userData.points || 0;
 
-  // Show points in header
   const header = document.getElementById("rewardsModalLabel");
   header.innerHTML = `🎖️ Your Rewards & Badges <span class="text-warning fw-normal">(${points} pts)</span>`;
 
   const grid = document.getElementById("rewardGrid");
   grid.innerHTML = "";
 
-  let nextTask = null;
+  const nextTaskElement = document.getElementById("nextTask");
+  nextTaskElement.innerHTML = "";
 
-  for (const task of rewardTasks) {
-    const isDone = completed.includes(task.id);
-    const icon = isDone ? "🏅" : "🔓";
+  const grouped = {};
+  rewardTasks.forEach(task => {
+    if (!grouped[task.type]) grouped[task.type] = [];
+    grouped[task.type].push(task);
+  });
 
-    const tile = document.createElement("div");
-    tile.className = `col badge-tile badge-type-${task.type} ${isDone ? 'earned' : ''}`;
-    tile.innerHTML = `
+  // Prepare map of completed dates
+  const completedMap = {};
+  rewardTasks.forEach(task => {
+    if (completed.includes(task.id)) {
+      const date = userData.badges?.[task.type]?.lastEarned?.toDate?.();
+      if (date) completedMap[task.id] = date;
+    }
+  });
+
+  let globalNext = null;
+
+  for (const type in grouped) {
+    const tasks = grouped[type];
+    tasks.sort((a, b) => {
+      const aVal = a.condition[Object.keys(a.condition)[0]] ?? 0;
+      const bVal = b.condition[Object.keys(b.condition)[0]] ?? 0;
+      return aVal - bVal;
+    });
+
+    const completedTasks = tasks.filter(t => completed.includes(t.id));
+    const uncompletedTasks = tasks.filter(t => !completed.includes(t.id));
+    const next = uncompletedTasks[0];
+
+    if (completedTasks.length > 0 || next) {
+      const section = document.createElement("div");
+      section.className = "col-12 mb-4";
+
+      const progress = Math.round((completedTasks.length / tasks.length) * 100);
+      const sectionHeader = `
+        <h6 class="text-uppercase text-secondary fw-bold mb-2">${type}</h6>
+        <div class="progress mb-2" style="height: 6px;">
+          <div class="progress-bar" role="progressbar" style="width: ${progress}%;" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div class="small text-muted mb-2">${completedTasks.length}/${tasks.length} completed</div>
+      `;
+
+      let tiles = "";
+      for (const task of completedTasks) {
+        tiles += renderBadgeTile(task, true, completedMap);
+      }
+      if (next) {
+        tiles += renderBadgeTile(next, false, completedMap);
+        if (!globalNext) globalNext = next;
+      }
+
+      section.innerHTML = sectionHeader + `<div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">${tiles}</div>`;
+      grid.appendChild(section);
+    }
+  }
+
+  nextTaskElement.innerHTML = globalNext
+    ? `🎯 <strong>${globalNext.reward.badge}</strong> — ${Object.entries(globalNext.condition)[0].join(": ")}`
+    : "🏆 All rewards completed!";
+}
+
+
+
+
+function renderBadgeTile(task, isDone, completedMap = {}) {
+  const icon = isDone ? "🏅" : "🔓";
+  const badgeType = `badge-type-${task.type}`;
+  const earnedClass = isDone ? "earned" : "";
+
+  const completedDate = isDone && completedMap[task.id]
+    ? `<div class="badge-date text-success small">Earned: ${new Date(completedMap[task.id]).toLocaleDateString()}</div>`
+    : "";
+
+  return `
+    <div class="col badge-tile ${badgeType} ${earnedClass}" onclick="showBadgeDetail(${encodeURIComponent(JSON.stringify(task))}, ${isDone})">
       <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
       <div class="badge-name">${task.reward.badge}</div>
       <div class="badge-type">${task.type}</div>
       <div class="badge-points text-muted small">${task.reward.points} pts</div>
-    `;
-
-    grid.appendChild(tile);
-
-    if (!isDone && !nextTask) nextTask = task;
-  }
-
-  const next = document.getElementById("nextTask");
-  next.innerHTML = nextTask
-    ? `🎯 <strong>${nextTask.reward.badge}</strong> — ${Object.entries(nextTask.condition)[0].join(": ")}`
-    : "🏆 All rewards completed!";
+      ${completedDate}
+    </div>
+  `;
 }
+
+function showBadgeDetail(task, isDone) {
+  const detail = document.getElementById("badgeDetailContent");
+  const cond = Object.entries(task.condition)[0];
+  detail.innerHTML = `
+    <h5>${task.reward.badge}</h5>
+    <p><strong>Type:</strong> ${task.type}</p>
+    <p><strong>Points:</strong> ${task.reward.points}</p>
+    <p><strong>Condition:</strong> ${cond[0]} ≥ ${cond[1]}</p>
+    <p><strong>Status:</strong> ${isDone ? "✅ Earned" : "🔓 Locked"}</p>
+  `;
+  const modal = new bootstrap.Modal(document.getElementById("badgeDetailModal"));
+  modal.show();
+}
+
+window.showBadgeDetail = showBadgeDetail;
+
 
 
 document.getElementById("viewRewardsBtn")?.addEventListener("click", () => {
