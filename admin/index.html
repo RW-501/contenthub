@@ -141,17 +141,7 @@
   <button id="toggleCalendarBtn" class="btn btn-outline-primary mb-3">
     📅 View Scheduled Posts Calendar
   </button>
-  <div id="calendarWrapper" class="d-none border rounded p-3"></div>
-</section>
-
-<div class="modal fade" id="calendarDayModal" tabindex="-1" aria-labelledby="calendarDayModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="calendarDayModalLabel">📅 Scheduled for <span id="calendarModalDate"></span></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <select id="calendarFilter" class="form-select w-auto mb-3">
+        <select id="calendarFilter" class="form-select w-auto mb-3">
   <option value="all">Show All</option>
   <option value="posts">Posts Only</option>
   <option value="events">Events Only</option>
@@ -162,7 +152,16 @@
   <button class="btn btn-outline-secondary" id="viewWeekly">📆 Week</button>
   <button class="btn btn-outline-secondary" id="viewDaily">📌 Day</button>
 </div>
+  <div id="calendarWrapper" class="d-none border rounded p-3"></div>
+</section>
 
+<div class="modal fade" id="calendarDayModal" tabindex="-1" aria-labelledby="calendarDayModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="calendarDayModalLabel">📅 Scheduled for <span id="calendarModalDate"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
       <div class="modal-body" id="calendarModalBody">
         <p class="text-muted">Loading scheduled posts...</p>
       </div>
