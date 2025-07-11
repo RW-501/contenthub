@@ -154,13 +154,67 @@
       <div class="modal-body" id="calendarModalBody">
         <p class="text-muted">Loading scheduled posts...</p>
       </div>
+<div class="modal-footer">
+  <button class="btn btn-outline-success" id="addNewPostForDate">➕ Add Post</button>
+  <button class="btn btn-outline-success" id="addNewEventForDate">➕ Add Event</button>
+  <button class="btn btn-outline-warning" id="addFeaturedUserForDate">⭐ Feature User</button>
+</div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">📅 Add Event</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="eventDateInput">
+        <div class="mb-3">
+          <label class="form-label">Event Title</label>
+          <input type="text" id="eventTitleInput" class="form-control" placeholder="e.g. Team Meeting">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea id="eventDescInput" class="form-control" rows="3"></textarea>
+        </div>
+      </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-success" id="addNewPostForDate">➕ Add Post</button>
+        <button class="btn btn-success" id="saveEventBtn">Save Event</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Schedule Featured User Modal -->
+<div class="modal fade" id="scheduleFeaturedModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">⭐ Schedule Featured User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="featuredDateInput">
+        <div class="mb-3">
+          <label class="form-label">User UID</label>
+          <input type="text" id="featuredUserUidInput" class="form-control" placeholder="User UID">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Reason for Featuring</label>
+          <input type="text" id="featuredReasonInput" class="form-control" placeholder="e.g. Top Creator of the Week">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-warning" id="saveFeaturedBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <div class="container py-4">

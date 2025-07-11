@@ -654,16 +654,21 @@ async function loadCalendarItems() {
     calendarItemsByDate[dateKey].events.push({ ...event, id: doc.id });
   });
 }
+window.loadCalendarItems = loadCalendarItems;
+
 
 toggleCalendarBtn.addEventListener("click", async () => {
   calendarWrapper.classList.toggle("d-none");
 
   if (!calendarWrapper.dataset.loaded) {
-    await loadScheduledPosts();
+    await loadScheduledPosts();     // used in post-only modal
+    await loadCalendarItems();      // ✅ now also loads all items into calendarItemsByDate
     renderCalendar();
     calendarWrapper.dataset.loaded = true;
   }
 });
+;
+
 
 async function loadScheduledPosts() {
   const q = query(collection(db, "posts"), where("scheduledAt", "!=", null));
@@ -783,9 +788,22 @@ calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
     }
 
     // Add post button logic
-    document.getElementById("addNewPostForDate").onclick = () => {
-      openPostCreationForm(date); // This should open your post form with pre-filled date
-    };
+document.getElementById("addNewPostForDate").onclick = () => openPostCreationForm(date);
+
+document.getElementById("addNewEventForDate").onclick = () => {
+  document.getElementById("eventDateInput").value = date;
+  document.getElementById("eventTitleInput").value = "";
+  document.getElementById("eventDescInput").value = "";
+  new bootstrap.Modal(document.getElementById("addEventModal")).show();
+};
+
+document.getElementById("addFeaturedUserForDate").onclick = () => {
+  document.getElementById("featuredDateInput").value = date;
+  document.getElementById("featuredUserUidInput").value = "";
+  document.getElementById("featuredReasonInput").value = "";
+  new bootstrap.Modal(document.getElementById("scheduleFeaturedModal")).show();
+};
+
 
     btn.addEventListener("click", () => {
   const date = btn.dataset.date;

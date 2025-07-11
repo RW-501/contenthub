@@ -346,6 +346,8 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
   `;
 
   div.addEventListener("click", () => {
+      console.log("showBadgeDetail clicked???????/");
+
     showBadgeDetail(task, isDone);
   });
 
