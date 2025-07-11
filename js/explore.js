@@ -19,7 +19,7 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-s
 
 // Your config import (must expose the initialized app)
 import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
-import { sendNotification, NOTIFICATION_TEMPLATES } from "https://rw-501.github.io/contenthub/includes/notifications.js";
+import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks} from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 // Firebase instances
 const auth = getAuth(app);
@@ -128,6 +128,7 @@ function createCollabCard(data, collabId) {
 
 
 async function requestToJoin(collabId, ownerId) {
+
   try {
     if (!user || !user.uid) return alert("⚠️ Please log in to request to join.");
 
