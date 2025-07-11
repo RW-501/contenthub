@@ -387,6 +387,24 @@ display: block;
   </div>
 </div>
 
+
+
+<!-- Badge Detail Modal -->
+<div class="modal fade" id="badgeDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Badge Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="badgeDetailContent">
+        <!-- Badge info injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <style>
     #reusableModal {
     z-index: 20000;
@@ -484,18 +502,3 @@ display: block;
   </div>
 </div>
 
-
-<!-- Badge Detail Modal -->
-<div class="modal fade" id="badgeDetailModal" tabindex="-1" aria-labelledby="badgeDetailLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="badgeDetailLabel">Badge Info</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div id="badgeDetailContent"></div>
-      </div>
-    </div>
-  </div>
-</div>

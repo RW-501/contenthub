@@ -346,9 +346,11 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
     ${completedDate}
   `;
 
-  div.addEventListener("click", () => showBadgeDetail(task, isDone),
-  console.log("hello?/")
-);
+ div.addEventListener("click", () => {
+  console.log("Badge tile clicked!");
+  showBadgeDetail(task, isDone);
+});
+
 
   return div.outerHTML;
 }
