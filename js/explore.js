@@ -648,9 +648,14 @@ async function addComments() {
   const text = document.getElementById("newCommentText").value.trim();
   if (!text) return;
 
+    const avatar = document.getElementById("userAvatar");
+    const viewerUserId = avatar.dataset.uid;
+    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerUsername = avatar.dataset.username;
+    const viewerUserPhotoURL = avatar.dataset.photo;
   const comment = {
     text,
-    userName: user?.displayName || "Anonymous",
+    userName: viewerDisplayName || "Anonymous",
     timestamp: serverTimestamp(),
   };
 
