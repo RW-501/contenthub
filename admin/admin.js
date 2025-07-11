@@ -184,14 +184,13 @@ ${role === 'demo' ? `<button class="btn btn-sm btn-outline-success" onclick="edi
   `;
 
 
-if (u.featured) {
-  usersCard.classList.add("border-warning");
-  usersCard.innerHTML += `<div class="badge bg-warning text-dark">⭐ Featured</div>`;
-}
 
   const row = `
     <tr>
-      <td>${u.displayName || 'N/A'}</td>
+<td>
+  ${u.displayName || 'N/A'}
+  ${u.featured?.isFeatured ? `<span class="badge bg-warning text-dark ms-1">⭐ Featured</span>` : ""}
+</td>
       <td>${(u.niches || []).join(", ")}</td>
       <td><span class="badge bg-info text-dark">${role}</span></td>
       <td><span class="badge bg-${status === 'active' ? 'success' : status === 'blocked' ? 'warning' : 'secondary'}">${status}</span></td>
