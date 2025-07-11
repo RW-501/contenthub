@@ -546,7 +546,23 @@ function showRewardToast(task) {
   origin: { y: 0.6 }
 });
   showModal({ title: "Reward Earned", message: msg, autoClose: 4000 });
+
+
+      setTimeout(() => {
+
+  if (newTotalPoints >= 100 && !userData.featured?.isFeatured) {
+  // ... feature logic ...
+  showModal({
+    title: "🎉 You're Featured!",
+    message: "You've earned over 100 points and have been featured for a week! 🚀",
+    autoClose: 5000
+  });
+}
+      }, 5000);
+
       }, 1000);
+
+
 
 }
 
@@ -594,6 +610,25 @@ export async function checkAndAwardTasks(uid, userData) {
       }
 
       await updateDoc(userRef, updates);
+
+// Check if user now has 100+ points and feature them if not already
+const newTotalPoints = (userData.points || 0) + (task.reward.points || 0);
+if (newTotalPoints >= 100 && !userData.featured?.isFeatured) {
+  const featuredUntil = new Date();
+  featuredUntil.setDate(featuredUntil.getDate() + 7);
+
+  await updateDoc(userRef, {
+    featured: {
+      isFeatured: true,
+      reason: "Earned 100+ reward points",
+      featuredUntil: Timestamp.fromDate(featuredUntil),
+      addedBy: "system",
+      addedAt: serverTimestamp()
+    }
+  });
+
+  console.log("🌟 User featured for earning 100+ points!");
+}
 
       showRewardToast(task);
 

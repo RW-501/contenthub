@@ -250,28 +250,33 @@ async function loadRewardModal() {
   const userSnap = await getDoc(doc(db, "users", uid));
   const userData = userSnap.exists() ? userSnap.data() : {};
 
+  const completed = userData.rewardsCompleted || [];
+  const points = userData.points || 0;
+
+  // Show points in header
+  const header = document.getElementById("rewardsModalLabel");
+  header.innerHTML = `🎖️ Your Rewards & Badges <span class="text-warning fw-normal">(${points} pts)</span>`;
+
   const grid = document.getElementById("rewardGrid");
   grid.innerHTML = "";
-
-  const completed = userData.rewardsCompleted || [];
 
   let nextTask = null;
 
   for (const task of rewardTasks) {
     const isDone = completed.includes(task.id);
     const icon = isDone ? "🏅" : "🔓";
+
     const tile = document.createElement("div");
-tile.className = `col badge-tile badge-type-${task.type} ${isDone ? 'earned' : ''}`;
-tile.innerHTML = `
-  <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
-  <div class="badge-name">${task.reward.badge}</div>
-  <div class="badge-type">${task.type}</div>
-  <div class="badge-points text-muted small">${task.reward.points} pts</div>
-`;
+    tile.className = `col badge-tile badge-type-${task.type} ${isDone ? 'earned' : ''}`;
+    tile.innerHTML = `
+      <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
+      <div class="badge-name">${task.reward.badge}</div>
+      <div class="badge-type">${task.type}</div>
+      <div class="badge-points text-muted small">${task.reward.points} pts</div>
+    `;
 
     grid.appendChild(tile);
 
-    // Find the next unearned task
     if (!isDone && !nextTask) nextTask = task;
   }
 
