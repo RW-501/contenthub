@@ -822,43 +822,43 @@ function renderDayView(dateObj) {
 }
 
 function renderModalForDate(date) {
-const filter = document.getElementById("calendarFilter")?.value || "all";
-
-if (items.posts.length && (filter === "all" || filter === "posts")) { ... }
-if (items.events.length && (filter === "all" || filter === "events")) { ... }
-if (items.featured.length && (filter === "all" || filter === "featured")) { ... }
-
-const modalBody = document.getElementById("calendarModalBody");
+  const filter = document.getElementById("calendarFilter")?.value || "all";
+  const items = calendarItemsByDate[date] || { posts: [], events: [], featured: [] };
+  const modalBody = document.getElementById("calendarModalBody");
   const blocks = [];
 
-  if (items.posts.length) {
+  // Posts
+  if ((filter === "all" || filter === "posts") && items.posts.length) {
     blocks.push(`<h6 class="text-primary">📸 Scheduled Posts</h6>`);
     blocks.push(...items.posts.map(post => `
       <div class="card mb-2"><div class="card-body">
         <h6>${post.caption || "Untitled"}</h6>
         <p><strong>Goal:</strong> ${post.projectGoal || "—"}</p>
-        <button class="btn btn-sm btn-primary" onclick="editScheduledPost('${post.id}')">✏️ Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteScheduledPost('${post.id}', '${date}')">🗑 Delete</button>
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-sm btn-primary" onclick="editScheduledPost('${post.id}')">✏️ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteScheduledPost('${post.id}', '${date}')">🗑 Delete</button>
+        </div>
       </div></div>
     `));
   }
 
-  if (items.events.length) {
+  // Events
+  if ((filter === "all" || filter === "events") && items.events.length) {
     blocks.push(`<h6 class="text-success">📅 Events</h6>`);
     blocks.push(...items.events.map(event => `
       <div class="card mb-2"><div class="card-body">
-<h6>${event.title}</h6>
-<p>${event.description || ""}</p>
-<div class="d-flex justify-content-end gap-2">
-  <button class="btn btn-sm btn-primary" onclick="editEvent('${event.id}')">✏️ Edit</button>
-  <button class="btn btn-sm btn-danger" onclick="deleteEvent('${event.id}', '${date}')">🗑 Delete</button>
-</div>
-
+        <h6>${event.title}</h6>
+        <p>${event.description || ""}</p>
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-sm btn-primary" onclick="editEvent('${event.id}')">✏️ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteEvent('${event.id}', '${date}')">🗑 Delete</button>
+        </div>
       </div></div>
     `));
   }
 
-  if (items.featured.length) {
+  // Featured Users
+  if ((filter === "all" || filter === "featured") && items.featured.length) {
     blocks.push(`<h6 class="text-warning">⭐ Featured Users</h6>`);
     blocks.push(...items.featured.map(user => `
       <div class="card mb-2"><div class="card-body">
@@ -867,21 +867,33 @@ const modalBody = document.getElementById("calendarModalBody");
       </div></div>
     `));
   }
+
+  modalBody.innerHTML = blocks.length
+    ? blocks.join("")
+    : `<p class="text-muted">No scheduled items for this filter.</p>`;
+}
+window.renderModalForDate = renderModalForDate;
+
 async function deleteEvent(id, dateStr) {
   if (!confirm("Delete this event?")) return;
-  await deleteDoc(doc(db, "events", id));
-  await loadCalendarItems();
-  renderCalendar();
-  renderModalForDate(dateStr);
+
+  try {
+    await deleteDoc(doc(db, "events", id));
+    await loadCalendarItems();
+    renderCalendar();
+    renderModalForDate(dateStr);
+  } catch (error) {
+    console.error("Failed to delete event:", error);
+    alert("Could not delete the event.");
+  }
 }
 window.deleteEvent = deleteEvent;
-
 
 function editEvent(eventId) {
   const event = Object.values(calendarItemsByDate)
     .flatMap(day => day.events)
     .find(e => e.id === eventId);
-  
+
   if (!event) return alert("Event not found.");
 
   document.getElementById("eventDateInput").value = event.date.toDate().toISOString().split("T")[0];
@@ -892,9 +904,6 @@ function editEvent(eventId) {
   new bootstrap.Modal(document.getElementById("addEventModal")).show();
 }
 window.editEvent = editEvent;
-
-  modalBody.innerHTML = blocks.length ? blocks.join("") : `<p class="text-muted">No scheduled items.</p>`;
-}
 
 // Open post creation form
 function openPostCreationForm(dateStr) {
