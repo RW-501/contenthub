@@ -611,11 +611,49 @@ window.unfeatureUser = unfeatureUser;
 
 
 
+let calendarItemsByDate = {}; // Format: { "YYYY-MM-DD": { posts: [], events: [], featured: [] } }
 
 const calendarWrapper = document.getElementById("calendarWrapper");
 const toggleCalendarBtn = document.getElementById("toggleCalendarBtn");
 
 let scheduledPostsByDate = {}; // Format: { "2025-07-11": [post1, post2] }
+
+
+
+
+async function loadCalendarItems() {
+  calendarItemsByDate = {};
+
+  // Load Posts
+  const postSnap = await getDocs(query(collection(db, "posts"), where("scheduledAt", "!=", null)));
+  postSnap.forEach(doc => {
+    const post = doc.data();
+    const dateKey = post.scheduledAt.toDate().toISOString().split("T")[0];
+    calendarItemsByDate[dateKey] ??= { posts: [], events: [], featured: [] };
+    calendarItemsByDate[dateKey].posts.push({ ...post, id: doc.id });
+  });
+
+  // Load Featured Users
+  const now = new Date();
+  const userSnap = await getDocs(query(collection(db, "users"), where("featured.isFeatured", "==", true)));
+  userSnap.forEach(doc => {
+    const user = doc.data();
+    const startDate = user.featured?.startDate?.toDate?.();
+    if (!startDate) return;
+    const dateKey = startDate.toISOString().split("T")[0];
+    calendarItemsByDate[dateKey] ??= { posts: [], events: [], featured: [] };
+    calendarItemsByDate[dateKey].featured.push({ ...user, id: doc.id });
+  });
+
+  // Load Events (if stored in your DB)
+  const eventSnap = await getDocs(query(collection(db, "events"), where("date", "!=", null)));
+  eventSnap.forEach(doc => {
+    const event = doc.data();
+    const dateKey = event.date.toDate().toISOString().split("T")[0];
+    calendarItemsByDate[dateKey] ??= { posts: [], events: [], featured: [] };
+    calendarItemsByDate[dateKey].events.push({ ...event, id: doc.id });
+  });
+}
 
 toggleCalendarBtn.addEventListener("click", async () => {
   calendarWrapper.classList.toggle("d-none");
@@ -628,10 +666,7 @@ toggleCalendarBtn.addEventListener("click", async () => {
 });
 
 async function loadScheduledPosts() {
-  const q = query(
-    collection(db, "posts"),
-    where("scheduledAt", "!=", null)
-  );
+  const q = query(collection(db, "posts"), where("scheduledAt", "!=", null));
   const snapshot = await getDocs(q);
 
   scheduledPostsByDate = {};
@@ -645,9 +680,14 @@ async function loadScheduledPosts() {
     if (!scheduledPostsByDate[dateKey]) {
       scheduledPostsByDate[dateKey] = [];
     }
-    scheduledPostsByDate[dateKey].push(post);
+
+    scheduledPostsByDate[dateKey].push({
+      ...post,
+      id: doc.id, // 👈 Save the post ID
+    });
   });
 }
+
 
 function renderCalendar(monthsToShow = 3) {
   const now = new Date();
@@ -687,13 +727,16 @@ function renderCalendar(monthsToShow = 3) {
 
       const td = document.createElement("td");
 
-      if (scheduledPostsByDate[dateKey]) {
-        td.innerHTML = `<button class="btn btn-sm btn-warning w-100" data-date="${dateKey}">
-          ${dateNum}<br><small>${scheduledPostsByDate[dateKey].length} post(s)</small>
-        </button>`;
-      } else {
-        td.innerHTML = `<div class="text-muted">${dateNum}</div>`;
-      }
+const dayData = calendarItemsByDate[dateKey];
+if (dayData) {
+  const count = dayData.posts.length + dayData.events.length + dayData.featured.length;
+  td.innerHTML = `<button class="btn btn-sm btn-warning w-100" data-date="${dateKey}">
+    ${dateNum}<br><small>${count} item(s)</small>
+  </button>`;
+} else {
+  td.innerHTML = `<div class="text-muted">${dateNum}</div>`;
+}
+
 
       currentRow.appendChild(td);
 
@@ -744,7 +787,13 @@ calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
       openPostCreationForm(date); // This should open your post form with pre-filled date
     };
 
-    new bootstrap.Modal(document.getElementById("calendarDayModal")).show();
+    btn.addEventListener("click", () => {
+  const date = btn.dataset.date;
+  document.getElementById("calendarModalDate").textContent = date;
+  renderPostsForDate(date);
+  new bootstrap.Modal(document.getElementById("calendarDayModal")).show();
+});
+
   });
 });
 
@@ -753,6 +802,59 @@ calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
   });
 }
 
+function renderModalForDate(date) {
+  const items = calendarItemsByDate[date] || { posts: [], events: [], featured: [] };
+  const modalBody = document.getElementById("calendarModalBody");
+  const blocks = [];
+
+  if (items.posts.length) {
+    blocks.push(`<h6 class="text-primary">📸 Scheduled Posts</h6>`);
+    blocks.push(...items.posts.map(post => `
+      <div class="card mb-2"><div class="card-body">
+        <h6>${post.caption || "Untitled"}</h6>
+        <p><strong>Goal:</strong> ${post.projectGoal || "—"}</p>
+        <button class="btn btn-sm btn-primary" onclick="editScheduledPost('${post.id}')">✏️ Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteScheduledPost('${post.id}', '${date}')">🗑 Delete</button>
+      </div></div>
+    `));
+  }
+
+  if (items.events.length) {
+    blocks.push(`<h6 class="text-success">📅 Events</h6>`);
+    blocks.push(...items.events.map(event => `
+      <div class="card mb-2"><div class="card-body">
+        <h6>${event.title}</h6>
+        <p>${event.description || ""}</p>
+      </div></div>
+    `));
+  }
+
+  if (items.featured.length) {
+    blocks.push(`<h6 class="text-warning">⭐ Featured Users</h6>`);
+    blocks.push(...items.featured.map(user => `
+      <div class="card mb-2"><div class="card-body">
+        <h6>${user.displayName}</h6>
+        <p>Reason: ${user.featured?.reason || "—"}</p>
+      </div></div>
+    `));
+  }
+
+  modalBody.innerHTML = blocks.length ? blocks.join("") : `<p class="text-muted">No scheduled items.</p>`;
+}
+
+
+
+function openPostCreationForm(dateStr) {
+  // Example: open a modal and set the scheduledAt field
+  const formDateInput = document.getElementById("scheduledDateInput");
+  if (formDateInput) {
+    formDateInput.value = dateStr;
+    // optionally open a post creation modal
+    new bootstrap.Modal(document.getElementById("createPostModal")).show();
+  } else {
+    console.warn("No scheduled date input found!");
+  }
+}
 
 
 

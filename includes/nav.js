@@ -325,7 +325,6 @@ async function loadRewardModal() {
 
 
 
-
 function renderBadgeTile(task, isDone, completedMap = {}) {
   const icon = isDone ? "🏅" : "🔓";
   const badgeType = `badge-type-${task.type}`;
@@ -335,33 +334,24 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
     ? `<div class="badge-date text-success small">Earned: ${new Date(completedMap[task.id]).toLocaleDateString()}</div>`
     : "";
 
-  // Create DOM element
   const div = document.createElement("div");
   div.className = `col badge-tile ${badgeType} ${earnedClass}`;
+  div.setAttribute("data-task-id", task.id);
   div.innerHTML = `
-  // In renderBadgeTile:
-<div class="badge-tile" data-task-id="${task.id}">
     <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
     <div class="badge-name">${task.reward.badge}</div>
     <div class="badge-type">${task.type}</div>
     <div class="badge-points text-muted small">${task.reward.points} pts</div>
     ${completedDate}
-    </div>
   `;
 
-document.querySelectorAll(".badge-tile").forEach(tile => {
-  tile.addEventListener("click", () => {
-    const taskId = tile.dataset.taskId;
-    const task = rewardTasks.find(t => t.id === taskId);
-    const isDone = completedMap?.[taskId];
+  div.addEventListener("click", () => {
     showBadgeDetail(task, isDone);
   });
-});
 
-
-
-  return div; // NOT outerHTML
+  return div.outerHTML; // ✅ returning as HTML string
 }
+
 
 function showBadgeDetail(task, isDone) {
   console.log("????????????????????????????/");
