@@ -100,6 +100,17 @@ await setDoc(userRef, userData);
     // Optional: Clear the referral code once it's used
     localStorage.removeItem("pendingReferral");
     console.log("🎉 Referral counted for:", referredBy);
+
+  // ✅ Send Notification to Referrer
+  await sendNotification({
+    toUid: referredBy,
+    fromUid: user.uid,
+    fromDisplayName: userData.displayName || "New Creator",
+    fromuserAvatar: userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png',
+    message: `${userData.displayName || "A new user"} joined via your invite!`,
+    type: "referrals",
+  });
+  
   }
 
   }
