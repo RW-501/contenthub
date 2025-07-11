@@ -335,15 +335,20 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
     ? `<div class="badge-date text-success small">Earned: ${new Date(completedMap[task.id]).toLocaleDateString()}</div>`
     : "";
 
-  return `
-    <div class="col badge-tile ${badgeType} ${earnedClass}" onclick="showBadgeDetail(${task}, ${isDone})">
-      <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
-      <div class="badge-name">${task.reward.badge}</div>
-      <div class="badge-type">${task.type}</div>
-      <div class="badge-points text-muted small">${task.reward.points} pts</div>
-      ${completedDate}
-    </div>
+  // Create DOM element
+  const div = document.createElement("div");
+  div.className = `col badge-tile ${badgeType} ${earnedClass}`;
+  div.innerHTML = `
+    <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
+    <div class="badge-name">${task.reward.badge}</div>
+    <div class="badge-type">${task.type}</div>
+    <div class="badge-points text-muted small">${task.reward.points} pts</div>
+    ${completedDate}
   `;
+
+  div.addEventListener("click", () => showBadgeDetail(task, isDone));
+
+  return div.outerHTML;
 }
 
 function showBadgeDetail(task, isDone) {
