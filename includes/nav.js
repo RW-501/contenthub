@@ -350,7 +350,6 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
   `;
 
   div.addEventListener("click", () => {
-    console.log("Tile clicked: showing badge detail");
     showBadgeDetail(task, isDone);
   });
 
@@ -359,7 +358,6 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
 
 
 function showBadgeDetail(task, isDone) {
-  console.log("????????????????????????????/");
 
   const detail = document.getElementById("badgeDetailContent");
   const cond = Object.entries(task.condition)[0];

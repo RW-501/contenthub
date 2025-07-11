@@ -668,14 +668,17 @@ async function loadScheduledPosts() {
 function renderCalendar() {
   const now = new Date();
   calendarWrapper.innerHTML = "";
- if (viewMode === "day") {
+
+  const mode = typeof viewMode !== "undefined" ? viewMode : "month";
+
+ if (mode === "day") {
     // Show only one day view
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     renderDayView(today);
     return;
   }
 
-  if (viewMode === "week") {
+  if (mode === "week") {
     const start = new Date(now);
     start.setDate(start.getDate() - start.getDay()); // Start of week
     for (let i = 0; i < 7; i++) {
@@ -702,6 +705,7 @@ function renderCalendar() {
       headerRow.appendChild(th);
     });
     table.appendChild(headerRow);
+const filter = document.getElementById("calendarFilter")?.value || "all";
 
     const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
     const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
@@ -719,7 +723,6 @@ function renderCalendar() {
       const dayData = calendarItemsByDate[dateKey];
 
       if (dayData) {
-const filter = document.getElementById("calendarFilter")?.value || "all";
 
 const count =
   (filter === "all" || filter === "posts" ? dayData.posts.length : 0) +
@@ -752,45 +755,58 @@ const count =
 
   // Add day click handlers
   calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const date = btn.dataset.date;
-      renderModalForDate(date);
-      document.getElementById("calendarModalDate").textContent = date;
-      new bootstrap.Modal(document.getElementById("calendarDayModal")).show();
+  const cloned = btn.cloneNode(true);
+  btn.replaceWith(cloned);
 
-      // Fill modal button handlers
-      document.getElementById("addNewPostForDate").onclick = () => openPostCreationForm(date);
-      document.getElementById("addNewEventForDate").onclick = () => {
-        document.getElementById("eventDateInput").value = date;
-        document.getElementById("eventTitleInput").value = "";
-        document.getElementById("eventDescInput").value = "";
-        new bootstrap.Modal(document.getElementById("addEventModal")).show();
-      };
-      document.getElementById("addFeaturedUserForDate").onclick = () => {
-        document.getElementById("featuredDateInput").value = date;
-        document.getElementById("featuredUserUidInput").value = "";
-        document.getElementById("featuredReasonInput").value = "";
-        new bootstrap.Modal(document.getElementById("scheduleFeaturedModal")).show();
-      };
-    });
+  cloned.addEventListener("click", () => {
+    const date = cloned.dataset.date;
+    renderModalForDate(date);
+    document.getElementById("calendarModalDate").textContent = date;
+    new bootstrap.Modal(document.getElementById("calendarDayModal")).show();
+
+    document.getElementById("addNewPostForDate").onclick = () => openPostCreationForm(date);
+    document.getElementById("addNewEventForDate").onclick = () => {
+      document.getElementById("eventDateInput").value = date;
+      document.getElementById("eventTitleInput").value = "";
+      document.getElementById("eventDescInput").value = "";
+      new bootstrap.Modal(document.getElementById("addEventModal")).show();
+    };
+    document.getElementById("addFeaturedUserForDate").onclick = () => {
+      document.getElementById("featuredDateInput").value = date;
+      document.getElementById("featuredUserUidInput").value = "";
+      document.getElementById("featuredReasonInput").value = "";
+      new bootstrap.Modal(document.getElementById("scheduleFeaturedModal")).show();
+    };
+  });
+});
+
+}
+
+let prevBound = false;
+
+function bindPaginationEvents() {
+  if (prevBound) return;
+  prevBound = true;
+
+  document.getElementById("prevPageBtn").addEventListener("click", () => {
+    if (calendarStartOffset > 0) {
+      calendarStartOffset -= monthsToShow;
+      renderCalendar();
+    }
+  });
+
+  document.getElementById("nextPageBtn").addEventListener("click", () => {
+    calendarStartOffset += monthsToShow;
+    renderCalendar();
   });
 }
 
-// Pagination Buttons
-document.getElementById("prevPageBtn").addEventListener("click", () => {
-  if (calendarStartOffset > 0) {
-    calendarStartOffset -= monthsToShow;
-    renderCalendar();
-  }
-});
-document.getElementById("nextPageBtn").addEventListener("click", () => {
-  calendarStartOffset += monthsToShow;
-  renderCalendar();
-});
 
 // Toggle calendar view
 toggleCalendarBtn.addEventListener("click", async () => {
   calendarWrapper.classList.toggle("d-none");
+  bindPaginationEvents();
+
   if (!calendarWrapper.dataset.loaded) {
     await loadScheduledPosts();
     await loadCalendarItems();
@@ -819,6 +835,8 @@ function renderDayView(dateObj) {
 
   div.appendChild(btn);
   calendarWrapper.appendChild(div);
+  document.getElementById("calendarDayModal").scrollIntoView({ behavior: "smooth" });
+
 }
 
 function renderModalForDate(date) {
