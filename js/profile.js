@@ -752,10 +752,14 @@ window.openComments = openComments;
 async function addComments() {
   const text = document.getElementById("newCommentText").value.trim();
   if (!text) return;
-
+    const avatar = document.getElementById("userAvatar");
+    const viewerUserId = avatar.dataset.uid;
+    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerUsername = avatar.dataset.username;
+    const viewerUserPhotoURL = avatar.dataset.photo;
   const comment = {
     text,
-    userName: user?.displayName || "Anonymous",
+    userName: viewerDisplayName || "Anonymous",
     timestamp: serverTimestamp(),
   };
 
@@ -773,10 +777,14 @@ window.showReplyBox = showReplyBox;
 async function addReply(parentCommentId) {
   const replyText = document.getElementById(`replyText-${parentCommentId}`).value.trim();
   if (!replyText) return;
-
+    const avatar = document.getElementById("userAvatar");
+    const viewerUserId = avatar.dataset.uid;
+    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerUsername = avatar.dataset.username;
+    const viewerUserPhotoURL = avatar.dataset.photo;
   const reply = {
     text: replyText,
-    userName: user?.displayName || "Anonymous",
+    userName: viewerDisplayName || "Anonymous",
     parentId: parentCommentId,
     timestamp: serverTimestamp(),
   };

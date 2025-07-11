@@ -148,13 +148,18 @@ async function requestToJoin(collabId, ownerId) {
       });
     }
 
-    const viewer = getViewerData();
+    const avatar = document.getElementById("userAvatar");
+    const viewerUserId = avatar.dataset.uid;
+    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerUsername = avatar.dataset.username;
+    const viewerUserPhotoURL = avatar.dataset.photo;
+    
     await sendNotification({
       toUid: ownerId,
-      fromUid: viewer.uid,
-      fromDisplayName: viewer.name,
-      fromuserAvatar: viewer.photo,
-      message: NOTIFICATION_TEMPLATES.profileView(viewer.name),
+      fromUid: viewerUserId,
+      fromDisplayName: viewerDisplayName,
+      fromuserAvatar: viewerUserPhotoURL,
+      message: NOTIFICATION_TEMPLATES.profileView(viewerUsername),
       type: "collabRequest",
     });
 
@@ -189,17 +194,6 @@ async function requestToJoin(collabId, ownerId) {
 window.requestToJoin = requestToJoin;
 
 
-function getViewerData() {
-  const avatar = document.getElementById("userAvatar");
-  return {
-    uid: avatar.dataset.uid,
-    name: avatar.dataset.displayname,
-    role: avatar.dataset.role,
-    username: avatar.dataset.username,
-    photo: avatar.dataset.photo
-  };
-}
-window.getViewerData = getViewerData;
 
 async function loadRegularPosts(filter, search) {
   let q;
@@ -352,20 +346,24 @@ async function reactToPost(postId, type, ownerId, caption) {
     [`receivedReactions.${type}`]: increment(1)
   });
 
-  const viewer = getViewerData();
   const emojiMap = {
     helpful: "🙌",
     interested: "⭐",
     like: "❤️"
   };
   const emoji = emojiMap[type] || "✨";
+    const avatar = document.getElementById("userAvatar");
+    const viewerUserId = avatar.dataset.uid;
+    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerUsername = avatar.dataset.username;
+    const viewerUserPhotoURL = avatar.dataset.photo;
 
   await sendNotification({
     toUid: ownerId,
-    fromUid: viewer.uid,
-    fromDisplayName: viewer.name,
-    fromuserAvatar: viewer.photo,
-    message: `${viewer.username} marked your post as ${type} ${emoji}: "${caption}"`,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: `${viewerUsername} marked your post as ${type} ${emoji}: "${caption}"`,
     type: `${type}Post`
   });
 
