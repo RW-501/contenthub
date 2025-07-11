@@ -215,7 +215,7 @@ function openActionModal(userId) {
   selectedUserId = userId;
   selectedUserData = userData;
 
-
+  
   const {
     displayName = "Unknown",
     bio = "No bio available",
@@ -369,6 +369,14 @@ document.getElementById("confirmFeatureBtn").onclick = async () => {
 };
 
 
+// Set Role
+async function setUserRole(role) {
+  const userId = document.getElementById("actionUserId").value;
+  await updateDoc(doc(db, "users", userId), { role });
+  alert(`Role updated to ${role}`);
+  bootstrap.Modal.getInstance(document.getElementById("actionModal")).hide();
+  loadUsers();
+}
 window.setUserRole = setUserRole;
 
 // Verify
@@ -599,7 +607,6 @@ async function unfeatureUser(uid) {
   }
 }
 
-window.unfeatureUser = unfeatureUser;
 
 
 
