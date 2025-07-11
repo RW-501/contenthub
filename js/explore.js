@@ -308,12 +308,17 @@ async function createPostCard(post, postId) {
         ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes • ${post.views || 0} Views
       </small>
 
-      <div class="d-flex flex-wrap gap-2">
+      <div class="d-flex gap-2">
         <button class="btn btn-sm btn-outline-danger" id="${likeBtnId}">❤️ Like</button>
         <button class="btn btn-sm btn-outline-success" id="${helpfulBtnId}">🙌 Helpful</button>
         <button class="btn btn-sm btn-outline-info" id="${interestedBtnId}">⭐ Interested</button>
+      </div>
+      <div class="d-flex gap-2">
         ${joinButton}
       </div>
+    <button class="btn btn-sm btn-outline-primary" data-post-id="${postId}" onclick="openComments('${postId}')">
+      💬 Comments
+    </button>
     </div>
   `;
 
@@ -368,6 +373,12 @@ async function reactToPost(postId, type, ownerId, caption) {
   const updatedSnap = await getDoc(userRef);
   await checkAndAwardTasks(ownerId, updatedSnap.data());
 }
+
+
+
+
+
+
 
 
 function renderMedia(media) {
@@ -562,3 +573,108 @@ const viewerUserPhotoURL = avatar.dataset.photo;
 filterSelect.addEventListener("change", () => loadPosts(true));
 searchInput.addEventListener("input", () => loadPosts(true));
 collabZoneToggle.addEventListener("change", () => loadPosts(true));
+
+
+
+let currentPostId = null;
+
+async function openComments(postId) {
+  currentPostId = postId;
+  document.getElementById("commentsList").innerHTML = "Loading...";
+  document.getElementById("newCommentText").value = "";
+
+  const modal = new bootstrap.Modal(document.getElementById("commentModal"));
+  modal.show();
+
+  const commentsRef = collection(db, "posts", postId, "comments");
+ const snap = await getDocs(query(commentsRef, orderBy("timestamp", "asc")));
+const comments = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+const commentMap = {};
+comments.forEach(c => {
+  if (!c.parentId) {
+    commentMap[c.id] = { ...c, replies: [] };
+  } else {
+    if (commentMap[c.parentId]) {
+      commentMap[c.parentId].replies.push(c);
+    } else {
+      commentMap[c.parentId] = { replies: [c] }; // fallback if parent not rendered yet
+    }
+  }
+});
+
+let html = "";
+for (const id in commentMap) {
+  const c = commentMap[id];
+  if (c.parentId) continue; // skip replies, handled below
+
+  html += `
+    <div class="border-bottom pb-2 mb-2">
+      <strong>${c.userName}:</strong> ${c.text}
+      <div class="small text-muted">${new Date(c.timestamp?.toDate?.()).toLocaleString()}</div>
+      <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
+      <div id="replyBox-${id}" class="mt-2" style="display: none;">
+        <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
+        <button class="btn btn-sm btn-secondary mt-1" onclick="addReply('${id}')">Reply</button>
+      </div>
+  `;
+
+  if (c.replies?.length) {
+    html += `<div class="ms-4 mt-2">`;
+    for (const reply of c.replies) {
+      html += `
+        <div class="border-start ps-2 mb-2">
+          <strong>${reply.userName}:</strong> ${reply.text}
+          <div class="small text-muted">${new Date(reply.timestamp?.toDate?.()).toLocaleString()}</div>
+        </div>
+      `;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div>`; // close comment div
+}
+
+
+  document.getElementById("commentsList").innerHTML = html || "<p>No comments yet.</p>";
+}
+window.openComments = openComments;
+
+
+async function addComments() {
+  const text = document.getElementById("newCommentText").value.trim();
+  if (!text) return;
+
+  const comment = {
+    text,
+    userName: user?.displayName || "Anonymous",
+    timestamp: serverTimestamp(),
+  };
+
+  await addDoc(collection(db, "posts", currentPostId, "comments"), comment);
+  openComments(currentPostId); // Reload comments
+}
+window.addComments = addComments;
+
+
+function showReplyBox(commentId) {
+  document.getElementById(`replyBox-${commentId}`).style.display = "block";
+}
+window.showReplyBox = showReplyBox;
+
+async function addReply(parentCommentId) {
+  const replyText = document.getElementById(`replyText-${parentCommentId}`).value.trim();
+  if (!replyText) return;
+
+  const reply = {
+    text: replyText,
+    userName: user?.displayName || "Anonymous",
+    parentId: parentCommentId,
+    timestamp: serverTimestamp(),
+  };
+
+  await addDoc(collection(db, "posts", currentPostId, "comments"), reply);
+  openComments(currentPostId); // Reload all including replies (simple approach)
+}
+
+window.addReply = addReply;

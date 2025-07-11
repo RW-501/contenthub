@@ -81,6 +81,26 @@ export function initPostScript() {
 
       <button id="publishPostBtn" class="btn btn-primary w-100">🚀 Publish</button>
     </div>
+
+
+    <div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Comments</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="commentsList"></div>
+        <div class="mt-3">
+          <textarea class="form-control" id="newCommentText" rows="2" placeholder="Add a comment..."></textarea>
+          <button class="btn btn-primary mt-2" onclick="addComments()">Post Comment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
   `;
 
   const wrapper = document.createElement("div");
