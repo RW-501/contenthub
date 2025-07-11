@@ -851,6 +851,8 @@ function renderModalForDate(date) {
     blocks.push(...items.posts.map(post => `
       <div class="card mb-2"><div class="card-body">
         <h6>${post.caption || "Untitled"}</h6>
+        <p><strong>Owner:</strong> ${post.owner || "—"}</p>
+        <p><strong>Type:</strong> ${post.type || "—"}</p>
         <p><strong>Goal:</strong> ${post.projectGoal || "—"}</p>
         <div class="d-flex justify-content-end gap-2">
           <button class="btn btn-sm btn-primary" onclick="editScheduledPost('${post.id}')">✏️ Edit</button>
