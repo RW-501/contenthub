@@ -155,11 +155,9 @@ const featuredContainer = document.getElementById("featuredCreators");
 
 async function loadFeaturedCreators() {
   const now = new Date();
-  const q = query(
-    collection(db, "users"),
-    where("featured.isFeatured", "==", true)
+  const snapshot = await getDocs(
+    query(collection(db, "users"), where("featured.isFeatured", "==", true))
   );
-  const snapshot = await getDocs(q);
 
   const featuredUsers = [];
 
@@ -169,9 +167,10 @@ async function loadFeaturedCreators() {
 
     const featuredData = user.featured || {};
     const featuredUntil = featuredData.featuredUntil?.toDate?.();
+    const startDate = featuredData.startDate?.toDate?.();
 
-    // Auto-remove expired featured status
-    if (featuredUntil && featuredUntil < now) {
+    // Remove if expired or start date hasn't begun
+    if ((featuredUntil && featuredUntil < now) || (startDate && startDate > now)) {
       await updateDoc(doc(db, "users", userId), {
         "featured.isFeatured": false
       });
@@ -182,6 +181,7 @@ async function loadFeaturedCreators() {
       id: userId,
       ...user,
       featuredUntil,
+      startDate,
       rank: featuredData.rank || 99
     });
   }
@@ -194,11 +194,10 @@ async function loadFeaturedCreators() {
     return;
   }
 
-  // Sort by rank (lowest number = higher priority)
+  // Sort by rank (lowest = higher priority)
   featuredUsers.sort((a, b) => (a.rank || 99) - (b.rank || 99));
 
-  // Create carousel structure
-  const slides = featuredUsers.map(user => {
+  const slides = featuredUsers.map((user, index) => {
     const name = user.displayName || "Unnamed Creator";
     const avatar = user.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
     const niches = Array.isArray(user.niches) ? capitalizeList(user.niches) : capitalize(user.niches || "Creator");
@@ -207,7 +206,7 @@ async function loadFeaturedCreators() {
     const location = user.userLocation || "";
 
     return `
-      <div class="carousel-item ${user.rank === 1 ? "active" : ""}">
+      <div class="carousel-item ${index === 0 ? "active" : ""}">
         <div class="card h-100 shadow-sm border-0 rounded-4 text-center overflow-hidden">
           <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.id}" class="text-decoration-none text-dark">
             <img src="${avatar}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="${name}">
