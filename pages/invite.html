@@ -103,18 +103,14 @@
     <div id="smsStatus" class="small mt-2 text-success"></div>
   </div>
 
-  <!-- Email Invite -->
-  <div class="card invite-card shadow-sm mb-4 p-4">
-    <h5 class="mb-3">Send Email Invite</h5>
-    <form id="emailForm">
-      <div class="input-group mb-2">
-        <input type="email" id="inviteEmail" class="form-control" placeholder="Enter email address" required>
-        <button class="btn btn-primary">Send Email</button>
-      </div>
-      <small class="text-muted">No spam. Only one invite per email.</small>
-    </form>
-    <div id="emailStatus" class="small mt-2 text-success"></div>
+<!-- Full Social Share -->
+<div class="card invite-card shadow-sm mb-4 p-4">
+  <h5 class="mb-3">📣 Share on Social Media</h5>
+  <div id="dynamic-shareArea" class="d-flex flex-wrap gap-3">
+    <!-- Populated via renderShareArea() -->
   </div>
+</div>
+
 
 </div>
 
@@ -141,17 +137,22 @@
   const countdownTimer = document.getElementById("countdownTimer");
 
   let currentUser;
+  let refLink;
 
-  auth.onAuthStateChanged(async user => {
-    if (!user) return alert("Please log in.");
-    currentUser = user;
+// After auth.onAuthStateChanged
+auth.onAuthStateChanged(async user => {
+  if (!user) return alert("Please log in.");
+  currentUser = user;
 
-    const refLink = `https://rw-501.github.io/contenthub/pages/signup?ref=${user.uid}`;
-    inviteLinkInput.value = refLink;
+  refLink = `https://rw-501.github.io/contenthub/pages/signup?ref=${user.uid}`;
+  inviteLinkInput.value = refLink;
 
-    await loadInviteStats(user.uid);
-    startCountdownTimer(3);
-  });
+  await loadInviteStats(user.uid);
+  startCountdownTimer(3);
+
+renderShareArea(refLink, currentUser.displayName || "me");
+});
+
 
   async function loadInviteStats(uid) {
     const refDoc = await getDoc(doc(db, "referrals", uid));
@@ -161,6 +162,16 @@
     const percent = Math.min((joined / 5) * 100, 100);
     inviteBar.style.width = `${percent}%`;
     inviteBar.textContent = `${Math.round(percent)}%`;
+
+    const badgeLevels = [5, 10, 15, 20, 25];
+badgeLevels.forEach(level => {
+  if (joined >= level && !existingBadges.includes(`Referral Lv.${level}`)) {
+    updateDoc(doc(db, "users", uid), {
+      badges: arrayUnion(`Referral Lv.${level}`)
+    });
+  }
+});
+
   }
 
   function startCountdownTimer(daysLeft = 3) {
@@ -202,18 +213,58 @@
     document.getElementById("smsStatus").textContent = msg || "Invite sent!";
   });
 
-  // Email form (EmailJS endpoint)
-  document.getElementById("emailForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    const email = document.getElementById("inviteEmail").value;
-    const res = await fetch("https://rw-501.github.io/contenthub/api/sendInviteEmail", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, uid: currentUser.uid })
+
+
+function renderShareArea(refLink, userName = "me") {
+  const encodedURL = encodeURIComponent(refLink);
+  const shareText = `Join ${userName} on ContentHub – where creators grow together.`;
+  const encodedText = encodeURIComponent(shareText);
+
+  const shareHTML = `
+    <div class="text-center">
+      <h5 class="mb-3">📢 Share Your Invite</h5>
+      <div class="d-flex flex-wrap justify-content-center gap-3">
+        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedURL}" target="_blank" class="btn btn-sm btn-primary">
+          <i class="fab fa-facebook-f me-1"></i> Facebook
+        </a>
+        <a href="https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedURL}" target="_blank" class="btn btn-sm btn-dark">
+          <i class="fab fa-twitter me-1"></i> Twitter
+        </a>
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url=${encodedURL}&title=${encodedText}" target="_blank" class="btn btn-sm btn-info text-white">
+          <i class="fab fa-linkedin-in me-1"></i> LinkedIn
+        </a>
+        <a href="https://wa.me/?text=${encodedText}%20${encodedURL}" target="_blank" class="btn btn-sm btn-success">
+          <i class="fab fa-whatsapp me-1"></i> WhatsApp
+        </a>
+        <button id="deviceShareButton" class="btn btn-sm btn-secondary">
+          <i class="fas fa-share-alt me-1"></i> Device Share
+        </button>
+      </div>
+    </div>
+  `;
+
+  const shareArea = document.getElementById("dynamic-shareArea");
+  shareArea.innerHTML = shareHTML;
+
+  const deviceBtn = document.getElementById("deviceShareButton");
+
+  if (navigator.share) {
+    deviceBtn.addEventListener("click", async () => {
+      try {
+        await navigator.share({
+          title: "Join me on ContentHub",
+          text: shareText,
+          url: refLink
+        });
+        console.log("✅ Shared successfully via device");
+      } catch (err) {
+        console.error("❌ Share error:", err);
+      }
     });
-    const msg = await res.text();
-    document.getElementById("emailStatus").textContent = msg || "Email invite sent!";
-  });
+  } else {
+    deviceBtn.style.display = "none";
+  }
+}
 
 </script>
 

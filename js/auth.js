@@ -75,6 +75,33 @@ const userData = {
 
 await setDoc(userRef, userData);
 
+
+  // Get referral from URL or fallback to localStorage
+  const urlParams = new URLSearchParams(window.location.search);
+  let referredBy = urlParams.get("ref") || localStorage.getItem("pendingReferral");
+
+    if (!referredBy) return;
+
+  // Attach to user doc
+  const userRef = doc(db, "users", user.uid);
+  await setDoc(userRef, {
+    uid: user.uid,
+    referredBy: referredBy || null,
+    createdAt: new Date(),
+  }, { merge: true });
+
+  // Update inviter's referral stats
+  if (referredBy) {
+    const refStatsRef = doc(db, "referrals", referredBy);
+    await updateDoc(refStatsRef, {
+      invitesJoined: increment(1)
+    });
+
+    // Optional: Clear the referral code once it's used
+    localStorage.removeItem("pendingReferral");
+    console.log("🎉 Referral counted for:", referredBy);
+  }
+
   }
 }
 // 📱 Invisible reCAPTCHA verifier (phone login)

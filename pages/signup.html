@@ -180,6 +180,21 @@
       alert("Please enter a valid international phone number.");
     }
   });
+
+
+
+
+// Save referral code to local storage if it's in the URL
+const urlParams = new URLSearchParams(window.location.search);
+const refCode = urlParams.get("ref");
+
+if (refCode) {
+  localStorage.setItem("pendingReferral", refCode);
+  console.log("🔗 Referral code saved to localStorage:", refCode);
+}
+
+
+
 </script>
 
 </body>
