@@ -257,7 +257,7 @@ async function createPostCard(post, postId) {
 
   let typeBadge = "";
   if (post.type === "collab") {
-    typeBadge = `<span class="badge bg-primary me-2">🤝 Collaboration Request</span>`;
+    typeBadge = `<span class="badge bg-primary me-2">🤝 Collab Request</span>`;
   } else if (post.type === "help") {
     typeBadge = `<span class="badge bg-warning text-dark me-2">🆘 Help Wanted</span>`;
   }
