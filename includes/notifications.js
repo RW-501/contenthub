@@ -535,10 +535,19 @@ export const rewardTasks = [
 ];
 
 function showRewardToast(task) {
+
+      setTimeout(() => {
   const msg = task.reward.badge
     ? `🎉 You earned the "${task.reward.badge}" badge!`
     : `🎁 You earned ${task.reward.points} points!`;
+          confetti({
+  particleCount: 120,
+  spread: 80,
+  origin: { y: 0.6 }
+});
   showModal({ title: "Reward Earned", message: msg, autoClose: 4000 });
+      }, 1000);
+
 }
 
 export async function checkAndAwardTasks(uid, userData) {
@@ -587,6 +596,9 @@ export async function checkAndAwardTasks(uid, userData) {
       await updateDoc(userRef, updates);
 
       showRewardToast(task);
+
+
+
 
       console.log(`✅ Awarded task ${task.id} to ${uid}`);
     }

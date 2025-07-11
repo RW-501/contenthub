@@ -227,6 +227,18 @@ showModal({
 
 */
 
+const badgeIcons = { 
+  post: "📝",
+  feedback: "💬",
+  referral: "🔗",
+  collab: "🤝",
+  dailyLogin: "📅",
+  profile: "👤",
+  viewsGiven: "🔍",
+  viewsReceived: "👁️",
+  reaction: "⭐",
+  special: "🌟"
+};
 
 
 
@@ -249,13 +261,14 @@ async function loadRewardModal() {
     const isDone = completed.includes(task.id);
     const icon = isDone ? "🏅" : "🔓";
     const tile = document.createElement("div");
-    tile.className = `col badge-tile badge-type-${task.type} ${isDone ? 'earned' : ''}`;
-    tile.innerHTML = `
-      <div class="badge-icon">${icon}</div>
-      <div class="badge-name">${task.reward.badge}</div>
-      <div class="badge-type">${task.type}</div>
-      <div class="badge-points text-muted small">${task.reward.points} pts</div>
-    `;
+tile.className = `col badge-tile badge-type-${task.type} ${isDone ? 'earned' : ''}`;
+tile.innerHTML = `
+  <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
+  <div class="badge-name">${task.reward.badge}</div>
+  <div class="badge-type">${task.type}</div>
+  <div class="badge-points text-muted small">${task.reward.points} pts</div>
+`;
+
     grid.appendChild(tile);
 
     // Find the next unearned task
