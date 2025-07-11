@@ -601,7 +601,7 @@ async function loadUserPosts(uid, displayName, photoURL) {
   }
     card.innerHTML = `
       ${mediaHTML}
-      <div class="card-body">
+      <div class="PostCard card-body">
         <div class="d-flex align-items-center mb-2">
           <img src="${photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
                class="creator-avata rounded-circle me-2"
@@ -632,30 +632,59 @@ async function loadUserPosts(uid, displayName, photoURL) {
           </div>
     `;
 
-    // Button logic
-    const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
-    const likeCountEl = card.querySelector(`#like-count-${docSnap.id}`);
-    const helpfulBtn = card.querySelector(`#helpful-btn-${docSnap.id}`);
-    const interestedBtn = card.querySelector(`#interested-btn-${docSnap.id}`);
+// Get buttons
+const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
+const likeCountEl = card.querySelector(`#like-count-${docSnap.id}`);
+const helpfulBtn = card.querySelector(`#helpful-btn-${docSnap.id}`);
+const interestedBtn = card.querySelector(`#interested-btn-${docSnap.id}`);
 
-  // ❤️ Like logic
+// ✅ Safely add event listeners only if buttons exist
+if (likeBtn) {
+  likeBtn.addEventListener("click", () => {
+    console.log("❤️ Like clicked");
 
-  
-if (likeCountEl) {
-  const current = parseInt(likeCountEl.innerText) || 0;
-  likeCountEl.innerText = current + 1;
+    // Toggle class for visual feedback
+    likeBtn.classList.toggle("active");
+
+    // Animate
+    likeBtn.classList.add("animate__animated", "animate__bounce");
+    setTimeout(() => likeBtn.classList.remove("animate__animated", "animate__bounce"), 800);
+
+    // Increment counter
+    if (likeCountEl) {
+      const current = parseInt(likeCountEl.innerText) || 0;
+      likeCountEl.innerText = current + 1;
+    }
+
+    // React backend
+    reactToPost(docSnap.id, "like", post.owner, post.caption);
+  });
 }
-  likeBtn.addEventListener("click", () =>
-    reactToPost(postId, "like", post.owner, post.caption)
-  );
 
-    helpfulBtn.addEventListener("click", () =>
-      reactToPost(docSnap.id, "helpful", post.owner, post.caption)
-    );
+if (helpfulBtn) {
+  helpfulBtn.addEventListener("click", () => {
+    console.log("🙌 Helpful clicked");
+    helpfulBtn.classList.toggle("active");
 
-    interestedBtn.addEventListener("click", () =>
-      reactToPost(docSnap.id, "interested", post.owner, post.caption)
-    );
+    helpfulBtn.classList.add("animate__animated", "animate__pulse");
+    setTimeout(() => helpfulBtn.classList.remove("animate__animated", "animate__pulse"), 800);
+
+    reactToPost(docSnap.id, "helpful", post.owner, post.caption);
+  });
+}
+
+if (interestedBtn) {
+  interestedBtn.addEventListener("click", () => {
+    console.log("⭐ Interested clicked");
+    interestedBtn.classList.toggle("active");
+
+    interestedBtn.classList.add("animate__animated", "animate__tada");
+    setTimeout(() => interestedBtn.classList.remove("animate__animated", "animate__tada"), 800);
+
+    reactToPost(docSnap.id, "interested", post.owner, post.caption);
+  });
+}
+
 
     postGrid.appendChild(card);
   }

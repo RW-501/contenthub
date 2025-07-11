@@ -282,7 +282,7 @@ async function createPostCard(post, postId) {
 
   card.innerHTML = `
     ${mediaHTML}
-    <div class="card-body">
+    <div class="PostCard card-body">
       <div class="d-flex align-items-center mb-2">
         <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
              class="creator-avata rounded-circle me-2"
@@ -303,10 +303,10 @@ async function createPostCard(post, postId) {
       </small>
 
       <div class="d-flex gap-2  mb-2">
-        <button class="btn btn-sm btn-outline-danger" id="${likeBtnId}">❤️ Like</button>
-        <button class="btn btn-sm btn-outline-success" id="${helpfulBtnId}">🙌 Helpful</button>
-        <button class="btn btn-sm btn-outline-info" id="${interestedBtnId}">⭐ Interested</button>
-      </div>
+     <button class="btn btn-sm btn-outline-danger btn-like" id="${likeBtnId}">❤️ Like</button>
+<button class="btn btn-sm btn-outline-success btn-helpful" id="${helpfulBtnId}">🙌 Helpful</button>
+<button class="btn btn-sm btn-outline-info btn-interested" id="${interestedBtnId}">⭐ Interested</button>
+   </div>
       <div class="d-flex gap-2 mb-2">
         ${joinButton}
       </div>
@@ -316,27 +316,59 @@ async function createPostCard(post, postId) {
     </div>
   `;
 
-  // ❤️ Like logic
-  const likeBtn = card.querySelector(`#${likeBtnId}`);
+const likeBtn = card.querySelector(`#${likeBtnId}`);
 const likeCountEl = card.querySelector(`#${likeCountId}`);
-if (likeCountEl) {
-  const current = parseInt(likeCountEl.innerText) || 0;
-  likeCountEl.innerText = current + 1;
-}
-  likeBtn.addEventListener("click", () =>
-    reactToPost(postId, "like", post.owner, post.caption)
-  );
-  // 🙌 Helpful button logic
-  const helpfulBtn = card.querySelector(`#${helpfulBtnId}`);
-  helpfulBtn.addEventListener("click", () =>
-    reactToPost(postId, "helpful", post.owner, post.caption)
-  );
+const helpfulBtn = card.querySelector(`#${helpfulBtnId}`);
+const interestedBtn = card.querySelector(`#${interestedBtnId}`);
 
-  // ⭐ Interested button logic
-  const interestedBtn = card.querySelector(`#${interestedBtnId}`);
-  interestedBtn.addEventListener("click", () =>
-    reactToPost(postId, "interested", post.owner, post.caption)
-  );
+// ❤️ Like Button
+if (likeBtn) {
+  likeBtn.addEventListener("click", () => {
+    console.log("❤️ Like clicked");
+    likeBtn.classList.toggle("active");
+
+    // Animate
+    likeBtn.classList.add("animate__animated", "animate__bounce");
+    setTimeout(() => likeBtn.classList.remove("animate__animated", "animate__bounce"), 800);
+
+    // Increment like count
+    if (likeCountEl) {
+      const current = parseInt(likeCountEl.innerText) || 0;
+      likeCountEl.innerText = current + 1;
+    }
+
+    // Trigger post reaction
+    reactToPost(postId, "like", post.owner, post.caption);
+  });
+}
+
+// 🙌 Helpful Button
+if (helpfulBtn) {
+  helpfulBtn.addEventListener("click", () => {
+    console.log("🙌 Helpful clicked");
+    helpfulBtn.classList.toggle("active");
+
+    // Animate
+    helpfulBtn.classList.add("animate__animated", "animate__pulse");
+    setTimeout(() => helpfulBtn.classList.remove("animate__animated", "animate__pulse"), 800);
+
+    reactToPost(postId, "helpful", post.owner, post.caption);
+  });
+}
+
+// ⭐ Interested Button
+if (interestedBtn) {
+  interestedBtn.addEventListener("click", () => {
+    console.log("⭐ Interested clicked");
+    interestedBtn.classList.toggle("active");
+
+    // Animate
+    interestedBtn.classList.add("animate__animated", "animate__tada");
+    setTimeout(() => interestedBtn.classList.remove("animate__animated", "animate__tada"), 800);
+
+    reactToPost(postId, "interested", post.owner, post.caption);
+  });
+}
 
   return card;
 }
