@@ -151,6 +151,18 @@
         <h5 class="modal-title" id="calendarDayModalLabel">📅 Scheduled for <span id="calendarModalDate"></span></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      <select id="calendarFilter" class="form-select w-auto mb-3">
+  <option value="all">Show All</option>
+  <option value="posts">Posts Only</option>
+  <option value="events">Events Only</option>
+  <option value="featured">Featured Only</option>
+</select>
+<div class="btn-group mb-3" role="group">
+  <button class="btn btn-outline-secondary" id="viewMonthly">📅 Month</button>
+  <button class="btn btn-outline-secondary" id="viewWeekly">📆 Week</button>
+  <button class="btn btn-outline-secondary" id="viewDaily">📌 Day</button>
+</div>
+
       <div class="modal-body" id="calendarModalBody">
         <p class="text-muted">Loading scheduled posts...</p>
       </div>

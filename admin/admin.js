@@ -610,23 +610,18 @@ async function unfeatureUser(uid) {
 window.unfeatureUser = unfeatureUser;
 
 
-
-let calendarItemsByDate = {}; // Format: { "YYYY-MM-DD": { posts: [], events: [], featured: [] } }
+let calendarItemsByDate = {};
+let scheduledPostsByDate = {};
+let calendarStartOffset = 0;
+const monthsToShow = 3;
 
 const calendarWrapper = document.getElementById("calendarWrapper");
 const toggleCalendarBtn = document.getElementById("toggleCalendarBtn");
 
-let scheduledPostsByDate = {}; // Format: { "2025-07-11": [post1, post2] }
-let calendarStartOffset = 0; // 0 = current month, 1 = next month, etc.
-const monthsToShow = 3;
-
-
-
-
+// Load all scheduled content (posts, featured users, events)
 async function loadCalendarItems() {
   calendarItemsByDate = {};
 
-  // Load Posts
   const postSnap = await getDocs(query(collection(db, "posts"), where("scheduledAt", "!=", null)));
   postSnap.forEach(doc => {
     const post = doc.data();
@@ -635,8 +630,6 @@ async function loadCalendarItems() {
     calendarItemsByDate[dateKey].posts.push({ ...post, id: doc.id });
   });
 
-  // Load Featured Users
-  const now = new Date();
   const userSnap = await getDocs(query(collection(db, "users"), where("featured.isFeatured", "==", true)));
   userSnap.forEach(doc => {
     const user = doc.data();
@@ -647,7 +640,6 @@ async function loadCalendarItems() {
     calendarItemsByDate[dateKey].featured.push({ ...user, id: doc.id });
   });
 
-  // Load Events (if stored in your DB)
   const eventSnap = await getDocs(query(collection(db, "events"), where("date", "!=", null)));
   eventSnap.forEach(doc => {
     const event = doc.data();
@@ -656,27 +648,11 @@ async function loadCalendarItems() {
     calendarItemsByDate[dateKey].events.push({ ...event, id: doc.id });
   });
 }
-window.loadCalendarItems = loadCalendarItems;
-
-
-toggleCalendarBtn.addEventListener("click", async () => {
-  calendarWrapper.classList.toggle("d-none");
-
-  if (!calendarWrapper.dataset.loaded) {
-    await loadScheduledPosts();     // used in post-only modal
-    await loadCalendarItems();      // ✅ now also loads all items into calendarItemsByDate
-    renderCalendar();
-    calendarWrapper.dataset.loaded = true;
-  }
-});
-;
-
 
 async function loadScheduledPosts() {
+  scheduledPostsByDate = {};
   const q = query(collection(db, "posts"), where("scheduledAt", "!=", null));
   const snapshot = await getDocs(q);
-
-  scheduledPostsByDate = {};
 
   snapshot.forEach(doc => {
     const post = doc.data();
@@ -684,30 +660,37 @@ async function loadScheduledPosts() {
     if (!date) return;
 
     const dateKey = date.toISOString().split("T")[0];
-    if (!scheduledPostsByDate[dateKey]) {
-      scheduledPostsByDate[dateKey] = [];
-    }
-
-    scheduledPostsByDate[dateKey].push({
-      ...post,
-      id: doc.id, // 👈 Save the post ID
-    });
+    scheduledPostsByDate[dateKey] ??= [];
+    scheduledPostsByDate[dateKey].push({ ...post, id: doc.id });
   });
 }
 
-
-function renderCalendar(monthsToShow = 3) {
+function renderCalendar() {
   const now = new Date();
-  calendarWrapper.innerHTML = ""; // Clear existing
+  calendarWrapper.innerHTML = "";
+ if (viewMode === "day") {
+    // Show only one day view
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    renderDayView(today);
+    return;
+  }
 
+  if (viewMode === "week") {
+    const start = new Date(now);
+    start.setDate(start.getDate() - start.getDay()); // Start of week
+    for (let i = 0; i < 7; i++) {
+      renderDayView(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+    }
+    return;
+  }
   for (let i = 0; i < monthsToShow; i++) {
     const monthDate = new Date(now.getFullYear(), now.getMonth() + calendarStartOffset + i, 1);
     const monthYearStr = monthDate.toLocaleString("default", { month: "long", year: "numeric" });
 
     const monthDiv = document.createElement("div");
     monthDiv.className = "mb-4";
-
     monthDiv.innerHTML = `<h5>${monthYearStr}</h5>`;
+
     const table = document.createElement("table");
     table.className = "table table-bordered text-center small";
 
@@ -733,17 +716,22 @@ function renderCalendar(monthsToShow = 3) {
       const dateKey = dayDate.toISOString().split("T")[0];
 
       const td = document.createElement("td");
+      const dayData = calendarItemsByDate[dateKey];
 
-const dayData = calendarItemsByDate[dateKey];
-if (dayData) {
-  const count = dayData.posts.length + dayData.events.length + dayData.featured.length;
+      if (dayData) {
+const filter = document.getElementById("calendarFilter")?.value || "all";
+
+const count =
+  (filter === "all" || filter === "posts" ? dayData.posts.length : 0) +
+  (filter === "all" || filter === "events" ? dayData.events.length : 0) +
+  (filter === "all" || filter === "featured" ? dayData.featured.length : 0);
+
   td.innerHTML = `<button class="btn btn-sm btn-warning w-100" data-date="${dateKey}">
-    ${dateNum}<br><small>${count} item(s)</small>
-  </button>`;
-} else {
-  td.innerHTML = `<div class="text-muted">${dateNum}</div>`;
-}
-
+          ${dateNum}<br><small>${count} item(s)</small>
+        </button>`;
+      } else {
+        td.innerHTML = `<div class="text-muted">${dateNum}</div>`;
+      }
 
       currentRow.appendChild(td);
 
@@ -756,90 +744,91 @@ if (dayData) {
     monthDiv.appendChild(table);
     calendarWrapper.appendChild(monthDiv);
   }
-// Update page indicator
-document.getElementById("pageIndicator").textContent = `Showing: ${new Date(now.getFullYear(), now.getMonth() + calendarStartOffset, 1).toLocaleString('default', { month: 'long', year: 'numeric' })} → ${new Date(now.getFullYear(), now.getMonth() + calendarStartOffset + monthsToShow - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' })}`;
+
+  // Page Indicator
+  const startMonth = new Date(now.getFullYear(), now.getMonth() + calendarStartOffset, 1);
+  const endMonth = new Date(now.getFullYear(), now.getMonth() + calendarStartOffset + monthsToShow - 1, 1);
+  document.getElementById("pageIndicator").textContent = `Showing: ${startMonth.toLocaleString("default", { month: "long", year: "numeric" })} → ${endMonth.toLocaleString("default", { month: "long", year: "numeric" })}`;
+
+  // Add day click handlers
+  calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const date = btn.dataset.date;
+      renderModalForDate(date);
+      document.getElementById("calendarModalDate").textContent = date;
+      new bootstrap.Modal(document.getElementById("calendarDayModal")).show();
+
+      // Fill modal button handlers
+      document.getElementById("addNewPostForDate").onclick = () => openPostCreationForm(date);
+      document.getElementById("addNewEventForDate").onclick = () => {
+        document.getElementById("eventDateInput").value = date;
+        document.getElementById("eventTitleInput").value = "";
+        document.getElementById("eventDescInput").value = "";
+        new bootstrap.Modal(document.getElementById("addEventModal")).show();
+      };
+      document.getElementById("addFeaturedUserForDate").onclick = () => {
+        document.getElementById("featuredDateInput").value = date;
+        document.getElementById("featuredUserUidInput").value = "";
+        document.getElementById("featuredReasonInput").value = "";
+        new bootstrap.Modal(document.getElementById("scheduleFeaturedModal")).show();
+      };
+    });
+  });
+}
+
+// Pagination Buttons
 document.getElementById("prevPageBtn").addEventListener("click", () => {
   if (calendarStartOffset > 0) {
     calendarStartOffset -= monthsToShow;
     renderCalendar();
   }
 });
-
 document.getElementById("nextPageBtn").addEventListener("click", () => {
   calendarStartOffset += monthsToShow;
   renderCalendar();
 });
 
-
-
-  // Optional: add click event for future modal viewing
-  calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const date = btn.dataset.date;
-      const posts = scheduledPostsByDate[date];
-calendarWrapper.querySelectorAll("button[data-date]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const date = btn.dataset.date;
-    const posts = scheduledPostsByDate[date] || [];
-
-    const modalTitle = document.getElementById("calendarModalDate");
-    const modalBody = document.getElementById("calendarModalBody");
-    modalTitle.textContent = date;
-
-    if (posts.length === 0) {
-      modalBody.innerHTML = `<p class="text-muted">No scheduled posts.</p>`;
-    } else {
-      modalBody.innerHTML = posts.map((post, i) => `
-        <div class="card mb-2">
-          <div class="card-body">
-            <h6>${post.caption || "Untitled Post"}</h6>
-            <p class="mb-1"><strong>Type:</strong> ${post.type || "N/A"}</p>
-            <p class="mb-1"><strong>Goal:</strong> ${post.projectGoal || "—"}</p>
-            <div class="d-flex justify-content-end gap-2">
-              <button class="btn btn-sm btn-primary" onclick="editScheduledPost('${post.id}')">✏️ Edit</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteScheduledPost('${post.id}', '${date}')">🗑 Delete</button>
-            </div>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    // Add post button logic
-document.getElementById("addNewPostForDate").onclick = () => openPostCreationForm(date);
-
-document.getElementById("addNewEventForDate").onclick = () => {
-  document.getElementById("eventDateInput").value = date;
-  document.getElementById("eventTitleInput").value = "";
-  document.getElementById("eventDescInput").value = "";
-  new bootstrap.Modal(document.getElementById("addEventModal")).show();
-};
-
-document.getElementById("addFeaturedUserForDate").onclick = () => {
-  document.getElementById("featuredDateInput").value = date;
-  document.getElementById("featuredUserUidInput").value = "";
-  document.getElementById("featuredReasonInput").value = "";
-  new bootstrap.Modal(document.getElementById("scheduleFeaturedModal")).show();
-};
-
-
-    btn.addEventListener("click", () => {
-  const date = btn.dataset.date;
-  document.getElementById("calendarModalDate").textContent = date;
-  renderPostsForDate(date);
-  new bootstrap.Modal(document.getElementById("calendarDayModal")).show();
+// Toggle calendar view
+toggleCalendarBtn.addEventListener("click", async () => {
+  calendarWrapper.classList.toggle("d-none");
+  if (!calendarWrapper.dataset.loaded) {
+    await loadScheduledPosts();
+    await loadCalendarItems();
+    renderCalendar();
+    calendarWrapper.dataset.loaded = true;
+  }
 });
 
-  });
-});
+function renderDayView(dateObj) {
+  const dateKey = dateObj.toISOString().split("T")[0];
+  const dayLabel = dateObj.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
 
+  const div = document.createElement("div");
+  div.className = "mb-4";
+  div.innerHTML = `<h6>${dayLabel}</h6>`;
 
-});
-  });
+  const btn = document.createElement("button");
+  btn.className = "btn btn-sm btn-outline-info";
+  btn.innerText = "View Details";
+  btn.dataset.date = dateKey;
+  btn.onclick = () => {
+    document.getElementById("calendarModalDate").textContent = dateKey;
+    renderModalForDate(dateKey);
+    new bootstrap.Modal(document.getElementById("calendarDayModal")).show();
+  };
+
+  div.appendChild(btn);
+  calendarWrapper.appendChild(div);
 }
 
 function renderModalForDate(date) {
-  const items = calendarItemsByDate[date] || { posts: [], events: [], featured: [] };
-  const modalBody = document.getElementById("calendarModalBody");
+const filter = document.getElementById("calendarFilter")?.value || "all";
+
+if (items.posts.length && (filter === "all" || filter === "posts")) { ... }
+if (items.events.length && (filter === "all" || filter === "events")) { ... }
+if (items.featured.length && (filter === "all" || filter === "featured")) { ... }
+
+const modalBody = document.getElementById("calendarModalBody");
   const blocks = [];
 
   if (items.posts.length) {
@@ -858,8 +847,13 @@ function renderModalForDate(date) {
     blocks.push(`<h6 class="text-success">📅 Events</h6>`);
     blocks.push(...items.events.map(event => `
       <div class="card mb-2"><div class="card-body">
-        <h6>${event.title}</h6>
-        <p>${event.description || ""}</p>
+<h6>${event.title}</h6>
+<p>${event.description || ""}</p>
+<div class="d-flex justify-content-end gap-2">
+  <button class="btn btn-sm btn-primary" onclick="editEvent('${event.id}')">✏️ Edit</button>
+  <button class="btn btn-sm btn-danger" onclick="deleteEvent('${event.id}', '${date}')">🗑 Delete</button>
+</div>
+
       </div></div>
     `));
   }
@@ -873,55 +867,86 @@ function renderModalForDate(date) {
       </div></div>
     `));
   }
+async function deleteEvent(id, dateStr) {
+  if (!confirm("Delete this event?")) return;
+  await deleteDoc(doc(db, "events", id));
+  await loadCalendarItems();
+  renderCalendar();
+  renderModalForDate(dateStr);
+}
+window.deleteEvent = deleteEvent;
+
+
+function editEvent(eventId) {
+  const event = Object.values(calendarItemsByDate)
+    .flatMap(day => day.events)
+    .find(e => e.id === eventId);
+  
+  if (!event) return alert("Event not found.");
+
+  document.getElementById("eventDateInput").value = event.date.toDate().toISOString().split("T")[0];
+  document.getElementById("eventTitleInput").value = event.title;
+  document.getElementById("eventDescInput").value = event.description || "";
+  document.getElementById("addEventModal").dataset.editingId = eventId;
+
+  new bootstrap.Modal(document.getElementById("addEventModal")).show();
+}
+window.editEvent = editEvent;
 
   modalBody.innerHTML = blocks.length ? blocks.join("") : `<p class="text-muted">No scheduled items.</p>`;
 }
-window.renderModalForDate = renderModalForDate;
 
-
+// Open post creation form
 function openPostCreationForm(dateStr) {
-  // Example: open a modal and set the scheduledAt field
   const formDateInput = document.getElementById("scheduledDateInput");
   if (formDateInput) {
     formDateInput.value = dateStr;
-    // optionally open a post creation modal
     new bootstrap.Modal(document.getElementById("createPostModal")).show();
   } else {
-    console.warn("No scheduled date input found!");
+    console.warn("No scheduledDateInput found.");
   }
 }
 
+// Save Event logic
 document.getElementById("saveEventBtn").addEventListener("click", async () => {
   const dateStr = document.getElementById("eventDateInput").value;
   const title = document.getElementById("eventTitleInput").value.trim();
   const description = document.getElementById("eventDescInput").value.trim();
-
-  if (!title || !dateStr) {
-    alert("Event title and date are required.");
-    return;
-  }
+  if (!title || !dateStr) return alert("Event title and date required.");
 
   const dateObj = new Date(dateStr);
-
   try {
-    await addDoc(collection(db, "events"), {
-      title,
-      description,
-      date: Timestamp.fromDate(dateObj),
-      createdAt: serverTimestamp(),
-    });
+const modal = document.getElementById("addEventModal");
+const eventId = modal.dataset.editingId;
 
-    // Refresh calendar
+if (eventId) {
+  // Update existing
+  await updateDoc(doc(db, "events", eventId), {
+    title,
+    description,
+    date: Timestamp.fromDate(dateObj),
+  });
+  delete modal.dataset.editingId;
+} else {
+  // Create new
+  await addDoc(collection(db, "events"), {
+    title,
+    description,
+    date: Timestamp.fromDate(dateObj),
+    createdAt: serverTimestamp(),
+  });
+}
+
+
     await loadCalendarItems();
     renderCalendar();
-
-    // Close modal
     bootstrap.Modal.getInstance(document.getElementById("addEventModal")).hide();
-  } catch (error) {
-    console.error("Failed to save event:", error);
-    alert("Failed to save event. Check console.");
+  } catch (err) {
+    console.error("Error saving event", err);
+    alert("Error saving event. See console.");
   }
 });
+
 
 
 

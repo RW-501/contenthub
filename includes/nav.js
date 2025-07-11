@@ -304,17 +304,22 @@ async function loadRewardModal() {
         <div class="small text-muted mb-2">${completedTasks.length}/${tasks.length} completed</div>
       `;
 
-      let tiles = "";
-      for (const task of completedTasks) {
-        tiles += renderBadgeTile(task, true, completedMap);
-      }
-      if (next) {
-        tiles += renderBadgeTile(next, false, completedMap);
-        if (!globalNext) globalNext = next;
-      }
+let row = document.createElement("div");
+row.className = "row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3";
 
-      section.innerHTML = sectionHeader + `<div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">${tiles}</div>`;
-      grid.appendChild(section);
+for (const task of completedTasks) {
+  row.appendChild(renderBadgeTile(task, true, completedMap));
+}
+
+if (next) {
+  row.appendChild(renderBadgeTile(next, false, completedMap));
+  if (!globalNext) globalNext = next;
+}
+
+section.innerHTML = sectionHeader;
+section.appendChild(row);
+grid.appendChild(section);
+
     }
   }
 
@@ -322,7 +327,6 @@ async function loadRewardModal() {
     ? `🎯 <strong>${globalNext.reward.badge}</strong> — ${Object.entries(globalNext.condition)[0].join(": ")}`
     : "🏆 All rewards completed!";
 }
-
 
 
 function renderBadgeTile(task, isDone, completedMap = {}) {
@@ -346,12 +350,11 @@ function renderBadgeTile(task, isDone, completedMap = {}) {
   `;
 
   div.addEventListener("click", () => {
-      console.log("showBadgeDetail clicked???????/");
-
+    console.log("Tile clicked: showing badge detail");
     showBadgeDetail(task, isDone);
   });
 
-  return div.outerHTML; // ✅ returning as HTML string
+  return div; // return the actual DOM node
 }
 
 
