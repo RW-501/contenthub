@@ -327,13 +327,31 @@ export const rewardTasks = [
     type: "referral",
     condition: { invitesJoined: 5 },
     reward: { badge: "Referral Lv.5", points: 50 },
-    autoFeature: { days: 7, reason: "Referred 5 creators" }
+    autoFeature: { rank: 1, days: 7, reason: "Referred 5 creators" }
   },
   {
     id: "referral-10",
     type: "referral",
     condition: { invitesJoined: 10 },
-    reward: { badge: "Referral Lv.10", points: 100 }
+    reward: { badge: "Referral Lv.10", points: 100 },
+    autoFeature: { rank: 1, days: 7, reason: "Referred 10 creators" }
+  },
+    {
+    id: "streak-3",
+    type: "postStreak",
+    condition: { postStreak: 3 },
+    reward: { badge: "3 Day Streak", points: 100 }
+  },    {
+    id: "streak-7",
+    type: "postStreak",
+    condition: { postStreak: 7 },
+    reward: { badge: "7 Day Streak", points: 200 }
+  },    {
+    id: "streak-14",
+    type: "postStreak",
+    condition: { postStreak: 14 },
+    reward: { badge: "14 Day Streak", points: 500 },
+    autoFeature: { rank: 1, days: 7, reason: "Posted for 14 Days" }
   },
 {
     id: "first-post",
@@ -354,16 +372,12 @@ export const rewardTasks = [
     reward: { badge: "10 Posts", points: 80 }
   },
   {
-    id: "streak-3",
-    type: "postStreak",
-    condition: { postStreak: 3 },
-    reward: { badge: "3 Day Streak", points: 100 }
-  },
-  {
     id: "post-25",
     type: "post",
     condition: { postCount: 25 },
-    reward: { badge: "25 Posts", points: 200 }
+    reward: { badge: "25 Posts", points: 200 },
+    autoFeature: { rank: 1, days: 7, reason: "Made 25 Post" }
+
   },
  {
     id: "feedback-1",
@@ -540,55 +554,75 @@ function showRewardToast(task, userData = {}, newTotalPoints = 0) {
       ? `🎉 You earned the "${task.reward.badge}" badge!`
       : `🎁 You earned ${task.reward.points} points!`;
 
-    // Confetti animation
+    // Confetti
     confetti({
       particleCount: 120,
       spread: 80,
       origin: { y: 0.6 }
     });
 
-    // Show the badge/points reward modal
+    // Show initial reward
     showModal({
       title: "Reward Earned",
       message: msg,
       autoClose: 4000
     });
 
-    // Run milestone checks after slight delay
-    setTimeout(() => {
-      const notYetFeatured = !userData.featured?.isFeatured;
+    // Milestone & feature logic
+    setTimeout(async () => {
+      const uid = userData.uid;
+      const userRef = doc(db, "users", uid);
+      const now = new Date();
+      const featuredUntil = new Date(now);
+      featuredUntil.setDate(featuredUntil.getDate() + 7);
 
+      // 100+ pts = automatic feature (if not already featured)
+      const notYetFeatured = !userData.featured?.isFeatured;
       if (newTotalPoints >= 100 && newTotalPoints < 500 && notYetFeatured) {
         showModal({
           title: "🎉 You're Featured!",
           message: "You've earned over 100 points and have been featured for a week! 🚀",
           autoClose: 5000
         });
+
+        await updateDoc(userRef, {
+          featured: {
+            isFeatured: true,
+            reason: "100+ Points Earned",
+            startDate: Timestamp.fromDate(now),
+            featuredUntil: Timestamp.fromDate(featuredUntil),
+            rank: 2,
+            addedBy: "system",
+            addedAt: serverTimestamp()
+          }
+        });
       }
 
+      // 500+ pts = "star"
       if (newTotalPoints >= 500 && !userData.milestones?.includes("star")) {
         showModal({
           title: "🌟 You're a Content Star!",
           message: "You've earned over 500 points. You're rising fast! 🌠",
           autoClose: 6000
         });
-        updateDoc(doc(db, "users", userData.uid), {
-          "milestones": arrayUnion("star")
+        await updateDoc(userRef, {
+          milestones: arrayUnion("star")
         });
       }
 
+      // 1000+ pts = "elite"
       if (newTotalPoints >= 1000 && !userData.milestones?.includes("elite")) {
         showModal({
           title: "🚀 Elite Creator Unlocked!",
           message: "1,000+ points! You're one of the top creators on the platform 🔥",
           autoClose: 6000
         });
-        updateDoc(doc(db, "users", userData.uid), {
-          "milestones": arrayUnion("elite")
+        await updateDoc(userRef, {
+          milestones: arrayUnion("elite")
         });
       }
 
-    }, 5000); // Trigger milestone modal after reward
+    }, 5000);
   }, 1000);
 }
 
@@ -599,7 +633,7 @@ export async function checkAndAwardTasks(uid, userData) {
   const completed = userData.rewardsCompleted || [];
 
   for (const task of rewardTasks) {
-    if (completed.includes(task.id)) continue; // already done
+    if (completed.includes(task.id)) continue;
 
     const condition = task.condition;
     const meetsRequirement = Object.keys(condition).every(key => {
@@ -612,6 +646,7 @@ export async function checkAndAwardTasks(uid, userData) {
         points: (userData.points || 0) + (task.reward.points || 0)
       };
 
+      // Badge handling
       if (task.reward.badge) {
         updates[`badges.${task.type}`] = {
           ...(userData.badges?.[task.type] || {}),
@@ -625,14 +660,18 @@ export async function checkAndAwardTasks(uid, userData) {
         };
       }
 
+      // Auto-feature logic from task
       if (task.autoFeature) {
-        const featuredUntil = new Date();
+        const now = new Date();
+        const featuredUntil = new Date(now);
         featuredUntil.setDate(featuredUntil.getDate() + task.autoFeature.days);
+
         updates.featured = {
           isFeatured: true,
           reason: task.autoFeature.reason,
+          startDate: Timestamp.fromDate(now),
           featuredUntil: Timestamp.fromDate(featuredUntil),
-          rank: 2,
+          rank: task.autoFeature.rank || 3,
           addedBy: "system",
           addedAt: serverTimestamp()
         };
@@ -640,16 +679,9 @@ export async function checkAndAwardTasks(uid, userData) {
 
       await updateDoc(userRef, updates);
 
-// Check if user now has 100+ points and feature them if not already
-const newTotalPoints = (userData.points || 0) + (task.reward.points || 0);
-await updateDoc(userRef, updates);
-
-// Trigger animated badge + milestone logic
-showRewardToast(task, userData, newTotalPoints);
-
-
-
-
+      // Calculate new total points & trigger reward modal
+      const newTotalPoints = updates.points;
+      showRewardToast(task, { ...userData, uid }, newTotalPoints);
 
       console.log(`✅ Awarded task ${task.id} to ${uid}`);
     }
