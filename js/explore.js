@@ -199,7 +199,7 @@ function getViewerData() {
     photo: avatar.dataset.photo
   };
 }
-
+window.getViewerData = getViewerData;
 
 async function loadRegularPosts(filter, search) {
   let q;
