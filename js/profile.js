@@ -685,7 +685,7 @@ async function reactToPost(postId, type, ownerId, caption) {
   await checkAndAwardTasks(ownerId, updatedSnap.data());
 }
 
-
+let currentPostId;
 async function openComments(postId) {
   currentPostId = postId;
   document.getElementById("commentsList").innerHTML = "Loading...";
@@ -847,12 +847,11 @@ async function loadUserCollabs(uid) {
 
 async function requestToJoin(collabId, ownerId) {
   try {
-    if (!user || !user.uid) {
+    if (!collabId || !ownerId) {
       alert("⚠️ Please log in to request to join.");
       return;
     }
 
-    console.log("[requestToJoin] userId:", user.uid);
     console.log("[requestToJoin] collabId:", collabId);
     console.log("[requestToJoin] ownerId:", ownerId);
 
@@ -861,7 +860,7 @@ async function requestToJoin(collabId, ownerId) {
     // Check if request already exists
     const existingSnap = await getDocs(query(
       requestsRef,
-      where("userId", "==", user.uid),
+      where("userId", "==", ownerId),
       where("collabId", "==", collabId),
       where("status", "in", ["pending", "approved"])
     ));
@@ -892,7 +891,7 @@ const viewerUserPhotoURL = avatar.dataset.photo;
   });
     // Create the request
     await addDoc(requestsRef, {
-      userId: user.uid,
+      userId: collabId,
       userPhotoUrl: viewerUserPhotoURL,
       userDisplayName: viewerDisplayName,
       collabId,
