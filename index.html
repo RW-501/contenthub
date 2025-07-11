@@ -154,53 +154,98 @@ import { app }  from 'https://rw-501.github.io/contenthub/js/firebase-config.js'
 const featuredContainer = document.getElementById("featuredCreators");
 
 async function loadFeaturedCreators() {
+  const now = new Date();
   const q = query(
     collection(db, "users"),
-    where("featured", "==", true),
-    limit(4)
+    where("featured.isFeatured", "==", true)
   );
-
   const snapshot = await getDocs(q);
 
-  if (snapshot.empty) {
+  const featuredUsers = [];
+
+  for (const docSnap of snapshot.docs) {
+    const user = docSnap.data();
+    const userId = docSnap.id;
+
+    const featuredData = user.featured || {};
+    const featuredUntil = featuredData.featuredUntil?.toDate?.();
+
+    // Auto-remove expired featured status
+    if (featuredUntil && featuredUntil < now) {
+      await updateDoc(doc(db, "users", userId), {
+        "featured.isFeatured": false
+      });
+      continue;
+    }
+
+    featuredUsers.push({
+      id: userId,
+      ...user,
+      featuredUntil,
+      rank: featuredData.rank || 99
+    });
+  }
+
+  if (featuredUsers.length === 0) {
     featuredContainer.innerHTML = `
       <div class="col-12">
-        <p class="text-muted text-center">No featured creators yet.</p>
+        <p class="text-muted text-center">No featured creators right now.</p>
       </div>`;
     return;
   }
 
-  featuredContainer.innerHTML = ""; // Clear container first
+  // Sort by rank (lowest number = higher priority)
+  featuredUsers.sort((a, b) => (a.rank || 99) - (b.rank || 99));
 
-  snapshot.forEach(doc => {
-    const user = doc.data();
-    const userId = doc.id;
-
-    console.log("🌟 Featured Creator:", { id: userId, ...user });
-
+  // Create carousel structure
+  const slides = featuredUsers.map(user => {
     const name = user.displayName || "Unnamed Creator";
     const avatar = user.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
-    const niches = Array.isArray(user.niches) ? user.niches.join(", ") : (user.niches || "Creator");
+    const niches = Array.isArray(user.niches) ? capitalizeList(user.niches) : capitalize(user.niches || "Creator");
+    const contentTypes = Array.isArray(user.contentTypes) ? capitalizeList(user.contentTypes) : "";
+    const reason = user.featured?.reason || "Featured Creator";
+    const location = user.userLocation || "";
 
-    const creatorCard = `
-      <div class="col-sm-6 col-md-3 mb-3">
-        <div class="card creator-card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
-          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${userId}" class="text-decoration-none text-dark">
-            <img src="${avatar}" class="card-img-top object-fit-cover" alt="${name}" style="height: 180px; object-fit: cover;">
-            <div class="card-body text-center">
-              <h6 class="card-title mb-1 fw-semibold">${name}</h6>
-              <small class="text-muted">${niches}</small>
+    return `
+      <div class="carousel-item ${user.rank === 1 ? "active" : ""}">
+        <div class="card h-100 shadow-sm border-0 rounded-4 text-center overflow-hidden">
+          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.id}" class="text-decoration-none text-dark">
+            <img src="${avatar}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="${name}">
+            <div class="card-body">
+              <h6 class="card-title mb-0 fw-bold">${name}</h6>
+              ${contentTypes ? `<small class="text-muted d-block">${contentTypes}</small>` : ""}
+              ${niches ? `<small class="text-muted d-block">${niches}</small>` : ""}
+              <small class="text-primary d-block mt-1">${reason}</small>
+              <input type="hidden" name="userLocation" value="${location}">
             </div>
           </a>
         </div>
-      </div>
-    `;
+      </div>`;
+  }).join("");
 
-    featuredContainer.insertAdjacentHTML("beforeend", creatorCard);
-  });
+  featuredContainer.innerHTML = `
+    <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">${slides}</div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    </div>`;
+}
+
+// Utility functions
+function capitalize(str) {
+  return (str || "").toString().replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function capitalizeList(list) {
+  return list.map(capitalize).join(", ");
 }
 
 loadFeaturedCreators();
+
 
 </script>
 

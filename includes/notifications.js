@@ -632,6 +632,7 @@ export async function checkAndAwardTasks(uid, userData) {
           isFeatured: true,
           reason: task.autoFeature.reason,
           featuredUntil: Timestamp.fromDate(featuredUntil),
+          rank: 2,
           addedBy: "system",
           addedAt: serverTimestamp()
         };
