@@ -9,7 +9,7 @@ import {
   collection,
   query,
   where,
-  arrayUnion, 
+  arrayUnion, increment, 
   startAfter, 
   getDocs,
   orderBy,   // ✅ add this
