@@ -157,7 +157,7 @@ const viewerDisplayName = avatar.dataset.displayname;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
-/*
+
   await sendNotification({
     toUid: ownerId,
     fromUid: viewerUserId,
@@ -167,10 +167,10 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     type: "collabRequest",
   });
 
-  */
+
      console.log("??????????????????????????");
 
-/*
+
     // Create the request
     await addDoc(requestsRef, {
       userId: collabId,
@@ -181,7 +181,7 @@ const viewerUserPhotoURL = avatar.dataset.photo;
       status: "pending",
       timestamp: serverTimestamp()
     });
-
+/*
 
     // ✅ Increment collabRequestsSent on user
     const userRef = doc(db, "users", viewerUsername);
