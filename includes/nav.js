@@ -30,6 +30,7 @@ navLinks.forEach(link => {
   if (currentPath.includes(href)) link.classList.add('active');
 });
 
+let role = '';
 // Auth handling
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -66,6 +67,7 @@ if (snap.exists()) {
   avatar.dataset.niches = (userData.niches || []).join(",");
   avatar.dataset.pronouns = userData.pronouns || "";
 
+  role = userData.role;
   // Set avatar image
   document.getElementById("avatarImg").src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
 
@@ -404,4 +406,8 @@ async function logAnalytics() {
   console.log("[Analytics] Logged successfully.");
 }
 
+setTimeout(() => {
+  if(role = "user"){
 logAnalytics();
+  }
+}, 2000);
