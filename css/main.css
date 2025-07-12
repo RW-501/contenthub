@@ -46,7 +46,12 @@ body {
   background-color: rgba(33, 37, 41, 0.95); /* Slightly transparent dark */
   color: white;
 }
+.modal-header {
+    background: var(--bg-light);
 
+    /*color: var(--text-light);*/
+  
+}
 #main {
     color: #636376;
 
