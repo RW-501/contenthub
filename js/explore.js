@@ -173,7 +173,7 @@ const viewerUserPhotoURL = avatar.dataset.photo;
 
     // Create the request
     await addDoc(requestsRef, {
-      userId: collabId,
+      userId: ownerId,
       userPhotoUrl: viewerUserPhotoURL,
       userDisplayName: viewerDisplayName,
       collabId,
@@ -181,10 +181,10 @@ const viewerUserPhotoURL = avatar.dataset.photo;
       status: "pending",
       timestamp: serverTimestamp()
     });
-/*
+
 
     // ✅ Increment collabRequestsSent on user
-    const userRef = doc(db, "users", viewerUsername);
+    const userRef = doc(db, "users", ownerId);
     await updateDoc(userRef, {
       collabRequestsSent: increment(1)
     });
@@ -194,8 +194,8 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     const updatedUser = updatedSnap.data();
     await checkAndAwardTasks(viewerUsername, updatedUser);
 
-        */
-       
+        
+
     showModal({
       title: "Request Sent",
       message: "Your request to join has been sent.",
