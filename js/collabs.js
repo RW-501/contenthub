@@ -67,22 +67,31 @@ async function loadDashboard(uid) {
   const collabJoinRequests = [...collabJoinIncomingSnap.docs, ...collabJoinSentSnap.docs];
 
   // Process collabRequests first
-  for (const reqDoc of requests) {
-    const data = reqDoc.data();
-    const isIncoming = data.toUid === uid || data.ownerId === uid;
+for (const reqDoc of requests) {
+  const data = reqDoc.data();
+  const isIncoming = data.toUid === uid || data.ownerId === uid;
 
-    if (isIncoming && data.status === "pending") {
-      categorized.incoming.push(renderRequest(reqDoc.id, data, true));
-    } else if (!isIncoming && data.status === "pending") {
-      categorized.sent.push(renderRequest(reqDoc.id, data, false));
-    } else if (data.status === "declined" || data.status === "accepted") {
-      try {
-        await deleteDoc(doc(db, "collabRequests", reqDoc.id));
-      } catch (error) {
-        console.error(`[Cleanup] Failed to delete request ${reqDoc.id}:`, error);
-      }
+  // Log info about each request
+  console.log(`Request ID: ${reqDoc.id}`, {
+    toUid: data.toUid,
+    ownerId: data.ownerId,
+    status: data.status,
+    isIncoming,
+  });
+
+  if (isIncoming && data.status === "pending") {
+    categorized.incoming.push(renderRequest(reqDoc.id, data, true));
+  } else if (!isIncoming && data.status === "pending") {
+    categorized.sent.push(renderRequest(reqDoc.id, data, false));
+  } else if (data.status === "declined" || data.status === "accepted") {
+    try {
+      await deleteDoc(doc(db, "collabRequests", reqDoc.id));
+    } catch (error) {
+      console.error(`[Cleanup] Failed to delete request ${reqDoc.id}:`, error);
     }
   }
+}
+
 
   // Process collabJoinRequests next
   for (const reqDoc of collabJoinRequests) {
