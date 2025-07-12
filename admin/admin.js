@@ -3705,3 +3705,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 */
+
+async function awardPointsToDemoUsers() {
+  const usersRef = collection(db, "users");
+  const demoUsersQuery = query(usersRef, where("role", "==", "demo"));
+  const snap = await getDocs(demoUsersQuery);
+
+  if (snap.empty) {
+    console.log("No demo users found.");
+    return;
+  }
+
+  for (const docSnap of snap.docs) {
+    const userId = docSnap.id;
+    const randomPoints = Math.floor(Math.random() * 151) + 150; // 150 to 300
+    await updateDoc(doc(db, "users", userId), {
+      points: increment(randomPoints)
+    });
+    console.log(`✅ Gave ${randomPoints} points to ${userId}`);
+  }
+
+  console.log("🎉 Finished awarding points to demo users.");
+}
+awardPointsToDemoUsers();
