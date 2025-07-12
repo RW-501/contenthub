@@ -231,7 +231,6 @@ async function fetchCreators() {
   renderCreators(creators);
 }
 
-
 function decodeHTML(str) {
   const txt = document.createElement("textarea");
   txt.innerHTML = str;
@@ -240,55 +239,56 @@ function decodeHTML(str) {
 
 function filterCreators() {
   const search = searchInput.value.toLowerCase();
+
   const tagsByType = activeFilterTags.reduce((acc, f) => {
     acc[f.type] = acc[f.type] || [];
     acc[f.type].push(f.value.toLowerCase().trim());
-    console.log("tagsByType:", tagsByType);
-
     return acc;
   }, {});
 
-  let visibleCount = 0;
-const stateAbbrMap = {
-  "alabama": "al", "alaska": "ak", "arizona": "az", "arkansas": "ar", "california": "ca",
-  "colorado": "co", "connecticut": "ct", "delaware": "de", "florida": "fl", "georgia": "ga",
-  "hawaii": "hi", "idaho": "id", "illinois": "il", "indiana": "in", "iowa": "ia", "kansas": "ks",
-  "kentucky": "ky", "louisiana": "la", "maine": "me", "maryland": "md", "massachusetts": "ma",
-  "michigan": "mi", "minnesota": "mn", "mississippi": "ms", "missouri": "mo", "montana": "mt",
-  "nebraska": "ne", "nevada": "nv", "new hampshire": "nh", "new jersey": "nj", "new mexico": "nm",
-  "new york": "ny", "north carolina": "nc", "north dakota": "nd", "ohio": "oh", "oklahoma": "ok",
-  "oregon": "or", "pennsylvania": "pa", "rhode island": "ri", "south carolina": "sc",
-  "south dakota": "sd", "tennessee": "tn", "texas": "tx", "utah": "ut", "vermont": "vt",
-  "virginia": "va", "washington": "wa", "west virginia": "wv", "wisconsin": "wi", "wyoming": "wy"
-};
+  // Add select values as filter tags
+  ["niche", "content", "platform"].forEach(type => {
+    const val = document.getElementById(type + "Filter")?.value?.toLowerCase()?.trim();
+    if (val && !tagsByType[type]?.includes(val)) {
+      tagsByType[type] = [...(tagsByType[type] || []), val];
+    }
+  });
 
+  let visibleCount = 0;
+  const stateAbbrMap = {
+    "alabama": "al", "alaska": "ak", "arizona": "az", "arkansas": "ar", "california": "ca",
+    "colorado": "co", "connecticut": "ct", "delaware": "de", "florida": "fl", "georgia": "ga",
+    "hawaii": "hi", "idaho": "id", "illinois": "il", "indiana": "in", "iowa": "ia", "kansas": "ks",
+    "kentucky": "ky", "louisiana": "la", "maine": "me", "maryland": "md", "massachusetts": "ma",
+    "michigan": "mi", "minnesota": "mn", "mississippi": "ms", "missouri": "mo", "montana": "mt",
+    "nebraska": "ne", "nevada": "nv", "new hampshire": "nh", "new jersey": "nj", "new mexico": "nm",
+    "new york": "ny", "north carolina": "nc", "north dakota": "nd", "ohio": "oh", "oklahoma": "ok",
+    "oregon": "or", "pennsylvania": "pa", "rhode island": "ri", "south carolina": "sc",
+    "south dakota": "sd", "tennessee": "tn", "texas": "tx", "utah": "ut", "vermont": "vt",
+    "virginia": "va", "washington": "wa", "west virginia": "wv", "wisconsin": "wi", "wyoming": "wy"
+  };
 
   document.querySelectorAll("#creatorsGrid > div").forEach(card => {
     const name = (card.dataset.name || "").toLowerCase();
     const rawNiches = decodeHTML(card.dataset.niche || "");
     const rawContent = decodeHTML(card.dataset.content || "");
+    const rawPlatforms = decodeHTML(card.dataset.platform || "");
     const location = (card.dataset.location || "").toLowerCase();
 
-const nicheList = rawNiches.split(",").map(n => n.trim().toLowerCase());
-const contentList = rawContent.split(",").map(c => c.trim().toLowerCase());
+    const nicheList = rawNiches.split(",").map(n => n.trim().toLowerCase());
+    const contentList = rawContent.split(",").map(c => c.trim().toLowerCase());
+    const platformList = rawPlatforms.split(",").map(p => p.trim().toLowerCase());
 
-console.log("Niches:", rawNiches, "→", nicheList);
-console.log("Content Types:", rawContent, "→", contentList);
-
-const filterVal = locationFilter.value.toLowerCase();
-const filterAbbr = stateAbbrMap[filterVal] || filterVal;
+    const filterVal = locationFilter.value.toLowerCase();
+    const filterAbbr = stateAbbrMap[filterVal] || filterVal;
 
     const matchesSearch = name.includes(search);
-    const matchesNiche =  tagsByType.niche.some(tag => nicheList.includes(tag));
-    const matchesContent =  tagsByType.content.some(tag => contentList.includes(tag));
+    const matchesNiche = !tagsByType.niche || tagsByType.niche.some(tag => nicheList.includes(tag));
+    const matchesContent = !tagsByType.content || tagsByType.content.some(tag => contentList.includes(tag));
+    const matchesPlatform = !tagsByType.platform || tagsByType.platform.some(tag => platformList.includes(tag));
+    const matchesLocation = !filterVal || location === filterVal || location === filterAbbr;
 
-    const matchesLocation =
-  !filterVal ||
-  location === filterVal ||           // match full state name
-  location === filterAbbr;            // match abbreviation
-
-    const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
-
+    const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation && matchesPlatform;
     card.style.display = visible ? "block" : "none";
     if (visible) visibleCount++;
   });
@@ -307,7 +307,6 @@ const filterAbbr = stateAbbrMap[filterVal] || filterVal;
   document.getElementById("noResultsMessage").style.display = visibleCount === 0 ? "block" : "none";
 }
 
-
 function addFilterTag(type, value) {
   if (activeFilterTags.find(f => f.type === type && f.value === value)) return;
 
@@ -317,11 +316,12 @@ function addFilterTag(type, value) {
 
   tag.querySelector(".btn-close").addEventListener("click", () => {
     activeFilterTags = activeFilterTags.filter(f => !(f.type === type && f.value === value));
+    tag.remove();
     filterCreators();
   });
 
   activeFilters.appendChild(tag);
-  activeFilterTags.push({ type, value });
+  activeFilterTags.push({ type, value: value.toLowerCase().trim() });
   filterCreators();
 }
 
@@ -333,6 +333,78 @@ function resetAllFilters() {
   locationFilter.value = "";
   platformFilter.value = "";
   filterCreators();
+}
+
+function handleExploreSearchParam() {
+  const params = new URLSearchParams(window.location.search);
+  if (!searchInput) return;
+
+  let searchValue = "";
+
+  if (params.has("location")) {
+    searchValue = params.get("location").replace(/-/g, " ");
+  } else if (params.has("niche")) {
+    searchValue = params.get("niche");
+  } else if (params.has("type")) {
+    searchValue = params.get("type");
+  }
+
+  if (searchValue) {
+    searchInput.value = decodeURIComponent(searchValue);
+    setTimeout(() => {
+      if (params.has("niche")) {
+        addFilterTag("niche", searchValue);
+      } else if (params.has("type")) {
+        addFilterTag("content", searchValue);
+      } else {
+        filterCreators();
+      }
+    }, 100);
+  }
+}
+
+function updateActiveFilters() {
+  const filtersDiv = document.getElementById("activeFilters");
+  filtersDiv.innerHTML = "";
+
+  const filters = [];
+
+  if (searchInput.value) filters.push({ label: `Search: ${searchInput.value}`, key: "search" });
+  if (nicheFilter.value) filters.push({ label: `Niche: ${nicheFilter.value}`, key: "niche" });
+  if (contentTypeFilter.value) filters.push({ label: `Content: ${contentTypeFilter.value}`, key: "contentType" });
+  if (locationFilter.value) filters.push({ label: `Location: ${locationFilter.value}`, key: "location" });
+  if (platformFilter.value) filters.push({ label: `Platform: ${platformFilter.value}`, key: "platform" });
+
+  filters.forEach(filter => {
+    const tag = document.createElement("span");
+    tag.className = "badge bg-secondary text-white d-flex align-items-center gap-1";
+    tag.innerHTML = `
+      ${filter.label}
+      <button type="button" class="btn-close btn-close-white btn-sm" aria-label="Remove"
+        data-key="${filter.key}"></button>
+    `;
+    filtersDiv.appendChild(tag);
+  });
+
+  filtersDiv.querySelectorAll("button[data-key]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.key;
+      switch (key) {
+        case "search": searchInput.value = ""; break;
+        case "niche": nicheFilter.value = ""; break;
+        case "contentType": contentTypeFilter.value = ""; break;
+        case "location": locationFilter.value = ""; break;
+        case "platform": platformFilter.value = ""; break;
+      }
+      filterCreators();
+    });
+  });
+
+  if (filters.length === 0) {
+    const noFilters = document.createElement("div");
+    noFilters.innerHTML = `<i class="bi bi-funnel-fill me-1"></i>No filters applied`;
+    filtersDiv.appendChild(noFilters);
+  }
 }
 
 function renderCreators(data) {
@@ -347,7 +419,7 @@ function renderCreators(data) {
   data.forEach(user => {
     const isVerified = user.verified === true;
     const verifiedPlatforms = user.verifiedPlatforms || {};
-    const badge = isVerified ? `<span class="ms-1 text-primary" title="Verified"><i class="bi bi-patch-check-fill"></i></span>` : '';
+    const badge = isVerified ? `<span class="ms-1 text-primary" title="Verified"><i class="bi bi-patch-check-fill"></i></span>` : "";
 
     const platformIcons = Object.entries(verifiedPlatforms)
       .filter(([_, verified]) => verified)
@@ -359,21 +431,20 @@ function renderCreators(data) {
           pinterest: "bi bi-pinterest", reddit: "bi bi-reddit", other: "bi bi-link-45deg"
         };
         return `<i class="${icons[platform] || ''} text-muted ms-1" title="Verified on ${platform}"></i>`;
-      }).join('');
+      }).join("");
 
     const userNiches = (user.niches || []).map(n =>
       `<span class="badge bg-light text-dark border me-1 niche-badge" data-niche="${n.toLowerCase()}">${n}</span>`
-    ).join('');
+    ).join("");
 
     const userContent = (user.contentTypes || []).map(ct =>
       `<span class="badge bg-secondary text-light me-1 content-type-badge" data-content="${ct.toLowerCase()}">${ct}</span>`
-    ).join('');
+    ).join("");
 
-    const avatarBorder = user.online ? 'border-success border-2' : 'border-0';
-
+    const avatarBorder = user.online ? "border-success border-2" : "border-0";
     const location = user.userLocation?.city || user.userLocation?.state
       ? `${user.userLocation?.city || ''}${user.userLocation?.city && user.userLocation?.state ? ', ' : ''}${user.userLocation?.state || ''}`
-      : '';
+      : "";
 
     const card = document.createElement("div");
     card.className = "col-sm-6 col-md-4 col-lg-4 mb-3";
@@ -381,6 +452,7 @@ function renderCreators(data) {
     card.dataset.niche = (user.niches || []).join(',').toLowerCase();
     card.dataset.content = (user.contentTypes || []).join(',').toLowerCase();
     card.dataset.location = (user.userLocation?.state || '').toLowerCase();
+    card.dataset.platform = (Object.keys(verifiedPlatforms) || []).join(',').toLowerCase();
 
     card.innerHTML = `
       <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.id}" class="text-decoration-none text-dark">
@@ -404,115 +476,16 @@ function renderCreators(data) {
     creatorsGrid.appendChild(card);
   });
 
-  document.querySelectorAll('.niche-badge').forEach(badge => {
-    badge.addEventListener('click', () => addFilterTag('niche', badge.dataset.niche));
-  });
-  document.querySelectorAll('.content-type-badge').forEach(badge => {
-    badge.addEventListener('click', () => addFilterTag('content', badge.dataset.content));
+  document.querySelectorAll(".niche-badge").forEach(badge => {
+    badge.addEventListener("click", () => addFilterTag("niche", badge.dataset.niche));
   });
 
-
+  document.querySelectorAll(".content-type-badge").forEach(badge => {
+    badge.addEventListener("click", () => addFilterTag("content", badge.dataset.content));
+  });
 }
 
-function handleExploreSearchParam() {
-  const params = new URLSearchParams(window.location.search);
-  const searchInput = document.getElementById("searchInput");
-
-  if (!searchInput) return;
-
-  // Priority: location > niche > type
-  let searchValue = "";
-
-  if (params.has("location")) {
-    searchValue = params.get("location").replace(/-/g, " ");
-  } else if (params.has("niche")) {
-    searchValue = params.get("niche");
-  } else if (params.has("type")) {
-    searchValue = params.get("type");
-  }
-
-
-
-  if (searchValue) {
-    searchInput.value = decodeURIComponent(searchValue);
-
-    // Optional: Trigger search
-    setTimeout(() => {
-      if (typeof triggerSearch === "function") {
-  if (params.has("location")) {
-    searchValue = params.get("location").replace(/-/g, " ");
-  } else if (params.has("niche")) {
-    addFilterTag('niche', searchValue);
-  } else if (params.has("type")) {
-    addFilterTag('content', searchValue);
-  }
-
-      } else {
-        searchInput.dispatchEvent(new Event("input"));
-      }
-    }, 100);
-  }
-}
-
-function updateActiveFilters() {
-  const filtersDiv = document.getElementById("activeFilters");
-  filtersDiv.innerHTML = ""; // Clear previous filters
-
-  const filters = [];
-
-  if (searchInput.value) {
-    filters.push({ label: `Search: ${searchInput.value}`, key: "search" });
-  }
-  if (nicheFilter.value) {
-    filters.push({ label: `Niche: ${nicheFilter.value}`, key: "niche" });
-  }
-  if (contentTypeFilter.value) {
-    filters.push({ label: `Content: ${contentTypeFilter.value}`, key: "contentType" });
-  }
-  if (locationFilter.value) {
-    filters.push({ label: `Location: ${locationFilter.value}`, key: "location" });
-  }
-  if (platformFilter.value) {
-    filters.push({ label: `Platform: ${platformFilter.value}`, key: "platform" });
-  }
-
-  filters.forEach(filter => {
-    const tag = document.createElement("span");
-    tag.className = "badge bg-secondary text-white d-flex align-items-center gap-1";
-    tag.innerHTML = `
-      ${filter.label}
-      <button type="button" class="btn-close btn-close-white btn-sm" aria-label="Remove"
-        data-key="${filter.key}"></button>
-    `;
-    filtersDiv.appendChild(tag);
-  });
-
-  // Event listeners to remove filters
-  filtersDiv.querySelectorAll("button[data-key]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const key = btn.dataset.key;
-      switch (key) {
-        case "search": searchInput.value = ""; break;
-        case "niche": nicheFilter.value = ""; break;
-        case "contentType": contentTypeFilter.value = ""; break;
-        case "location": locationFilter.value = ""; break;
-        case "platform": platformFilter.value = ""; break;
-      }
-      filterCreators(); // re-run filter
-    });
-  });
-
-    // If no filters, show fallback message
-  if (filters.length === 0) {
-    const noFilters = document.createElement("div");
-noFilters.innerHTML = `<i class="bi bi-funnel-fill me-1"></i>No filters applied`;
-    filtersDiv.appendChild(noFilters);
-    return;
-  }
-}
-
-
-
+// Init
 searchInput.addEventListener("input", filterCreators);
 nicheFilter.addEventListener("change", filterCreators);
 contentTypeFilter.addEventListener("change", filterCreators);
@@ -523,7 +496,6 @@ resetFiltersBtn.addEventListener("click", resetAllFilters);
 fetchCreators();
 updateActiveFilters();
 handleExploreSearchParam();
-
 
   </script>
 
