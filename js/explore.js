@@ -318,15 +318,17 @@ card.innerHTML = `
   ${mediaHTML}
   <div class="PostCard card-body">
     <div class="d-flex align-items-center mb-2">
+            <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
+           class="fw-bold text-decoration-none">
       <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
            class="creator-avata rounded-circle me-2"
-           width="40" height="40" />
+           width="40" height="40" /> </a>
       <div>
         <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
            class="fw-bold text-decoration-none">
-           ${userData.displayName || 'Unknown User'}
-           ${ userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}
-        </a><br/>
+          <p>${userData.displayName || 'Unknown User'}</p> </a>
+           <p>${ userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}</p>
+       <br/>
         ${typeBadge}
         <div class="mt-1" id="social-links-${postId}"></div>
       </div>
