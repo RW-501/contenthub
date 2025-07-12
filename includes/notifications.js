@@ -13,7 +13,7 @@ import {
   getDocs,
   getDoc,
   where,
-  writeBatch,
+  writeBatch,arrayUnion,
   limit,
   startAfter
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
