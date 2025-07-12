@@ -16,11 +16,7 @@ let currentUser, viewingUserId;
 
 // Load Profile
 onAuthStateChanged(auth, async user => {
-  if (!user) {
-    const authModal = document.getElementById("auth-login");
-    authModal.classList.remove("d-none");
 
-  } 
   
   currentUser = user;
 
@@ -503,6 +499,12 @@ userDocs.forEach(u => {
 
 // Unfollow user
 async function unfollowUser(uid) {
+    const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const userRef = doc(db, "users", currentUser.uid);
   await updateDoc(userRef, {
     following: arrayRemove(uid)
@@ -513,6 +515,12 @@ async function unfollowUser(uid) {
 
 // Follow user
 async function followUser(uid) {
+    const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const userRef = doc(db, "users", currentUser.uid);
   await updateDoc(userRef, {
     following: arrayUnion(uid)
@@ -694,6 +702,12 @@ if (interestedBtn) {
   }
 }
 async function reactToPost(postId, type, ownerId, caption) {
+    const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const postRef = doc(db, "posts", postId);
   const userRef = doc(db, "users", ownerId);
 
@@ -800,6 +814,12 @@ window.openComments = openComments;
 
 
 async function addComments() {
+    const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const text = document.getElementById("newCommentText").value.trim();
   if (!text) return;
     const avatar = document.getElementById("userAvatar");
@@ -845,6 +865,12 @@ function showReplyBox(commentId) {
 window.showReplyBox = showReplyBox;
 
 async function addReply(parentCommentId, commenteruId, currentPostId, currentPostOwnerId) {
+    const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const replyInput = document.getElementById(`replyText-${parentCommentId}`);
   const replyText = replyInput?.value?.trim();
   if (!replyText) return;
@@ -950,6 +976,12 @@ async function loadUserCollabs(uid) {
 }
 
 async function requestToJoin(collabId, ownerId) {
+    const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   try {
     if (!collabId || !ownerId) {
       alert("⚠️ Please log in to request to join.");
@@ -1888,8 +1920,11 @@ const form = document.getElementById("collabReviewForm");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const currentUser = auth.currentUser;
-  if (!currentUser) return alert("You must be logged in.");
-
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const toUserId = document.getElementById("toUserId").value;
   const reviewerId = currentUser.uid;
 

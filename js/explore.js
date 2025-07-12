@@ -45,7 +45,8 @@ onAuthStateChanged(auth, user => {
   if (!user) {
     const authModal = document.getElementById("auth-login");
     authModal.classList.remove("d-none");
-
+    loadSuggestedCreators();
+    loadPosts();
   }  else {
     currentUser = user;
     loadSuggestedCreators();
@@ -443,6 +444,11 @@ if (interestedBtn) {
 
 
 async function reactToPost(postId, type, ownerId, caption) {
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const postRef = doc(db, "posts", postId);
   const userRef = doc(db, "users", ownerId);
 
@@ -748,6 +754,11 @@ window.openComments = openComments;
 
 
 async function addComments() {
+    if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const text = document.getElementById("newCommentText").value.trim();
   if (!text) return;
 
@@ -799,6 +810,11 @@ function showReplyBox(commentId) {
 window.showReplyBox = showReplyBox;
 
 async function addReply(parentCommentId, commenteruId, currentPostId, currentPostOwnerId) {
+    if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const replyInput = document.getElementById(`replyText-${parentCommentId}`);
   const replyText = replyInput?.value?.trim();
   if (!replyText) return;
