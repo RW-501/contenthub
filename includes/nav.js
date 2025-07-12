@@ -9,7 +9,7 @@ import {
 import {
   getFirestore,
   doc, addDoc,
-  getDoc
+  getDoc, collection 
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // ✅ Import your Firebase app config
