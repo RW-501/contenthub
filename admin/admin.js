@@ -8,7 +8,7 @@ import {
   getAuth, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
-  getFirestore, collection, query,where, addDoc, Timestamp,  serverTimestamp, orderBy,getDoc,  getDocs, updateDoc, doc, setDoc
+  getFirestore, collection, query,where, addDoc, Timestamp,  serverTimestamp, increment, orderBy,getDoc,  getDocs, updateDoc, doc, setDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 
