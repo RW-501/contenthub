@@ -200,7 +200,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, limit, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db, auth  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
 // 🔧 JavaScript Enhancements
@@ -219,7 +219,7 @@ let creators = [];
 let activeFilterTags = [];
 
 async function fetchCreators() {
-  const snapshot = await getDocs(collection(db, "users"));
+const q = query(collection(db, "users"), limit(25));
   creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
   // Shuffle the array using Fisher-Yates (Durstenfeld) algorithm
