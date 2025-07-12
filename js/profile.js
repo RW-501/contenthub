@@ -744,6 +744,28 @@ async function reactToPost(postId, type, ownerId, caption) {
   const updatedSnap = await getDoc(userRef);
   await checkAndAwardTasks(ownerId, updatedSnap.data());
 }
+function timeAgo(date) {
+  if (!date) return "";
+  const seconds = Math.floor((new Date() - date) / 1000);
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  const intervals = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60,
+    second: 1,
+  };
+
+  for (const [unit, value] of Object.entries(intervals)) {
+    const count = Math.floor(seconds / value);
+    if (count > 0) return rtf.format(-count, unit);
+  }
+
+  return "just now";
+}
 
 let currentPostId = null;
 let currentPostOwnerId = null;
@@ -780,29 +802,45 @@ for (const id in commentMap) {
   const c = commentMap[id];
   if (c.parentId) continue; // skip replies, handled below
 
-  html += `
-    <div class="border-bottom pb-2 mb-2">
+html += `
+  <div class="border-bottom pb-2 mb-2 d-flex">
+    <img src="${c.commenteduPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" 
+         alt="${c.commenteduName}" 
+         class="rounded-circle me-2 flex-shrink-0" 
+         width="50" height="50" 
+         style="object-fit: cover;" />
+    <div>
       <strong>${c.commenteduName}:</strong> ${c.text}
-      <div class="small text-muted">${new Date(c.timestamp?.toDate?.()).toLocaleString()}</div>
+      <div class="small text-muted">${timeAgo(c.timestamp?.toDate?.())}</div>
       <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
       <div id="replyBox-${id}" class="mt-2" style="display: none;">
         <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
         <button class="btn btn-sm btn-secondary mt-1" onclick="addReply('${id}','${c.commenteduId}','${currentPostId}')">Reply</button>
       </div>
-  `;
+    </div>
+  </div>
+`;
 
-  if (c.replies?.length) {
-    html += `<div class="ms-4 mt-2">`;
-    for (const reply of c.replies) {
-      html += `
-        <div class="border-start ps-2 mb-2">
-          <strong>${reply.userName}:</strong> ${reply.text}
-          <div class="small text-muted">${new Date(reply.timestamp?.toDate?.()).toLocaleString()}</div>
+if (c.replies?.length) {
+  html += `<div class="ms-4 mt-2">`;
+  for (const reply of c.replies) {
+    html += `
+      <div class="border-start ps-2 mb-2 d-flex">
+        <img src="${reply.replyerUserPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
+             alt="${reply.replyerUname}"
+             class="rounded-circle me-2 flex-shrink-0"
+             width="40" height="40"
+             style="object-fit: cover;" />
+        <div>
+          <strong>${reply.replyerUname}:</strong> ${reply.text}
+          <div class="small text-muted">${timeAgo(reply.timestamp?.toDate?.())}</div>
         </div>
-      `;
-    }
-    html += `</div>`;
+      </div>
+    `;
   }
+  html += `</div>`;
+}
+
 
   html += `</div>`; // close comment div
 }
