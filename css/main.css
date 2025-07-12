@@ -31,6 +31,23 @@ body {
   padding: 0;
 }
 
+/* Apply the animation to the whole page */
+body {
+  animation: fadeInFromWhite 1s ease-out forwards;
+  opacity: 0; /* Start transparent */
+}
+
+/* Keyframes for fading in */
+@keyframes fadeInFromWhite {
+  0% {
+    opacity: 0;
+    background-color: white;
+  }
+  100% {
+    opacity: 1;
+    background-color: inherit; /* Falls back to body’s set background */
+  }
+}
 .modal-dialog .modal-content,
 .modal.modal-content {
   color: var(--text-light);
