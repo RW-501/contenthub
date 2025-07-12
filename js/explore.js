@@ -338,7 +338,7 @@ card.innerHTML = `
              class="creator-avata rounded-circle me-2"
              width="40" height="40" />
       </a>
-      <div>
+      <div >
         <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
            class="fw-bold text-decoration-none">
           <p>${userData.displayName || 'Unknown User'}</p>
@@ -785,16 +785,17 @@ if (c.parentId || status === "removed") continue;
       <div>
         <strong>${c.commenteduName}:</strong> ${c.text}
         <div class="small">${timeAgo(c.timestamp?.toDate?.())}</div>
-        <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
+              ${c.commenteduId === viewerUserId
+        ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn"
+                   onclick="removeComment('${id}')">Remove</button>`
+        : ""}
+        <button class="btn btn-link btn-sm text-primary p-0 mt-2" onclick="showReplyBox('${id}')">↪️ Reply</button>
         <div id="replyBox-${id}" class="mt-2" style="display: none;">
           <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
           <button class="btn btn-sm btn-secondary mt-1" onclick="addReply('${id}','${c.commenteduId}','${currentPostId}')">Reply</button>
         </div>
       </div>
-      ${c.commenteduId === viewerUserId
-        ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn"
-                   onclick="removeComment('${id}')">Remove</button>`
-        : ""}
+
     </div>
   `;
 
