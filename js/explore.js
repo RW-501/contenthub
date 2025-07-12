@@ -141,52 +141,42 @@ async function requestToJoin(collabId, ownerId) {
     ));
 
     if (!existingSnap.empty) {
-      return showModal({
+      showModal({
         title: "Already Requested",
         message: "You've already requested to join this collaboration.",
         autoClose: 3000
       });
+      return;
     }
 
     const avatar = document.getElementById("userAvatar");
-    const viewerUserId = avatar.dataset.uid;
-    const viewerDisplayName = avatar.dataset.displayname;
-    const viewerUsername = avatar.dataset.username;
-    const viewerUserPhotoURL = avatar.dataset.photo;
-    
-    await sendNotification({
-      toUid: ownerId,
-      fromUid: viewerUserId,
-      fromDisplayName: viewerDisplayName,
-      fromuserAvatar: viewerUserPhotoURL,
-      message: NOTIFICATION_TEMPLATES.profileView(viewerUsername),
-      type: "collabRequest",
-    });
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
 
+  await sendNotification({
+    toUid: ownerId,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
+    type: "collabRequest",
+  });
+    // Create the request
     await addDoc(requestsRef, {
-      userId: viewerUserId,
+      userId: collabId,
       userPhotoUrl: viewerUserPhotoURL,
-      userDisplayName: viewerUsername,
+      userDisplayName: viewerDisplayName,
       collabId,
       ownerId,
       status: "pending",
       timestamp: serverTimestamp()
     });
-    // ✅ Increment collabRequestsSent on user
-    const userRef = doc(db, "users", viewerUsername);
-    await updateDoc(userRef, {
-      collabRequestsSent: increment(1)
-    });
 
-    // ✅ Re-check reward task progress
-    const updatedSnap = await getDoc(userRef);
-    const updatedUser = updatedSnap.data();
-    await checkAndAwardTasks(viewerUsername, updatedUser);
-    showModal({
-      title: "Request Sent",
-      message: "Your request to join has been sent.",
-      autoClose: 3000
-    });
+
+
   } catch (error) {
     alert("❌ Failed to send join request. Please try again.");
   }
