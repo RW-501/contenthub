@@ -819,6 +819,10 @@ html += `
         <button class="btn btn-sm btn-secondary mt-1" onclick="addReply('${id}','${c.commenteduId}','${currentPostId}')">Reply</button>
       </div>
     </div>
+    ${c.commenteduId === viewerUserId 
+  ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1" onclick="removeComment('${id}')">Remove</button>` 
+  : ""}
+
   </div>
 `;
 
@@ -836,6 +840,10 @@ if (c.replies?.length) {
           <strong>${reply.replyerUname}:</strong> ${reply.text}
           <div class="small text-muted">${timeAgo(reply.timestamp?.toDate?.())}</div>
         </div>
+        ${reply.replyerUid === viewerUserId 
+  ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1" onclick="removeComment('${reply.id}')">Remove</button>` 
+  : ""}
+
       </div>
     `;
   }
@@ -851,6 +859,20 @@ if (c.replies?.length) {
 }
 window.openComments = openComments;
 
+async function removeComment(commentId) {
+  if (!commentId || !currentPostId) return;
+
+  try {
+    await updateDoc(doc(db, "posts", currentPostId, "comments", commentId), {
+      status: "removed"
+    });
+    openComments(currentPostId); // Refresh after removal
+  } catch (err) {
+    console.error("Failed to remove comment:", err);
+    alert("Failed to remove the comment. Please try again.");
+  }
+}
+window.removeComment = removeComment;
 
 async function addComments() {
     const currentUser = auth.currentUser;
