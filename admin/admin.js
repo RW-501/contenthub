@@ -3727,4 +3727,4 @@ async function awardPointsToDemoUsers() {
 
   console.log("🎉 Finished awarding points to demo users.");
 }
-awardPointsToDemoUsers();
+///awardPointsToDemoUsers();
