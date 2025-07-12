@@ -193,12 +193,15 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     const updatedSnap = await getDoc(userRef);
     const updatedUser = updatedSnap.data();
     await checkAndAwardTasks(viewerUsername, updatedUser);
+
+        */
+       
     showModal({
       title: "Request Sent",
       message: "Your request to join has been sent.",
       autoClose: 3000
     });
-    */
+
   } catch (error) {
     console.error("[requestToJoin] Error:", error);
     alert("❌ Failed to send join request. Please try again.");
