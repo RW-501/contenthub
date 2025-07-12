@@ -2391,8 +2391,8 @@ function renderTaggedUsers(taggedUserIds) {
   }).join("");
 }
 
-  import('https://rw-501.github.io/contenthub/includes/nav.js');
-  
+  import renderBadgeTile  from ('https://rw-501.github.io/contenthub/includes/nav.js');
+
 async function loadPublicBadges(userData) {
   const badgeList = document.getElementById("badgeList");
   if (!badgeList) {
