@@ -52,7 +52,7 @@ async function loadDashboard(uid) {
   };
   // New: Query collabJoinRequests for incoming (collabId == uid)
   const collabJoinIncomingSnap = await getDocs(
-    query(collection(db, "collabJoinRequests"), where("collabId", "==", uid))
+    query(collection(db, "collabJoinRequests"), where("ownerId", "==", uid))
   );
 
   // New: Query collabJoinRequests for sent (ownerId == uid)
