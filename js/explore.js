@@ -823,9 +823,9 @@ html += `
              <div class="w-100"> 
              ${reply.text}          
              ${reply.replyerUid === viewerUserId
-            ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn"
+            ? `<button class="btn btn-sm btn-danger position-absolute end-0 top-0 me-2 mb-1 removeBtn"
                        onclick="removeComment('${reply.id}')">Remove</button>`
-            : ""}<</div>
+            : ""}</div>
             <div class="small">${timeAgo(reply.timestamp?.toDate?.())}</div>
           </div>
 
