@@ -279,8 +279,8 @@ const filterVal = locationFilter.value.toLowerCase();
 const filterAbbr = stateAbbrMap[filterVal] || filterVal;
 
     const matchesSearch = name.includes(search);
-    const matchesNiche = !tagsByType.niche || tagsByType.niche.some(tag => nicheList.includes(tag));
-    const matchesContent = !tagsByType.content || tagsByType.content.some(tag => contentList.includes(tag));
+    const matchesNiche =  tagsByType.niche.some(tag => nicheList.includes(tag));
+    const matchesContent =  tagsByType.content.some(tag => contentList.includes(tag));
 
     const matchesLocation =
   !filterVal ||
