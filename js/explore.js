@@ -191,11 +191,12 @@ const viewerUserPhotoURL = avatar.dataset.photo;
       collabRequestsSent: increment(1)
     });
 
+    /*
     // ✅ Re-check reward task progress
     const updatedSnap = await getDoc(userRef);
     const updatedUser = updatedSnap.data();
     await checkAndAwardTasks(viewerUsername, updatedUser);
-
+*/
         
 
     showModal({
