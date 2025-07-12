@@ -784,7 +784,7 @@ if (c.parentId || status === "removed") continue;
            alt="${c.commenteduName}"
            class="rounded-circle me-2 flex-shrink-0"
            width="50" height="50" style="object-fit: cover;" />
-      <div>
+    <div class='w-100'>
         <strong>${c.commenteduName}:</strong></a>
         <div class="w-100"> ${c.text}             
          ${c.commenteduId === viewerUserId
