@@ -38,6 +38,15 @@ body {
 
 }
 
+.modal-body,
+.modal-content {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  background-color: rgba(33, 37, 41, 0.95); /* Slightly transparent dark */
+  color: white;
+}
+
 #main {
     color: #636376;
 
