@@ -17,8 +17,10 @@ const tabs = {
   incoming: document.getElementById("incomingList"),
   sent: document.getElementById("sentList"),
   active: document.getElementById("activeList"),
-  archived: document.getElementById("archivedList")
+  archived: document.getElementById("archivedList"),
+
 };
+
 
 onAuthStateChanged(auth, user => {
   if (user) loadDashboard(user.uid);
@@ -34,12 +36,13 @@ async function loadDashboard(uid) {
     getDocs(query(collection(db, "collaborations"),
       where("participants", "array-contains", uid)
     ))
+    
   ]);
 
   const receivedSnap = await getDocs(query(collection(db, "collabRequests"), where("toUid", "==", uid)));
 
-  const requests = [...requestsSnap.docs, ...receivedSnap.docs];
-  const collaborations = collabsSnap.docs;
+  //const requests = [...requestsSnap.docs, ...receivedSnap.docs];
+  //const collaborations = collabsSnap.docs;
 
   const categorized = {
     incoming: [],
@@ -47,41 +50,78 @@ async function loadDashboard(uid) {
     active: [],
     archived: []
   };
+  // New: Query collabJoinRequests for incoming (collabId == uid)
+  const collabJoinIncomingSnap = await getDocs(
+    query(collection(db, "collabJoinRequests"), where("collabId", "==", uid))
+  );
 
+  // New: Query collabJoinRequests for sent (ownerId == uid)
+  const collabJoinSentSnap = await getDocs(
+    query(collection(db, "collabJoinRequests"), where("ownerId", "==", uid))
+  );
 
-for (const reqDoc of requests) {
-  const data = reqDoc.data();
-  const isIncoming = data.toUid === uid;
+  // Combine all requests from collabRequests
+  const requests = [...requestsSnap.docs, ...receivedSnap.docs];
 
-  if (isIncoming && data.status === "pending") {
-    categorized.incoming.push(renderRequest(reqDoc.id, data, true));
-  } else if (!isIncoming && data.status === "pending") {
-    categorized.sent.push(renderRequest(reqDoc.id, data, false));
-  } else if (data.status === "declined" || data.status === "accepted") {
-    try {
-      await deleteDoc(doc(db, "collabRequests", reqDoc.id));
-    } catch (error) {
-      console.error(`[Cleanup] Failed to delete request ${reqDoc.id}:`, error);
+  // Combine all requests from collabJoinRequests
+  const collabJoinRequests = [...collabJoinIncomingSnap.docs, ...collabJoinSentSnap.docs];
+
+  // Process collabRequests first
+  for (const reqDoc of requests) {
+    const data = reqDoc.data();
+    const isIncoming = data.toUid === uid;
+
+    if (isIncoming && data.status === "pending") {
+      categorized.incoming.push(renderRequest(reqDoc.id, data, true));
+    } else if (!isIncoming && data.status === "pending") {
+      categorized.sent.push(renderRequest(reqDoc.id, data, false));
+    } else if (data.status === "declined" || data.status === "accepted") {
+      try {
+        await deleteDoc(doc(db, "collabRequests", reqDoc.id));
+      } catch (error) {
+        console.error(`[Cleanup] Failed to delete request ${reqDoc.id}:`, error);
+      }
     }
   }
-}
 
+  // Process collabJoinRequests next
+  for (const reqDoc of collabJoinRequests) {
+    const data = reqDoc.data();
 
-for (const key in categorized) {
-  if (categorized[key].length === 0) {
-    tabs[key].innerHTML = `
-      <li class="list-group-item text-muted text-center">
-        No ${key} items yet.
-        <br>
-        <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
-          🤝 Find creators to collaborate with
-        </a>
-      </li>`;
-  } else {
-    tabs[key].innerHTML = categorized[key].join("");
+    const isIncoming = data.collabId === uid;  // incoming if collabId matches uid
+    const isSent = data.ownerId === uid;       // sent if ownerId matches uid
+
+    // Assuming you want to filter by status too
+    if (isIncoming && data.status === "pending") {
+      categorized.incoming.push(renderRequest(reqDoc.id, data, true));
+    } else if (isSent && data.status === "pending") {
+      categorized.sent.push(renderRequest(reqDoc.id, data, false));
+    } else if (data.status === "declined" || data.status === "accepted") {
+      try {
+        await deleteDoc(doc(db, "collabJoinRequests", reqDoc.id));
+      } catch (error) {
+        console.error(`[Cleanup] Failed to delete join request ${reqDoc.id}:`, error);
+      }
+    }
   }
-}
 
+
+
+  // Then render results in tabs (same as before)
+  for (const key in categorized) {
+    if (categorized[key].length === 0) {
+      tabs[key].innerHTML =
+        `<li class="list-group-item text-muted text-center">
+          No ${key} items yet.
+          <br>
+          <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
+            🤝 Find creators to collaborate with
+          </a>
+        </li>`;
+    } else {
+      tabs[key].innerHTML = categorized[key].join("");
+    }
+  }
 }
 
 function formatTimestamp(timestamp) {
@@ -100,8 +140,8 @@ function renderMediaPreview(mediaLink) {
 }
 
 function renderRequest(id, data, incoming) {
-  const name = data.displayName || (incoming ? data.fromUid : data.toUid);
-  const senderUrl = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${incoming ? data.fromUid : data.toUid}`
+  const name = data.displayName || (incoming ? data.fromUid : data.toUid) || data.userDisplayName;
+  const senderUrl = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${incoming ? data.fromUid : data.toUid  || data.collabId}`
   const dateStr = formatTimestamp(data.timestamp);
   const mediaHTML = renderMediaPreview(data.mediaLink);
 
@@ -111,15 +151,7 @@ function renderRequest(id, data, incoming) {
     : data.status === "pending"
       ? `<span class="badge bg-warning text-dark">Pending</span>`
       : `<span class="badge bg-danger">Declined</span>`;
-/*
-  const chatBtn = `<button class="btn btn-sm btn-outline-primary ms-2" onclick="showChatPopup('${incoming ? data.fromUid : data.toUid}')">
-    <i class="bi bi-chat-dots"></i> showChatPopup
-  </button>
-  
-  <button class="btn btn-sm btn-outline-primary ms-2" onclick="openGroupChat('${incoming ? data.fromUid : data.toUid}')">
-    <i class="bi bi-chat-dots"></i> Open Message
-  </button>`;
-*/
+
   return `
     <div class="list-group-item">
       <div class="d-flex justify-content-between align-items-center">
