@@ -2306,7 +2306,7 @@ async function loadPublicBadges(userId) {
     }
 
     const userData = userSnap.data();
-    const completed = userData.rewardsCompleted || [];
+const completed = Array.isArray(userData.rewardsCompleted) ? userData.rewardsCompleted : [];
     const completedMap = {};
 
     // Map completed dates if available
