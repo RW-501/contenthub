@@ -45,7 +45,7 @@ body {
   }
   100% {
     opacity: 1;
-    background-color: inherit; /* Falls back to body’s set background */
+  background-color: var(--bg-dark);
   }
 }
 .modal-dialog .modal-content,

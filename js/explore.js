@@ -706,7 +706,8 @@ searchInput.addEventListener("input", () => loadPosts(true));
 collabZoneToggle.addEventListener("change", () => loadPosts(true));
 
 
-
+    const avatar = document.getElementById("userAvatar");
+    const viewerUserId = avatar.dataset.uid;
 let currentPostId = null;
 let currentPostOwnerId = null;
 
@@ -809,6 +810,7 @@ async function addComments() {
   const comment = {
     text,
     currentPostOwnerId,
+    status: "active",
     commenteduId: viewerUserId,
     commenteduPhoto: viewerUserPhotoURL,
     commenteduName: viewerDisplayName || "Anonymous",
@@ -866,6 +868,7 @@ async function addReply(parentCommentId, commenteruId, currentPostId, currentPos
   const reply = {
     text: replyText,
     commenterUid: commenteruId,
+    status: "active",
     replyerUid: viewerUserId,
     replyerUserPhoto: viewerUserPhotoURL,
     replyerUname: viewerDisplayName || "Anonymous",
@@ -892,4 +895,3 @@ async function addReply(parentCommentId, commenteruId, currentPostId, currentPos
 window.addReply = addReply;
 
 
-window.addReply = addReply;
