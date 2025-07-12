@@ -626,10 +626,13 @@ async function loadUserPosts(uid, displayName, photoURL) {
           <div class="d-flex gap-2  mb-2">
         ${joinButton}
       </div>
-    <button class="btn btn-sm btn-outline-primary mb-2" data-post-id="${docSnap.id}" data-post-owner="${post.owner}" onclick="openComments('${docSnap.id}, '${post.owner}')">
+    <button class="btn btn-sm btn-outline-primary mb-2"
+  data-post-id="${docSnap.id}"
+  data-post-owner="${post.owner}"
+  onclick="openComments('${docSnap.id}', '${post.owner}')">
+  💬 Comments
+</button>
 
-      💬 Comments
-    </button>
           </div>
     `;
 
