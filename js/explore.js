@@ -371,7 +371,7 @@ card.innerHTML = `
 
     ${
       currentUser?.uid === post.owner
-        ? `<button class="btn btn-sm btn-outline-danger mb-2" onclick="removePost('${postId}')">🗑️ Remove</button>`
+        ? `<button class="btn btn-sm btn-outline-danger mb-2 removeBtn" onclick="removePost('${postId}')">🗑️ Remove</button>`
         : ""
     }
   </div>
@@ -788,7 +788,7 @@ if (c.parentId || status === "removed") continue;
         </div>
       </div>
       ${c.commenteduId === viewerUserId
-        ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1"
+        ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn"
                    onclick="removeComment('${id}')">Remove</button>`
         : ""}
     </div>
@@ -813,7 +813,7 @@ html += `
             <div class="small text-muted">${timeAgo(reply.timestamp?.toDate?.())}</div>
           </div>
           ${reply.replyerUid === viewerUserId
-            ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1"
+            ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn"
                        onclick="removeComment('${reply.id}')">Remove</button>`
             : ""}
         </div>

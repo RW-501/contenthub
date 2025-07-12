@@ -647,7 +647,7 @@ card.innerHTML = `
     </button>
 
     ${currentUser?.uid === post.owner ? `
-      <button class="btn btn-sm btn-outline-danger mb-2"
+      <button class="btn btn-sm btn-outline-danger mb-2 removeBtn"
         onclick="removePost('${docSnap.id}')">
         🗑️ Remove
       </button>
@@ -847,7 +847,7 @@ html += `
       </div>
     </div>
     ${c.commenteduId === viewerUserId 
-  ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1" onclick="removeComment('${id}')">Remove</button>` 
+  ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn" onclick="removeComment('${id}')">Remove</button>` 
   : ""}
 
   </div>
@@ -872,7 +872,7 @@ if (status === "removed") continue;
           <div class="small text-muted">${timeAgo(reply.timestamp?.toDate?.())}</div>
         </div>
         ${reply.replyerUid === viewerUserId 
-  ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1" onclick="removeComment('${reply.id}')">Remove</button>` 
+  ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn" onclick="removeComment('${reply.id}')">Remove</button>` 
   : ""}
 
       </div>
