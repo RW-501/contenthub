@@ -250,8 +250,8 @@ for (const docSnap of snap.docs) {
   if (shouldSkipPost(post, search)) continue;
 
   // ✅ Skip post if status is not acceptable
-const status = post.status ?? "";
-if (status !== "remove") continue;
+const status = (post.status ?? "").toLowerCase();
+if (status === "removed") continue;
 
 
   const card = await createPostCard(post, docSnap.id);
@@ -768,7 +768,9 @@ comments.forEach(c => {
 let html = "";
 for (const id in commentMap) {
   const c = commentMap[id];
-  if (c.parentId || c.status !== "remove") continue;
+
+const status = (c.status ?? "").toLowerCase();
+if (c.parentId || status === "removed") continue;
 
   html += `
     <div class="border-bottom pb-2 mb-2 d-flex position-relative">
@@ -795,8 +797,11 @@ for (const id in commentMap) {
   if (c.replies?.length) {
     html += `<div class="ms-4 mt-2">`;
     for (const reply of c.replies) {
-      if (reply.status !== "remove") continue;
-      html += `
+
+const status = (reply.status ?? "").toLowerCase();
+if (status === "removed") continue;
+
+html += `
         <div class="border-start ps-2 mb-2 d-flex position-relative">
           <img src="${reply.replyerUserPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
                alt="${reply.replyerUname}"

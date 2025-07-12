@@ -553,8 +553,8 @@ async function loadUserPosts(uid, displayName, photoURL) {
     // ✅ Skip if scheduled in the future
     if (post.scheduledAt && post.scheduledAt.toDate() > now) continue;
 
-    const status = post.status ?? "";
-if (status !== "remove") continue;
+const status = (post.status ?? "").toLowerCase();
+if (status === "removed") continue;
 
     const card = document.createElement("div");
     card.className = "card mb-3 shadow-sm";
@@ -826,7 +826,9 @@ comments.forEach(c => {
 let html = "";
 for (const id in commentMap) {
   const c = commentMap[id];
-  if (c.parentId || c.status !== "remove") continue;
+
+const status = (c.status ?? "").toLowerCase();
+if (c.parentId || status === "removed") continue;
 
 html += `
   <div class="border-bottom pb-2 mb-2 d-flex">
@@ -854,7 +856,10 @@ html += `
 if (c.replies?.length) {
   html += `<div class="ms-4 mt-2">`;
   for (const reply of c.replies) {
-  if (reply.status !== "remove") continue;
+
+const status = (reply.status ?? "").toLowerCase();
+if (status === "removed") continue;
+
     html += `
       <div class="border-start ps-2 mb-2 d-flex">
         <img src="${reply.replyerUserPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
