@@ -38,11 +38,15 @@ export function initPostScript() {
   const composerHTML = `
     <div id="postComposer" class="border rounded-4 shadow-sm bg-white mb-4 p-3">
       <div class="d-flex align-items-start mb-3">
-            <a  id="postAvatarHref" href="https://rw-501.github.io/contenthub/"
-         class="fw-bold text-decoration-none">
-        <img id="postAvatar" src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
-        </a>
-             width="48" height="48" class="rounded-circle me-3" />
+<a id="postAvatarHref" href="https://rw-501.github.io/contenthub/pages/profile.html?uid=default" 
+   class="fw-bold text-decoration-none d-inline-flex align-items-center">
+  <img id="postAvatar" 
+       src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
+       width="48" height="48" 
+       class="rounded-circle me-3"
+       alt="User Avatar" />
+</a>
+
         <div class="flex-grow-1">
 <div contenteditable="true"
      id="caption"
