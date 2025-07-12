@@ -553,6 +553,9 @@ async function loadUserPosts(uid, displayName, photoURL) {
     // ✅ Skip if scheduled in the future
     if (post.scheduledAt && post.scheduledAt.toDate() > now) continue;
 
+    const status = post.status ?? "";
+if (status !== "remove") continue;
+
     const card = document.createElement("div");
     card.className = "card mb-3 shadow-sm";
 
@@ -608,41 +611,50 @@ async function loadUserPosts(uid, displayName, photoURL) {
       </button>
     `;
   }
-    card.innerHTML = `
-      ${mediaHTML}
-      <div class="PostCard card-body">
-        <div class="d-flex align-items-center mb-2">
-          <img src="${photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
-               class="creator-avata rounded-circle me-2"
-               width="40" height="40" />
-          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${uid}"
-             class="fw-bold text-decoration-none">${displayName}</a>
-        </div>
+card.innerHTML = `
+  ${mediaHTML}
+  <div class="PostCard card-body">
+    <div class="d-flex align-items-center mb-2">
+      <img src="${photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
+           class="creator-avata rounded-circle me-2"
+           width="40" height="40" />
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${uid}"
+         class="fw-bold text-decoration-none">${displayName}</a>
+    </div>
 
-        <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+    <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
 
-        <small class="text-muted d-block mb-2">
-          ${timeAgo} • 
-          <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes
-        </small>
+    <small class="text-muted d-block mb-2">
+      ${timeAgo} • 
+      <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes
+    </small>
 
-        <div class="d-flex gap-2  mb-2">
-          <button class="btn btn-sm btn-outline-danger" id="like-btn-${docSnap.id}">❤️ Like</button>
-          <button class="btn btn-sm btn-outline-success" id="helpful-btn-${docSnap.id}">🙌 Helpful</button>
-          <button class="btn btn-sm btn-outline-info" id="interested-btn-${docSnap.id}">⭐ Interested</button>
-      </div>
-          <div class="d-flex gap-2  mb-2">
-        ${joinButton}
-      </div>
+    <div class="d-flex gap-2  mb-2">
+      <button class="btn btn-sm btn-outline-danger" id="like-btn-${docSnap.id}">❤️ Like</button>
+      <button class="btn btn-sm btn-outline-success" id="helpful-btn-${docSnap.id}">🙌 Helpful</button>
+      <button class="btn btn-sm btn-outline-info" id="interested-btn-${docSnap.id}">⭐ Interested</button>
+    </div>
+
+    <div class="d-flex gap-2 mb-2">
+      ${joinButton}
+    </div>
+
     <button class="btn btn-sm btn-outline-primary mb-2"
-  data-post-id="${docSnap.id}"
-  data-post-owner="${post.owner}"
-  onclick="openComments('${docSnap.id}', '${post.owner}')">
-  💬 Comments
-</button>
+      data-post-id="${docSnap.id}"
+      data-post-owner="${post.owner}"
+      onclick="openComments('${docSnap.id}', '${post.owner}')">
+      💬 Comments
+    </button>
 
-          </div>
-    `;
+    ${currentUser?.uid === post.owner ? `
+      <button class="btn btn-sm btn-outline-danger mb-2"
+        onclick="removePost('${docSnap.id}')">
+        🗑️ Remove
+      </button>
+    ` : ""}
+  </div>
+`;
+
 
 // Get buttons
 const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
@@ -766,12 +778,25 @@ function timeAgo(date) {
 
   return "just now";
 }
-  const avatar = document.getElementById("userAvatar");
-  const viewerUserId = avatar.dataset.uid;
+async function removePost(postId) {
+  if (!confirm("Are you sure you want to remove this post?")) return;
+  try {
+    await updateDoc(doc(db, "posts", postId), { status: "removed" });
+    // Optionally hide or reload the post
+    document.getElementById(`post-${postId}`)?.remove();
+  } catch (err) {
+    console.error("Failed to remove post:", err);
+    alert("Something went wrong removing the post.");
+  }
+}
+window.removePost = removePost;
+
 let currentPostId = null;
 let currentPostOwnerId = null;
 
 async function openComments(postId, postOwnerId) {
+    const avatar = document.getElementById("userAvatar");
+  const viewerUserId = avatar.dataset.uid;
   currentPostId = postId;
   currentPostOwnerId = postOwnerId;
 
@@ -801,7 +826,7 @@ comments.forEach(c => {
 let html = "";
 for (const id in commentMap) {
   const c = commentMap[id];
-  if (c.parentId) continue; // skip replies, handled below
+  if (c.parentId || c.status !== "remove") continue;
 
 html += `
   <div class="border-bottom pb-2 mb-2 d-flex">
@@ -829,6 +854,7 @@ html += `
 if (c.replies?.length) {
   html += `<div class="ms-4 mt-2">`;
   for (const reply of c.replies) {
+  if (reply.status !== "remove") continue;
     html += `
       <div class="border-start ps-2 mb-2 d-flex">
         <img src="${reply.replyerUserPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"

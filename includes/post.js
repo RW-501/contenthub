@@ -268,6 +268,7 @@ await addDoc(collection(db, "posts"), {
   helpful: 0,
   interested: 0,
   views: 0,
+  status: "active",
   type: postTypeSelect.value,  // 🔥 new field
   projectGoal: projectGoal || null,
   createdAt: new Date(),

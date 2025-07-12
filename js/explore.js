@@ -235,22 +235,29 @@ async function loadRegularPosts(filter, search) {
     q = query(q, startAfter(lastVisiblePost));
   }
 
-  const snap = await getDocs(q);
-  if (!snap.empty) lastVisiblePost = snap.docs[snap.docs.length - 1];
+ const snap = await getDocs(q);
+if (!snap.empty) lastVisiblePost = snap.docs[snap.docs.length - 1];
 
-  const now = new Date();
+const now = new Date();
 
-  for (const docSnap of snap.docs) {
-    const post = docSnap.data();
+for (const docSnap of snap.docs) {
+  const post = docSnap.data();
 
-    // Skip post if scheduledAt is in the future
-    if (post.scheduledAt && post.scheduledAt.toDate() > now) continue;
+  // ⛔ Skip post if scheduled in the future
+  if (post.scheduledAt && post.scheduledAt.toDate() > now) continue;
 
-    if (shouldSkipPost(post, search)) continue;
+  // ⛔ Skip if should be filtered out based on search
+  if (shouldSkipPost(post, search)) continue;
 
-    const card = await createPostCard(post, docSnap.id);
-    postGrid.appendChild(card);
-  }
+  // ✅ Skip post if status is not acceptable
+const status = post.status ?? "";
+if (status !== "remove") continue;
+
+
+  const card = await createPostCard(post, docSnap.id);
+  postGrid.appendChild(card);
+}
+
 }
 
 
@@ -321,17 +328,19 @@ card.innerHTML = `
   ${mediaHTML}
   <div class="PostCard card-body">
     <div class="d-flex align-items-center mb-2">
-            <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
-           class="fw-bold text-decoration-none">
-      <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
-           class="creator-avata rounded-circle me-2"
-           width="40" height="40" /> </a>
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
+         class="fw-bold text-decoration-none">
+        <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
+             class="creator-avata rounded-circle me-2"
+             width="40" height="40" />
+      </a>
       <div>
         <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
            class="fw-bold text-decoration-none">
-          <p>${userData.displayName || 'Unknown User'}</p> </a>
-           <p>${ userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}</p>
-       <br/>
+          <p>${userData.displayName || 'Unknown User'}</p>
+        </a>
+        <p>${userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}</p>
+        <br/>
         ${typeBadge}
         <div class="mt-1" id="social-links-${postId}"></div>
       </div>
@@ -353,15 +362,21 @@ card.innerHTML = `
       ${joinButton}
     </div>
 
-<button class="btn btn-sm btn-outline-primary mb-2"
-  data-post-id="${postId}"
-  data-post-owner="${post.owner}"
-  onclick="openComments('${postId}', '${post.owner}')">
-  💬 Comments
-</button>
-  
+    <button class="btn btn-sm btn-outline-primary mb-2"
+      data-post-id="${postId}"
+      data-post-owner="${post.owner}"
+      onclick="openComments('${postId}', '${post.owner}')">
+      💬 Comments
+    </button>
+
+    ${
+      currentUser?.uid === post.owner
+        ? `<button class="btn btn-sm btn-outline-danger mb-2" onclick="removePost('${postId}')">🗑️ Remove</button>`
+        : ""
+    }
   </div>
 `;
+
 
 // Now safely access and populate social links
 const socialContainer = document.getElementById(`social-links-${postId}`);
@@ -706,12 +721,25 @@ searchInput.addEventListener("input", () => loadPosts(true));
 collabZoneToggle.addEventListener("change", () => loadPosts(true));
 
 
-    const avatar = document.getElementById("userAvatar");
-    const viewerUserId = avatar.dataset.uid;
+async function removePost(postId) {
+  if (!confirm("Are you sure you want to remove this post?")) return;
+  try {
+    await updateDoc(doc(db, "posts", postId), { status: "removed" });
+    // Optionally hide or reload the post
+    document.getElementById(`post-${postId}`)?.remove();
+  } catch (err) {
+    console.error("Failed to remove post:", err);
+    alert("Something went wrong removing the post.");
+  }
+}
+window.removePost = removePost;
+
 let currentPostId = null;
 let currentPostOwnerId = null;
 
 async function openComments(postId, postOwnerId) {
+      const avatar = document.getElementById("userAvatar");
+    const viewerUserId = avatar.dataset.uid;
   currentPostId = postId;
   currentPostOwnerId = postOwnerId;
   document.getElementById("commentsList").innerHTML = "Loading...";
@@ -740,7 +768,7 @@ comments.forEach(c => {
 let html = "";
 for (const id in commentMap) {
   const c = commentMap[id];
-  if (c.parentId || c.status !== "active") continue;
+  if (c.parentId || c.status !== "remove") continue;
 
   html += `
     <div class="border-bottom pb-2 mb-2 d-flex position-relative">
@@ -767,7 +795,7 @@ for (const id in commentMap) {
   if (c.replies?.length) {
     html += `<div class="ms-4 mt-2">`;
     for (const reply of c.replies) {
-      if (reply.status !== "active") continue;
+      if (reply.status !== "remove") continue;
       html += `
         <div class="border-start ps-2 mb-2 d-flex position-relative">
           <img src="${reply.replyerUserPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
