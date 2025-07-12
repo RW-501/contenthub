@@ -9,7 +9,7 @@ import {
   addDoc,
   doc,
   getDoc,
-  getDocs,
+  getDocs, updateDoc,
   query,
   where
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -38,7 +38,10 @@ export function initPostScript() {
   const composerHTML = `
     <div id="postComposer" class="border rounded-4 shadow-sm bg-white mb-4 p-3">
       <div class="d-flex align-items-start mb-3">
+            <a  id="postAvatarHref" href="https://rw-501.github.io/contenthub/"
+         class="fw-bold text-decoration-none">
         <img id="postAvatar" src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
+        </a>
              width="48" height="48" class="rounded-circle me-3" />
         <div class="flex-grow-1">
 <div contenteditable="true"
@@ -138,9 +141,19 @@ export function initPostScript() {
       ? viewerDisplayName.split("@")[0]
       : viewerDisplayName.split(" ")[0];
 
-    const viewerUserPhotoURL = avatar.dataset.photo;
-    const postAvatar = document.getElementById("postAvatar");
-    if (postAvatar && viewerUserPhotoURL) postAvatar.src = viewerUserPhotoURL;
+const viewerUserPhotoURL = avatar.dataset.photo;
+const userID = avatar.dataset.uid;
+
+const postAvatar = document.getElementById("postAvatar");
+const postAvatarHref = document.getElementById("postAvatarHref");
+
+if (postAvatar && viewerUserPhotoURL) {
+  postAvatar.src = viewerUserPhotoURL;
+}
+if (postAvatarHref && userID) {
+  postAvatarHref.href = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${userID}`;
+}
+
 
     // Update placeholderMap dynamically using first name
     placeholderMap = {
