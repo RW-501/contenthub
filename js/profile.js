@@ -2422,7 +2422,10 @@ function renderTaggedUsers(taggedUserIds) {
   }).join("");
 }
 
-  import renderBadgeTile  from 'https://rw-501.github.io/contenthub/includes/nav.js';
+
+
+
+
 
 async function loadPublicBadges(userData) {
   const badgeList = document.getElementById("badgeList");
@@ -2473,3 +2476,30 @@ async function loadPublicBadges(userData) {
     badgeList.innerHTML = `<div class="alert alert-danger text-center">Error loading badges.</div>`;
   }
 }
+
+
+ function renderBadgeTile(task, isDone, completedMap = {}) {
+  const icon = isDone ? "🏅" : "🔓";
+  const badgeType = `badge-type-${task.type}`;
+  const earnedClass = isDone ? "earned" : "";
+
+  const completedDate = isDone && completedMap[task.id]
+    ? `<div class="badge-date text-success small">Earned: ${new Date(completedMap[task.id]).toLocaleDateString()}</div>`
+    : "";
+
+  const div = document.createElement("div");
+  div.className = `col badge-tile ${badgeType} ${earnedClass}`;
+  div.setAttribute("data-task-id", task.id);
+  div.innerHTML = `
+    <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
+    <div class="badge-name">${task.reward.badge}</div>
+    <div class="badge-type">${task.type}</div>
+    <div class="badge-points small">${task.reward.points} pts</div>
+    ${completedDate}
+  `;
+
+ 
+
+  return div; // return the actual DOM node
+}
+
