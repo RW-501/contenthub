@@ -820,13 +820,15 @@ html += `
                style="object-fit: cover;" />
           <div>
             <strong>${reply.replyerUname}:</strong></a>
-             ${reply.text}
-            <div class="small">${timeAgo(reply.timestamp?.toDate?.())}</div>
-          </div>
-          ${reply.replyerUid === viewerUserId
+             <div class="w-100"> 
+             ${reply.text}          
+             ${reply.replyerUid === viewerUserId
             ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn"
                        onclick="removeComment('${reply.id}')">Remove</button>`
-            : ""}
+            : ""}<</div>
+            <div class="small">${timeAgo(reply.timestamp?.toDate?.())}</div>
+          </div>
+
         </div>
       `;
     }
