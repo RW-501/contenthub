@@ -560,13 +560,13 @@ export const rewardTasks = [
   {
     id: "commentMade-5",
     type: "commentMade",
-    condition: { 'commentMade': 5 },
+    condition: { commentMade: 5 },
     reward: { badge: "Talkative", points: 25 }
   },
   {
     id: "commentMade-10",
     type: "commentMade",
-    condition: { 'commentMade': 10 },
+    condition: { commentMade: 10 },
     reward: { badge: "Contributor", points: 50 }
   },
   {
