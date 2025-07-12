@@ -788,7 +788,7 @@ if (c.parentId || status === "removed") continue;
         <strong>${c.commenteduName}:</strong></a>
         <div class="w-100"> ${c.text}             
          ${c.commenteduId === viewerUserId
-        ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn"
+        ? `<button class="btn btn-sm btn-danger position-absolute end-0 top-0 me-2 mb-1 removeBtn"
                    onclick="removeComment('${id}')">Remove</button>`
         : ""}</div>
         <div class="small">${timeAgo(c.timestamp?.toDate?.())}</div>
