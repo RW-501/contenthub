@@ -864,13 +864,15 @@ if (status === "removed") continue;
 
     html += `
       <div class="border-start ps-2 mb-2 d-flex">
+            <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${reply.replyerUid}">
         <img src="${reply.replyerUserPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
              alt="${reply.replyerUname}"
              class="rounded-circle me-2 flex-shrink-0"
              width="40" height="40"
              style="object-fit: cover;" />
         <div>
-          <strong>${reply.replyerUname}:</strong> ${reply.text}
+          <strong>${reply.replyerUname}:</strong></a>
+          ${reply.text}
           <div class="small text-muted">${timeAgo(reply.timestamp?.toDate?.())}</div>
         </div>
         ${reply.replyerUid === viewerUserId 
