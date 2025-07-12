@@ -1090,13 +1090,19 @@ async function requestToJoin(collabId, ownerId) {
       return;
     }
 
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
 
     const requestsRef = collection(db, "collabJoinRequests");
 
     // Check if request already exists
     const existingSnap = await getDocs(query(
       requestsRef,
-      where("ownerId", "==", ownerId),
+      where("ownerId", "==", viewerUserId),
       where("collabId", "==", collabId),
       where("status", "in", ["pending", "approved"])
     ));
@@ -1110,12 +1116,6 @@ async function requestToJoin(collabId, ownerId) {
       return;
     }
 
-    const avatar = document.getElementById("userAvatar");
-const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
-const viewerRole = avatar.dataset.role;
-const viewerUsername = avatar.dataset.username;
-const viewerUserPhotoURL = avatar.dataset.photo;
 
   await sendNotification({
     toUid: ownerId,
@@ -1130,7 +1130,7 @@ const viewerUserPhotoURL = avatar.dataset.photo;
       userPhotoUrl: viewerUserPhotoURL,
       userDisplayName: viewerDisplayName,
       collabId,
-      ownerId,
+      ownerId: viewerUserId,
       status: "pending",
       timestamp: serverTimestamp()
     });

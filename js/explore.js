@@ -135,9 +135,17 @@ async function requestToJoin(collabId, ownerId) {
   try {
     if (!collabId || !ownerId) return alert("⚠️ Please log in to request to join.");
 
+    const avatar = document.getElementById("userAvatar");
+const viewerUserId = avatar.dataset.uid;
+const viewerDisplayName = avatar.dataset.displayname;
+const viewerRole = avatar.dataset.role;
+const viewerUsername = avatar.dataset.username;
+const viewerUserPhotoURL = avatar.dataset.photo;
+
+
     const requestsRef = collection(db, "collabJoinRequests");
     const existingSnap = await getDocs(query(requestsRef,
-      where("ownerId", "==", ownerId),
+      where("ownerId", "==", viewerUserId),
       where("collabId", "==", collabId),
       where("status", "in", ["pending", "approved"])
     ));
@@ -151,12 +159,7 @@ async function requestToJoin(collabId, ownerId) {
       return;
     }
 
-    const avatar = document.getElementById("userAvatar");
-const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
-const viewerRole = avatar.dataset.role;
-const viewerUsername = avatar.dataset.username;
-const viewerUserPhotoURL = avatar.dataset.photo;
+
 
   await sendNotification({
     toUid: ownerId,
@@ -176,14 +179,14 @@ const viewerUserPhotoURL = avatar.dataset.photo;
       userPhotoUrl: viewerUserPhotoURL,
       userDisplayName: viewerDisplayName,
       collabId,
-      ownerId,
+      ownerId: viewerUserId,
       status: "pending",
       timestamp: serverTimestamp()
     });
 
 
     // ✅ Increment collabRequestsSent on user
-    const userRef = doc(db, "users", ownerId);
+    const userRef = doc(db, "users", viewerUserId);
     await updateDoc(userRef, {
       collabRequestsSent: increment(1)
     });
