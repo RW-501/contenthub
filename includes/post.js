@@ -292,8 +292,13 @@ await addDoc(collection(db, "posts"), {
 
 }
 
-// Run the script only after DOM is ready
-//initPostScript();
+const modalEl = document.getElementById('commentModal');
+const modalInstance = bootstrap.Modal.getInstance(modalEl);
+
+if (modalInstance) {
+  modalInstance.hide(); // Properly closes and removes the backdrop
+}
+
 
 
 function animateTheElement(el, animation = null, duration = 800) {
