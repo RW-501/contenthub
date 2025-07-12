@@ -292,12 +292,6 @@ await addDoc(collection(db, "posts"), {
 
 }
 
-const modalEl = document.getElementById('commentModal');
-const modalInstance = bootstrap.Modal.getInstance(modalEl);
-
-if (modalInstance) {
-  modalInstance.hide(); // Properly closes and removes the backdrop
-}
 
 
 
