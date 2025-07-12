@@ -839,7 +839,7 @@ html += `
          style="object-fit: cover;" />
     <div>
       <strong>${c.commenteduName}:</strong> ${c.text}
-      <div class="small text-muted">${timeAgo(c.timestamp?.toDate?.())}</div>
+      <div class="small">${timeAgo(c.timestamp?.toDate?.())}</div>
       <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
       <div id="replyBox-${id}" class="mt-2" style="display: none;">
         <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
@@ -994,7 +994,7 @@ async function addReply(parentCommentId, commenteruId, currentPostId, currentPos
     fromUid: viewerUserId,
     fromDisplayName: viewerDisplayName,
     fromuserAvatar: viewerUserPhotoURL,
-    message: `${viewerUsername} replied to your comment on the <a href="/contenthub/pages/post.html?p=${currentPostId}">post</a>: "${sanitizeText(replyText)}"`,
+    message: `${viewerUsername} replied to your comment on the <a href="https://rw-501.github.io/contenthub/contenthub/pages/post.html?p=${currentPostId}">post</a>: "${sanitizeText(replyText)}"`,
     type: "reply"
   });
 

@@ -780,7 +780,7 @@ if (c.parentId || status === "removed") continue;
            width="50" height="50" style="object-fit: cover;" />
       <div>
         <strong>${c.commenteduName}:</strong> ${c.text}
-        <div class="small text-muted">${timeAgo(c.timestamp?.toDate?.())}</div>
+        <div class="small">${timeAgo(c.timestamp?.toDate?.())}</div>
         <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
         <div id="replyBox-${id}" class="mt-2" style="display: none;">
           <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
@@ -810,7 +810,7 @@ html += `
                style="object-fit: cover;" />
           <div>
             <strong>${reply.replyerUname}:</strong> ${reply.text}
-            <div class="small text-muted">${timeAgo(reply.timestamp?.toDate?.())}</div>
+            <div class="small">${timeAgo(reply.timestamp?.toDate?.())}</div>
           </div>
           ${reply.replyerUid === viewerUserId
             ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn"
