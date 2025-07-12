@@ -214,28 +214,31 @@ async function loadRegularPosts(filter, search) {
   let q;
   const postsCol = collection(db, "posts");
 
-  switch (filter) {
-    case "trending":
-      q = query(postsCol, orderBy("likes", "desc"), limit(10));
-      break;
-    case "new":
-      q = query(postsCol, orderBy("createdAt", "desc"), limit(10));
-      break;
-    case "music":
-    case "art":
-    case "film":
-    case "audio":
-      q = query(postsCol, where("tags", "array-contains", filter), orderBy("createdAt", "desc"), limit(10));
-      break;
-    default:
-      q = query(postsCol, orderBy("createdAt", "desc"), limit(10));
-  }
 
-  if (lastVisiblePost) {
-    q = query(q, startAfter(lastVisiblePost));
-  }
+switch (filter) {
+  case "trending":
+    q = query(postsCol, orderBy("likes", "desc"), limit(10));
+    break;
+  case "new":
+    q = query(postsCol, orderBy("createdAt", "desc"), limit(10));
+    break;
+  case "music":
+  case "art":
+  case "film":
+  case "audio":
+    q = query(postsCol, where("tags", "array-contains", filter), orderBy("createdAt", "desc"), limit(10));
+    break;
+  default:
+    // 🔥 Default to newest posts
+    q = query(postsCol, orderBy("createdAt", "desc"), limit(10));
+}
 
- const snap = await getDocs(q);
+if (lastVisiblePost) {
+  q = query(q, startAfter(lastVisiblePost));
+}
+
+const snap = await getDocs(q);
+
 if (!snap.empty) lastVisiblePost = snap.docs[snap.docs.length - 1];
 
 const now = new Date();
@@ -243,20 +246,20 @@ const now = new Date();
 for (const docSnap of snap.docs) {
   const post = docSnap.data();
 
-  // ⛔ Skip post if scheduled in the future
+  // ⛔ Skip if scheduled in the future
   if (post.scheduledAt && post.scheduledAt.toDate() > now) continue;
 
-  // ⛔ Skip if should be filtered out based on search
+  // ⛔ Skip if should be filtered
   if (shouldSkipPost(post, search)) continue;
 
-  // ✅ Skip post if status is not acceptable
-const status = (post.status ?? "").toLowerCase();
-if (status === "removed") continue;
-
+  // ✅ Skip if status is removed
+  const status = (post.status ?? "").toLowerCase();
+  if (status === "removed") continue;
 
   const card = await createPostCard(post, docSnap.id);
   postGrid.appendChild(card);
 }
+
 
 }
 
