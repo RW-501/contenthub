@@ -52,7 +52,7 @@ async function loadDashboard(uid) {
   };
   // New: Query collabJoinRequests for incoming (collabId == uid)
   const collabJoinIncomingSnap = await getDocs(
-    query(collection(db, "collabJoinRequests"), where("ownerId", "==", uid))
+    query(collection(db, "collabJoinRequests"), where("collabId", "==", uid))
   );
 
   // New: Query collabJoinRequests for sent (ownerId == uid)
@@ -69,7 +69,7 @@ async function loadDashboard(uid) {
   // Process collabRequests first
   for (const reqDoc of requests) {
     const data = reqDoc.data();
-    const isIncoming = data.toUid === uid;
+    const isIncoming = data.toUid === uid || data.ownerId === uid;
 
     if (isIncoming && data.status === "pending") {
       categorized.incoming.push(renderRequest(reqDoc.id, data, true));
