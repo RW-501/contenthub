@@ -79,45 +79,82 @@
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import { app, db } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 
-    const message = document.getElementById("message");
-    const charCount = document.getElementById("charCount");
+const message = document.getElementById("message");
+const charCount = document.getElementById("charCount");
 
-    message.addEventListener("input", () => {
-      charCount.textContent = `${message.value.length} / 500`;
+message.addEventListener("input", () => {
+  const maxChars = 500;
+  const currentLength = message.value.length;
+
+  // Limit input to max characters
+  if (currentLength > maxChars) {
+    message.value = message.value.slice(0, maxChars);
+  }
+
+  charCount.textContent = `${message.value.length} / ${maxChars}`;
+});
+
+document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const category = document.getElementById("category").value.trim();
+  const text = sanitizeInput(message.value.trim());
+  const emailRaw = document.getElementById("email").value.trim();
+  const email = sanitizeInput(emailRaw);
+
+  if (!category || !text) {
+    return showModal({
+      title: "⚠️ Missing Info",
+      message: "Please select a category and enter your feedback.",
+      autoClose: 3000
+    });
+  }
+
+  if (email && !isValidEmail(email)) {
+    return showModal({
+      title: "⚠️ Invalid Email",
+      message: "Please enter a valid email address.",
+      autoClose: 3000
+    });
+  }
+
+  try {
+    await addDoc(collection(db, "feedback"), {
+      category,
+      message: text,
+      email: email || null,
+      timestamp: new Date()
     });
 
-    document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const category = document.getElementById("category").value;
-      const text = message.value.trim();
-      const email = document.getElementById("email").value.trim();
-
-      if (!category || !text) return;
-
-      try {
-        await addDoc(collection(db, "feedback"), {
-          category,
-          message: text,
-          email: email || null,
-          timestamp: new Date()
-        });
-
-        showModal({
-          title: "✅ Submitted!",
-          message: "Thanks for your feedback. We appreciate you!",
-          autoClose: 3000
-        });
-
-        e.target.reset();
-        charCount.textContent = "0 / 500";
-      } catch (err) {
-        alert("Something went wrong submitting your feedback.");
-        console.error(err);
-      }
+    showModal({
+      title: "✅ Submitted!",
+      message: "Thanks for your feedback. We appreciate you!",
+      autoClose: 3000
     });
 
- 
+    e.target.reset();
+    charCount.textContent = "0 / 500";
+  } catch (err) {
+    console.error("Feedback error:", err);
+    showModal({
+      title: "❌ Error",
+      message: "Something went wrong submitting your feedback. Please try again later.",
+      autoClose: 3000
+    });
+  }
+});
+
+function sanitizeInput(input) {
+  const div = document.createElement("div");
+  div.textContent = input;
+  return div.innerHTML.trim();
+}
+
+function isValidEmail(email) {
+  const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return pattern.test(email);
+}
+
   </script>
 </body>
 </html>

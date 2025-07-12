@@ -91,53 +91,90 @@
   import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-  const db = getFirestore();
-  const storage = getStorage();
+const db = getFirestore();
+const storage = getStorage();
 
-  const form = document.getElementById("contactForm");
-  const statusBox = document.getElementById("formStatus");
+const form = document.getElementById("contactForm");
+const statusBox = document.getElementById("formStatus");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const subject = document.getElementById("subject").value.trim();
-    const message = document.getElementById("message").value.trim();
-    const file = document.getElementById("attachment").files[0];
+  const name = sanitizeInput(document.getElementById("name").value);
+  const email = sanitizeInput(document.getElementById("email").value);
+  const subject = sanitizeInput(document.getElementById("subject").value);
+  const message = sanitizeInput(document.getElementById("message").value);
+  const file = document.getElementById("attachment").files[0];
 
-    if (!name || !email || !subject || !message) {
-      showStatus("Please fill out all required fields.", "danger");
-      return;
+  if (!name || !email || !subject || !message) {
+    return showStatus("Please fill out all required fields.", "danger");
+  }
+
+  if (!isValidEmail(email)) {
+    return showStatus("Please enter a valid email address.", "danger");
+  }
+
+  let fileUrl = null;
+  if (file) {
+    // Validate file type and size
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+    const allowedTypes = ["image/png", "image/jpeg", "application/pdf", "text/plain"];
+
+    if (!allowedTypes.includes(file.type)) {
+      return showStatus("File type not allowed. Upload PNG, JPG, PDF, or TXT only.", "danger");
     }
 
-    let fileUrl = null;
-    if (file) {
-      const fileRef = ref(storage, `contact_attachments/${Date.now()}_${file.name}`);
+    if (file.size > maxSize) {
+      return showStatus("File is too large. Max size is 5MB.", "danger");
+    }
+
+    try {
+      const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const fileRef = ref(storage, `contact_attachments/${Date.now()}_${safeFileName}`);
       await uploadBytes(fileRef, file);
       fileUrl = await getDownloadURL(fileRef);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      return showStatus("Error uploading file.", "danger");
     }
+  }
 
-    const contactMsg = {
-      name,
-      email,
-      subject,
-      message,
-      attachment: fileUrl || null,
-      createdAt: serverTimestamp()
-    };
+  const contactMsg = {
+    name,
+    email,
+    subject,
+    message,
+    attachment: fileUrl,
+    createdAt: serverTimestamp()
+  };
 
+  try {
     await addDoc(collection(db, "contact"), contactMsg);
-
     form.reset();
     showStatus("✅ Message sent successfully!", "success");
-  });
-
-  function showStatus(text, type) {
-    statusBox.className = `alert mt-3 alert-${type}`;
-    statusBox.textContent = text;
-    statusBox.classList.remove("d-none");
+  } catch (err) {
+    console.error("Submit error:", err);
+    showStatus("Something went wrong. Please try again later.", "danger");
   }
+});
+
+function sanitizeInput(input) {
+  const temp = document.createElement("div");
+  temp.textContent = input;
+  return temp.innerHTML.trim();
+}
+
+function isValidEmail(email) {
+  const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return pattern.test(email);
+}
+
+function showStatus(text, type) {
+  statusBox.className = `alert mt-3 alert-${type}`;
+  statusBox.textContent = text;
+  statusBox.classList.remove("d-none");
+}
+
 </script>
 
 </body>
