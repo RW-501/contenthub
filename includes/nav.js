@@ -379,3 +379,29 @@ window.showBadgeDetail = showBadgeDetail;
 document.getElementById("viewRewardsBtn")?.addEventListener("click", () => {
   loadRewardModal();
 });
+
+
+
+
+// 🌐 Get IP + Geo Location
+async function getGeoData() {
+  const res = await fetch("https://ipapi.co/json");
+  return await res.json();
+}
+
+async function logAnalytics() {
+  const geo = await getGeoData();
+
+  await addDoc(collection(db, "analyticsLogs"), {
+    pageUrl: window.location.href,
+    ip: geo.ip,
+    location: `${geo.city}, ${geo.region}, ${geo.country_name}`,
+    deviceTime: new Date().toLocaleString(),
+    timestamp: serverTimestamp(),
+    userAgent: navigator.userAgent
+  });
+
+  console.log("[Analytics] Logged successfully.");
+}
+
+logAnalytics();

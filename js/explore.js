@@ -164,16 +164,16 @@ async function requestToJoin(collabId, ownerId) {
     });
 
     await addDoc(requestsRef, {
-      userId: viewer.uid,
-      userPhotoUrl: viewer.photo,
-      userDisplayName: viewer.name,
+      userId: viewerUserId,
+      userPhotoUrl: viewerUserPhotoURL,
+      userDisplayName: viewerUsername,
       collabId,
       ownerId,
       status: "pending",
       timestamp: serverTimestamp()
     });
     // ✅ Increment collabRequestsSent on user
-    const userRef = doc(db, "users", viewer.uid);
+    const userRef = doc(db, "users", viewerUsername);
     await updateDoc(userRef, {
       collabRequestsSent: increment(1)
     });
@@ -181,7 +181,7 @@ async function requestToJoin(collabId, ownerId) {
     // ✅ Re-check reward task progress
     const updatedSnap = await getDoc(userRef);
     const updatedUser = updatedSnap.data();
-    await checkAndAwardTasks(viewer.uid, updatedUser);
+    await checkAndAwardTasks(viewerUsername, updatedUser);
     showModal({
       title: "Request Sent",
       message: "Your request to join has been sent.",

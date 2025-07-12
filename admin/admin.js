@@ -610,6 +610,51 @@ async function unfeatureUser(uid) {
 window.unfeatureUser = unfeatureUser;
 
 
+window.loadAnalytics = async function () {
+  const q = query(collection(db, "analyticsLogs"), orderBy("timestamp", "desc"));
+  const snap = await getDocs(q);
+
+  const logs = snap.docs.map(doc => doc.data());
+
+  let html = `
+    <input class="form-control mb-2" placeholder="🔍 Filter by city, IP or page" oninput="filterAnalytics(this.value)">
+    <table class="table table-bordered table-striped table-sm">
+      <thead>
+        <tr>
+          <th>Page</th>
+          <th>IP</th>
+          <th>Location</th>
+          <th>Device Time</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody id="analyticsBody">
+        ${logs.map(log => `
+          <tr>
+            <td>${log.pageUrl}</td>
+            <td>${log.ip}</td>
+            <td>${log.location}</td>
+            <td>${log.deviceTime}</td>
+            <td>${log.timestamp?.toDate?.().toLocaleString() || "-"}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+  document.getElementById("analyticsTable").innerHTML = html;
+};
+
+window.filterAnalytics = function (term) {
+  const rows = document.querySelectorAll("#analyticsBody tr");
+  term = term.toLowerCase();
+  rows.forEach(row => {
+    const visible = [...row.children].some(td => td.textContent.toLowerCase().includes(term));
+    row.style.display = visible ? "" : "none";
+  });
+};
+
+
+
 let calendarItemsByDate = {};
 let scheduledPostsByDate = {};
 let calendarStartOffset = 0;
