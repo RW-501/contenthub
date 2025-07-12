@@ -2242,57 +2242,46 @@ function renderTaggedUsers(taggedUserIds) {
 
 
 
-async function loadCompletedBadgesPublic(userData) {
+async function loadPublicBadges(userId) {
   const badgeList = document.getElementById("badgeList");
+  if (!badgeList) return;
+
   badgeList.innerHTML = "";
 
-  if (!userData) return;
-
-  const completed = userData.rewardsCompleted || [];
-  const grouped = {};
-  const completedMap = {};
-
-  // Prepare completed date map if available
-  rewardTasks.forEach(task => {
-    if (completed.includes(task.id)) {
-      const date = userData.badges?.[task.type]?.lastEarned?.toDate?.();
-      if (date) completedMap[task.id] = date;
+  try {
+    const userSnap = await getDoc(doc(db, "users", userId));
+    if (!userSnap.exists()) {
+      badgeList.innerHTML = `<div class="alert alert-info text-center">No badges found for this user.</div>`;
+      return;
     }
-  });
 
-  // Group completed tasks by type
-  rewardTasks.forEach(task => {
-    if (!completed.includes(task.id)) return;
+    const userData = userSnap.data();
+    const completed = userData.rewardsCompleted || [];
+    const completedMap = {};
 
-    if (!grouped[task.type]) grouped[task.type] = [];
-    grouped[task.type].push(task);
-  });
-
-  // Loop through each badge type
-  for (const type in grouped) {
-    const section = document.createElement("div");
-    section.className = "mb-4";
-
-    const tasks = grouped[type];
-    const progress = Math.round((tasks.length / rewardTasks.filter(t => t.type === type).length) * 100);
-
-    const header = `
-      <h6 class="text-uppercase text-secondary fw-bold mb-2">${type}</h6>
-      <div class="progress mb-2" style="height: 6px;">
-        <div class="progress-bar" role="progressbar" style="width: ${progress}%;" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
-      </div>
-      <div class="small text-muted mb-2">${tasks.length} completed</div>
-    `;
-
-    const row = document.createElement("div");
-    row.className = "row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3";
-
-    tasks.forEach(task => {
-      row.appendChild(renderBadgeTile(task, true, completedMap));
+    // Map completed dates if available
+    rewardTasks.forEach(task => {
+      if (completed.includes(task.id)) {
+        const date = userData.badges?.[task.type]?.lastEarned?.toDate?.();
+        if (date) completedMap[task.id] = date;
+      }
     });
 
-    section.innerHTML = header;
-    section.appendChild(row);
-    badgeList.appendChild(section);
+    const completedTasks = rewardTasks.filter(task => completed.includes(task.id));
+    if (completedTasks.length === 0) {
+      badgeList.innerHTML = `<div class="alert alert-info text-center">No badges have been earned yet.</div>`;
+      return;
+    }
+
+    // Render badges
+    completedTasks.forEach(task => {
+      const badgeEl = renderBadgeTile(task, true, completedMap);
+      badgeList.appendChild(badgeEl);
+    });
+
+  } catch (error) {
+    console.error("Failed to load public badges:", error);
+    badgeList.innerHTML = `<div class="alert alert-danger text-center">Error loading badges.</div>`;
   }
 }
+
