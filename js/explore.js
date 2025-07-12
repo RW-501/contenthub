@@ -308,31 +308,13 @@ async function createPostCard(post, postId) {
     `;
   }
 
-  const likeBtnId = `like-btn-${postId}`;
-  const helpfulBtnId = `helpful-btn-${postId}`;
-  const interestedBtnId = `interested-btn-${postId}`;
-  const likeCountId = `like-count-${postId}`;
-  const socialContainer = document.getElementById(`social-links-${postId}`);
+const likeBtnId = `like-btn-${postId}`;
+const helpfulBtnId = `helpful-btn-${postId}`;
+const interestedBtnId = `interested-btn-${postId}`;
+const likeCountId = `like-count-${postId}`;
 
-  if (Array.isArray(userData.links)) {
-  userData.links.forEach(linkObj => {
-    const { platform, url } = linkObj;
-    const icon = platformIcons[platform?.toLowerCase()] || platformIcons.other;
-    const isVerified = userData.verifiedPlatforms?.[platform.toLowerCase()] === true;
-
-    const a = document.createElement("a");
-    a.href = url.trim();
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.className = "btn btn-sm btn-outline-secondary me-1";
-    a.innerHTML = `
-      <i class="${icon}"></i>
-      ${isVerified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
-    `;
-    socialContainer.appendChild(a);
-  });
-}
-  card.innerHTML = `
+// Set the card content first (this creates the social-links div)
+card.innerHTML = `
   ${mediaHTML}
   <div class="PostCard card-body">
     <div class="d-flex align-items-center mb-2">
@@ -371,6 +353,27 @@ async function createPostCard(post, postId) {
     </button>
   </div>
 `;
+
+// Now safely access and populate social links
+const socialContainer = document.getElementById(`social-links-${postId}`);
+if (socialContainer && Array.isArray(userData.links)) {
+  userData.links.forEach(linkObj => {
+    const { platform, url } = linkObj;
+    const icon = platformIcons[platform?.toLowerCase()] || platformIcons.other;
+    const isVerified = userData.verifiedPlatforms?.[platform?.toLowerCase()] === true;
+
+    const a = document.createElement("a");
+    a.href = url.trim();
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "btn btn-sm btn-outline-secondary me-1";
+    a.innerHTML = `
+      <i class="${icon}"></i>
+      ${isVerified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
+    `;
+    socialContainer.appendChild(a);
+  });
+}
 
 
 const likeBtn = card.querySelector(`#${likeBtnId}`);
