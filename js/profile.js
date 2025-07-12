@@ -2294,7 +2294,7 @@ function renderTaggedUsers(taggedUserIds) {
 }
 
 
-async function loadPublicBadges(userId) {
+async function loadPublicBadges(userData) {
   const badgeList = document.getElementById("badgeList");
   if (!badgeList) {
     console.warn("❌ badgeList element not found");
@@ -2304,16 +2304,7 @@ async function loadPublicBadges(userId) {
   badgeList.innerHTML = "";
 
   try {
-    console.log("🔍 Fetching user data for:", userId);
-    const userSnap = await getDoc(doc(db, "users", userId));
 
-    if (!userSnap.exists()) {
-      console.warn("📭 User not found in Firestore");
-      badgeList.innerHTML = `<div class="alert alert-info text-center">No badges found for this user.</div>`;
-      return;
-    }
-
-    const userData = userSnap.data();
     console.log("✅ User data:", userData);
 
     const completed = Array.isArray(userData.rewardsCompleted) ? userData.rewardsCompleted : [];
