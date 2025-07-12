@@ -832,13 +832,15 @@ if (c.parentId || status === "removed") continue;
 
 html += `
   <div class="border-bottom pb-2 mb-2 d-flex">
+        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${c.commenteduId}">
     <img src="${c.commenteduPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" 
          alt="${c.commenteduName}" 
          class="rounded-circle me-2 flex-shrink-0" 
          width="50" height="50" 
          style="object-fit: cover;" />
     <div>
-      <strong>${c.commenteduName}:</strong> ${c.text}
+      <strong>${c.commenteduName}:</strong></a>
+       ${c.text}
       <div class="small">${timeAgo(c.timestamp?.toDate?.())}</div>
       <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
       <div id="replyBox-${id}" class="mt-2" style="display: none;">
