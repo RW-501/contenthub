@@ -692,9 +692,7 @@ export async function checkAndAwardTasks(uid, userData) {
           levels: [
             ...new Set([
               ...(userData.badges?.[task.type]?.levels || []),
-                  task.id  // or a unique string like "10-posts_5-comments"
-
-              //parseInt(task.condition[Object.keys(task.condition)[0]])
+              parseInt(task.condition[Object.keys(task.condition)[0]])
             ])
           ],
           lastEarned: serverTimestamp()
