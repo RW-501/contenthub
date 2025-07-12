@@ -5,13 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Give Feedback</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://rw-501.github.io/contenthub/css/main.css" />
-</head>
-<body class="text-gray-800">
-  <div id="toolbarContainer"></div>
+  <script type="module" src="https://rw-501.github.io/contenthub/js/explore.js" defer></script>
+  <script type="module" src="https://rw-501.github.io/contenthub/js/firebase-config.js" defer></script>
 
-  <main class="flex justify-center items-center min-h-screen px-4">
-    <div class="w-full max-w-xl bg-white shadow-2xl rounded-3xl p-8 space-y-6 animate-fadeIn">
+    <!-- Add this to your <head> -->
+  <link rel="stylesheet" href="https://rw-501.github.io/contenthub/css/main.css">
+
+</head>
+<body>
+
+  
+      <div id="toolbarContainer"></div>
+
+  <!-- Your page content here -->
+
+  <!-- Include Bootstrap JS (required for navbar) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Inject toolbar -->
+  <script type="module">
+    const toolbarContainer = document.getElementById("toolbarContainer");
+    const html = await fetch('https://rw-501.github.io/contenthub/includes/nav.html').then(res => res.text());
+    toolbarContainer.innerHTML = html;
+    import('https://rw-501.github.io/contenthub/includes/nav.js');
+  </script>
+
+
+<!-- Main Section -->
+  <main id="main">
+
+<div class="container py-4">
+
       <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">💬 We Value Your Feedback</h1>
 
       <form id="feedbackForm" class="space-y-6">
@@ -66,8 +90,7 @@
 
   <!-- Navigation & Footer -->
   <script type="module">
-    document.getElementById("toolbarContainer").innerHTML = await fetch('https://rw-501.github.io/contenthub/includes/nav.html').then(res => res.text());
-    import('https://rw-501.github.io/contenthub/includes/nav.js');
+
 
     document.getElementById("footerContainer").innerHTML = await fetch('https://rw-501.github.io/contenthub/includes/footer.html').then(res => res.text());
     import('https://rw-501.github.io/contenthub/includes/footer.js');

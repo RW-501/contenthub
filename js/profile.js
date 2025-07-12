@@ -262,7 +262,7 @@ loadFollowingList(userData);
 loadFollowersList(userData);
 loadAnalytics(currentPageID);
 loadProjectHistory(currentPageID);
-loadCompletedBadgesPublic(userData);
+loadPublicBadges(userData);
 
 
 
