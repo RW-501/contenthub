@@ -343,7 +343,10 @@ card.innerHTML = `
       <div >
         <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
            class="fw-bold text-decoration-none">
-          <p>${userData.displayName || 'Unknown User'}</p>
+<div class="d-flex align-items-center gap-2">
+  <p class="mb-0">${userData.displayName || 'Unknown User'}</p>
+  <span class="badge bg-warning text-dark" title="Creator Points">⭐ ${userData.points || 0}</span>
+</div>
         </a>
         <p>${userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}</p>
         <br/>
