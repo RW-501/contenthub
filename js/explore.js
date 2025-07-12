@@ -205,6 +205,8 @@ window.requestToJoin = requestToJoin;
 
 
 
+
+
 async function loadRegularPosts(filter, search) {
   let q;
   const postsCol = collection(db, "posts");
@@ -258,6 +260,27 @@ function shouldSkipPost(post, search) {
   return search && !caption.includes(search) && !tags.includes(search);
 }
 
+
+
+
+
+
+const platformIcons = {
+  instagram: "bi bi-instagram",
+  tiktok: "bi bi-tiktok",
+  youtube: "bi bi-youtube",
+  facebook: "bi bi-facebook",
+  twitter: "bi bi-twitter",
+  linkedin: "bi bi-linkedin",
+  twitch: "bi bi-twitch",
+  threads: "bi bi-threads",
+  snapchat: "bi bi-snapchat",
+  pinterest: "bi bi-pinterest",
+  reddit: "bi bi-reddit",
+  other: "bi bi-link-45deg"
+};
+
+
 async function createPostCard(post, postId) {
   const card = document.createElement("div");
   card.className = "card mb-3";
@@ -289,7 +312,26 @@ async function createPostCard(post, postId) {
   const helpfulBtnId = `helpful-btn-${postId}`;
   const interestedBtnId = `interested-btn-${postId}`;
   const likeCountId = `like-count-${postId}`;
+  const socialContainer = document.getElementById(`social-links-${postId}`);
 
+  if (Array.isArray(userData.links)) {
+  userData.links.forEach(linkObj => {
+    const { platform, url } = linkObj;
+    const icon = platformIcons[platform?.toLowerCase()] || platformIcons.other;
+    const isVerified = userData.verifiedPlatforms?.[platform.toLowerCase()] === true;
+
+    const a = document.createElement("a");
+    a.href = url.trim();
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "btn btn-sm btn-outline-secondary me-1";
+    a.innerHTML = `
+      <i class="${icon}"></i>
+      ${isVerified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
+    `;
+    socialContainer.appendChild(a);
+  });
+}
   card.innerHTML = `
     ${mediaHTML}
     <div class="PostCard card-body">
@@ -301,6 +343,8 @@ async function createPostCard(post, postId) {
           <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
              class="fw-bold text-decoration-none">
              ${userData.displayName || 'Unknown User'}
+             ${ userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}
+             ${`social-links-${postId}`}
           </a><br/>
           ${typeBadge}
         </div>
