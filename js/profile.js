@@ -614,8 +614,7 @@ async function loadUserPosts(uid, displayName, photoURL) {
 
         <small class="text-muted d-block mb-2">
           ${timeAgo} • 
-          <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes • 
-          ${post.views || 0} Views
+          <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes
         </small>
 
         <div class="d-flex gap-2  mb-2">

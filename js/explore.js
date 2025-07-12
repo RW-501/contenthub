@@ -299,7 +299,7 @@ async function createPostCard(post, postId) {
       <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
 
       <small class="d-block mb-2">
-        ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes • ${post.views || 0} Views
+        ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes 
       </small>
 
       <div class="d-flex gap-2  mb-2">
