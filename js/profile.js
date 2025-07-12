@@ -1092,7 +1092,7 @@ async function requestToJoin(collabId, ownerId) {
     // Check if request already exists
     const existingSnap = await getDocs(query(
       requestsRef,
-      where("userId", "==", ownerId),
+      where("ownerId", "==", ownerId),
       where("collabId", "==", collabId),
       where("status", "in", ["pending", "approved"])
     ));
@@ -1123,7 +1123,6 @@ const viewerUserPhotoURL = avatar.dataset.photo;
   });
     // Create the request
     await addDoc(requestsRef, {
-      userId: collabId,
       userPhotoUrl: viewerUserPhotoURL,
       userDisplayName: viewerDisplayName,
       collabId,

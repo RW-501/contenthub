@@ -173,7 +173,6 @@ const viewerUserPhotoURL = avatar.dataset.photo;
 
     // Create the request
     await addDoc(requestsRef, {
-      userId: ownerId,
       userPhotoUrl: viewerUserPhotoURL,
       userDisplayName: viewerDisplayName,
       collabId,
