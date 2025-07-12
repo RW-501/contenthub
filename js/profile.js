@@ -8,7 +8,7 @@ import {
   getStorage, ref, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 import { app, db, auth  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
-import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks } from "https://rw-501.github.io/contenthub/includes/notifications.js";
+import { sendNotification, NOTIFICATION_TEMPLATES, markAllNotificationsRead, rewardTasks } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 const storage = getStorage(app);
 
@@ -262,6 +262,7 @@ loadFollowingList(userData);
 loadFollowersList(userData);
 loadAnalytics(currentPageID);
 loadProjectHistory(currentPageID);
+loadCompletedBadgesPublic(userData);
 
 
 
@@ -2241,3 +2242,57 @@ function renderTaggedUsers(taggedUserIds) {
 
 
 
+async function loadCompletedBadgesPublic(userData) {
+  const badgeList = document.getElementById("badgeList");
+  badgeList.innerHTML = "";
+
+  if (!userData) return;
+
+  const completed = userData.rewardsCompleted || [];
+  const grouped = {};
+  const completedMap = {};
+
+  // Prepare completed date map if available
+  rewardTasks.forEach(task => {
+    if (completed.includes(task.id)) {
+      const date = userData.badges?.[task.type]?.lastEarned?.toDate?.();
+      if (date) completedMap[task.id] = date;
+    }
+  });
+
+  // Group completed tasks by type
+  rewardTasks.forEach(task => {
+    if (!completed.includes(task.id)) return;
+
+    if (!grouped[task.type]) grouped[task.type] = [];
+    grouped[task.type].push(task);
+  });
+
+  // Loop through each badge type
+  for (const type in grouped) {
+    const section = document.createElement("div");
+    section.className = "mb-4";
+
+    const tasks = grouped[type];
+    const progress = Math.round((tasks.length / rewardTasks.filter(t => t.type === type).length) * 100);
+
+    const header = `
+      <h6 class="text-uppercase text-secondary fw-bold mb-2">${type}</h6>
+      <div class="progress mb-2" style="height: 6px;">
+        <div class="progress-bar" role="progressbar" style="width: ${progress}%;" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <div class="small text-muted mb-2">${tasks.length} completed</div>
+    `;
+
+    const row = document.createElement("div");
+    row.className = "row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3";
+
+    tasks.forEach(task => {
+      row.appendChild(renderBadgeTile(task, true, completedMap));
+    });
+
+    section.innerHTML = header;
+    section.appendChild(row);
+    badgeList.appendChild(section);
+  }
+}
