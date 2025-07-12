@@ -350,8 +350,10 @@ card.innerHTML = `
       ${joinButton}
     </div>
 
-    <button class="btn btn-sm btn-outline-primary mb-2" data-post-id="${postId}" onclick="openComments('${postId}')">
+    </button>
+    <button class="btn btn-sm btn-outline-primary mb-2" data-post-id="${postId}" data-post-owner="${post.owner}" onclick="openComments('${postId}, '${post.owner}')">
       💬 Comments
+    </button>
     </button>
   </div>
 `;
@@ -674,9 +676,11 @@ collabZoneToggle.addEventListener("change", () => loadPosts(true));
 
 
 let currentPostId = null;
+let currentPostOwnerId = null;
 
-async function openComments(postId) {
+async function openComments(postId, postOwnerId) {
   currentPostId = postId;
+  currentPostOwnerId = postOwnerId;
   document.getElementById("commentsList").innerHTML = "Loading...";
   document.getElementById("newCommentText").value = "";
 
@@ -707,12 +711,12 @@ for (const id in commentMap) {
 
   html += `
     <div class="border-bottom pb-2 mb-2">
-      <strong>${c.userName}:</strong> ${c.text}
+      <strong>${c.commenteduName}:</strong> ${c.text}
       <div class="small text-muted">${new Date(c.timestamp?.toDate?.()).toLocaleString()}</div>
       <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
       <div id="replyBox-${id}" class="mt-2" style="display: none;">
         <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
-        <button class="btn btn-sm btn-secondary mt-1" onclick="addReply('${id}')">Reply</button>
+        <button class="btn btn-sm btn-secondary mt-1" onclick="addReply('${id},${c.commenteduId}')">Reply</button>
       </div>
   `;
 
@@ -747,36 +751,86 @@ async function addComments() {
     const viewerDisplayName = avatar.dataset.displayname;
     const viewerUsername = avatar.dataset.username;
     const viewerUserPhotoURL = avatar.dataset.photo;
+
   const comment = {
     text,
-    userName: viewerDisplayName || "Anonymous",
+    currentPostOwnerId,
+    commenteduId: viewerUserId,
+    commenteduPhoto: viewerUserPhotoURL,
+    commenteduName: viewerDisplayName || "Anonymous",
     timestamp: serverTimestamp(),
   };
+
+
+
+await sendNotification({
+  toUid: currentPostOwnerId,
+  fromUid: viewerUserId,
+  fromDisplayName: viewerDisplayName,
+  fromuserAvatar: viewerUserPhotoURL,
+  message: `${viewerUsername} left a comment on your <a href="https://rw-501.github.io/contenthub/pages/post.html?p=${currentPostId}">post</a>: "${sanitizeText(text)}"`,
+  type: "commented"
+});
+
+
+await updateDoc(doc(db, "users", viewerUserId), {
+  commentMade: increment(1)
+});
 
   await addDoc(collection(db, "posts", currentPostId, "comments"), comment);
   openComments(currentPostId); // Reload comments
 }
 window.addComments = addComments;
 
+function sanitizeText(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
 
 function showReplyBox(commentId) {
   document.getElementById(`replyBox-${commentId}`).style.display = "block";
 }
 window.showReplyBox = showReplyBox;
 
-async function addReply(parentCommentId) {
-  const replyText = document.getElementById(`replyText-${parentCommentId}`).value.trim();
+async function addReply(parentCommentId, commenteruId, currentPostId, currentPostOwnerId) {
+  const replyInput = document.getElementById(`replyText-${parentCommentId}`);
+  const replyText = replyInput?.value?.trim();
   if (!replyText) return;
+
+  const avatar = document.getElementById("userAvatar");
+  const viewerUserId = avatar.dataset.uid;
+  const viewerDisplayName = avatar.dataset.displayname;
+  const viewerUsername = avatar.dataset.username;
+  const viewerUserPhotoURL = avatar.dataset.photo;
 
   const reply = {
     text: replyText,
-    userName: user?.displayName || "Anonymous",
+    commenterUid: commenteruId,
+    replyerUid: viewerUserId,
+    replyerUserPhoto: viewerUserPhotoURL,
+    replyerUname: viewerDisplayName || "Anonymous",
     parentId: parentCommentId,
     timestamp: serverTimestamp(),
   };
 
+  // Save the reply to Firestore
   await addDoc(collection(db, "posts", currentPostId, "comments"), reply);
-  openComments(currentPostId); // Reload all including replies (simple approach)
+
+  // Send a notification to the original commenter
+  await sendNotification({
+    toUid: commenteruId, // fixed: this should go to the person who got replied to, not the post owner
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: `${viewerUsername} replied to your comment on the <a href="/contenthub/pages/post.html?p=${currentPostId}">post</a>: "${sanitizeText(replyText)}"`,
+    type: "reply"
+  });
+
+  // Optional: reload comments section
+  openComments(currentPostId);
 }
+window.addReply = addReply;
+
 
 window.addReply = addReply;
