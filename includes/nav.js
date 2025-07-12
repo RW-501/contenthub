@@ -407,7 +407,7 @@ async function logAnalytics() {
 }
 
 setTimeout(() => {
-  if(role = "user"){
+  if(role == "user"){
 logAnalytics();
   }
 }, 2000);
