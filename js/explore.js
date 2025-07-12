@@ -236,6 +236,7 @@ switch (filter) {
 if (lastVisiblePost) {
   q = query(q, startAfter(lastVisiblePost));
 }
+  console.log("[loadRegularPosts] q:", q, "| filter:", filter);
 
 const snap = await getDocs(q);
 
