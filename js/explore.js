@@ -778,6 +778,7 @@ if (c.parentId || status === "removed") continue;
 
   html += `
     <div class="border-bottom pb-2 mb-2 d-flex position-relative">
+    
       <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${c.commenteduId}">
       <img src="${c.commenteduPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
            alt="${c.commenteduName}"
@@ -785,12 +786,13 @@ if (c.parentId || status === "removed") continue;
            width="50" height="50" style="object-fit: cover;" />
       <div>
         <strong>${c.commenteduName}:</strong></a>
-         ${c.text}
-        <div class="small">${timeAgo(c.timestamp?.toDate?.())}</div>
-              ${c.commenteduId === viewerUserId
+        <div class="w-100"> ${c.text}             
+         ${c.commenteduId === viewerUserId
         ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1 removeBtn"
                    onclick="removeComment('${id}')">Remove</button>`
-        : ""}
+        : ""}</div>
+        <div class="small">${timeAgo(c.timestamp?.toDate?.())}</div>
+
         <button class="btn btn-sm text-primary p-0 mt-2" onclick="showReplyBox('${id}')">↪️ Reply</button>
         <div id="replyBox-${id}" class="mt-2" style="display: none;">
           <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
