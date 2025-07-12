@@ -2,7 +2,7 @@ import {
   getAuth, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
-  getFirestore, serverTimestamp, addDoc,  doc, getDoc, updateDoc, collection, query, where, getDocs,orderBy, arrayUnion, increment 
+  getFirestore, serverTimestamp, addDoc, limit, doc, getDoc, updateDoc, collection, query, where, getDocs,orderBy, arrayUnion, increment 
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import {
   getStorage, ref, uploadBytes, getDownloadURL
