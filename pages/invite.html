@@ -153,10 +153,12 @@ auth.onAuthStateChanged(async user => {
   refLink = `https://rw-501.github.io/contenthub/pages/signup?ref=${user.uid}`;
   inviteLinkInput.value = refLink;
 
-  await loadInviteStats(user.uid);
-  startCountdownTimer(3);
 
 renderShareArea(refLink, currentUser.displayName || "me");
+startCountdownTimer(3);
+
+  await loadInviteStats(user.uid);
+
   }
 });
 
@@ -170,10 +172,12 @@ async function loadInviteStats(uid) {
   inviteBar.style.width = `${percent}%`;
   inviteBar.textContent = `${Math.round(percent)}%`;
 
+  if(joined > 0){
   const userSnap = await getDoc(doc(db, "users", uid));
   const userData = userSnap.data();
 
   await checkAndAwardTasks(uid, { ...userData, invitesJoined: joined });
+  }
 }
 
 
@@ -207,6 +211,7 @@ async function loadInviteStats(uid) {
     window.open(`https://twitter.com/intent/tweet?text=${msg}`);
   };
 
+  /*
   // SMS form (Twilio Cloud Function endpoint)
   document.getElementById("smsForm").addEventListener("submit", async e => {
     e.preventDefault();
@@ -219,7 +224,7 @@ async function loadInviteStats(uid) {
     const msg = await res.text();
     document.getElementById("smsStatus").textContent = msg || "Invite sent!";
   });
-
+*/
   const phoneInput = document.getElementById("invitePhoneNumber");
 
   phoneInput.addEventListener("input", () => {
