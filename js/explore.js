@@ -350,16 +350,13 @@ card.innerHTML = `
       ${joinButton}
     </div>
 
-    </button>
 <button class="btn btn-sm btn-outline-primary mb-2"
   data-post-id="${postId}"
   data-post-owner="${post.owner}"
   onclick="openComments('${postId}', '${post.owner}')">
   💬 Comments
 </button>
-      💬 Comments
-    </button>
-    </button>
+  
   </div>
 `;
 
