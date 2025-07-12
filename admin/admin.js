@@ -802,6 +802,28 @@ const count =
     monthDiv.appendChild(table);
     calendarWrapper.appendChild(monthDiv);
   }
+function timeAgo(date) {
+  if (!date) return "";
+  const seconds = Math.floor((new Date() - date) / 1000);
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  const intervals = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60,
+    second: 1,
+  };
+
+  for (const [unit, value] of Object.entries(intervals)) {
+    const count = Math.floor(seconds / value);
+    if (count > 0) return rtf.format(-count, unit);
+  }
+
+  return "just now";
+}
 
   // Page Indicator
   const startMonth = new Date(now.getFullYear(), now.getMonth() + calendarStartOffset, 1);
