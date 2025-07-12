@@ -8,7 +8,7 @@ import {
   updateDoc,
   collection,
   query,
-  where,
+  where, addDoc,
   arrayUnion, increment, 
   startAfter, 
   getDocs,
@@ -135,8 +135,7 @@ async function requestToJoin(collabId, ownerId) {
     if (!collabId || !ownerId) return alert("⚠️ Please log in to request to join.");
 
     const requestsRef = collection(db, "collabJoinRequests");
-    const existingSnap = await getDocs(query(
-      requestsRef,
+    const existingSnap = await getDocs(query(requestsRef,
       where("userId", "==", ownerId),
       where("collabId", "==", collabId),
       where("status", "in", ["pending", "approved"])
@@ -168,7 +167,7 @@ const viewerUserPhotoURL = avatar.dataset.photo;
   });
 
   */
- 
+
     // Create the request
     await addDoc(requestsRef, {
       userId: collabId,
