@@ -2462,7 +2462,7 @@ async function loadPublicBadges(userData) {
     console.log("🧩 Matched completed tasks:", completedTasks);
 
     if (completedTasks.length === 0) {
-      badgeList.innerHTML = `<div class="alert alert-info text-center">No badges have been earned yet.</div>`;
+      badgeList.innerHTML = `<div class="w-100 alert alert-info text-center">No badges have been earned yet.</div>`;
       return;
     }
 
@@ -2473,7 +2473,7 @@ async function loadPublicBadges(userData) {
 
   } catch (error) {
     console.error("❌ Failed to load public badges:", error);
-    badgeList.innerHTML = `<div class="alert alert-danger text-center">Error loading badges.</div>`;
+    badgeList.innerHTML = `<div class="w-100 alert alert-danger text-center">Error loading badges.</div>`;
   }
 }
 
