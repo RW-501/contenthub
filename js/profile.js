@@ -2438,10 +2438,8 @@ async function loadPublicBadges(userData) {
 
   try {
 
-    console.log("✅ User data:", userData);
 
     const completed = Array.isArray(userData.rewardsCompleted) ? userData.rewardsCompleted : [];
-    console.log("🏅 Completed reward IDs:", completed);
 
     const completedMap = {};
 
@@ -2452,7 +2450,7 @@ async function loadPublicBadges(userData) {
         if (date) {
           completedMap[task.id] = date;
         }
-        console.log(`📅 Badge for ${task.id}:`, date);
+        //console.log(`📅 Badge for ${task.id}:`, date);
       }
     });
 
@@ -2460,14 +2458,12 @@ async function loadPublicBadges(userData) {
     console.log("🧩 Matched completed tasks:", completedTasks);
 
     if (completedTasks.length === 0) {
-      console.info("ℹ️ No completed tasks matched rewardTasks list");
       badgeList.innerHTML = `<div class="alert alert-info text-center">No badges have been earned yet.</div>`;
       return;
     }
 
     completedTasks.forEach(task => {
       const badgeEl = renderBadgeTile(task, true, completedMap);
-      console.log("🎖️ Rendering badge:", task.reward.badge);
       badgeList.appendChild(badgeEl);
     });
 
