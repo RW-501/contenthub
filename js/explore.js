@@ -8,7 +8,7 @@ import {
   updateDoc,
   collection,
   query,
-  where, addDoc,updateDoc, 
+  where, addDoc, 
   arrayUnion, increment, serverTimestamp, 
   startAfter, 
   getDocs,
