@@ -129,31 +129,37 @@ export async function initLiveNotifications() {
   }
 
   // 🔔 HTML generator
-  function createNotificationHTML(n, ref, id) {
-    const item = document.createElement("div");
-    const timestamp = n.timestamp?.toDate?.() ? new Date(n.timestamp.toDate()).toLocaleString() : "Just now";
+function createNotificationHTML(n, ref, id) {
+  const item = document.createElement("div");
+  const timestamp = n.timestamp?.toDate?.() ? new Date(n.timestamp.toDate()).toLocaleString() : "Just now";
 
-    item.className = `list-group-item d-flex justify-content-between align-items-start ${n.read ? '' : 'fw-bold'}`;
-    item.innerHTML = `
-      <div>
-        <div>
-          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${n.fromUid}" class="text-decoration-none">
-            <img src="${n.fromuserAvatar}" class="avatar mb-2 me-2" style="width:32px;height:32px;border-radius:50%;" />
-          </a>
-        </div>
+  item.className = `position-relative list-group-item d-flex flex-column ${n.read ? '' : 'fw-bold'} p-3`;
+
+  item.innerHTML = `
+    <button class="btn btn-sm btn-link text-danger position-absolute top-0 end-0 me-1 mt-1 p-0" 
+            style="font-size: 1rem;" 
+            title="Dismiss" 
+            onclick="dismissNotif('${ref.path}')">✖</button>
+    
+    <div class="d-flex align-items-center mb-1">
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${n.fromUid}" class="me-2">
+        <img src="${n.fromuserAvatar}" class="avatar" style="width:32px;height:32px;border-radius:50%;" />
+      </a>
+      <div class="flex-grow-1">
         <div>${n.message}</div>
         <small class="text-muted">${timestamp}</small>
       </div>
-      <button class="btn btn-sm btn-link text-danger" title="Dismiss" onclick="dismissNotif('${ref.path}')">✖</button>
-    `;
+    </div>
+  `;
 
-    item.onclick = async () => {
-      await updateDoc(ref, { read: true });
-      item.classList.remove("fw-bold");
-    };
+  item.onclick = async () => {
+    await updateDoc(ref, { read: true });
+    item.classList.remove("fw-bold");
+  };
 
-    return item;
-  }
+  return item;
+}
+
 
   // ❌ Dismiss handler
   window.dismissNotif = async (refPath) => {
