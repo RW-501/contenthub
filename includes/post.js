@@ -11,7 +11,7 @@ import {
   getDoc,
   getDocs, updateDoc,
   query,
-  where
+  where, increment 
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import {
   getStorage,
