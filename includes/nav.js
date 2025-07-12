@@ -239,7 +239,8 @@ const badgeIcons = {
   viewsGiven: "🔍",
   viewsReceived: "👁️",
   reaction: "⭐",
-  special: "🌟"
+  special: "🌟",
+  commentMade: "💬"
 };
 
 

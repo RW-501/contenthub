@@ -550,7 +550,37 @@ export const rewardTasks = [
   condition: { "receivedReactions.like": 50 },
   reward: { badge: "Liked By Many Lv.3", points: 150 }
 }
-
+,
+  {
+    id: "commentMade-1",
+    type: "commentMade",
+    condition: { commentMade: 1 },
+    reward: { badge: "First Comment", points: 10 }
+  },
+  {
+    id: "commentMade-5",
+    type: "commentMade",
+    condition: { commentMade: 5 },
+    reward: { badge: "Talkative", points: 25 }
+  },
+  {
+    id: "commentMade-10",
+    type: "commentMade",
+    condition: { commentMade: 10 },
+    reward: { badge: "Contributor", points: 50 }
+  },
+  {
+    id: "commentMade-25",
+    type: "commentMade",
+    condition: { commentMade: 25 },
+    reward: { badge: "Engaged Voice", points: 100 }
+  },
+  {
+    id: "commentMade-50",
+    type: "commentMade",
+    condition: { commentMade: 50 },
+    reward: { badge: "Community Leader", points: 200 }
+  }
 
 
 
@@ -662,7 +692,9 @@ export async function checkAndAwardTasks(uid, userData) {
           levels: [
             ...new Set([
               ...(userData.badges?.[task.type]?.levels || []),
-              parseInt(task.condition[Object.keys(task.condition)[0]])
+                  task.id  // or a unique string like "10-posts_5-comments"
+
+              //parseInt(task.condition[Object.keys(task.condition)[0]])
             ])
           ],
           lastEarned: serverTimestamp()

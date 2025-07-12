@@ -1248,8 +1248,7 @@ async function checkNameChangeEligibility(userData) {
 
   function openSupportTicket(type) {
     // placeholder logic for now
-    alert(`Ticket for "${type.replace('_', ' ')}" submitted. We'll review your request.`);
-    // You'd actually write this to a Firestore collection like `tickets`
+window.location("https://rw-501.github.io/contenthub/pages/support.html");    // You'd actually write this to a Firestore collection like `tickets`
   }
 
 window.openSupportTicket = openSupportTicket;
