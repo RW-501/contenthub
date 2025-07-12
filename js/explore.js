@@ -740,57 +740,77 @@ comments.forEach(c => {
 let html = "";
 for (const id in commentMap) {
   const c = commentMap[id];
-  if (c.parentId) continue; // skip replies, handled below
+  if (c.parentId || c.status !== "active") continue;
 
-html += `
-  <div class="border-bottom pb-2 mb-2 d-flex">
-    <img src="${c.commenteduPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" 
-         alt="${c.commenteduName}" 
-         class="rounded-circle me-2 flex-shrink-0" 
-         width="50" height="50" 
-         style="object-fit: cover;" />
-    <div>
-      <strong>${c.commenteduName}:</strong> ${c.text}
-      <div class="small text-muted">${timeAgo(c.timestamp?.toDate?.())}</div>
-      <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
-      <div id="replyBox-${id}" class="mt-2" style="display: none;">
-        <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
-        <button class="btn btn-sm btn-secondary mt-1" onclick="addReply('${id}','${c.commenteduId}','${currentPostId}')">Reply</button>
-      </div>
-    </div>
-  </div>
-`;
-
-if (c.replies?.length) {
-  html += `<div class="ms-4 mt-2">`;
-  for (const reply of c.replies) {
-    html += `
-      <div class="border-start ps-2 mb-2 d-flex">
-        <img src="${reply.replyerUserPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
-             alt="${reply.replyerUname}"
-             class="rounded-circle me-2 flex-shrink-0"
-             width="40" height="40"
-             style="object-fit: cover;" />
-        <div>
-          <strong>${reply.replyerUname}:</strong> ${reply.text}
-          <div class="small text-muted">${timeAgo(reply.timestamp?.toDate?.())}</div>
+  html += `
+    <div class="border-bottom pb-2 mb-2 d-flex position-relative">
+      <img src="${c.commenteduPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
+           alt="${c.commenteduName}"
+           class="rounded-circle me-2 flex-shrink-0"
+           width="50" height="50" style="object-fit: cover;" />
+      <div>
+        <strong>${c.commenteduName}:</strong> ${c.text}
+        <div class="small text-muted">${timeAgo(c.timestamp?.toDate?.())}</div>
+        <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
+        <div id="replyBox-${id}" class="mt-2" style="display: none;">
+          <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
+          <button class="btn btn-sm btn-secondary mt-1" onclick="addReply('${id}','${c.commenteduId}','${currentPostId}')">Reply</button>
         </div>
       </div>
-    `;
-  }
-  html += `</div>`;
+      ${c.commenteduId === viewerUserId
+        ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1"
+                   onclick="removeComment('${id}')">Remove</button>`
+        : ""}
+    </div>
+  `;
+
+  if (c.replies?.length) {
+    html += `<div class="ms-4 mt-2">`;
+    for (const reply of c.replies) {
+      if (reply.status !== "active") continue;
+      html += `
+        <div class="border-start ps-2 mb-2 d-flex position-relative">
+          <img src="${reply.replyerUserPhoto || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
+               alt="${reply.replyerUname}"
+               class="rounded-circle me-2 flex-shrink-0"
+               width="40" height="40"
+               style="object-fit: cover;" />
+          <div>
+            <strong>${reply.replyerUname}:</strong> ${reply.text}
+            <div class="small text-muted">${timeAgo(reply.timestamp?.toDate?.())}</div>
+          </div>
+          ${reply.replyerUid === viewerUserId
+            ? `<button class="btn btn-sm btn-danger position-absolute end-0 bottom-0 me-2 mb-1"
+                       onclick="removeComment('${reply.id}')">Remove</button>`
+            : ""}
+        </div>
+      `;
+    }
+   html += `</div>`; // close comment div
 }
 
-
-
-  html += `</div>`; // close comment div
 }
 
+  
 
   document.getElementById("commentsList").innerHTML = html || "<p>No comments yet.</p>";
 }
 window.openComments = openComments;
 
+async function removeComment(commentId) {
+  if (!commentId || !currentPostId) return;
+
+  try {
+    await updateDoc(doc(db, "posts", currentPostId, "comments", commentId), {
+      status: "removed"
+    });
+    openComments(currentPostId); // Refresh UI
+  } catch (err) {
+    console.error("Failed to remove comment:", err);
+    alert("Failed to remove the comment. Please try again.");
+  }
+}
+window.removeComment = removeComment;
 
 async function addComments() {
     if (!currentUser) {

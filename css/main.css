@@ -41,7 +41,7 @@ body {
 @keyframes fadeInFromWhite {
   0% {
     opacity: 0;
-    background-color: white;
+    background-color: rgb(0, 0, 0);
   }
   100% {
     opacity: 1;
