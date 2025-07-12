@@ -243,10 +243,25 @@ function filterCreators() {
   const tagsByType = activeFilterTags.reduce((acc, f) => {
     acc[f.type] = acc[f.type] || [];
     acc[f.type].push(f.value.toLowerCase().trim());
+    console.log("tagsByType:", tagsByType);
+
     return acc;
   }, {});
 
   let visibleCount = 0;
+const stateAbbrMap = {
+  "alabama": "al", "alaska": "ak", "arizona": "az", "arkansas": "ar", "california": "ca",
+  "colorado": "co", "connecticut": "ct", "delaware": "de", "florida": "fl", "georgia": "ga",
+  "hawaii": "hi", "idaho": "id", "illinois": "il", "indiana": "in", "iowa": "ia", "kansas": "ks",
+  "kentucky": "ky", "louisiana": "la", "maine": "me", "maryland": "md", "massachusetts": "ma",
+  "michigan": "mi", "minnesota": "mn", "mississippi": "ms", "missouri": "mo", "montana": "mt",
+  "nebraska": "ne", "nevada": "nv", "new hampshire": "nh", "new jersey": "nj", "new mexico": "nm",
+  "new york": "ny", "north carolina": "nc", "north dakota": "nd", "ohio": "oh", "oklahoma": "ok",
+  "oregon": "or", "pennsylvania": "pa", "rhode island": "ri", "south carolina": "sc",
+  "south dakota": "sd", "tennessee": "tn", "texas": "tx", "utah": "ut", "vermont": "vt",
+  "virginia": "va", "washington": "wa", "west virginia": "wv", "wisconsin": "wi", "wyoming": "wy"
+};
+
 
   document.querySelectorAll("#creatorsGrid > div").forEach(card => {
     const name = (card.dataset.name || "").toLowerCase();
@@ -260,11 +275,17 @@ const contentList = rawContent.split(",").map(c => c.trim().toLowerCase());
 console.log("Niches:", rawNiches, "→", nicheList);
 console.log("Content Types:", rawContent, "→", contentList);
 
+const filterVal = locationFilter.value.toLowerCase();
+const filterAbbr = stateAbbrMap[filterVal] || filterVal;
 
     const matchesSearch = name.includes(search);
     const matchesNiche = !tagsByType.niche || tagsByType.niche.some(tag => nicheList.includes(tag));
     const matchesContent = !tagsByType.content || tagsByType.content.some(tag => contentList.includes(tag));
-    const matchesLocation = !locationFilter.value || location === locationFilter.value.toLowerCase();
+
+    const matchesLocation =
+  !filterVal ||
+  location === filterVal ||           // match full state name
+  location === filterAbbr;            // match abbreviation
 
     const visible = matchesSearch && matchesNiche && matchesContent && matchesLocation;
 
