@@ -2478,6 +2478,19 @@ async function loadPublicBadges(userData) {
 }
 
 
+const badgeIcons = { 
+  post: "📝",
+  feedback: "💬",
+  referral: "🔗",
+  collab: "🤝",
+  dailyLogin: "📅",
+  profile: "👤",
+  viewsGiven: "🔍",
+  viewsReceived: "👁️",
+  reaction: "⭐",
+  special: "🌟"
+};
+
  function renderBadgeTile(task, isDone, completedMap = {}) {
   const icon = isDone ? "🏅" : "🔓";
   const badgeType = `badge-type-${task.type}`;
