@@ -75,7 +75,16 @@
 
   <div id="formStatus" class="alert mt-3 d-none"></div>
 </div>
-
+      <div class="mt-10  justify-center gap-4 text-center">
+      <a href="https://rw-501.github.io/contenthub/pages/support.html" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow">Visit Support</a>
+      <a href="https://rw-501.github.io/contenthub/pages/feedback.html" class="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl shadow">Give Feedback</a>
+      <a href="https://rw-501.github.io/contenthub/pages/contact-us.html" class="px-5 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-xl shadow">Contact Us</a>
+    </div>
+    
+      <!-- CTA Back Link -->
+      <div class="text-center pt-2">
+        <a href="https://rw-501.github.io/contenthub/pages/creators.html" class="text-sm text-blue-600 hover:underline">← Back to Creators</a>
+      </div>
   </main>
 
 <!-- Add this at the bottom of <body> -->
@@ -109,7 +118,7 @@ form.addEventListener("submit", async (e) => {
     return showStatus("Please fill out all required fields.", "danger");
   }
 
-  if (!isValidEmail(email)) {
+  if (email && !isValidEmail(email)) {
     return showStatus("Please enter a valid email address.", "danger");
   }
 
