@@ -156,7 +156,7 @@
 </select>
 
 
-<select id="platformFilter" class="form-select">
+<select hidden id="platformFilter" class="form-select">
   <option value="">All Platforms</option>
   <option value="instagram">Instagram</option>
   <option value="tiktok">TikTok</option>
@@ -275,8 +275,9 @@ function filterCreators() {
     const rawPlatforms = decodeHTML(card.dataset.platform || "");
     const location = (card.dataset.location || "").toLowerCase();
 
-    const nicheList = rawNiches.split(",").map(n => n.trim().toLowerCase());
-    const contentList = rawContent.split(",").map(c => c.trim().toLowerCase());
+const nicheList = rawNiches.split(",").map(n => n.trim().toLowerCase());
+const contentList = rawContent.split(",").map(c => c.trim().toLowerCase());
+
     const platformList = rawPlatforms.split(",").map(p => p.trim().toLowerCase());
 
     const filterVal = locationFilter.value.toLowerCase();
@@ -284,7 +285,9 @@ function filterCreators() {
 
     const matchesSearch = name.includes(search);
     const matchesNiche = !tagsByType.niche || tagsByType.niche.some(tag => nicheList.includes(tag));
-    const matchesContent = !tagsByType.content || tagsByType.content.some(tag => contentList.includes(tag));
+const matchesContent = !tagsByType.content || tagsByType.content.some(tag =>
+  contentList.includes(decodeHTML(tag))
+);
     const matchesPlatform = !tagsByType.platform || tagsByType.platform.some(tag => platformList.includes(tag));
     const matchesLocation = !filterVal || location === filterVal || location === filterAbbr;
 
@@ -481,7 +484,7 @@ function renderCreators(data) {
   });
 
   document.querySelectorAll(".content-type-badge").forEach(badge => {
-    badge.addEventListener("click", () => addFilterTag("content", badge.dataset.content));
+    badge.addEventListener("click", () => addFilterTag("content", decodeHTML(badge.dataset.content)));
   });
 }
 
