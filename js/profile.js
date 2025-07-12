@@ -698,7 +698,6 @@ async function reactToPost(postId, type, ownerId, caption) {
     [`receivedReactions.${type}`]: increment(1)
   });
 
-  const viewer = getViewerData();
   const emojiMap = {
     helpful: "🙌",
     interested: "⭐",
@@ -706,12 +705,20 @@ async function reactToPost(postId, type, ownerId, caption) {
   };
   const emoji = emojiMap[type] || "✨";
 
+      const avatar = document.getElementById("userAvatar");
+
+    const viewerUserId = avatar.dataset.uid;
+    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerRole = avatar.dataset.role;
+    const viewerUsername = avatar.dataset.username;
+    const viewerUserPhotoURL = avatar.dataset.photo;
+
   await sendNotification({
     toUid: ownerId,
-    fromUid: viewer.uid,
-    fromDisplayName: viewer.name,
-    fromuserAvatar: viewer.photo,
-    message: `${viewer.username} marked your post as ${type} ${emoji}: "${caption}"`,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: `${viewerUsername} marked your post as ${type} ${emoji}: "${caption}"`,
     type: `${type}Post`
   });
 
