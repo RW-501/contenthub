@@ -294,3 +294,22 @@ await addDoc(collection(db, "posts"), {
 
 // Run the script only after DOM is ready
 //initPostScript();
+
+
+function animateTheElement(el, animation = null, duration = 800) {
+  if (!el) return;
+
+  const animations = [
+    "bounce", "tada", "rubberBand", "pulse", "shakeX",
+    "heartBeat", "jello", "swing", "flip", "zoomIn",
+    "fadeIn", "lightSpeedInRight", "backInUp"
+  ];
+
+  const chosen = animation || animations[Math.floor(Math.random() * animations.length)];
+
+  el.classList.add("animate__animated", `animate__${chosen}`);
+  setTimeout(() => {
+    el.classList.remove("animate__animated", `animate__${chosen}`);
+  }, duration);
+}
+window.animateTheElement = animateTheElement;
