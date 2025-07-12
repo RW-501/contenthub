@@ -2501,7 +2501,7 @@ const badgeIcons = {
     : "";
 
   const div = document.createElement("div");
-  div.className = `col badge-tile ${badgeType} ${earnedClass}`;
+  div.className = `col badge-tile ${badgeType} ${earnedClass} mx-auto`;
   div.setAttribute("data-task-id", task.id);
   div.innerHTML = `
     <div class="badge-icon">${badgeIcons[task.type] || "🎖️"}</div>
