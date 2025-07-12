@@ -2294,48 +2294,61 @@ function renderTaggedUsers(taggedUserIds) {
 }
 
 
-
-
 async function loadPublicBadges(userId) {
   const badgeList = document.getElementById("badgeList");
-  if (!badgeList) return;
+  if (!badgeList) {
+    console.warn("❌ badgeList element not found");
+    return;
+  }
 
   badgeList.innerHTML = "";
 
   try {
+    console.log("🔍 Fetching user data for:", userId);
     const userSnap = await getDoc(doc(db, "users", userId));
+
     if (!userSnap.exists()) {
+      console.warn("📭 User not found in Firestore");
       badgeList.innerHTML = `<div class="alert alert-info text-center">No badges found for this user.</div>`;
       return;
     }
 
     const userData = userSnap.data();
-const completed = Array.isArray(userData.rewardsCompleted) ? userData.rewardsCompleted : [];
+    console.log("✅ User data:", userData);
+
+    const completed = Array.isArray(userData.rewardsCompleted) ? userData.rewardsCompleted : [];
+    console.log("🏅 Completed reward IDs:", completed);
+
     const completedMap = {};
 
-    // Map completed dates if available
     rewardTasks.forEach(task => {
       if (completed.includes(task.id)) {
-        const date = userData.badges?.[task.type]?.lastEarned?.toDate?.();
-        if (date) completedMap[task.id] = date;
+        const rawDate = userData.badges?.[task.type]?.lastEarned;
+        const date = rawDate?.toDate?.();
+        if (date) {
+          completedMap[task.id] = date;
+        }
+        console.log(`📅 Badge for ${task.id}:`, date);
       }
     });
 
     const completedTasks = rewardTasks.filter(task => completed.includes(task.id));
+    console.log("🧩 Matched completed tasks:", completedTasks);
+
     if (completedTasks.length === 0) {
+      console.info("ℹ️ No completed tasks matched rewardTasks list");
       badgeList.innerHTML = `<div class="alert alert-info text-center">No badges have been earned yet.</div>`;
       return;
     }
 
-    // Render badges
     completedTasks.forEach(task => {
       const badgeEl = renderBadgeTile(task, true, completedMap);
+      console.log("🎖️ Rendering badge:", task.reward.badge);
       badgeList.appendChild(badgeEl);
     });
 
   } catch (error) {
-    console.error("Failed to load public badges:", error);
+    console.error("❌ Failed to load public badges:", error);
     badgeList.innerHTML = `<div class="alert alert-danger text-center">Error loading badges.</div>`;
   }
 }
-
