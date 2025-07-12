@@ -842,7 +842,7 @@ html += `
       <strong>${c.commenteduName}:</strong></a>
        ${c.text}
       <div class="small">${timeAgo(c.timestamp?.toDate?.())}</div>
-      <button class="btn btn-link btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
+      <button class="btn btn-sm text-primary p-0 mt-1" onclick="showReplyBox('${id}')">↪️ Reply</button>
       <div id="replyBox-${id}" class="mt-2" style="display: none;">
         <textarea class="form-control" rows="1" placeholder="Write a reply..." id="replyText-${id}"></textarea>
         <button class="btn btn-sm btn-secondary mt-1" onclick="addReply('${id}','${c.commenteduId}','${currentPostId}')">Reply</button>
