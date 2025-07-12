@@ -901,8 +901,6 @@ async function requestToJoin(collabId, ownerId) {
       return;
     }
 
-    console.log("[requestToJoin] collabId:", collabId);
-    console.log("[requestToJoin] ownerId:", ownerId);
 
     const requestsRef = collection(db, "collabJoinRequests");
 

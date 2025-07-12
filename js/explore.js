@@ -128,6 +128,8 @@ function createCollabCard(data, collabId) {
 
 
 async function requestToJoin(collabId, ownerId) {
+    console.log("[requestToJoin] collabId:", collabId);
+    console.log("[requestToJoin] ownerId:", ownerId);
 
   try {
     if (!collabId || !ownerId) return alert("⚠️ Please log in to request to join.");
@@ -155,7 +157,7 @@ const viewerDisplayName = avatar.dataset.displayname;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
-
+/*
   await sendNotification({
     toUid: ownerId,
     fromUid: viewerUserId,
@@ -164,6 +166,9 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
     type: "collabRequest",
   });
+
+  */
+ 
     // Create the request
     await addDoc(requestsRef, {
       userId: collabId,
@@ -175,9 +180,25 @@ const viewerUserPhotoURL = avatar.dataset.photo;
       timestamp: serverTimestamp()
     });
 
+/*
+    // ✅ Increment collabRequestsSent on user
+    const userRef = doc(db, "users", viewerUsername);
+    await updateDoc(userRef, {
+      collabRequestsSent: increment(1)
+    });
 
-
+    // ✅ Re-check reward task progress
+    const updatedSnap = await getDoc(userRef);
+    const updatedUser = updatedSnap.data();
+    await checkAndAwardTasks(viewerUsername, updatedUser);
+    showModal({
+      title: "Request Sent",
+      message: "Your request to join has been sent.",
+      autoClose: 3000
+    });
+    */
   } catch (error) {
+    console.error("[requestToJoin] Error:", error);
     alert("❌ Failed to send join request. Please try again.");
   }
 }
