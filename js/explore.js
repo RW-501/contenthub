@@ -333,42 +333,45 @@ async function createPostCard(post, postId) {
   });
 }
   card.innerHTML = `
-    ${mediaHTML}
-    <div class="PostCard card-body">
-      <div class="d-flex align-items-center mb-2">
-        <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
-             class="creator-avata rounded-circle me-2"
-             width="40" height="40" />
-        <div>
-          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
-             class="fw-bold text-decoration-none">
-             ${userData.displayName || 'Unknown User'}
-             ${ userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}
-             ${`social-links-${postId}`}
-          </a><br/>
-          ${typeBadge}
-        </div>
+  ${mediaHTML}
+  <div class="PostCard card-body">
+    <div class="d-flex align-items-center mb-2">
+      <img src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
+           class="creator-avata rounded-circle me-2"
+           width="40" height="40" />
+      <div>
+        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
+           class="fw-bold text-decoration-none">
+           ${userData.displayName || 'Unknown User'}
+           ${ userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}
+        </a><br/>
+        ${typeBadge}
+        <div class="mt-1" id="social-links-${postId}"></div>
       </div>
+    </div>
 
-      <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+    <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
 
-      <small class="d-block mb-2">
-        ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes 
-      </small>
+    <small class="d-block mb-2">
+      ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes 
+    </small>
 
-      <div class="d-flex gap-2  mb-2">
-     <button class="btn btn-sm btn-outline-danger btn-like" id="${likeBtnId}">❤️ Like</button>
-<button class="btn btn-sm btn-outline-success btn-helpful" id="${helpfulBtnId}">🙌 Helpful</button>
-<button class="btn btn-sm btn-outline-info btn-interested" id="${interestedBtnId}">⭐ Interested</button>
-   </div>
-      <div class="d-flex gap-2 mb-2">
-        ${joinButton}
-      </div>
-    <button class="btn btn-sm btn-outline-primary  mb-2" data-post-id="${postId}" onclick="openComments('${postId}')">
+    <div class="d-flex gap-2 mb-2">
+      <button class="btn btn-sm btn-outline-danger btn-like" id="${likeBtnId}">❤️ Like</button>
+      <button class="btn btn-sm btn-outline-success btn-helpful" id="${helpfulBtnId}">🙌 Helpful</button>
+      <button class="btn btn-sm btn-outline-info btn-interested" id="${interestedBtnId}">⭐ Interested</button>
+    </div>
+
+    <div class="d-flex gap-2 mb-2">
+      ${joinButton}
+    </div>
+
+    <button class="btn btn-sm btn-outline-primary mb-2" data-post-id="${postId}" onclick="openComments('${postId}')">
       💬 Comments
     </button>
-    </div>
-  `;
+  </div>
+`;
+
 
 const likeBtn = card.querySelector(`#${likeBtnId}`);
 const likeCountEl = card.querySelector(`#${likeCountId}`);
