@@ -225,7 +225,12 @@ function openActionModal(userId) {
     niches = [],
     contentTypes = [],
     links = [],
-    photoURL 
+    photoURL,
+    points,
+    postCount,
+     verified,
+     lastLogin,
+     dailyLogins
   } = userData;
 
 const username = userData.username?.replace("@", "") || "";
@@ -261,6 +266,11 @@ featureBtn.onclick = () => {
 };
 
 
+document.getElementById("userPoints").textContent = points;
+document.getElementById("userPostCount").textContent = postCount;
+document.getElementById("userVerified").textContent = verified ? "✅" : "❌";
+document.getElementById("userLastLogin").textContent = timeAgo(lastLogin?.toDate?.() || new Date());
+document.getElementById("userDailyLogins").textContent = dailyLogins;
 
 
   // Avatar and name
@@ -1209,6 +1219,7 @@ if (eventId) {
     alert(`Ticket ${status}`);
     loadTickets();
   }
+window.updateTicketStatus = updateTicketStatus;
 
   // Load on admin page load
   window.addEventListener("DOMContentLoaded", loadTickets);
