@@ -137,7 +137,7 @@ async function requestToJoin(collabId, ownerId) {
 
     const requestsRef = collection(db, "collabJoinRequests");
     const existingSnap = await getDocs(query(requestsRef,
-      where("userId", "==", ownerId),
+      where("ownerId", "==", ownerId),
       where("collabId", "==", collabId),
       where("status", "in", ["pending", "approved"])
     ));
