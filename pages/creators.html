@@ -465,6 +465,7 @@ function renderCreators(data) {
               class="rounded-circle border ${avatarBorder}"
               style="width: 100px; height: 100px; object-fit: cover;"
               alt="${user.displayName || 'User'}" />
+              <span class="badge bg-warning text-dark" title="Creator Points">⭐ ${user.points || 0}</span>
           </div>
           <div class="card-body text-center">
             <h6 class="card-title mb-0">${user.displayName || 'Unnamed'} ${badge} ${platformIcons}</h6>
