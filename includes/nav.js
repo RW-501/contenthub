@@ -331,7 +331,7 @@ grid.appendChild(section);
 }
 
 
-function renderBadgeTile(task, isDone, completedMap = {}) {
+export function renderBadgeTile(task, isDone, completedMap = {}) {
   const icon = isDone ? "🏅" : "🔓";
   const badgeType = `badge-type-${task.type}`;
   const earnedClass = isDone ? "earned" : "";
