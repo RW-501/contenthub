@@ -579,19 +579,19 @@ function showRewardToast(task, userData = {}, newTotalPoints = 0) {
       const featuredUntil = new Date(now);
       featuredUntil.setDate(featuredUntil.getDate() + 7);
 
-      // 100+ pts = automatic feature (if not already featured)
+      // 200+ pts = automatic feature (if not already featured)
       const notYetFeatured = !userData.featured?.isFeatured;
-      if (newTotalPoints >= 100 && newTotalPoints < 500 && notYetFeatured) {
+      if (newTotalPoints >= 200 && newTotalPoints < 500 && notYetFeatured) {
         showModal({
           title: "🎉 You're Featured!",
-          message: "You've earned over 100 points and have been featured for a week! 🚀",
+          message: "You've earned over 200 points and have been featured for a week! 🚀",
           autoClose: 5000
         });
 
         await updateDoc(userRef, {
           featured: {
             isFeatured: true,
-            reason: "100+ Points Earned",
+            reason: "1000+ Points Earned",
             startDate: Timestamp.fromDate(now),
             featuredUntil: Timestamp.fromDate(featuredUntil),
             rank: 2,
@@ -601,11 +601,11 @@ function showRewardToast(task, userData = {}, newTotalPoints = 0) {
         });
       }
 
-      // 500+ pts = "star"
-      if (newTotalPoints >= 500 && !userData.milestones?.includes("star")) {
+      // 1000+ pts = "star"
+      if (newTotalPoints >= 1000 && !userData.milestones?.includes("star")) {
         showModal({
           title: "🌟 You're a Content Star!",
-          message: "You've earned over 500 points. You're rising fast! 🌠",
+          message: "You've earned over 1000 points. You're rising fast! 🌠",
           autoClose: 6000
         });
         await updateDoc(userRef, {
@@ -613,11 +613,11 @@ function showRewardToast(task, userData = {}, newTotalPoints = 0) {
         });
       }
 
-      // 1000+ pts = "elite"
-      if (newTotalPoints >= 1000 && !userData.milestones?.includes("elite")) {
+      // 2000+ pts = "elite"
+      if (newTotalPoints >= 2000 && !userData.milestones?.includes("elite")) {
         showModal({
           title: "🚀 Elite Creator Unlocked!",
-          message: "1,000+ points! You're one of the top creators on the platform 🔥",
+          message: "2,000+ points! You're one of the top creators on the platform 🔥",
           autoClose: 6000
         });
         await updateDoc(userRef, {
