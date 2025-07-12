@@ -403,7 +403,7 @@ async function logAnalytics() {
     userAgent: navigator.userAgent
   });
 
-  console.log("[Analytics] Logged successfully.");
+//  console.log("[Analytics] Logged successfully.");
 }
 
 setTimeout(() => {

@@ -183,6 +183,10 @@ document.getElementById("nicheText").innerHTML = Array.isArray(userData.niches)
 
 
 document.getElementById("profilePhoto").src = userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png';
+  document.getElementById("userPointsBadge").textContent = `⭐ ${userData.points || 0} pts`;
+
+  // Attach click handler to open rewards modal
+  document.getElementById("userPointsBadge").onclick = () => loadRewardModal();
 
 const socialContainer = document.getElementById("socialLinks");
 socialContainer.innerHTML = "";
