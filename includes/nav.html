@@ -266,9 +266,20 @@ display: block;
 }
 
 
+#main-navbar {
+.attention-link {
+  animation: pulse 1.5s infinite;
+  font-weight: bold;
+  color: #dc3545 !important; /* Bootstrap danger red */
+}
 
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
 
-
+}
 </style>
 
 
@@ -284,6 +295,9 @@ display: block;
 
   <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
     <ul class="navbar-nav mb-2 mb-lg-0" id="navLinks">
+<li class="nav-item">
+<a class="nav-link me-2 attention-link" href="https://rw-501.github.io/contenthub/pages/feedback.html">Leave Feedback!</a>
+</li>
       <li class="nav-item"><a class="nav-link" href="https://rw-501.github.io/contenthub/index.html">Home</a></li>
       <li class="nav-item"><a class="nav-link" href="https://rw-501.github.io/contenthub/pages/explore.html">Explore</a></li>
       <li class="nav-item"><a class="nav-link" href="https://rw-501.github.io/contenthub/pages/profile.html">Profile</a></li>
