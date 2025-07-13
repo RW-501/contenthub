@@ -466,6 +466,13 @@ onAuthStateChanged(auth, user => {
   currentUser = user;
 });
 
+// Profanity Filter List
+const bannedWords = ["badword1", "badword2", "badword3"];
+
+function filterProfanity(text) {
+  const regex = new RegExp(bannedWords.join("|"), "gi");
+  return text.replace(regex, "****");
+}
 
 function toggleUserList() {
   document.getElementById("chatUserList").classList.toggle("d-none");
@@ -477,7 +484,6 @@ function toggleChatSettings() {
 }
 window.toggleChatSettings = toggleChatSettings;
 
-
 // Initialize Chat on Demand
 async function initChat(currentUser) {
   const chatRef = collection(db, "chatRoom");
@@ -487,7 +493,13 @@ async function initChat(currentUser) {
   const chatMessages = document.getElementById("chatMessages");
   const recentUsersEl = document.getElementById("recentUsers");
 
+
+  const currentUserAvatar = document.getElementById("currentUserAvatar");
+  const currentUserName = document.getElementById("currentUserName");
+
   const recentUserIds = new Set();
+  const pinnedMessages = [];
+  const normalMessages = [];
 
   onSnapshot(q, async snapshot => {
     chatMessages.innerHTML = "";
@@ -502,50 +514,76 @@ async function initChat(currentUser) {
       const safeMsg = convertLinks(msg.text);
       const timeAgo = msg.timestamp?.toDate() ? timeSince(msg.timestamp.toDate()) + " ago" : "Just now";
 
-      // Cache profile for avatar & name
       const userDoc = await getDoc(doc(db, "users", msg.uid));
       const userData = userDoc.exists() ? userDoc.data() : {};
       const avatar = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
       const username = userData.username || msg.uid;
       const displayName = userData.displayName || username;
 
-      // Mention logic
+      // Set current user info UI
+      currentUserAvatar.src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+      currentUserName.textContent = userData.displayName || userData.username || "Anonymous";
+
+      const canDelete = isMe || currentUser.role === "admin";
+      const deleteBtn = canDelete ? `<button class="btn btn-sm btn-danger btn-delete ms-1" data-id="${docId}">🗑️</button>` : "";
+      const pinBtn = currentUser.role === "admin" ? `<button class="btn btn-sm btn-warning btn-pin ms-1" data-id="${docId}">📌</button>` : "";
+
       const mentioned = msg.text.includes(`@${currentUser.username}`);
       const notSeen = msg.mentionSeen?.[currentUser.username] === false;
 
       if (mentioned && notSeen) mentionedYou = true;
       recentUserIds.add(msg.uid);
 
-      // Message element
-      const messageEl = document.createElement("div");
-      messageEl.className = `d-flex ${isMe ? "justify-content-end" : "justify-content-start"} my-2`;
+      if (msg.status !== "deleted") {
+        const messageEl = document.createElement("div");
+        messageEl.className = `d-flex ${isMe ? "justify-content-end" : "justify-content-start"} my-2`;
 
-      messageEl.innerHTML = `
-        <div class="d-flex align-items-start">
-          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" target="_blank">
-            <img src="${avatar}" alt="avatar" class="rounded-circle me-2" style="width: 36px; height: 36px;" />
-          </a>
-        </div>
-        <div class="message-content">
-          <span 
-            class="badge ${isMe ? "bg-primary" : "bg-secondary"} message-bubble d-block mb-1" 
-            data-time="${timeAgo}" style="cursor: pointer;">
-            <strong><a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" class="text-white text-decoration-none">${displayName}</a></strong><br/>
-            ${safeMsg}
-          </span>
-          <div class="small d-none text-muted time-info">${timeAgo} <button class="btn btn-sm btn-outline-light btn-like">👍</button></div>
-        </div>
-      `;
+        messageEl.innerHTML = `
+          <div class="d-flex align-items-start">
+            <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" target="_blank">
+              <img src="${avatar}" alt="avatar" class="rounded-circle me-2" style="width: 36px; height: 36px;" />
+            </a>
+          </div>
+          <div class="message-content">
+            <span 
+              class="badge ${isMe ? "bg-primary" : msg.pinned ? "bg-warning text-dark" : "bg-secondary"} message-bubble d-block mb-1" 
+              data-time="${timeAgo}" style="cursor: pointer;">
+              <strong><a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" class="text-white text-decoration-none">${displayName}</a></strong><br/>
+              ${safeMsg}
+            </span>
+            <div class="small d-none text-muted time-info">${timeAgo} 
+              <span class="badge bg-danger">🔥 ${msg.heart || 0}</span>
+              <button class="btn btn-sm btn-outline-light btn-like">❤️</button>
+              ${deleteBtn}${pinBtn}
+            </div>
+          </div>
+        `;
 
-      // Toggle timestamp + loved button
-      const bubble = messageEl.querySelector(".message-bubble");
-      bubble.addEventListener("click", () => {
-        messageEl.querySelector(".time-info").classList.toggle("d-none");
-      });
+        const bubble = messageEl.querySelector(".message-bubble");
+        bubble.addEventListener("click", () => {
+          messageEl.querySelector(".time-info").classList.toggle("d-none");
+        });
 
-      chatMessages.appendChild(messageEl);
+        if (msg.pinned) pinnedMessages.push(messageEl);
+        else normalMessages.push(messageEl);
 
-      // Mark mention as seen
+        const deleteBtnEl = messageEl.querySelector(".btn-delete");
+        if (deleteBtnEl) {
+          deleteBtnEl.addEventListener("click", async () => {
+            if (confirm("Remove this message?")) {
+              await updateDoc(doc(db, "chatRoom", deleteBtnEl.dataset.id), { status: "deleted" });
+            }
+          });
+        }
+
+        const pinBtnEl = messageEl.querySelector(".btn-pin");
+        if (pinBtnEl) {
+          pinBtnEl.addEventListener("click", async () => {
+            await updateDoc(doc(db, "chatRoom", pinBtnEl.dataset.id), { pinned: true });
+          });
+        }
+      }
+
       if (mentioned && notSeen) {
         await updateDoc(doc(db, "chatRoom", docId), {
           [`mentionSeen.${currentUser.username}`]: true
@@ -553,14 +591,11 @@ async function initChat(currentUser) {
       }
     }
 
-    // Show user mentions
-    if (mentionedYou) {
-      openChatBtn.classList.add("blink");
-    } else {
-      openChatBtn.classList.remove("blink");
-    }
+    if (mentionedYou) openChatBtn.classList.add("blink");
+    else openChatBtn.classList.remove("blink");
 
-    // Populate user list
+    [...pinnedMessages, ...normalMessages].forEach(el => chatMessages.appendChild(el));
+
     recentUsersEl.innerHTML = "";
     for (const uid of recentUserIds) {
       if (uid === currentUser.uid) continue;
@@ -580,12 +615,13 @@ async function initChat(currentUser) {
   });
 }
 
-
 // Send Message
 document.getElementById("sendBtn").addEventListener("click", async () => {
   const input = document.getElementById("chatInput");
-  const message = input.value.trim();
+  let message = input.value.trim();
   if (!message) return;
+
+  message = filterProfanity(message);
 
   const mentionedUsernames = Array.from(message.matchAll(/@(\w+)/g)).map(m => m[1]);
 
@@ -593,14 +629,14 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
   mentionedUsernames.forEach(name => {
     mentionSeen[name] = false;
   });
-  mentionSeen[currentUser.username] = true; // sender has seen it
+  mentionSeen[currentUser.username] = true;
 
   await addDoc(collection(db, "chatRoom"), {
     uid: currentUser.uid,
     text: message,
     timestamp: serverTimestamp(),
     mentionSeen,
-    loved: 0,
+    heart: 0,
     pinned: false,
     status: "active"
   });
@@ -608,8 +644,6 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
   input.value = "";
 });
 
-
-// Link Converter
 function convertLinks(text) {
   return text.replace(
     /(https?:\/\/[^\s]+)/g,
