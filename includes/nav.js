@@ -412,3 +412,76 @@ setTimeout(() => {
 logAnalytics();
   }
 }, 2000);
+
+
+
+
+import { onAuthStateChanged, signInAnonymously, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy } from "firebase/firestore";
+
+let currentUser = null;
+
+// Toggle Chat UI
+function toggleChat() {
+  document.getElementById("chatContainer").classList.toggle("d-none");
+}
+window.toggleChat = toggleChat;
+
+// Handle Open Chat Button
+document.getElementById("openChatBtn").addEventListener("click", () => {
+  if (!currentUser) {
+    new bootstrap.Modal(document.getElementById("authModal")).show();
+  } else {
+    toggleChat();
+    initChat();
+  }
+});
+
+// Monitor Auth State
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+});
+
+// Initialize Chat on Demand
+function initChat() {
+  const chatRef = collection(db, "chatRoom");
+  const q = query(chatRef, orderBy("timestamp", "asc"));
+
+  onSnapshot(q, snapshot => {
+    const chatMessages = document.getElementById("chatMessages");
+    chatMessages.innerHTML = "";
+    snapshot.forEach(doc => {
+      const msg = doc.data();
+      const isMe = msg.uid === currentUser.uid;
+      const safeMsg = convertLinks(msg.text);
+      chatMessages.innerHTML += `
+        <div class="text-${isMe ? 'end' : 'start'} my-1">
+          <span class="badge ${isMe ? 'bg-primary' : 'bg-secondary'}">${safeMsg}</span>
+        </div>`;
+    });
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
+}
+
+// Send Message
+document.getElementById("sendBtn").addEventListener("click", async () => {
+  const input = document.getElementById("chatInput");
+  const message = input.value.trim();
+  if (!message) return;
+
+  await addDoc(collection(db, "chatRoom"), {
+    uid: currentUser.uid,
+    text: message,
+    timestamp: serverTimestamp()
+  });
+
+  input.value = "";
+});
+
+// Link Converter
+function convertLinks(text) {
+  return text.replace(
+    /(https?:\/\/[^\s]+)/g,
+    url => `<a href="${url}" target="_blank" class="text-light text-decoration-underline">${url}</a>`
+  );
+}
