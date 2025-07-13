@@ -123,7 +123,7 @@ function createCollabCard(data, collabId) {
 <button 
   class="btn btn-sm btn-outline-primary mt-2"
   data-post='${JSON.stringify(data)}'
-  onclick="handleRequestToJoin(this)"
+  onclick="requestToJoin(this)"
 >
   Request to Join
 </button>      
@@ -347,7 +347,7 @@ async function createPostCard(post, postId) {
   class="btn btn-sm btn-outline-primary mt-2"
   data-user='${JSON.stringify(userData)}'
   data-post='${JSON.stringify(post)}'
-  onclick="handleRequestToJoin(this)"
+  onclick="requestToJoin(this)"
 >
   Request to Join
 </button>
