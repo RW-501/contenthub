@@ -541,19 +541,22 @@ window.showChatMessages = showChatMessages;
 
 let viewerUserId, viewerUsername, viewerUserPhotoURL, viewerRole;
 
+let chatListenerUnsub = null;
+
 async function initChat() {
-    if (!currentUser) {
-    const authModal = document.getElementById("auth-login");
-    authModal.classList.remove("d-none");
-  } 
-  // Get current user info from dataset only ONCE
+  if (!currentUser) {
+    document.getElementById("auth-login").classList.remove("d-none");
+    return;
+  }
+
+  if (chatListenerUnsub) return; // prevent multiple listeners
+
   const avatar = document.getElementById("userAvatar");
   viewerUserId = avatar.dataset.uid;
   viewerUsername = avatar.dataset.username || avatar.dataset.displayName;
   viewerUserPhotoURL = avatar.dataset.photo || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
   viewerRole = avatar.dataset.role || "user";
 
-  // Set current user photo and name
   document.getElementById("currentUserAvatar").src = viewerUserPhotoURL;
   document.getElementById("currentUserName").textContent = viewerUsername || "Anonymous";
 
@@ -564,13 +567,13 @@ async function initChat() {
   const chatMessages = document.getElementById("chatMessages");
   const recentUsersEl = document.getElementById("recentUsers");
 
-  const recentUserIds = new Set();
-  const pinnedMessages = [];
-  const normalMessages = [];
-
-  onSnapshot(q, async snapshot => {
+  chatListenerUnsub = onSnapshot(q, async snapshot => {
     chatMessages.innerHTML = "";
     recentUsersEl.innerHTML = "";
+
+    const recentUserIds = new Set();
+    const pinnedMessages = [];
+    const normalMessages = [];
     let mentionedYou = false;
 
     for (const docSnap of snapshot.docs) {
@@ -578,19 +581,17 @@ async function initChat() {
       const docId = docSnap.id;
       const isMe = msg.uid === viewerUserId;
 
+      if (msg.status === "deleted") continue;
+
       const mentioned = msg.text.includes(`@${viewerUsername}`);
       const notSeen = msg.mentionSeen?.[viewerUsername] === false;
 
       if (mentioned && notSeen) mentionedYou = true;
-      if (msg.status === "deleted") continue;
 
-      // Cache message sender's profile
       const userDoc = await getDoc(doc(db, "users", msg.uid));
       const userData = userDoc.exists() ? userDoc.data() : {};
       const avatarURL = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
       const displayName = userData.displayName || userData.username || msg.uid;
-
-      recentUserIds.add(msg.uid);
 
       const safeMsg = convertLinks(msg.text);
       const timeAgo = msg.timestamp?.toDate() ? timeSince(msg.timestamp.toDate()) + " ago" : "Just now";
@@ -627,7 +628,12 @@ async function initChat() {
         messageEl.querySelector(".time-info").classList.toggle("d-none");
       });
 
-      // Button logic
+      if (mentioned && notSeen) {
+        await updateDoc(doc(db, "chatRoom", docId), {
+          [`mentionSeen.${viewerUsername}`]: true
+        });
+      }
+
       const deleteBtnEl = messageEl.querySelector(".btn-delete");
       if (deleteBtnEl) {
         deleteBtnEl.addEventListener("click", async () => {
@@ -647,20 +653,14 @@ async function initChat() {
       if (msg.pinned) pinnedMessages.push(messageEl);
       else normalMessages.push(messageEl);
 
-      if (mentioned && notSeen) {
-        await updateDoc(doc(db, "chatRoom", docId), {
-          [`mentionSeen.${viewerUsername}`]: true
-        });
-      }
+      recentUserIds.add(msg.uid);
     }
 
-    // Blink if mentioned
     if (mentionedYou) openChatBtn.classList.add("blink");
     else openChatBtn.classList.remove("blink");
 
     [...pinnedMessages, ...normalMessages].forEach(el => chatMessages.appendChild(el));
 
-    // Build recent users list
     for (const uid of recentUserIds) {
       if (uid === viewerUserId) continue;
       const uDoc = await getDoc(doc(db, "users", uid));
@@ -677,6 +677,7 @@ async function initChat() {
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
+}
 
   document.getElementById("chatInput").addEventListener("keydown", function (event) {
   if (event.key === "Enter" && !event.shiftKey) {
@@ -685,7 +686,7 @@ async function initChat() {
   }
 });
 
-}
+
 
 // Send Message
 document.getElementById("sendBtn").addEventListener("click", async () => {
