@@ -2157,8 +2157,11 @@ document.getElementById("projectHistoryForm").addEventListener("submit", async (
   e.preventDefault();
 
   const currentUser = auth.currentUser;
-  if (!currentUser) return alert("Login required");
-
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   const title = document.getElementById("projectTitle").value.trim();
 
 

@@ -417,6 +417,29 @@ logAnalytics();
 
 
 
+
+
+
+
+function timeSince(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  const units = [
+    { label: "yr", value: 31536000 },
+    { label: "mo", value: 2592000 },
+    { label: "d", value: 86400 },
+    { label: "h", value: 3600 },
+    { label: "m", value: 60 },
+    { label: "s", value: 1 }
+  ];
+  for (const unit of units) {
+    const interval = Math.floor(seconds / unit.value);
+    if (interval >= 1) return `${interval}${unit.label}`;
+  }
+  return "now";
+}
+
+
+
 let currentUser = null;
 
 // Toggle Chat UI
@@ -427,8 +450,11 @@ window.toggleChat = toggleChat;
 
 // Handle Open Chat Button
 document.getElementById("openChatBtn").addEventListener("click", () => {
+  //const currentUser = auth.currentUser;
   if (!currentUser) {
-    new bootstrap.Modal(document.getElementById("authModal")).show();
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
   } else {
     toggleChat();
     initChat();
@@ -440,26 +466,120 @@ onAuthStateChanged(auth, user => {
   currentUser = user;
 });
 
+
+function toggleUserList() {
+  document.getElementById("chatUserList").classList.toggle("d-none");
+}
+window.toggleUserList = toggleUserList;
+
+function toggleChatSettings() {
+  document.getElementById("chatSettings").classList.toggle("d-none");
+}
+window.toggleChatSettings = toggleChatSettings;
+
+
 // Initialize Chat on Demand
-function initChat() {
+async function initChat(currentUser) {
   const chatRef = collection(db, "chatRoom");
   const q = query(chatRef, orderBy("timestamp", "asc"));
 
-  onSnapshot(q, snapshot => {
-    const chatMessages = document.getElementById("chatMessages");
+  const openChatBtn = document.getElementById("openChatBtn");
+  const chatMessages = document.getElementById("chatMessages");
+  const recentUsersEl = document.getElementById("recentUsers");
+
+  const recentUserIds = new Set();
+
+  onSnapshot(q, async snapshot => {
     chatMessages.innerHTML = "";
-    snapshot.forEach(doc => {
-      const msg = doc.data();
+    recentUsersEl.innerHTML = "";
+    let mentionedYou = false;
+
+    for (const docSnap of snapshot.docs) {
+      const msg = docSnap.data();
+      const docId = docSnap.id;
+
       const isMe = msg.uid === currentUser.uid;
       const safeMsg = convertLinks(msg.text);
-      chatMessages.innerHTML += `
-        <div class="text-${isMe ? 'end' : 'start'} my-1">
-          <span class="badge ${isMe ? 'bg-primary' : 'bg-secondary'}">${safeMsg}</span>
-        </div>`;
-    });
+      const timeAgo = msg.timestamp?.toDate() ? timeSince(msg.timestamp.toDate()) + " ago" : "Just now";
+
+      // Cache profile for avatar & name
+      const userDoc = await getDoc(doc(db, "users", msg.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      const avatar = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+      const username = userData.username || msg.uid;
+      const displayName = userData.displayName || username;
+
+      // Mention logic
+      const mentioned = msg.text.includes(`@${currentUser.username}`);
+      const notSeen = msg.mentionSeen?.[currentUser.username] === false;
+
+      if (mentioned && notSeen) mentionedYou = true;
+      recentUserIds.add(msg.uid);
+
+      // Message element
+      const messageEl = document.createElement("div");
+      messageEl.className = `d-flex ${isMe ? "justify-content-end" : "justify-content-start"} my-2`;
+
+      messageEl.innerHTML = `
+        <div class="d-flex align-items-start">
+          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" target="_blank">
+            <img src="${avatar}" alt="avatar" class="rounded-circle me-2" style="width: 36px; height: 36px;" />
+          </a>
+        </div>
+        <div class="message-content">
+          <span 
+            class="badge ${isMe ? "bg-primary" : "bg-secondary"} message-bubble d-block mb-1" 
+            data-time="${timeAgo}" style="cursor: pointer;">
+            <strong><a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" class="text-white text-decoration-none">${displayName}</a></strong><br/>
+            ${safeMsg}
+          </span>
+          <div class="small d-none text-muted time-info">${timeAgo} <button class="btn btn-sm btn-outline-light btn-like">👍</button></div>
+        </div>
+      `;
+
+      // Toggle timestamp + loved button
+      const bubble = messageEl.querySelector(".message-bubble");
+      bubble.addEventListener("click", () => {
+        messageEl.querySelector(".time-info").classList.toggle("d-none");
+      });
+
+      chatMessages.appendChild(messageEl);
+
+      // Mark mention as seen
+      if (mentioned && notSeen) {
+        await updateDoc(doc(db, "chatRoom", docId), {
+          [`mentionSeen.${currentUser.username}`]: true
+        });
+      }
+    }
+
+    // Show user mentions
+    if (mentionedYou) {
+      openChatBtn.classList.add("blink");
+    } else {
+      openChatBtn.classList.remove("blink");
+    }
+
+    // Populate user list
+    recentUsersEl.innerHTML = "";
+    for (const uid of recentUserIds) {
+      if (uid === currentUser.uid) continue;
+      const uDoc = await getDoc(doc(db, "users", uid));
+      if (!uDoc.exists()) continue;
+      const uData = uDoc.data();
+      const photo = uData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+      recentUsersEl.innerHTML += `
+        <li class="d-flex align-items-center mb-2">
+          <img src="${photo}" class="rounded-circle me-2" width="32" height="32" />
+          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${uid}" class="text-decoration-none">${uData.displayName || uid}</a>
+        </li>
+      `;
+    }
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 }
+
 
 // Send Message
 document.getElementById("sendBtn").addEventListener("click", async () => {
@@ -467,14 +587,27 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
   const message = input.value.trim();
   if (!message) return;
 
+  const mentionedUsernames = Array.from(message.matchAll(/@(\w+)/g)).map(m => m[1]);
+
+  const mentionSeen = {};
+  mentionedUsernames.forEach(name => {
+    mentionSeen[name] = false;
+  });
+  mentionSeen[currentUser.username] = true; // sender has seen it
+
   await addDoc(collection(db, "chatRoom"), {
     uid: currentUser.uid,
     text: message,
-    timestamp: serverTimestamp()
+    timestamp: serverTimestamp(),
+    mentionSeen,
+    loved: 0,
+    pinned: false,
+    status: "active"
   });
 
   input.value = "";
 });
+
 
 // Link Converter
 function convertLinks(text) {
