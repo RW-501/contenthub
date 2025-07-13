@@ -762,6 +762,9 @@ display: block;
   border-radius: 4px;
 }
 
+.backBtn {
+    text-align: end;
+}
 
 }
 </style>
@@ -784,14 +787,14 @@ display: block;
 
 <!-- Chat Settings -->
 <div id="chatSettings" class="d-none p-2 small position-relative" style="min-height: 100%;">
-  <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2" onclick="showChatMessages()">🔙</button>
+  <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2 text-muted backBtn" onclick="showChatMessages()">Back</button>
   <strong>Chat Settings</strong>
   <p class="text-muted">More settings coming soon...</p>
 </div>
 
 <!-- User List -->
 <div id="chatUserList" class="d-none p-2 small position-relative" style="min-height: 100%;">
-  <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2" onclick="showChatMessages()">🔙</button>
+  <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2 text-muted backBtn" onclick="showChatMessages()">Back</button>
   <strong>Recent Users</strong>
   <ul id="recentUsers" class="list-unstyled mb-0"></ul>
 </div>
