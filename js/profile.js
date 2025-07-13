@@ -18,9 +18,15 @@ let currentUser, viewingUserId;
 onAuthStateChanged(auth, async user => {
 
   
-  currentUser = user;
+ // currentUser = user;
 
-
+   currentUser = auth.currentUser;
+   
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
   // Check if viewing someone else's profile via URL ?uid=xxxx
   // Extract UID from URL or fallback to current user
 const params = new URLSearchParams(location.search);
@@ -51,7 +57,7 @@ if (currentUser && viewingUserId !== currentUser.uid && userData?.role === "demo
 }
 
 
-if (actingAsUser.uid !== currentUser.uid) {
+if (!currentUser || actingAsUser.uid !== currentUser.uid) {
   document.getElementById("impersonationBanner").classList.remove("d-none");
   currentUser = actingAsUser;
 
