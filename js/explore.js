@@ -332,7 +332,7 @@ async function createPostCard(post, postId) {
   let joinButton = "";
   if (["collab", "help"].includes(post.type)) {
     joinButton = `
-      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${userData}', '${ JSON.stringify(post, null, 2)}')">
+      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${JSON.stringify(userData)}', '${ JSON.stringify(post, null, 2)}')">
         Request to Join
       </button>
     `;
