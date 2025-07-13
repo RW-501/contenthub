@@ -13,10 +13,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 import {
-  updateDoc, doc, getDoc, setDoc
+  updateDoc, doc, getDoc, setDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { app, auth, db  } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+import { sendNotification, NOTIFICATION_TEMPLATES, markAllNotificationsRead, rewardTasks } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 
 export async function ensureUserExists(user) {
@@ -74,6 +75,41 @@ const userData = {
 };
 
 await setDoc(userRef, userData);
+
+
+
+    // 🤝 Auto-send collab request from system
+    const requestsRef = collection(db, "collabRequests");
+
+    const adminData = {
+      fromUid: "0000",
+      fromDisplayName: "Collab Hub Admin",
+      fromPhotoURL: "https://rw-501.github.io/contenthub/images/defaultAvatar.png",  // Update this if needed
+
+      toUid: user.uid,
+      toDisplayName: cleanName,
+      toUserPhoto: user.photoURL || "",
+
+      message: `Collab Hub invited you to your first collaboration.`,
+      title: `Collaboration Invitation`,
+      description: `Welcome to the Creator Collab Hub! This is an invite to get started by exploring your first collab.`,
+
+      status: "pending",
+      timestamp: serverTimestamp()
+    };
+
+    await addDoc(requestsRef, adminData);
+
+    // 🔔 Fire a notification
+await sendNotification({
+  toUid: user.uid,
+  fromUid: "0000",
+  fromDisplayName: "Collab Hub Admin",
+  fromuserAvatar: "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
+  message: `You've been invited to collaborate on the platform. <a href="https://rw-501.github.io/contenthub/pages/collabs/" target="_blank" class="text-info text-decoration-underline">View Collab Dashboard</a>`,
+  type: "collabRequest"
+});
+
 
 
   // Get referral from URL or fallback to localStorage
