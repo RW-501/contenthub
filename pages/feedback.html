@@ -71,8 +71,8 @@
 
         <!-- Optional Contact -->
         <div class="mb-2">
-          <label for="email" class="block text-sm font-medium mb-1">Email (optional)</label>
-          <input type="email" id="email" placeholder="you@example.com"
+          <label for="senderEmail" class="block text-sm font-medium mb-1">Email (optional)</label>
+          <input type="email" id="senderEmail" placeholder="you@example.com"
             class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
         </div>
 
@@ -135,7 +135,7 @@ document.getElementById("feedbackForm").addEventListener("submit", async (e) => 
 
   const category = document.getElementById("category").value.trim();
   const text = sanitizeInput(message.value.trim());
-  const emailRaw = document.getElementById("email").value.trim();
+  const emailRaw = document.getElementById("senderEmail").value.trim();
   const email = sanitizeInput(emailRaw);
 
   if (!category || !text) {
@@ -167,7 +167,7 @@ document.getElementById("feedbackForm").addEventListener("submit", async (e) => 
       message: "Thanks for your feedback. We appreciate you!",
       autoClose: 3000
     });
-    
+
 confetti({
   particleCount: 100,
   spread: 70,
