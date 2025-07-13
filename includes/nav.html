@@ -605,8 +605,7 @@ display: block;
 .chat-popup {
   display: flex;
   flex-direction: column;
-  height: 600px;
-  width: 100%;
+
   max-width: 400px;
   background-color: var(--bg-dark);
   color: var(--text-light);
@@ -615,6 +614,14 @@ display: block;
   overflow: hidden;
   border: 1px solid var(--border);
 
+    position: fixed;
+    bottom: 1rem;
+    width: 90%;
+    background: white;
+    z-index: 1050;
+    box-sizing: border-box;
+    position-area: center;
+    height: 100%;
 
 /* Header */
 .chat-header {
