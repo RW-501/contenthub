@@ -375,11 +375,11 @@ function fireworks() {
     origin: { x: Math.random(), y: Math.random() }
   });
 }
-
+/*
 const duration = 2 * 1000;
 const interval = setInterval(fireworks, 250);
 setTimeout(() => clearInterval(interval), duration);
-
+*/
 function showBadgeDetail(task, isDone) {
 
   const detail = document.getElementById("badgeDetailContent");
