@@ -610,7 +610,7 @@ if (status === "removed") continue;
   let joinButton = "";
   if (["collab", "help"].includes(post.type)) {
     joinButton = `
-      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${docSnap.id}', '${post.owner}')">
+      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${docSnap.id}', '${post}')">
         Request to Join
       </button>
     `;
