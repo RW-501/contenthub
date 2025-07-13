@@ -1993,7 +1993,6 @@ async function loadUserReviews(toUserId) {
   const q = query(collection(db, `users/${toUserId}/reviews`), where("approved", "==", true));
   const snap = await getDocs(q);
 
-console.log("user ", toUserId, " reviews ", snap)
 
  const ratingText = document.getElementById("userRatingyText");
   ratingText.innerHTML = ""; // Clear old content
@@ -2002,11 +2001,17 @@ console.log("user ", toUserId, " reviews ", snap)
   
   if (!reviews || !reviews.length) {
     ratingText.innerHTML = `<span class="badge bg-secondary">No ratings yet</span>`;
+        container.innerHTML = `
+      <div class="alert alert-info text-center">
+        No reviews yet. Invite someone you've collaborated with to leave feedback.
+      </div>`;
     return;
   }
 
-  let totalRatingTop = 0;
-  reviews.forEach(r => {
+let totalRatingTop = 0;
+let totalRating = 0;
+
+reviews.forEach(r => {
     totalRatingTop += r.rating || 0;
   });
 
@@ -2016,15 +2021,6 @@ console.log("user ", toUserId, " reviews ", snap)
     <span class="badge bg-warning text-dark">⭐ ${avgRatingTop} (${reviews.length})</span>
   `;
 
-
-  if (snap.empty) {
-    container.innerHTML = `
-      <div class="alert alert-info text-center">
-        No reviews yet. Invite someone you've collaborated with to leave feedback.
-      </div>`;
-    return;
-  }
-  let totalRating = 0;
 
   snap.forEach(doc => {
     const r = doc.data();
