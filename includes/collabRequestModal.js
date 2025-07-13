@@ -95,7 +95,7 @@ console.log("currentDisplayName ", currentDisplayName);
 
   //const fromUid = auth.currentUser;
 
-  if (!user || !toUid || user.uid === toUid);// return;
+  if ( !currentUserData || !toUid || currentUserData.uid === toUid);// return;
 
   const message = sanitizeInput(document.getElementById("collabMessage").value.trim());
   const title = sanitizeInput(document.getElementById("collabTitle").value.trim());
