@@ -1079,9 +1079,15 @@ async function loadUserCollabs(uid) {
 
 async function requestToJoin(collabId, ownerData) {
 
+    const avatar = document.getElementById("userAvatar");
+    if (!avatar) {
+      console.warn("⚠️ Avatar element not found.");
+      return;
+    }
 
-    const currentUser = auth.currentUser;
-  if (!currentUser) {
+    const viewerUserId = avatar.dataset.uid;
+    
+  if (!viewerUserId) {
     const authModal = document.getElementById("auth-login");
     authModal.classList.remove("d-none");
     return;
@@ -1092,8 +1098,6 @@ async function requestToJoin(collabId, ownerData) {
       return;
     }
 
-    const avatar = document.getElementById("userAvatar");
-const viewerUserId = avatar.dataset.uid;
 const viewerDisplayName = avatar.dataset.displayname;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
