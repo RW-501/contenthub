@@ -37,20 +37,20 @@ const collabZoneToggle = document.getElementById("collabZoneToggle");
 let lastVisiblePost = null;
 let loadingMore = false;
 let currentUser = null;
-  let q;
+let q;
  
 
 // Auth check
 onAuthStateChanged(auth, user => {
   if (!user) {
-    const authModal = document.getElementById("auth-login");
-    authModal.classList.remove("d-none");
-    loadSuggestedCreators();
     loadPosts();
+    loadSuggestedCreators();
+
   }  else {
     currentUser = user;
-    loadSuggestedCreators();
     loadPosts();
+    loadSuggestedCreators();
+
   }
 });
 
