@@ -354,6 +354,13 @@ grid.appendChild(section);
   `;
 
   div.addEventListener("click", () => {
+        // Confetti
+    confetti({
+      particleCount: 320,
+      spread: 90,
+      origin: { y: 0.6 }
+    });
+
     showBadgeDetail(task, isDone);
   });
 

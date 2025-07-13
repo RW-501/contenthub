@@ -668,6 +668,9 @@ function showRewardToast(task, userData = {}, newTotalPoints = 0) {
 
 
 export async function checkAndAwardTasks(uid, userData) {
+    if (!uid) {
+    return;
+  }
   const userRef = doc(db, "users", uid);
   const completed = userData.rewardsCompleted || [];
 
