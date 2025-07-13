@@ -1078,12 +1078,12 @@ async function loadUserCollabs(uid) {
 }
 
 async function requestToJoin(collabId, ownerData) {
-
-    const avatar = document.getElementById("userAvatar");
-    if (!avatar) {
-      console.warn("⚠️ Avatar element not found.");
-      return;
-    }
+    const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
 
     const viewerUserId = avatar.dataset.uid;
     
