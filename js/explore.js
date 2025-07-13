@@ -129,7 +129,12 @@ function createCollabCard(data, collabId) {
 
 
 async function requestToJoin(requestId, ownerData) {
-
+    const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
 let toUserId = ownerData.owner || ownerData.owner;
 let toUserName = ownerData.ownerDisplayName || ownerData.ownerName;
 let toPhoto = ownerData.ownerPhotoURL || ownerData.ownerPhoto;
