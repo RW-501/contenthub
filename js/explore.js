@@ -123,6 +123,8 @@ function createCollabCard(data, collabId) {
 <button 
   class="btn btn-sm btn-outline-primary mt-2"
   data-post='${JSON.stringify(data)}'
+  data-user='${JSON.stringify(collabId)}'
+
   onclick="requestToJoin(this)"
 >
   Request to Join
