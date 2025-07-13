@@ -147,7 +147,7 @@ let postInfo = infoData.caption || infoData.title;
 
     const avatar = document.getElementById("userAvatar");
 const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
+const viewerDisplayName = avatar.dataset.displayName;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
@@ -503,7 +503,7 @@ async function reactToPost(postId, type, ownerId, caption) {
   const emoji = emojiMap[type] || "✨";
     const avatar = document.getElementById("userAvatar");
     const viewerUserId = avatar.dataset.uid;
-    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerDisplayName = avatar.dataset.displayName;
     const viewerUsername = avatar.dataset.username;
     const viewerUserPhotoURL = avatar.dataset.photo;
 
@@ -710,7 +710,7 @@ window.followUser = async (uid) => {
       
     const avatar = document.getElementById("userAvatar");
 const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
+const viewerDisplayName = avatar.dataset.displayName;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
@@ -888,7 +888,7 @@ async function addComments() {
 
     const avatar = document.getElementById("userAvatar");
     const viewerUserId = avatar.dataset.uid;
-    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerDisplayName = avatar.dataset.displayName;
     const viewerUsername = avatar.dataset.username;
     const viewerUserPhotoURL = avatar.dataset.photo;
 
@@ -946,7 +946,7 @@ async function addReply(parentCommentId, commenteruId, currentPostId, currentPos
 
   const avatar = document.getElementById("userAvatar");
   const viewerUserId = avatar.dataset.uid;
-  const viewerDisplayName = avatar.dataset.displayname;
+  const viewerDisplayName = avatar.dataset.displayName;
   const viewerUsername = avatar.dataset.username;
   const viewerUserPhotoURL = avatar.dataset.photo;
 

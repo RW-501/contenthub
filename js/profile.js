@@ -21,18 +21,14 @@ onAuthStateChanged(auth, async user => {
   const params = new URLSearchParams(location.search);
   viewingUserId = params.get('uid') || currentUser.uid;
 
-const userRef = doc(db, "users", viewingUserId);
-onSnapshot(userRef, (docSnap) => {
-  if (docSnap.exists()) {
-     userData = docSnap.data();
+const userDoc = await getDoc(doc(db, "users", viewingUserId));
+const userData = userDoc.data();
+
     
 console.log("userData ", userData)
 
 
-  } else {
-    console.warn("❌ User not found.");
-  }
-});
+
 
   let actingAsUser = user;
   let currentUserData;
@@ -56,7 +52,7 @@ console.log("userData ", userData)
     if (!avatar) return console.warn("⚠️ Avatar element not found.");
 
     avatar.dataset.role = userData.role || "";
-    avatar.dataset.displayname = userData.displayName || "";
+    avatar.dataset.displayName = userData.displayName || "";
     avatar.dataset.photo = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
     avatar.dataset.username = userData.username || "";
     avatar.dataset.email = userData.email || "";
@@ -186,7 +182,7 @@ console.log("userData ", userData)
     if (!avatar) return console.warn("⚠️ Avatar element not found.");
 
     const viewerUserId = avatar.dataset.uid;
-    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerDisplayName = avatar.dataset.displayName;
     const viewerRole = avatar.dataset.role;
     const viewerUsername = avatar.dataset.username;
     const viewerUserPhotoURL = avatar.dataset.photo;
@@ -611,7 +607,7 @@ async function reactToPost(postId, type, ownerId, caption) {
       const avatar = document.getElementById("userAvatar");
 
     const viewerUserId = avatar.dataset.uid;
-    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerDisplayName = avatar.dataset.displayName;
     const viewerRole = avatar.dataset.role;
     const viewerUsername = avatar.dataset.username;
     const viewerUserPhotoURL = avatar.dataset.photo;
@@ -793,7 +789,7 @@ async function addComments() {
   if (!text) return;
     const avatar = document.getElementById("userAvatar");
     const viewerUserId = avatar.dataset.uid;
-    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerDisplayName = avatar.dataset.displayName;
     const viewerUsername = avatar.dataset.username;
     const viewerUserPhotoURL = avatar.dataset.photo;
 
@@ -847,7 +843,7 @@ async function addReply(parentCommentId, commenteruId, currentPostId, currentPos
 
   const avatar = document.getElementById("userAvatar");
   const viewerUserId = avatar.dataset.uid;
-  const viewerDisplayName = avatar.dataset.displayname;
+  const viewerDisplayName = avatar.dataset.displayName;
   const viewerUsername = avatar.dataset.username;
   const viewerUserPhotoURL = avatar.dataset.photo;
 
@@ -967,7 +963,7 @@ async function requestToJoin(collabId, ownerData) {
       ownerData
     });
 
-const viewerDisplayName = avatar.dataset.displayname;
+const viewerDisplayName = avatar.dataset.displayName;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
@@ -1277,7 +1273,7 @@ const links = rawLinks.filter(link => link.url !== "");
     
     const avatar = document.getElementById("userAvatar");
 const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
+const viewerDisplayName = avatar.dataset.displayName;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
@@ -1942,7 +1938,7 @@ form.addEventListener("submit", async (e) => {
 
     const avatar = document.getElementById("userAvatar");
 const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
+const viewerDisplayName = avatar.dataset.displayName;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
@@ -2187,7 +2183,7 @@ await addDoc(collection(db, `users/${currentUser.uid}/projectHistory`), {
 });
     const avatar = document.getElementById("userAvatar");
 const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
+const viewerDisplayName = avatar.dataset.displayName;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;

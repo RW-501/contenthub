@@ -59,7 +59,7 @@ if (snap.exists()) {
   // Cache in DOM
   avatar.dataset.uid = user.uid;
   avatar.dataset.role = userData.role || "";
-  avatar.dataset.displayname = userData.displayName || "";
+  avatar.dataset.displayName = userData.displayName || "";
   avatar.dataset.photo = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
   avatar.dataset.username = userData.username || "";
   avatar.dataset.email = user.email || "";

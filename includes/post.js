@@ -140,7 +140,7 @@ export function initPostScript() {
       return;
     }
 
-    const viewerDisplayName = avatar.dataset.displayname || avatar.dataset.username || "creator";
+    const viewerDisplayName = avatar.dataset.displayName || avatar.dataset.username || "creator";
     name = viewerDisplayName.includes("@")
       ? viewerDisplayName.split("@")[0]
       : viewerDisplayName.split(" ")[0];
@@ -276,7 +276,7 @@ publishBtn.addEventListener("click", async () => {
   }
 const avatar = document.getElementById("userAvatar");
 
-const ownerDisplayName = avatar.dataset.displayname || "creator";
+const ownerDisplayName = avatar.dataset.displayName || "creator";
 const ownerPhotoURL = avatar.dataset.photo;
 
 await addDoc(collection(db, "posts"), {

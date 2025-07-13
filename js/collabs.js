@@ -188,7 +188,7 @@ window.respondToRequest = async function(id, status) {
       timestamp: serverTimestamp(),
 
       owner: avatar.dataset.uid,
-      ownerName: avatar.dataset.displayname,
+      ownerName: avatar.dataset.displayName,
       ownerPhoto: avatar.dataset.photo
     };
 

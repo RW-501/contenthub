@@ -292,7 +292,7 @@ export const NOTIFICATION_TEMPLATES = {
 
     const avatar = document.getElementById("userAvatar");
 const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayname;
+const viewerDisplayName = avatar.dataset.;
 const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
