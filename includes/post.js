@@ -274,9 +274,15 @@ publishBtn.addEventListener("click", async () => {
       }
     }
   }
+const avatar = document.getElementById("userAvatar");
+
+const ownerDisplayName = avatar.dataset.displayname || "creator";
+const ownerPhotoURL = avatar.dataset.photo;
 
 await addDoc(collection(db, "posts"), {
   owner: user.uid,
+  ownerDisplayName,
+  ownerPhotoURL,
   caption: captionRaw,
   tags,
   contributors,

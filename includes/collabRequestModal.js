@@ -149,17 +149,33 @@ console.log("currentDisplayName ", currentDisplayName);
     isUploading = false;
   }
 
-  await addDoc(collection(db, "collabRequests"), {
+
+  
+
+  await sendNotification({
+    toUid: toUid,
     fromUid: user.uid,
+    fromDisplayName: currentDisplayName,
+    fromuserAvatar: currentPhotoURL,
+    message: `${currentDisplayName} sent you a request to collaborate.`,
+    type: "collabRequest",
+  });
+
+
+  await addDoc(collection(db, "collabRequests"), {
     toUid,
     toUsername,
     toDisplayName,
+
+    fromUid: user.uid,
     fromDisplayName: currentDisplayName,
     fromPhotoURL: currentPhotoURL,
+
     message,
     title,
     description,
     mediaLink,
+
     status: "pending",
     timestamp: serverTimestamp()
   });

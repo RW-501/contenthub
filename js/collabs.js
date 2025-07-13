@@ -13,36 +13,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db, auth } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
-const tabs = {
-  incoming: document.getElementById("incomingList"),
-  sent: document.getElementById("sentList"),
-  active: document.getElementById("activeList"),
-  archived: document.getElementById("archivedList"),
-
-};
-
 
 onAuthStateChanged(auth, user => {
   if (user) loadDashboard(user.uid);
       loadPendingReviews();
 
 });
-
 async function loadDashboard(uid) {
-  const [requestsSnap, collabsSnap] = await Promise.all([
-    getDocs(query(collection(db, "collabRequests"),
-      where("fromUid", "==", uid)
-    )),
-    getDocs(query(collection(db, "collaborations"),
-      where("participants", "array-contains", uid)
-    ))
-    
+  const [sentSnap, receivedSnap, collabsSnap] = await Promise.all([
+    getDocs(query(collection(db, "collabRequests"), where("fromUid", "==", uid))),
+    getDocs(query(collection(db, "collabRequests"), where("toUid", "==", uid))),
+    getDocs(query(collection(db, "collaborations"), where("participants", "array-contains", uid)))
   ]);
-
-  const receivedSnap = await getDocs(query(collection(db, "collabRequests"), where("toUid", "==", uid)));
-
-  //const requests = [...requestsSnap.docs, ...receivedSnap.docs];
-  //const collaborations = collabsSnap.docs;
 
   const categorized = {
     incoming: [],
@@ -50,116 +32,61 @@ async function loadDashboard(uid) {
     active: [],
     archived: []
   };
-  // New: Query collabJoinRequests for incoming (collabId == uid)
-  const collabJoinIncomingSnap = await getDocs(
-    query(collection(db, "collabJoinRequests"), where("collabId", "==", uid))
-  );
 
-  // New: Query collabJoinRequests for sent (ownerId == uid)
-  const collabJoinSentSnap = await getDocs(
-    query(collection(db, "collabJoinRequests"), where("ownerId", "==", uid))
-  );
+  const allRequests = [...sentSnap.docs, ...receivedSnap.docs];
 
-  // Combine all requests from collabRequests
-  const requests = [...requestsSnap.docs, ...receivedSnap.docs];
-
-  // Combine all requests from collabJoinRequests
-  const collabJoinRequests = [...collabJoinIncomingSnap.docs, ...collabJoinSentSnap.docs];
-
-  // Process collabRequests first
-for (const reqDoc of requests) {
-  const data = reqDoc.data();
-  const isIncoming = data.toUid === uid || data.ownerId === uid;
-
-  // Log info about each request
-  console.log(`Request ID: ${reqDoc.id}`, {
-    toUid: data.toUid,
-    ownerId: data.ownerId,
-    status: data.status,
-    isIncoming,
-  });
-
-  if (isIncoming && data.status === "pending") {
-    categorized.incoming.push(renderRequest(reqDoc.id, data, true));
-  } else if (!isIncoming && data.status === "pending") {
-    categorized.sent.push(renderRequest(reqDoc.id, data, false));
-  } else if (data.status === "declined" || data.status === "accepted") {
-    try {
-      await deleteDoc(doc(db, "collabRequests", reqDoc.id));
-    } catch (error) {
-      console.error(`[Cleanup] Failed to delete request ${reqDoc.id}:`, error);
-    }
-  }
-}
-
-
-  // Process collabJoinRequests next
-  for (const reqDoc of collabJoinRequests) {
+  for (const reqDoc of allRequests) {
     const data = reqDoc.data();
+    const isIncoming = data.toUid === uid;
 
-    const isIncoming = data.collabId === uid;  // incoming if collabId matches uid
-    const isSent = data.ownerId === uid;       // sent if ownerId matches uid
+    console.log("Processing request", {
+      id: reqDoc.id,
+      status: data.status,
+      toUid: data.toUid,
+      fromUid: data.fromUid,
+      isIncoming
+    });
 
-    // Assuming you want to filter by status too
-    if (isIncoming && data.status === "pending") {
-      categorized.incoming.push(renderRequest(reqDoc.id, data, true));
-    } else if (isSent && data.status === "pending") {
-      categorized.sent.push(renderRequest(reqDoc.id, data, false));
-    } else if (data.status === "declined" || data.status === "accepted") {
+    if (data.status === "pending") {
+      if (isIncoming) {
+        categorized.incoming.push(renderRequest(reqDoc.id, data, true));
+      } else {
+        categorized.sent.push(renderRequest(reqDoc.id, data, false));
+      }
+    } else if (["declined", "accepted"].includes(data.status)) {
       try {
-        await deleteDoc(doc(db, "collabJoinRequests", reqDoc.id));
+        await deleteDoc(doc(db, "collabRequests", reqDoc.id));
       } catch (error) {
-        console.error(`[Cleanup] Failed to delete join request ${reqDoc.id}:`, error);
+        console.error(`[Cleanup] Failed to delete request ${reqDoc.id}:`, error);
       }
     }
   }
 
-
-
-  // Then render results in tabs (same as before)
   for (const key in categorized) {
-    if (categorized[key].length === 0) {
-      tabs[key].innerHTML =
-        `<li class="list-group-item text-muted text-center">
+    tabs[key].innerHTML = categorized[key].length === 0
+      ? `<li class="list-group-item text-muted text-center">
           No ${key} items yet.
           <br>
           <a href="https://rw-501.github.io/contenthub/pages/explore.html" class="btn btn-outline-primary btn-sm mt-2">
             🤝 Find creators to collaborate with
           </a>
-        </li>`;
-    } else {
-      tabs[key].innerHTML = categorized[key].join("");
-    }
+        </li>`
+      : categorized[key].join("");
   }
 }
 
-function formatTimestamp(timestamp) {
-  return timestamp?.toDate ? new Date(timestamp.toDate()).toLocaleString() : "";
-}
-
-function renderMediaPreview(mediaLink) {
-  if (!mediaLink) return "";
-  if (mediaLink.match(/\.(jpeg|jpg|png|gif)$/i)) {
-    return `<img src="${mediaLink}" class="img-fluid rounded mt-2" style="max-height: 200px;">`;
-  } else if (mediaLink.match(/\.(mp4|webm)$/i)) {
-    return `<video controls class="w-100 rounded mt-2" style="max-height: 240px;"><source src="${mediaLink}" type="video/mp4"></video>`;
-  } else {
-    return `<a href="${mediaLink}" target="_blank" class="d-block mt-2">View Media</a>`;
-  }
-}
 
 function renderRequest(id, data, incoming) {
-  const name = data.displayName || (incoming ? data.fromUid : data.toUid) || data.userDisplayName;
-  const senderUrl = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${incoming ? data.fromUid : data.toUid  || data.collabId}`
+  const name = incoming ? data.fromDisplayName : data.toDisplayName;
+  const uid = incoming ? data.fromUid : data.toUid;
+  const profileUrl = `https://rw-501.github.io/contenthub/pages/profile.html?uid=${uid}`;
   const dateStr = formatTimestamp(data.timestamp);
   const mediaHTML = renderMediaPreview(data.mediaLink);
 
   const actions = incoming
-    ? `<button class="btn btn-sm btn-success me-1" onclick="respondToRequest('${id}', 'accepted','${data}')">Accept</button>
+    ? `<button class="btn btn-sm btn-success me-1" onclick="respondToRequest('${id}', 'accepted')">Accept</button>
        <button class="btn btn-sm btn-danger" onclick="respondToRequest('${id}', 'declined')">Decline</button>`
-    : data.status === "pending"
-      ? `<span class="badge bg-warning text-dark">Pending</span>`
-      : `<span class="badge bg-danger">Declined</span>`;
+    : `<span class="badge bg-warning text-dark">${data.status}</span>`;
 
   return `
     <div class="list-group-item">
@@ -167,11 +94,11 @@ function renderRequest(id, data, incoming) {
         <div>
           <strong>${data.title || "Untitled Project"}</strong>
           <p class="mb-1">${data.message}</p>
-<small class="text-muted">
-  ${incoming ? "From" : "To"}: 
-  <a href="${senderUrl}" target="_blank" class="text-decoration-none">${name}</a>
-  <br>${dateStr}
-</small>
+          <small class="text-muted">
+            ${incoming ? "From" : "To"}:
+            <a href="${profileUrl}" target="_blank" class="text-decoration-none">${name || uid}</a>
+            <br>${dateStr}
+          </small>
         </div>
         <div class="text-end">
           <button class="btn btn-sm btn-link text-decoration-none" data-bs-toggle="collapse" data-bs-target="#req-details-${id}">View</button>
@@ -181,16 +108,77 @@ function renderRequest(id, data, incoming) {
         <div class="border-top pt-2">
           <p class="mb-1"><strong>Description:</strong> ${data.description || "No description."}</p>
           ${mediaHTML}
-          <div class="text-end">
-          ${actions}
-          
-          </div>
+          <div class="text-end">${actions}</div>
         </div>
       </div>
     </div>`;
 }
 
-function renderCollab(id, data) {
+
+window.respondToRequest = async function(id, status) {
+  const requestRef = doc(db, "collabRequests", id);
+  const snap = await getDoc(requestRef);
+  if (!snap.exists()) return;
+
+  const rawData = snap.data();
+  await updateDoc(requestRef, { status });
+
+  if (status === "accepted") {
+    const { fromUid, toUid, title, description, mediaLink } = rawData;
+
+    if (!fromUid || !toUid) {
+      console.error("Missing fromUid or toUid in request data");
+      return;
+    }
+
+    const avatar = document.getElementById("userAvatar");
+
+    const newCollab = {
+      title: title || "Untitled",
+      description: description || "No description provided.",
+      mediaLink: mediaLink || "",
+      isPublic: false,
+      participants: [fromUid, toUid],
+      tasks: [],
+      pinned: false,
+      progress: 0,
+      totalTasks: 0,
+      status: 'active',
+      isFeatured: false,
+      createdAt: new Date(),
+      timestamp: serverTimestamp(),
+
+      owner: avatar.dataset.uid,
+      ownerName: avatar.dataset.displayname,
+      ownerPhoto: avatar.dataset.photo
+    };
+
+    await addDoc(collection(db, "collaborations"), newCollab);
+  }
+
+  loadDashboard(auth.currentUser.uid);
+};
+
+
+
+
+
+
+
+
+// 🔧 Basic Chat Popup Handler
+window.showChatPopup = function(uid) {
+  // Show a chat modal or drawer for messaging with specific user
+showChatPopup(uid)
+};
+
+  window.openGroupChat = function (collabId) {
+    // Redirect to full page chat
+    window.location.href = `https://rw-501.github.io/contenthub/pages/collabs/view.html?id=${collabId}`;
+
+  };
+
+  function renderCollab(id, data) {
   const dateStr = formatTimestamp(data.timestamp);
   const mediaHTML = renderMediaPreview(data.mediaLink);
   const isPinned = data.pinned;
@@ -252,58 +240,6 @@ function renderCollab(id, data) {
     </div>
   `;
 }
-
-
-
-window.respondToRequest = async function(id, status) {
-  const requestRef = doc(db, "collabRequests", id);
-  const snap = await getDoc(requestRef);
-  if (!snap.exists()) return;
-
-  const rawData = snap.data();
-
-  await updateDoc(requestRef, { status });
-
-  if (status === "accepted" && rawData) {
-    const { fromUid, toUid, title, description, mediaLink } = rawData;
-
-    if (!fromUid || !toUid) {
-      console.error("Missing fromUid or toUid in request data");
-      return;
-    }
-
-    const newCollab = {
-      title: title || "Untitled",
-      description: description || "No description provided.",
-      mediaLink: mediaLink || "",
-      isPublic: false,
-      owner: fromUid,
-      participants: [fromUid, toUid],
-      tasks: [],
-      pinned: false,
-      createdAt: new Date(),
-    timestamp: serverTimestamp()
-
-    };
-
-    await addDoc(collection(db, "collaborations"), newCollab);
-  }
-
-  loadDashboard(auth.currentUser.uid);
-};
-
-
-// 🔧 Basic Chat Popup Handler
-window.showChatPopup = function(uid) {
-  // Show a chat modal or drawer for messaging with specific user
-showChatPopup(uid)
-};
-
-  window.openGroupChat = function (collabId) {
-    // Redirect to full page chat
-    window.location.href = `https://rw-501.github.io/contenthub/pages/collabs/view.html?id=${collabId}`;
-
-  };
 
   // Optional modal chat popup function (only use if popup preferred)
   function showChatPopup(collabId) {

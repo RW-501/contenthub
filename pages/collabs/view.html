@@ -1204,7 +1204,7 @@ async function loadJoinRequests() {
   const countBadge = document.getElementById("joinRequestCount");
 
   const joinSnap = await getDocs(query(
-    collection(db, "collabJoinRequests"),
+    collection(db, "collabRequests"),
     where("status", "==", "pending"),
     where("ownerId", "==", user.uid)
   ));
@@ -1239,25 +1239,41 @@ async function loadJoinRequests() {
         <button class="btn btn-sm btn-outline-danger">Decline</button>
       </div>
     `;
+    const viewerUserId = avatar.dataset.uid;
+    const viewerDisplayName = avatar.dataset.displayname;
+    const viewerRole = avatar.dataset.role;
+    const viewerUsername = avatar.dataset.username;
+    const viewerUserPhotoURL = avatar.dataset.photo;
 
     const [approveBtn, declineBtn] = reqCard.querySelectorAll("button");
 
     approveBtn.onclick = async () => {
-      const newCollab = {
-        title: "Untitled",
-        description: "No description provided.",
-        mediaLink: "",
-        isPublic: false,
-        owner: req.ownerId,
-        participants: [req.ownerId, req.userId],
-        tasks: [],
-        progress: 0,
-        totalTasks: 0,
-        createdAt: serverTimestamp()
-      };
 
+    const newCollab = {
+      title: "Untitled",
+      description: description || "No description provided.",
+      mediaLink: "",
+      isPublic: false,
+      participants: [req.ownerId, req.userId],
+      tasks: [],
+      pinned: false,
+      progress: 0,
+      totalTasks: 0,
+      statas: 'active',
+      isFeatured: false,
+
+      createdAt: new Date(),
+      timestamp: serverTimestamp(),
+
+      owner: viewerUserId,
+      ownerName: viewerDisplayName,
+      ownerPhoto: viewerUserPhotoURL,
+
+    };
+
+ 
       const collabRef = await addDoc(collection(db, "collaborations"), newCollab);
-      await updateDoc(doc(db, "collabJoinRequests", docSnap.id), { status: "approved" });
+      await updateDoc(doc(db, "collabRequests", docSnap.id), { status: "approved" });
 
       await updateDoc(collabRef, {
         notifications: arrayUnion({
@@ -1273,7 +1289,7 @@ async function loadJoinRequests() {
     };
 
     declineBtn.onclick = async () => {
-      await updateDoc(doc(db, "collabJoinRequests", docSnap.id), { status: "declined" });
+      await updateDoc(doc(db, "collabRequests", docSnap.id), { status: "declined" });
       reqCard.remove();
     };
 

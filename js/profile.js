@@ -1064,7 +1064,7 @@ async function loadUserCollabs(uid) {
           </div>
         </div>
         ${isPublic && !alreadyJoined && currentUserId !== uid
-          ? `<button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${id}', '${data.owner}')">Request to Join</button>`
+          ? `<button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${id}', '${data}')">Request to Join</button>`
           : ""
         }
       `;
@@ -1077,7 +1077,9 @@ async function loadUserCollabs(uid) {
   }
 }
 
-async function requestToJoin(collabId, ownerId) {
+async function requestToJoin(collabId, ownerData) {
+
+
     const currentUser = auth.currentUser;
   if (!currentUser) {
     const authModal = document.getElementById("auth-login");
@@ -1085,7 +1087,7 @@ async function requestToJoin(collabId, ownerId) {
     return;
   }
   try {
-    if (!collabId || !ownerId) {
+    if (!collabId || !ownerData.owner) {
       alert("⚠️ Please log in to request to join.");
       return;
     }
@@ -1097,13 +1099,15 @@ const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
 
-    const requestsRef = collection(db, "collabJoinRequests");
+    if (requestId == ownerData.owner) return alert("⚠️ You are the owner of this post");
+
+    const requestsRef = collection(db, "collabRequests");
 
     // Check if request already exists
     const existingSnap = await getDocs(query(
       requestsRef,
-      where("ownerId", "==", viewerUserId),
-      where("collabId", "==", collabId),
+      where("toUid", "==", ownerData.owner),
+      where("fromUid", "==", collabId),
       where("status", "in", ["pending", "approved"])
     ));
 
@@ -1118,7 +1122,7 @@ const viewerUserPhotoURL = avatar.dataset.photo;
 
 
   await sendNotification({
-    toUid: ownerId,
+    toUid: ownerData.owner,
     fromUid: viewerUserId,
     fromDisplayName: viewerDisplayName,
     fromuserAvatar: viewerUserPhotoURL,
@@ -1126,14 +1130,23 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     type: "collabRequest",
   });
     // Create the request
-    await addDoc(requestsRef, {
-      userPhotoUrl: viewerUserPhotoURL,
-      userDisplayName: viewerDisplayName,
-      collabId,
-      ownerId: viewerUserId,
-      status: "pending",
-      timestamp: serverTimestamp()
-    });
+
+await addDoc(requestsRef, {
+  fromUid: viewerUserId,
+  fromDisplayName: viewerDisplayName,
+  fromPhotoURL: viewerUserPhotoURL,  // Make sure this is defined
+
+  toUid: ownerData.owner,
+  toDisplayName: ownerData.ownerName,
+  toUserPhoto: ownerData.ownerPhoto,  // Ensure it's a URL
+
+  message: `${viewerDisplayName} sent you a request to collaborate.`,
+  title: `Collaboration Request`,
+  description: `${viewerDisplayName} requested to join this collaboration. From: ${postInfo?.title || "Unknown Project"}`,
+  
+  status: "pending",
+  timestamp: serverTimestamp()
+});
 
     
     console.log("[requestToJoin] Request successfully submitted");

@@ -120,7 +120,7 @@ function createCollabCard(data, collabId) {
     </div>
     <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
     <div class="d-flex gap-2">
-      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${collabId}', '${data.owner}')">Request to Join</button>
+      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${collabId}', '${data}')">Request to Join</button>
       <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
     </div>
   `;
@@ -128,12 +128,18 @@ function createCollabCard(data, collabId) {
 }
 
 
-async function requestToJoin(collabId, ownerId) {
-    console.log("[requestToJoin] collabId:", collabId);
-    console.log("[requestToJoin] ownerId:", ownerId);
+async function requestToJoin(requestId, ownerData) {
+
+let toUserId = ownerData.owner || ownerData.owner;
+let toUserName = ownerData.ownerDisplayName || ownerData.ownerName;
+let toPhoto = ownerData.ownerPhotoURL || ownerData.ownerPhoto;
+let postInfo = ownerData.caption || ownerData.title;
+
+    console.log("[requestToJoin] requestId:", requestId);
+    console.log("[requestToJoin] ownerData:", ownerData);
 
   try {
-    if (!collabId || !ownerId) return alert("⚠️ Please log in to request to join.");
+    if (!requestId || !postOwnerId) return alert("⚠️ Please log in to request to join.");
 
     const avatar = document.getElementById("userAvatar");
 const viewerUserId = avatar.dataset.uid;
@@ -142,11 +148,12 @@ const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
 
+    if (requestId == postOwnerId) return alert("⚠️ You are the owner of this post");
 
-    const requestsRef = collection(db, "collabJoinRequests");
+    const requestsRef = collection(db, "collabRequests");
     const existingSnap = await getDocs(query(requestsRef,
-      where("ownerId", "==", viewerUserId),
-      where("collabId", "==", collabId),
+      where("toUid", "==", postOwnerId),
+      where("fromUid", "==", requestId),
       where("status", "in", ["pending", "approved"])
     ));
 
@@ -162,11 +169,11 @@ const viewerUserPhotoURL = avatar.dataset.photo;
 
 
   await sendNotification({
-    toUid: ownerId,
+    toUid: toUserId,
     fromUid: viewerUserId,
     fromDisplayName: viewerDisplayName,
     fromuserAvatar: viewerUserPhotoURL,
-    message: NOTIFICATION_TEMPLATES.profileView(viewerDisplayName),
+    message: `${viewerDisplayName} sent you a request to collaborate.`,
     type: "collabRequest",
   });
 
@@ -174,30 +181,29 @@ const viewerUserPhotoURL = avatar.dataset.photo;
      console.log("??????????????????????????");
 
 
-    // Create the request
-    await addDoc(requestsRef, {
-      userPhotoUrl: viewerUserPhotoURL,
-      userDisplayName: viewerDisplayName,
-      collabId,
-      ownerId: viewerUserId,
-      status: "pending",
-      timestamp: serverTimestamp()
-    });
+await addDoc(requestsRef, {
+  fromUid: viewerUserId,
+  fromDisplayName: viewerDisplayName,
+  fromPhotoURL: viewerUserPhotoURL,  // Make sure this is defined
+
+  toUid: toUserId,
+  toDisplayName: toUserName,
+  toUserPhoto: toPhoto,  // Ensure it's a URL
+
+  message: `${viewerDisplayName} sent you a request to collaborate.`,
+  title: `Collaboration Request`,
+  description: `${viewerDisplayName} requested to join this collaboration. From: ${postInfo?.title || "Unknown Project"}`,
+  
+  status: "pending",
+  timestamp: serverTimestamp()
+});
 
 
     // ✅ Increment collabRequestsSent on user
     const userRef = doc(db, "users", viewerUserId);
     await updateDoc(userRef, {
       collabRequestsSent: increment(1)
-    });
-
-    /*
-    // ✅ Re-check reward task progress
-    const updatedSnap = await getDoc(userRef);
-    const updatedUser = updatedSnap.data();
-    await checkAndAwardTasks(viewerUsername, updatedUser);
-*/
-        
+    });  
 
     showModal({
       title: "Request Sent",
@@ -322,7 +328,7 @@ async function createPostCard(post, postId) {
   let joinButton = "";
   if (["collab", "help"].includes(post.type)) {
     joinButton = `
-      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${postId}', '${post.owner}')">
+      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${postId}', '${post}')">
         Request to Join
       </button>
     `;
