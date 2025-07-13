@@ -17,7 +17,6 @@ let currentUser, viewingUserId;
 
 onAuthStateChanged(auth, async user => {
   currentUser = auth.currentUser;
-  if (!currentUser) return document.getElementById("auth-login").classList.remove("d-none");
 
   const params = new URLSearchParams(location.search);
   viewingUserId = params.get('uid') || currentUser.uid;
