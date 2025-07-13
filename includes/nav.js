@@ -8,8 +8,9 @@ import {
 // ✅ Import Firestore functions separately
 import {
   getFirestore,
-  doc, addDoc,
-  getDoc, collection, serverTimestamp 
+  doc,
+  getDoc, 
+   collection, addDoc, onSnapshot, serverTimestamp, query, orderBy 
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // ✅ Import your Firebase app config
@@ -415,9 +416,6 @@ logAnalytics();
 
 
 
-
-import { onAuthStateChanged, signInAnonymously, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy } from "firebase/firestore";
 
 let currentUser = null;
 
