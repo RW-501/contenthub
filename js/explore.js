@@ -120,7 +120,7 @@ function createCollabCard(data, collabId) {
     </div>
     <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
     <div class="d-flex gap-2">
-      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${data}')">Request to Join</button>
+      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${JSON.stringify(data)}')">Request to Join</button>
       <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
     </div>
   `;
@@ -128,7 +128,12 @@ function createCollabCard(data, collabId) {
 }
 
 
-async function requestToJoin(ownerData, infoData) {
+async function requestToJoin(userData, infoData) {
+  const infoData = JSON.parse(infoData);
+  const ownerData = JSON.parse(userData);
+  console.log("User:", infoData, "Post:", ownerData);
+
+
     const currentUser = auth.currentUser;
   if (!currentUser) {
     const authModal = document.getElementById("auth-login");
