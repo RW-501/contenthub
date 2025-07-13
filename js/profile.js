@@ -1,7 +1,7 @@
 import {
   getAuth, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
+import { onSnapshot, 
   getFirestore, serverTimestamp, addDoc, limit, doc, getDoc, updateDoc, collection, query, where, getDocs,orderBy, arrayUnion, increment 
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import {
