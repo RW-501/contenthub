@@ -475,18 +475,32 @@ function filterProfanity(text) {
 }
 
 function toggleUserList() {
-  document.getElementById("chatUserList").classList.toggle("d-none");
-  document.getElementById("chatMessages").classList.toggle("d-none");
-    document.getElementById("chatSettings").classList.add("d-none");
+  const chatUserList = document.getElementById("chatUserList");
+  const chatMessages = document.getElementById("chatMessages");
+  const chatSettings = document.getElementById("chatSettings");
 
+  chatUserList.classList.toggle("d-none");
+  chatMessages.classList.toggle("d-none");
+  chatSettings.classList.add("d-none");
+
+  const isChatVisible = !chatMessages.classList.contains("d-none");
+  console.log("Chat Messages Visible:", isChatVisible);
+  return isChatVisible;
 }
 window.toggleUserList = toggleUserList;
 
 function toggleChatSettings() {
-  document.getElementById("chatSettings").classList.toggle("d-none");
-  document.getElementById("chatMessages").classList.toggle("d-none");
-    document.getElementById("chatUserList").classList.add("d-none");
+  const chatSettings = document.getElementById("chatSettings");
+  const chatMessages = document.getElementById("chatMessages");
+  const chatUserList = document.getElementById("chatUserList");
 
+  chatSettings.classList.toggle("d-none");
+  chatMessages.classList.toggle("d-none");
+  chatUserList.classList.add("d-none");
+
+  const isChatVisible = !chatMessages.classList.contains("d-none");
+  console.log("Chat Messages Visible:", isChatVisible);
+  return isChatVisible;
 }
 window.toggleChatSettings = toggleChatSettings;
 
