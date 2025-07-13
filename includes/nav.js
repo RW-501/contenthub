@@ -476,11 +476,13 @@ function filterProfanity(text) {
 
 function toggleUserList() {
   document.getElementById("chatUserList").classList.toggle("d-none");
+  document.getElementById("chatMessages").classList.toggle("d-none");
 }
 window.toggleUserList = toggleUserList;
 
 function toggleChatSettings() {
   document.getElementById("chatSettings").classList.toggle("d-none");
+  document.getElementById("chatMessages").classList.toggle("d-none");
 }
 window.toggleChatSettings = toggleChatSettings;
 
