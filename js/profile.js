@@ -2004,13 +2004,13 @@ async function loadUserReviews(toUserId) {
   const q = query(collection(db, `users/${toUserId}/reviews`), where("approved", "==", true));
   const snap = await getDocs(q);
 
-
+console.log("user ", toUserId, " reviews ", snap)
  const ratingText = document.getElementById("userRatingyText");
   ratingText.innerHTML = ""; // Clear old content
   const reviews = snap.docs.map(doc => doc.data());
 
   
-  if (!reviews.length) {
+  if (!reviews || !reviews.length) {
     ratingText.innerHTML = `<span class="badge bg-secondary">No ratings yet</span>`;
     return;
   }
