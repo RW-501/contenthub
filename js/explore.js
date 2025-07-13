@@ -120,7 +120,7 @@ function createCollabCard(data, collabId) {
     </div>
     <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
     <div class="d-flex gap-2">
-      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${JSON.stringify(data)}')">Request to Join</button>
+      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${data}')">Request to Join</button>
       <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
     </div>
   `;
@@ -337,7 +337,7 @@ async function createPostCard(post, postId) {
   let joinButton = "";
   if (["collab", "help"].includes(post.type)) {
     joinButton = `
-      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${JSON.stringify(userData)}', '${ JSON.stringify(post, null, 2)}')">
+      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${userData}', '${ JSON.stringify(post, null, 2)}')">
         Request to Join
       </button>
     `;
