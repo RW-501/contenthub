@@ -486,18 +486,19 @@ window.toggleChatSettings = toggleChatSettings;
 
 
 
-    let viewerUserId, viewerUsername, viewerUserPhotoURL, viewerRole;
+let viewerUserId, viewerUsername, viewerUserPhotoURL, viewerRole;
 
-// Initialize Chat on Demand
-async function initChat(currentUser) {
-
-    const avatar = document.getElementById("userAvatar");
+async function initChat() {
+  // Get current user info from dataset only ONCE
+  const avatar = document.getElementById("userAvatar");
   viewerUserId = avatar.dataset.uid;
   viewerUsername = avatar.dataset.username || avatar.dataset.displayName;
-  viewerUserPhotoURL = avatar.dataset.photo;
-  viewerRole = avatar.dataset.role;
+  viewerUserPhotoURL = avatar.dataset.photo || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  viewerRole = avatar.dataset.role || "user";
 
-     
+  // Set current user photo and name
+  document.getElementById("currentUserAvatar").src = viewerUserPhotoURL;
+  document.getElementById("currentUserName").textContent = viewerUsername || "Anonymous";
 
   const chatRef = collection(db, "chatRoom");
   const q = query(chatRef, orderBy("timestamp", "asc"));
@@ -505,10 +506,6 @@ async function initChat(currentUser) {
   const openChatBtn = document.getElementById("openChatBtn");
   const chatMessages = document.getElementById("chatMessages");
   const recentUsersEl = document.getElementById("recentUsers");
-
-
-  const currentUserAvatar = document.getElementById("currentUserAvatar");
-  const currentUserName = document.getElementById("currentUserName");
 
   const recentUserIds = new Set();
   const pinnedMessages = [];
@@ -522,94 +519,91 @@ async function initChat(currentUser) {
     for (const docSnap of snapshot.docs) {
       const msg = docSnap.data();
       const docId = docSnap.id;
+      const isMe = msg.uid === viewerUserId;
 
-      const isMe = msg.uid === currentUser.uid;
+      const mentioned = msg.text.includes(`@${viewerUsername}`);
+      const notSeen = msg.mentionSeen?.[viewerUsername] === false;
+
+      if (mentioned && notSeen) mentionedYou = true;
+      if (msg.status === "deleted") continue;
+
+      // Cache message sender's profile
+      const userDoc = await getDoc(doc(db, "users", msg.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      const avatarURL = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+      const displayName = userData.displayName || userData.username || msg.uid;
+
+      recentUserIds.add(msg.uid);
+
       const safeMsg = convertLinks(msg.text);
       const timeAgo = msg.timestamp?.toDate() ? timeSince(msg.timestamp.toDate()) + " ago" : "Just now";
 
-      const userDoc = await getDoc(doc(db, "users", msg.uid));
-      const userData = userDoc.exists() ? userDoc.data() : {};
-      const avatar = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
-      const username = userData.username || msg.uid;
-      const displayName = userData.displayName || username;
-
-      // Set current user info UI
-      currentUserAvatar.src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
-      currentUserName.textContent = userData.displayName || userData.username || "Anonymous";
-
-      const canDelete = isMe || currentUser.role === "admin";
+      const canDelete = isMe || viewerRole === "admin";
       const deleteBtn = canDelete ? `<button class="btn btn-sm btn-danger btn-delete ms-1" data-id="${docId}">🗑️</button>` : "";
-      const pinBtn = currentUser.role === "admin" ? `<button class="btn btn-sm btn-warning btn-pin ms-1" data-id="${docId}">📌</button>` : "";
+      const pinBtn = viewerRole === "admin" ? `<button class="btn btn-sm btn-warning btn-pin ms-1" data-id="${docId}">📌</button>` : "";
 
-      const mentioned = msg.text.includes(`@${currentUser.username}`);
-      const notSeen = msg.mentionSeen?.[currentUser.username] === false;
+      const messageEl = document.createElement("div");
+      messageEl.className = `d-flex ${isMe ? "justify-content-end" : "justify-content-start"} my-2`;
 
-      if (mentioned && notSeen) mentionedYou = true;
-      recentUserIds.add(msg.uid);
-
-      if (msg.status !== "deleted") {
-        const messageEl = document.createElement("div");
-        messageEl.className = `d-flex ${isMe ? "justify-content-end" : "justify-content-start"} my-2`;
-
-        messageEl.innerHTML = `
-          <div class="d-flex align-items-start">
-            <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" target="_blank">
-              <img src="${avatar}" alt="avatar" class="rounded-circle me-2" style="width: 36px; height: 36px;" />
-            </a>
+      messageEl.innerHTML = `
+        <div class="d-flex align-items-start">
+          <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" target="_blank">
+            <img src="${avatarURL}" alt="avatar" class="rounded-circle me-2" style="width: 36px; height: 36px;" />
+          </a>
+        </div>
+        <div class="message-content">
+          <span 
+            class="badge ${isMe ? "bg-primary" : msg.pinned ? "bg-warning text-dark" : "bg-secondary"} message-bubble d-block mb-1" 
+            data-time="${timeAgo}" style="cursor: pointer;">
+            <strong><a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" class="text-white text-decoration-none">${displayName}</a></strong><br/>
+            ${safeMsg}
+          </span>
+          <div class="small d-none text-muted time-info">${timeAgo} 
+            <span class="badge bg-danger">🔥 ${msg.heart || 0}</span>
+            <button class="btn btn-sm btn-outline-light btn-like">❤️</button>
+            ${deleteBtn}${pinBtn}
           </div>
-          <div class="message-content">
-            <span 
-              class="badge ${isMe ? "bg-primary" : msg.pinned ? "bg-warning text-dark" : "bg-secondary"} message-bubble d-block mb-1" 
-              data-time="${timeAgo}" style="cursor: pointer;">
-              <strong><a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${msg.uid}" class="text-white text-decoration-none">${displayName}</a></strong><br/>
-              ${safeMsg}
-            </span>
-            <div class="small d-none text-muted time-info">${timeAgo} 
-              <span class="badge bg-danger">🔥 ${msg.heart || 0}</span>
-              <button class="btn btn-sm btn-outline-light btn-like">❤️</button>
-              ${deleteBtn}${pinBtn}
-            </div>
-          </div>
-        `;
+        </div>
+      `;
 
-        const bubble = messageEl.querySelector(".message-bubble");
-        bubble.addEventListener("click", () => {
-          messageEl.querySelector(".time-info").classList.toggle("d-none");
+      messageEl.querySelector(".message-bubble").addEventListener("click", () => {
+        messageEl.querySelector(".time-info").classList.toggle("d-none");
+      });
+
+      // Button logic
+      const deleteBtnEl = messageEl.querySelector(".btn-delete");
+      if (deleteBtnEl) {
+        deleteBtnEl.addEventListener("click", async () => {
+          if (confirm("Remove this message?")) {
+            await updateDoc(doc(db, "chatRoom", deleteBtnEl.dataset.id), { status: "deleted" });
+          }
         });
-
-        if (msg.pinned) pinnedMessages.push(messageEl);
-        else normalMessages.push(messageEl);
-
-        const deleteBtnEl = messageEl.querySelector(".btn-delete");
-        if (deleteBtnEl) {
-          deleteBtnEl.addEventListener("click", async () => {
-            if (confirm("Remove this message?")) {
-              await updateDoc(doc(db, "chatRoom", deleteBtnEl.dataset.id), { status: "deleted" });
-            }
-          });
-        }
-
-        const pinBtnEl = messageEl.querySelector(".btn-pin");
-        if (pinBtnEl) {
-          pinBtnEl.addEventListener("click", async () => {
-            await updateDoc(doc(db, "chatRoom", pinBtnEl.dataset.id), { pinned: true });
-          });
-        }
       }
+
+      const pinBtnEl = messageEl.querySelector(".btn-pin");
+      if (pinBtnEl) {
+        pinBtnEl.addEventListener("click", async () => {
+          await updateDoc(doc(db, "chatRoom", pinBtnEl.dataset.id), { pinned: true });
+        });
+      }
+
+      if (msg.pinned) pinnedMessages.push(messageEl);
+      else normalMessages.push(messageEl);
 
       if (mentioned && notSeen) {
         await updateDoc(doc(db, "chatRoom", docId), {
-          [`mentionSeen.${currentUser.username}`]: true
+          [`mentionSeen.${viewerUsername}`]: true
         });
       }
     }
 
+    // Blink if mentioned
     if (mentionedYou) openChatBtn.classList.add("blink");
     else openChatBtn.classList.remove("blink");
 
     [...pinnedMessages, ...normalMessages].forEach(el => chatMessages.appendChild(el));
 
-    recentUsersEl.innerHTML = "";
+    // Build recent users list
     for (const uid of recentUserIds) {
       if (uid === viewerUserId) continue;
       const uDoc = await getDoc(doc(db, "users", uid));
