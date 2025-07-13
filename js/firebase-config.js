@@ -9,6 +9,7 @@ import {
   getDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.module.mjs';
 
 
 const firebaseConfig = {
@@ -60,7 +61,7 @@ function getCurrentUserData() {
 
 window.getCurrentUserData = getCurrentUserData;
 
-export { app, auth, db, getAuth, onAuthStateChanged, signOut };
+export { app, auth, db, getAuth, onAuthStateChanged, confetti, signOut };
 
 function insertBootstrapCSS() {
   if (!document.querySelector('link[href*="bootstrap.min.css"]')) {

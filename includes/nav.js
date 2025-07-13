@@ -14,7 +14,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // ✅ Import your Firebase app config
-import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
+import { confetti, fireworks, app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 import { sendNotification, NOTIFICATION_TEMPLATES, markAllNotificationsRead, rewardTasks } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 // ✅ Init services
@@ -367,6 +367,18 @@ grid.appendChild(section);
   return div; // return the actual DOM node
 }
 
+function fireworks() {
+  confetti({
+    particleCount: 20,
+    startVelocity: 30,
+    spread: 360,
+    origin: { x: Math.random(), y: Math.random() }
+  });
+}
+
+const duration = 2 * 1000;
+const interval = setInterval(fireworks, 250);
+setTimeout(() => clearInterval(interval), duration);
 
 function showBadgeDetail(task, isDone) {
 

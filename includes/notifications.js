@@ -1,6 +1,6 @@
 // notifications.js (Global Notification System)
 
-import { db, auth } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+import { db, auth, confetti } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 import {
   collection,
   query,
@@ -17,7 +17,6 @@ import {
   limit, Timestamp, 
   startAfter
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.module.mjs';
 
 //confetti();
 
