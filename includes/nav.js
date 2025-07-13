@@ -484,8 +484,21 @@ function toggleChatSettings() {
 }
 window.toggleChatSettings = toggleChatSettings;
 
+
+
+    let viewerUserId, viewerUsername, viewerUserPhotoURL, viewerRole;
+
 // Initialize Chat on Demand
 async function initChat(currentUser) {
+
+    const avatar = document.getElementById("userAvatar");
+  viewerUserId = avatar.dataset.uid;
+  viewerUsername = avatar.dataset.username || avatar.dataset.displayName;
+  viewerUserPhotoURL = avatar.dataset.photo;
+  viewerRole = avatar.dataset.role;
+
+     
+
   const chatRef = collection(db, "chatRoom");
   const q = query(chatRef, orderBy("timestamp", "asc"));
 
@@ -598,7 +611,7 @@ async function initChat(currentUser) {
 
     recentUsersEl.innerHTML = "";
     for (const uid of recentUserIds) {
-      if (uid === currentUser.uid) continue;
+      if (uid === viewerUserId) continue;
       const uDoc = await getDoc(doc(db, "users", uid));
       if (!uDoc.exists()) continue;
       const uData = uDoc.data();
@@ -629,10 +642,14 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
   mentionedUsernames.forEach(name => {
     mentionSeen[name] = false;
   });
-  mentionSeen[currentUser.username] = true;
+  mentionSeen[viewerUsername] = true;
 
   await addDoc(collection(db, "chatRoom"), {
-    uid: currentUser.uid,
+    uid: viewerUserId,
+    uPhoto: viewerUserPhotoURL,
+    uName: viewerDisplayName || viewerUsername,
+    uRole: viewerRole,
+
     text: message,
     timestamp: serverTimestamp(),
     mentionSeen,
