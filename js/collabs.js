@@ -41,6 +41,18 @@ const tabs = {
 
   const allRequests = [...sentSnap.docs, ...receivedSnap.docs];
 
+  
+for (const docSnap of collabsSnap.docs) {
+  const collab = docSnap.data();
+  const id = docSnap.id;
+
+  if (collab.status === "archived") {
+    categorized.archived.push(renderCollab(id, collab));
+  } else {
+    categorized.active.push(renderCollab(id, collab));
+  }
+}
+
   for (const reqDoc of allRequests) {
     const data = reqDoc.data();
     const isIncoming = data.toUid === uid;
