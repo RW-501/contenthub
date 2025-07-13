@@ -13,7 +13,7 @@ import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks, markAllNo
 const storage = getStorage(app);
 
 // Profile View Logic
-let currentUser, viewingUserId;
+let currentUser, viewingUserId, userData;
 
 onAuthStateChanged(auth, async user => {
   currentUser = auth.currentUser;
@@ -21,8 +21,17 @@ onAuthStateChanged(auth, async user => {
   const params = new URLSearchParams(location.search);
   viewingUserId = params.get('uid') || currentUser.uid;
 
-  const userDoc = await getDoc(doc(db, "users", viewingUserId));
-  const userData = userDoc.data();
+const userRef = doc(db, "users", viewingUserId);
+onSnapshot(userRef, (docSnap) => {
+  if (docSnap.exists()) {
+     userData = docSnap.data();
+    
+
+
+  } else {
+    console.warn("❌ User not found.");
+  }
+});
 
   let actingAsUser = user;
   let currentUserData;
