@@ -949,6 +949,23 @@ async function loadUserCollabs(uid) {
   }
 }
 
+
+
+document.getElementById("collabBtn").addEventListener("click", async (e) => {
+  e.preventDefault(); // Stop default behavior
+
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    document.getElementById("auth-login")?.classList.remove("d-none");
+    return;
+  }
+
+  // Open modal manually if logged in
+  const collabModal = new bootstrap.Modal(document.getElementById("collabRequestModal"));
+  collabModal.show();
+});
+
+
 async function requestToJoin(btn) {
   const ownerData = JSON.parse(btn.dataset.user);
   const collabId = JSON.parse(btn.dataset.post);
