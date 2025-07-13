@@ -110,7 +110,7 @@ onAuthStateChanged(auth, async user => {
   });
 
   // Profile Actions
-  const isOwnerView = !viewingUserId || viewingUserId === actingAsUser.uid;
+  const isOwnerView = actingAsUser ||  !viewingUserId || viewingUserId === actingAsUser.uid;
   const collabBtn = document.getElementById("collabBtn");
   const editProfileBtn = document.getElementById("editProfileBtn");
   const analyticsBtn = document.getElementById("analyticsBtn");
