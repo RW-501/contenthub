@@ -581,7 +581,7 @@ async function initChat() {
           <div class="small d-none text-muted time-info">${timeAgo} 
             <button class="btn btn-sm btn-outline-light btn-like">
             <span class="badge bg-danger">🔥 ${msg.heart || 0}</span></button>
-            ${deleteBtn}${pinBtn}
+            ${deleteBtn} ${pinBtn}
           </div>
         </div>
       `;
