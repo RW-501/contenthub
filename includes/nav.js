@@ -510,13 +510,11 @@ function toggleUserList() {
   const chatMessages = document.getElementById("chatMessages");
   const chatSettings = document.getElementById("chatSettings");
 
-  chatUserList.classList.toggle("d-none");
-  chatMessages.classList.toggle("d-none");
+  chatUserList.classList.remove("d-none");
+  chatMessages.classList.add("d-none");
   chatSettings.classList.add("d-none");
 
-  const isChatVisible = !chatMessages.classList.contains("d-none");
-  console.log("Chat Messages Visible:", isChatVisible);
-  return isChatVisible;
+ 
 }
 window.toggleUserList = toggleUserList;
 
@@ -525,16 +523,20 @@ function toggleChatSettings() {
   const chatMessages = document.getElementById("chatMessages");
   const chatUserList = document.getElementById("chatUserList");
 
-  chatSettings.classList.toggle("d-none");
-  chatMessages.classList.toggle("d-none");
+  chatSettings.classList.remove("d-none");
+  chatMessages.classList.add("d-none");
   chatUserList.classList.add("d-none");
 
-  const isChatVisible = !chatMessages.classList.contains("d-none");
-  console.log("Chat Messages Visible:", isChatVisible);
-  return isChatVisible;
+
 }
 window.toggleChatSettings = toggleChatSettings;
 
+function showChatMessages() {
+  document.getElementById("chatMessages").classList.remove("d-none");
+  document.getElementById("chatUserList").classList.add("d-none");
+  document.getElementById("chatSettings").classList.add("d-none");
+}
+window.showChatMessages = showChatMessages;
 
 
 let viewerUserId, viewerUsername, viewerUserPhotoURL, viewerRole;
