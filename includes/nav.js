@@ -467,7 +467,24 @@ onAuthStateChanged(auth, user => {
 });
 
 // Profanity Filter List
-const bannedWords = ["badword1", "badword2", "badword3"];
+const bannedWords = [
+  "badword1",
+  "badword2",
+  "badword3",
+  "damn",
+  "hell",
+  "shit",
+  "fuck",
+  "bitch",
+  "asshole",
+  "bastard",
+  "slut",
+  "dick",
+  "pussy",
+  "nigger",
+  "faggot",
+  "cunt"
+];
 
 function filterProfanity(text) {
   const regex = new RegExp(bannedWords.join("|"), "gi");
