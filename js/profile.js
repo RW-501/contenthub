@@ -929,7 +929,14 @@ async function loadUserCollabs(uid) {
           </div>
         </div>
         ${isPublic && !alreadyJoined && currentUserId !== uid
-          ? `<button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${id}', '${data}')">Request to Join</button>`
+          ? `<button 
+  class="btn btn-sm btn-outline-primary mt-2"
+  data-user='${JSON.stringify(data)}'
+  data-post='${JSON.stringify(id)}'
+  onclick="requestToJoin(this)"
+>
+  Request to Join
+</button>`
           : ""
         }
       `;
@@ -942,7 +949,12 @@ async function loadUserCollabs(uid) {
   }
 }
 
-async function requestToJoin(collabId, ownerData) {
+async function requestToJoin(btn) {
+  const ownerData = JSON.parse(btn.dataset.user);
+  const collabId = JSON.parse(btn.dataset.post);
+  console.log("User:", ownerData, "Post:", collabId);
+
+
     const currentUser = auth.currentUser;
   if (!currentUser) {
     const authModal = document.getElementById("auth-login");

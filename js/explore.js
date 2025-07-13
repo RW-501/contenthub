@@ -120,19 +120,24 @@ function createCollabCard(data, collabId) {
     </div>
     <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
     <div class="d-flex gap-2">
-      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${data}')">Request to Join</button>
-      <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
+<button 
+  class="btn btn-sm btn-outline-primary mt-2"
+  data-post='${JSON.stringify(data)}'
+  onclick="handleRequestToJoin(this)"
+>
+  Request to Join
+</button>      
+<button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
     </div>
   `;
   return card;
 }
 
 
-async function requestToJoin(userData, infoData) {
-    console.log("User:", userData, "Post:", infoData);
-
-  const ownerData = JSON.parse(userData);
-  console.log("User:", infoData, "Post:", ownerData);
+async function requestToJoin(btn) {
+  const ownerData = JSON.parse(btn.dataset.user);
+  const infoData = JSON.parse(btn.dataset.post);
+  console.log("User:", ownerData, "Post:", infoData);
 
 
     const currentUser = auth.currentUser;
@@ -338,9 +343,14 @@ async function createPostCard(post, postId) {
   let joinButton = "";
   if (["collab", "help"].includes(post.type)) {
     joinButton = `
-      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${userData}', '${ JSON.stringify(post, null, 2)}')">
-        Request to Join
-      </button>
+<button 
+  class="btn btn-sm btn-outline-primary mt-2"
+  data-user='${JSON.stringify(userData)}'
+  data-post='${JSON.stringify(post)}'
+  onclick="handleRequestToJoin(this)"
+>
+  Request to Join
+</button>
     `;
   }
 
