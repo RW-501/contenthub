@@ -587,15 +587,21 @@ display: block;
 
 <!-- Scrollable Middle Section -->
 <div class="flex-grow-1 overflow-auto position-relative">
-  <div id="chatSettings" class="d-none p-2 small" style="min-height: 100%;">
-    <strong>Chat Settings</strong>
-    <p class="text-muted">More settings coming soon...</p>
-  </div>
+  
+<!-- Chat Settings -->
+<div id="chatSettings" class="d-none p-2 small position-relative" style="min-height: 100%;">
+  <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2" onclick="showChatMessages()">🔙</button>
+  <strong>Chat Settings</strong>
+  <p class="text-muted">More settings coming soon...</p>
+</div>
 
-  <div id="chatUserList" class="d-none p-2 small" style="min-height: 100%;">
-    <strong>Recent Users</strong>
-    <ul id="recentUsers" class="list-unstyled mb-0"></ul>
-  </div>
+<!-- User List -->
+<div id="chatUserList" class="d-none p-2 small position-relative" style="min-height: 100%;">
+  <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2" onclick="showChatMessages()">🔙</button>
+  <strong>Recent Users</strong>
+  <ul id="recentUsers" class="list-unstyled mb-0"></ul>
+</div>
+
 
   <div id="chatMessages" class="chat-body p-2" style="min-height: 100%;"></div>
 </div>
