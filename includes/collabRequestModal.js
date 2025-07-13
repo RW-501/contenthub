@@ -115,7 +115,7 @@ console.log("currentDisplayName ", currentDisplayName);
 
   // Check for duplicate requests
   const q = query(collection(db, "collabRequests"),
-    where("fromUid", "==", user.uid),
+    where("fromUid", "==", currentUserData.uid),
     where("toUid", "==", toUid)
   );
   const snapshot = await getDocs(q);
@@ -134,7 +134,7 @@ console.log("currentDisplayName ", currentDisplayName);
     isUploading = true;
     try {
       const safeName = file.name.replace(/\s+/g, '_').replace(/[^\w.-]/g, '');
-      const storageRef = ref(storage, `collabPreviews/${user.uid}_${Date.now()}_${safeName}`);
+      const storageRef = ref(storage, `collabPreviews/${currentUserData.uid}_${Date.now()}_${safeName}`);
       await uploadBytes(storageRef, file);
       mediaLink = await getDownloadURL(storageRef);
     } catch (err) {
@@ -154,7 +154,7 @@ console.log("currentDisplayName ", currentDisplayName);
 
   await sendNotification({
     toUid: toUid,
-    fromUid: user.uid,
+    fromUid: currentUserData.uid,
     fromDisplayName: currentDisplayName,
     fromuserAvatar: currentPhotoURL,
     message: `${currentDisplayName} sent you a request to collaborate.`,
@@ -167,7 +167,7 @@ console.log("currentDisplayName ", currentDisplayName);
     toUsername,
     toDisplayName,
 
-    fromUid: user.uid,
+    fromUid: currentUserData.uid,
     fromDisplayName: currentDisplayName,
     fromPhotoURL: currentPhotoURL,
 
