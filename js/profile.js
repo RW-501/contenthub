@@ -141,7 +141,7 @@ onAuthStateChanged(auth, async user => {
   const followBtn = document.getElementById("followBtn");
   if (!isOwnerView) {
     followBtn.style.display = "inline-block";
-    if ((userData.followers || []).includes(currentUser.uid)) {
+    if ((userData.followers || []).includes(currentUser ? currentUser.uid : '')) {
       followBtn.innerText = "Unfollow";
       followBtn.onclick = () => unfollowUser(viewingUserId);
     } else {
