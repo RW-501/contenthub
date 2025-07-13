@@ -80,6 +80,21 @@ const tabs = {
       : categorized[key].join("");
   }
 }
+function formatTimestamp(timestamp) {
+  if (!timestamp?.toDate) return "Unknown date";
+  
+  const date = timestamp.toDate();
+  return date.toLocaleString("en-US", {
+    weekday: "short",       // "Sat"
+    year: "numeric",        // "2025"
+    month: "short",         // "Jul"
+    day: "numeric",         // "12"
+    hour: "2-digit",        // "11"
+    minute: "2-digit",      // "06"
+    hour12: true,           // "PM"
+    timeZoneName: "short"   // "CDT"
+  });
+}
 
 
 function renderRequest(id, data, incoming) {
