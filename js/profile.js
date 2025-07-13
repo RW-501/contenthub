@@ -12,229 +12,133 @@ import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks, markAllNo
 
 const storage = getStorage(app);
 
+// Profile View Logic
 let currentUser, viewingUserId;
 
-// Load Profile
 onAuthStateChanged(auth, async user => {
+  currentUser = auth.currentUser;
+  if (!currentUser) return document.getElementById("auth-login").classList.remove("d-none");
 
-  
- // currentUser = user;
+  const params = new URLSearchParams(location.search);
+  viewingUserId = params.get('uid') || currentUser.uid;
 
-   currentUser = auth.currentUser;
-   
-  if (!currentUser) {
-    const authModal = document.getElementById("auth-login");
-    authModal.classList.remove("d-none");
-    return;
-  }
-  // Check if viewing someone else's profile via URL ?uid=xxxx
-  // Extract UID from URL or fallback to current user
-const params = new URLSearchParams(location.search);
-viewingUserId = params.get('uid') || currentUser.uid;
+  const userDoc = await getDoc(doc(db, "users", viewingUserId));
+  const userData = userDoc.data();
 
-const userDoc = await getDoc(doc(db, "users", viewingUserId));
-const userData = userDoc.data();
+  let actingAsUser = user;
+  let currentUserData;
 
-let actingAsUser = user; // default to current authenticated user
-let currentUserData;
-
-// If current user is admin and viewing a demo profile
-if (currentUser && viewingUserId !== currentUser.uid && userData?.role === "demo") {
-  const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
-  const currentUserData = currentUserDoc.data();
-
-
-
-
-  if (currentUserData?.role === "admin") {
-    console.warn("Acting as demo user:", viewingUserId);
-    actingAsUser = { ...user, uid: viewingUserId }; // simulate demo user
-
-
-
-
-  }
-}
-
-
-if (!currentUser || actingAsUser.uid !== currentUser.uid) {
-  document.getElementById("impersonationBanner").classList.remove("d-none");
-  currentUser = actingAsUser;
-
-setTimeout(() => {
-  const avatar = document.getElementById("userAvatar");
-  if (!avatar) {
-    console.warn("⚠️ Avatar element not found.");
-    return;
+  if (currentUser && viewingUserId !== currentUser.uid && userData?.role === "demo") {
+    const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
+    currentUserData = currentUserDoc.data();
+    if (currentUserData?.role === "admin") {
+      console.warn("Acting as demo user:", viewingUserId);
+      actingAsUser = { ...user, uid: viewingUserId };
+    }
   }
 
-  avatar.dataset.role = userData.role || "";
-  avatar.dataset.displayname = userData.displayName || "";
-  avatar.dataset.photo = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
-  avatar.dataset.username = userData.username || "";
-  avatar.dataset.email = userData.email || "";
-  avatar.dataset.location = userData.userLocation?.city || "";
-  avatar.dataset.niches = (userData.niches || []).join(",");
-  avatar.dataset.pronouns = userData.pronouns || "";
-
-  // Set avatar image
-  const avatarImg = document.getElementById("avatarImg");
-  if (avatarImg) {
-    avatarImg.src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  if (!currentUser || actingAsUser.uid !== currentUser.uid) {
+    document.getElementById("impersonationBanner").classList.remove("d-none");
+    currentUser = actingAsUser;
   }
-}, 900);
 
+  setTimeout(() => {
+    const avatar = document.getElementById("userAvatar");
+    if (!avatar) return console.warn("⚠️ Avatar element not found.");
 
-}
+    avatar.dataset.role = userData.role || "";
+    avatar.dataset.displayname = userData.displayName || "";
+    avatar.dataset.photo = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+    avatar.dataset.username = userData.username || "";
+    avatar.dataset.email = userData.email || "";
+    avatar.dataset.location = userData.userLocation?.city || "";
+    avatar.dataset.niches = (userData.niches || []).join(",");
+    avatar.dataset.pronouns = userData.pronouns || "";
 
+    const avatarImg = document.getElementById("avatarImg");
+    if (avatarImg) avatarImg.src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  }, 900);
 
+  // Profile Info
+  document.getElementById("displayName").innerText = userData.displayName || 'Anonymous';
+  document.getElementById("usernameText").textContent = userData.username || "";
+  document.getElementById("pronounsText").innerHTML = userData.pronouns ? `<i class="bi bi-person"></i> ${userData.pronouns}` : "";
+  document.getElementById("availabilityText").innerHTML = userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : "";
+  document.getElementById("bioText").innerText = userData.bio || '';
 
-
-  
-
-document.getElementById("displayName").innerText = userData.displayName || 'Anonymous';
-
-
-  // Grab DOM elements
-  const collabBtn = document.getElementById("collabBtn");
-  const editProfileBtn = document.getElementById("editProfileBtn");
-  const analyticsBtn = document.getElementById("analyticsBtn");
-const userBtns = document.querySelectorAll(".userBtns");
-
-
-  // Show/hide profile owner controls
-  const isOwnerView = !viewingUserId || viewingUserId === actingAsUser.uid;
-
-
-    // Show/hide collab button
-if (isOwnerView) {
-  collabBtn?.remove(); // Completely removes the button from the DOM
-} else {
-  collabBtn.style.display = "inline-block";
-  collabBtn.onclick = () => {
-    collabBtn.dataset.viewingUserId = viewingUserId;
-    collabBtn.dataset.username = userData.username;
-    collabBtn.dataset.displayName = userData.displayName;
-  };
-}
-const openReviewModalBtn = document.getElementById("openReviewModalBtn");
-const postComposer = document.getElementById("postComposer");
-
-
-if (!isOwnerView) {
-  editProfileBtn?.remove();
-  analyticsBtn?.remove();
-  postComposer.style.display = "none";
-} else {
-  editProfileBtn.style.display = "inline-block";
-  analyticsBtn.style.display = "inline-block";
-  openReviewModalBtn?.remove();
-}
-
-userBtns.forEach(btn => {
-  if (!isOwnerView) {
-    btn.remove(); // Completely remove if not the owner
+  const locationText = document.getElementById("locationText");
+  if (userData.userLocation?.country) {
+    const { city, state, country } = userData.userLocation;
+    const parts = [city, state, country].filter(Boolean);
+    const locationStr = parts.join(", ");
+    const locationParam = encodeURIComponent(parts.join("-").toLowerCase());
+    locationText.innerHTML = `<a href="/pages/creators.html?location=${locationParam}" class="text-decoration-none">${locationStr}</a>`;
+  } else {
+    locationText.innerHTML = '';
   }
-});
 
+  // Badges
+  const contentTypesHTML = (userData.contentTypes || []).map(ct => `<a href="/pages/creators.html?type=${encodeURIComponent(ct.toLowerCase())}" class="badge bg-secondary text-light me-1 mb-1">${ct}</a>`).join("");
+  const nichesHTML = (userData.niches || []).map(n => `<a href="/pages/creators.html?niche=${encodeURIComponent(n.toLowerCase())}" class="badge bg-light text-dark border me-1 mb-1">${n}</a>`).join("");
 
+  document.getElementById("contentTypeText").innerHTML = contentTypesHTML;
+  document.getElementById("nicheText").innerHTML = nichesHTML;
 
-document.getElementById("usernameText").textContent = userData.username || "";
-document.getElementById("pronounsText").innerHTML = userData.pronouns ? `<i class="bi bi-person"></i> ${userData.pronouns}` : "";
-document.getElementById("availabilityText").innerHTML = userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : "";
-
-
-
-
-
-
-document.getElementById("bioText").innerText = userData.bio || '';
-
-
-
-
-
-// Location (as a link to creators filtered by location if available)
-const locationText = document.getElementById("locationText");
-if (userData.userLocation?.country) {
-  const { city, state, country } = userData.userLocation;
-  const locationParts = [city, state, country].filter(Boolean);
-  const locationStr = locationParts.join(", ");
-  const locationParam = encodeURIComponent(locationParts.join("-").toLowerCase());
-  locationText.innerHTML = `<a href="https://rw-501.github.io/contenthub/pages/creators.html?location=${locationParam}" class="text-decoration-none">${locationStr}</a>`;
-} else {
-  locationText.innerHTML = '';
-}
-
-// Content Type Badges with links
-document.getElementById("contentTypeText").innerHTML = Array.isArray(userData.contentTypes)
-  ? userData.contentTypes.map(ct =>
-      `<a href="https://rw-501.github.io/contenthub/pages/creators.html?type=${encodeURIComponent(ct.toLowerCase())}" 
-         class="badge bg-secondary text-light me-1 mb-1 text-decoration-none">
-         ${ct}
-       </a>`
-    ).join('')
-  : '';
-
-// Niche Badges with links
-document.getElementById("nicheText").innerHTML = Array.isArray(userData.niches)
-  ? userData.niches.map(n =>
-      `<a href="https://rw-501.github.io/contenthub/pages/creators.html?niche=${encodeURIComponent(n.toLowerCase())}" 
-         class="badge bg-light text-dark border me-1 mb-1 text-decoration-none">
-         ${n}
-       </a>`
-    ).join('')
-  : '';
-
-
-
-document.getElementById("profilePhoto").src = userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png';
+  document.getElementById("profilePhoto").src = userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png';
   document.getElementById("userPointsBadge").textContent = `⭐ ${userData.points || 0} pts`;
-
-  // Attach click handler to open rewards modal
   document.getElementById("userPointsBadge").onclick = () => loadRewardModal();
 
-const socialContainer = document.getElementById("socialLinks");
-socialContainer.innerHTML = "";
+  // Social Links
+  const socialContainer = document.getElementById("socialLinks");
+  socialContainer.innerHTML = "";
+  const icons = {
+    instagram: "bi bi-instagram", tiktok: "bi bi-tiktok", youtube: "bi bi-youtube",
+    facebook: "bi bi-facebook", twitter: "bi bi-twitter", linkedin: "bi bi-linkedin",
+    twitch: "bi bi-twitch", threads: "bi bi-threads", snapchat: "bi bi-snapchat",
+    pinterest: "bi bi-pinterest", reddit: "bi bi-reddit", other: "bi bi-link-45deg"
+  };
 
-
-const platformIcons = {
-  instagram: "bi bi-instagram",
-  tiktok: "bi bi-tiktok",
-  youtube: "bi bi-youtube",
-  facebook: "bi bi-facebook",
-  twitter: "bi bi-twitter",
-  linkedin: "bi bi-linkedin",
-  twitch: "bi bi-twitch",
-  threads: "bi bi-threads",
-  snapchat: "bi bi-snapchat",
-  pinterest: "bi bi-pinterest",
-  reddit: "bi bi-reddit",
-  other: "bi bi-link-45deg"
-};
-
-if (Array.isArray(userData.links)) {
-  userData.links.forEach(linkObj => {
-    const { platform, url } = linkObj;
-    const icon = platformIcons[platform?.toLowerCase()] || platformIcons.other;
-    const isVerified = userData.verifiedPlatforms?.[platform.toLowerCase()] === true;
-
+  (userData.links || []).forEach(({ platform, url }) => {
+    const icon = icons[platform?.toLowerCase()] || icons.other;
+    const verified = userData.verifiedPlatforms?.[platform.toLowerCase()] === true;
     const a = document.createElement("a");
     a.href = url.trim();
     a.target = "_blank";
     a.rel = "noopener noreferrer";
     a.className = "btn btn-sm btn-outline-secondary me-1";
-    a.innerHTML = `
-      <i class="${icon}"></i>
-      ${isVerified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
-    `;
+    a.innerHTML = `<i class="${icon}"></i>${verified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}`;
     socialContainer.appendChild(a);
   });
-}
 
+  // Profile Actions
+  const isOwnerView = !viewingUserId || viewingUserId === actingAsUser.uid;
+  const collabBtn = document.getElementById("collabBtn");
+  const editProfileBtn = document.getElementById("editProfileBtn");
+  const analyticsBtn = document.getElementById("analyticsBtn");
+  const openReviewModalBtn = document.getElementById("openReviewModalBtn");
+  const postComposer = document.getElementById("postComposer");
 
+  if (!isOwnerView) {
+    collabBtn.style.display = "inline-block";
+    collabBtn.onclick = () => {
+      collabBtn.dataset.viewingUserId = viewingUserId;
+      collabBtn.dataset.username = userData.username;
+      collabBtn.dataset.displayName = userData.displayName;
+    };
+    editProfileBtn?.remove();
+    analyticsBtn?.remove();
+    postComposer.style.display = "none";
+    openReviewModalBtn?.remove();
+  } else {
+    collabBtn?.remove();
+    editProfileBtn.style.display = "inline-block";
+    analyticsBtn.style.display = "inline-block";
+  }
 
-  // Show follow button only when viewing others
+  document.querySelectorAll(".userBtns").forEach(btn => {
+    if (!isOwnerView) btn.remove();
+  });
+
   const followBtn = document.getElementById("followBtn");
   if (!isOwnerView) {
     followBtn.style.display = "inline-block";
@@ -246,43 +150,25 @@ if (Array.isArray(userData.links)) {
       followBtn.onclick = () => followUser(viewingUserId);
     }
   } else {
-    followBtn.style.display = "none";
-    followBtn?.remove(); // Completely removes the button from the DOM
-
+    followBtn?.remove();
   }
 
-
-let currentPageID = '';
-
-  if (viewingUserId == '') {
-currentPageID = actingAsUser;
-  }else {
-currentPageID = viewingUserId;
-  }
-
-loadUserReviews(currentPageID);
-checkNameChangeEligibility(userData); 
-loadUserPosts(currentPageID, userData.displayName, userData.photoURL);
-loadUserCollabs(viewingUserId);
-loadFollowingList(userData);
-loadFollowersList(userData);
-loadAnalytics(currentPageID);
-loadProjectHistory(currentPageID);
-loadPublicBadges(userData);
-
-
+  const currentPageID = viewingUserId || actingAsUser;
+  loadUserReviews(currentPageID);
+  checkNameChangeEligibility(userData);
+  loadUserPosts(currentPageID, userData.displayName, userData.photoURL);
+  loadUserCollabs(viewingUserId);
+  loadFollowingList(userData);
+  loadFollowersList(userData);
+  loadAnalytics(currentPageID);
+  loadProjectHistory(currentPageID);
+  loadPublicBadges(userData);
 
   setTimeout(async () => {
-    console.log("👤 Viewer isOwnerView:", {
-  isOwnerView
-    });
-      if (isOwnerView) { return};
+    if (isOwnerView) return;
 
     const avatar = document.getElementById("userAvatar");
-    if (!avatar) {
-      console.warn("⚠️ Avatar element not found.");
-      return;
-    }
+    if (!avatar) return console.warn("⚠️ Avatar element not found.");
 
     const viewerUserId = avatar.dataset.uid;
     const viewerDisplayName = avatar.dataset.displayname;
@@ -290,25 +176,8 @@ loadPublicBadges(userData);
     const viewerUsername = avatar.dataset.username;
     const viewerUserPhotoURL = avatar.dataset.photo;
 
-    console.log("👤 Viewer Info:", {
-      viewerUserId,
-      viewerDisplayName,
-      viewerRole,
-      viewerUsername,
-      viewerUserPhotoURL
-    });
-
-    if (!viewerUserId || !viewerDisplayName || !viewerUserPhotoURL) {
-      console.warn("⚠️ Missing viewer data. Skipping notification.");
-      return;
-    }
-
-    if (typeof viewingUserId !== "string") {
-      console.warn("⚠️ viewingUserId is undefined or invalid.");
-      return;
-    }
-
-    console.log(`📨 Sending profileView notification to ${viewingUserId} from ${viewerUserId}`);
+    if (!viewerUserId || !viewerDisplayName || !viewerUserPhotoURL) return;
+    if (typeof viewingUserId !== "string") return;
 
     await sendNotification({
       toUid: viewingUserId,
@@ -319,44 +188,23 @@ loadPublicBadges(userData);
       type: "profileView",
     });
 
-// 🔥 1. Increment profileViews for the viewed user
-await updateDoc(doc(db, "users", viewingUserId), {
-  profileViews: increment(1)
+    await updateDoc(doc(db, "users", viewingUserId), { profileViews: increment(1) });
+    await updateDoc(doc(db, "users", viewerUserId), { profilesViewed: increment(1) });
+
+    const [viewedSnap, viewerSnap] = await Promise.all([
+      getDoc(doc(db, "users", viewingUserId)),
+      getDoc(doc(db, "users", viewerUserId))
+    ]);
+
+    if (viewedSnap.exists()) await checkAndAwardTasks(viewingUserId, viewedSnap.data());
+    if (viewerSnap.exists()) await checkAndAwardTasks(viewerUserId, viewerSnap.data());
+  }, 2000);
 });
 
-// 🔥 2. Increment profilesViewed for the viewer
-await updateDoc(doc(db, "users", viewerUserId), {
-  profilesViewed: increment(1)
-});
-
-// ✅ 3. Check & award for both
-const [viewedSnap, viewerSnap] = await Promise.all([
-  getDoc(doc(db, "users", viewingUserId)),
-  getDoc(doc(db, "users", viewerUserId))
-]);
-
-if (viewedSnap.exists()) {
-  await checkAndAwardTasks(viewingUserId, viewedSnap.data());
-}
-if (viewerSnap.exists()) {
-  await checkAndAwardTasks(viewerUserId, viewerSnap.data());
-}
-
-
-
-    console.log("✅ Notification sent successfully.");
-  }, 2000); // ⏱ 2 second delay
-
-
-  console.log(">>>>>>>>>>>>>>");
-
-// Attach to button click (when you want to review someone)
-window.openReviewModal = function(viewingUserId) {
-  document.getElementById("toUserId").value = toUserId;
+// Review Modal trigger
+document.getElementById("openReviewModal")?.addEventListener("click", () => {
+  document.getElementById("toUserId").value = viewingUserId;
   new bootstrap.Modal(document.getElementById("reviewModal")).show();
-};
-
-
 });
 
 const userCache = {};
