@@ -599,19 +599,25 @@ display: block;
   <div id="chatMessages" class="chat-body p-2 overflow-auto" style="height: 300px;"></div>
 
 
-<div id="currentUserInfo" class="p-2 border-top d-flex align-items-center gap-2">
-  <img id="currentUserAvatar" src="" class="rounded-circle" width="32" height="32" alt="avatar" />
-  <div>
-    <div id="currentUserName" class="fw-bold text-dark small"></div>
-    <div class="text-muted small">You</div>
-  </div>
-  
-    <div class="d-flex">
-      <button class="btn btn-sm btn-light me-1" onclick="toggleUserList()">👥</button>
-      <button class="btn btn-sm btn-light me-1" onclick="toggleChatSettings()">⚙️</button>
-    </div>
 
+<div class="d-flex justify-content-between align-items-center px-2 py-1 border-top bg-light">
+  <!-- Left: Current User Info -->
+  <div class="d-flex align-items-center">
+    <img id="currentUserAvatar" src="https://rw-501.github.io/contenthub/images/defaultAvatar.png"
+         class="rounded-circle me-2" style="width: 32px; height: 32px;" alt="User" />
+    <div>
+      <div id="currentUserName" class="fw-bold text-dark small"></div>
+      <div class="text-muted small">You</div>
+    </div>
+  </div>
+
+  <!-- Right: Chat Buttons -->
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-1" onclick="toggleUserList()">👥</button>
+    <button class="btn btn-sm btn-light" onclick="toggleChatSettings()">⚙️</button>
+  </div>
 </div>
+
   <div class="chat-footer p-2 border-top">
     <input id="chatInput" class="form-control" placeholder="Type a message..." />
     <button id="sendBtn" class="btn btn-success mt-2 w-100">Send</button>
