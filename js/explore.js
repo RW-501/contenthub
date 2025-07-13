@@ -105,7 +105,7 @@ async function loadCollabPosts() {
 }
 
 
-function createCollabCard(data, collabId) {
+function createCollabCard(data, collabData) {
   const card = document.createElement("div");
   card.className = "card p-3 mb-3";
   const progress = data.progress || 0;
@@ -123,7 +123,7 @@ function createCollabCard(data, collabId) {
 <button 
   class="btn btn-sm btn-outline-primary mt-2"
   data-post='${JSON.stringify(data)}'
-  data-user='${JSON.stringify(collabId)}'
+  data-user='${JSON.stringify(collabData)}'
 
   onclick="requestToJoin(this)"
 >
@@ -151,7 +151,7 @@ async function requestToJoin(btn) {
 let toUserId = infoData.owner || ownerData.owner;
 let toUserName = ownerData.ownerDisplayName || ownerData.ownerName || ownerData.displayName;
 let toPhoto = ownerData.ownerPhotoURL || ownerData.ownerPhoto || ownerData.photoURL;
-let postInfo = infoData.caption || infoData.title;
+let postInfo = infoData.caption || infoData.title  || ownerData.title;
 
     console.log("[requestToJoin] infoData:", infoData);
     console.log("[requestToJoin] ownerData:", ownerData);
