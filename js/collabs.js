@@ -96,6 +96,24 @@ function formatTimestamp(timestamp) {
   });
 }
 
+function renderMediaPreview(mediaLink) {
+  if (!mediaLink) return "";
+
+  const imageExtensions = /\.(jpe?g|png|gif|webp|bmp|svg)$/i;
+  const videoExtensions = /\.(mp4|webm|ogg|mov)$/i;
+
+  if (imageExtensions.test(mediaLink)) {
+    return `<img src="${mediaLink}" class="img-fluid rounded mt-2" style="max-height: 200px;">`;
+  } else if (videoExtensions.test(mediaLink)) {
+    return `
+      <video controls class="w-100 rounded mt-2" style="max-height: 240px;">
+        <source src="${mediaLink}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>`;
+  } else {
+    return `<a href="${mediaLink}" target="_blank" class="d-block mt-2">📎 View Media</a>`;
+  }
+}
 
 function renderRequest(id, data, incoming) {
   const name = incoming ? data.fromDisplayName : data.toDisplayName;
