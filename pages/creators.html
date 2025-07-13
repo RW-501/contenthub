@@ -199,9 +199,9 @@
 
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, limit, query, snapshot,  collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { db, auth  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"; 
+import { getFirestore, limit, query, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { db, auth } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
 // 🔧 JavaScript Enhancements
 
@@ -219,10 +219,11 @@ let creators = [];
 let activeFilterTags = [];
 
 async function fetchCreators() {
-const q = query(collection(db, "users"), limit(25));
+  const q = query(collection(db, "users"), limit(25));
+  const snapshot = await getDocs(q); // ✅ use getDocs to get the snapshot
   creators = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  // Shuffle the array using Fisher-Yates (Durstenfeld) algorithm
+  // Shuffle array
   for (let i = creators.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [creators[i], creators[j]] = [creators[j], creators[i]];
@@ -230,6 +231,7 @@ const q = query(collection(db, "users"), limit(25));
 
   renderCreators(creators);
 }
+
 
 function decodeHTML(str) {
   const txt = document.createElement("textarea");
