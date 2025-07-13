@@ -647,7 +647,7 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
   await addDoc(collection(db, "chatRoom"), {
     uid: viewerUserId,
     uPhoto: viewerUserPhotoURL,
-    uName: viewerDisplayName || viewerUsername,
+    uName: viewerUsername,
     uRole: viewerRole,
 
     text: message,
