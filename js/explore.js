@@ -120,7 +120,7 @@ function createCollabCard(data, collabId) {
     </div>
     <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
     <div class="d-flex gap-2">
-      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${collabId}', '${data}')">Request to Join</button>
+      <button class="btn btn-sm btn-outline-primary" onclick="requestToJoin('${data}')">Request to Join</button>
       <button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
     </div>
   `;
@@ -128,23 +128,22 @@ function createCollabCard(data, collabId) {
 }
 
 
-async function requestToJoin(requestId, ownerData) {
+async function requestToJoin(ownerData, infoData) {
     const currentUser = auth.currentUser;
   if (!currentUser) {
     const authModal = document.getElementById("auth-login");
     authModal.classList.remove("d-none");
     return;
   }
-let toUserId = ownerData.owner || ownerData.owner;
-let toUserName = ownerData.ownerDisplayName || ownerData.ownerName;
-let toPhoto = ownerData.ownerPhotoURL || ownerData.ownerPhoto;
-let postInfo = ownerData.caption || ownerData.title;
+let toUserId = infoData.owner || ownerData.owner;
+let toUserName = ownerData.ownerDisplayName || ownerData.ownerName || ownerData.displayName;
+let toPhoto = ownerData.ownerPhotoURL || ownerData.ownerPhoto || ownerData.photoURL;
+let postInfo = infoData.caption || infoData.title;
 
-    console.log("[requestToJoin] requestId:", requestId);
+    console.log("[requestToJoin] infoData:", infoData);
     console.log("[requestToJoin] ownerData:", ownerData);
 
   try {
-    if (!requestId || !postOwnerId) return alert("⚠️ Please log in to request to join.");
 
     const avatar = document.getElementById("userAvatar");
 const viewerUserId = avatar.dataset.uid;
@@ -153,12 +152,12 @@ const viewerRole = avatar.dataset.role;
 const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
 
-    if (requestId == postOwnerId) return alert("⚠️ You are the owner of this post");
+    if (toUserId == viewerUserId) return alert("⚠️ You are the owner of this post");
 
     const requestsRef = collection(db, "collabRequests");
     const existingSnap = await getDocs(query(requestsRef,
-      where("toUid", "==", postOwnerId),
-      where("fromUid", "==", requestId),
+      where("toUid", "==", toUserId),
+      where("fromUid", "==", viewerUserId),
       where("status", "in", ["pending", "approved"])
     ));
 
@@ -197,7 +196,7 @@ await addDoc(requestsRef, {
 
   message: `${viewerDisplayName} sent you a request to collaborate.`,
   title: `Collaboration Request`,
-  description: `${viewerDisplayName} requested to join this collaboration. From: ${postInfo?.title || "Unknown Project"}`,
+  description: `${viewerDisplayName} requested to join this collaboration. From: ${postInfo || "Unknown Project"}`,
   
   status: "pending",
   timestamp: serverTimestamp()
@@ -333,7 +332,7 @@ async function createPostCard(post, postId) {
   let joinButton = "";
   if (["collab", "help"].includes(post.type)) {
     joinButton = `
-      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${postId}', '${ JSON.stringify(post, null, 2)}')">
+      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${userData}', '${ JSON.stringify(post, null, 2)}')">
         Request to Join
       </button>
     `;

@@ -1094,10 +1094,9 @@ async function requestToJoin(collabId, ownerData) {
     return;
   }
   try {
-    if (!collabId || !ownerData.owner) {
-      alert("⚠️ Please log in to request to join.");
-      return;
-    }
+  console.log("ownerData", {
+      ownerData
+    });
 
 const viewerDisplayName = avatar.dataset.displayname;
 const viewerRole = avatar.dataset.role;
