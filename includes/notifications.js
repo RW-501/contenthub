@@ -14,7 +14,7 @@ import {
   getDoc,
   where,
   writeBatch,arrayUnion,
-  limit, Timestamp,
+  limit, Timestamp, 
   startAfter
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.module.mjs';
@@ -835,7 +835,7 @@ export async function checkAndSetSpecialFlags(uid) {
 
 
 
-import { getDocs, collection, updateDoc, doc, serverTimestamp, Timestamp } from "firebase/firestore";
+
 
 async function awardRandomBadgesToDemoUsers() {
   const demoUsers = await getDocs(collection(db, "users"));
