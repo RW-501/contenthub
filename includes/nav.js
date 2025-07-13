@@ -10,7 +10,7 @@ import {
   getFirestore,
   doc,
   getDoc, 
-   collection, addDoc, onSnapshot,  serverTimestamp, query, orderBy 
+   collection, addDoc, onSnapshot, updateDoc,  serverTimestamp, query, orderBy 
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // ✅ Import your Firebase app config
