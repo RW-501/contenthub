@@ -690,10 +690,10 @@ async function initChat() {
 
 // Send Message
 document.getElementById("sendBtn").addEventListener("click", async () => {
-      if (!currentUser) {
-    const authModal = document.getElementById("auth-login");
-    authModal.classList.remove("d-none");
-  } 
+  if (!currentUser) {
+    document.getElementById("auth-login").classList.remove("d-none");
+    return;
+  }
 
   const input = document.getElementById("chatInput");
   let message = input.value.trim();
@@ -702,11 +702,8 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
   message = filterProfanity(message);
 
   const mentionedUsernames = Array.from(message.matchAll(/@(\w+)/g)).map(m => m[1]);
-
   const mentionSeen = {};
-  mentionedUsernames.forEach(name => {
-    mentionSeen[name] = false;
-  });
+  mentionedUsernames.forEach(name => (mentionSeen[name] = false));
   mentionSeen[viewerUsername] = true;
 
   await addDoc(collection(db, "chatRoom"), {
@@ -714,7 +711,6 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     uPhoto: viewerUserPhotoURL,
     uName: viewerUsername,
     uRole: viewerRole,
-
     text: message,
     timestamp: serverTimestamp(),
     mentionSeen,
