@@ -1084,6 +1084,7 @@ async function requestToJoin(collabId, ownerData) {
     authModal.classList.remove("d-none");
     return;
   }
+    const avatar = document.getElementById("userAvatar");
 
     const viewerUserId = avatar.dataset.uid;
     
