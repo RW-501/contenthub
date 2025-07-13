@@ -135,7 +135,7 @@ function createCollabCard(data, collabId) {
 
 
 async function requestToJoin(btn) {
-  const ownerData = JSON.parse(btn.dataset.user);
+  const ownerData = JSON.parse?.(btn.dataset.user);
   const infoData = JSON.parse(btn.dataset.post);
   console.log("User:", ownerData, "Post:", infoData);
 

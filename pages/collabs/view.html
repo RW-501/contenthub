@@ -1169,29 +1169,82 @@ async function loadParticipants(collabId) {
   if (!collabSnap.exists()) return;
 
   const participants = collabSnap.data().participants || [];
+const roles = collabSnap.data().roles || {};
+const ownerUid = collabSnap.data().owner;
+const currentUserUid = auth.currentUser?.uid;
 
-  for (const uid of participants) {
-    const userDoc = await getDoc(doc(db, "users", uid));
-    const userInfo = userDoc.exists() ? userDoc.data() : { displayName: "User", photoURL: "https://rw-501.github.io/contenthub/images/defaultAvatar.png" };
+for (const uid of participants) {
+  const userDoc = await getDoc(doc(db, "users", uid));
+  const userInfo = userDoc.exists() ? userDoc.data() : { displayName: "User", photoURL: "https://rw-501.github.io/contenthub/images/defaultAvatar.png" };
 
-    const userDiv = document.createElement("div");
-    userDiv.className = "d-flex align-items-center justify-content-between mb-2";
+  const role = roles[uid] || "collaborator";
+  const isOwner = uid === ownerUid;
+  const isSelf = uid === currentUserUid;
+  const canEdit = currentUserUid === ownerUid && !isOwner;
 
-    userDiv.innerHTML = `
-      <div class="d-flex align-items-center">
+  const userDiv = document.createElement("div");
+  userDiv.className = "d-flex align-items-center justify-content-between mb-2";
+
+  userDiv.innerHTML = `
+    <div class="d-flex align-items-center">
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${uid}" target="_blank" class="d-flex align-items-center text-decoration-none text-light">
         <img src="${userInfo.photoURL}" alt="Avatar" class="rounded-circle me-2" style="width: 40px; height: 40px;">
-        <strong>${userInfo.displayName}</strong>
-      </div>
-      <button class="btn btn-sm btn-outline-danger">Remove</button>
-    `;
+        <strong>${userInfo.displayName || "User"}</strong>
+      </a>
+      <span class="badge bg-secondary ms-2">${role}</span>
+    </div>
+    <div class="d-flex align-items-center gap-1">
+      ${
+        currentUserUid === ownerUid
+          ? `<select class="form-select form-select-sm role-select" data-uid="${uid}">
+               <option value="editor" ${role === "editor" ? "selected" : ""}>Editor</option>
+               <option value="viewer" ${role === "viewer" ? "selected" : ""}>Viewer</option>
+             </select>`
+          : ""
+      }
+      ${
+        canEdit
+          ? `<button class="btn btn-sm btn-outline-danger btn-remove" data-uid="${uid}">Remove</button>`
+          : ""
+      }
+    </div>
+  `;
 
-    userDiv.querySelector("button").onclick = async () => {
-      await removeUserFromBoard(collabId, uid);
-      userDiv.remove();
-    };
-
-    participantsList.appendChild(userDiv);
+  // Role dropdown change
+  const roleSelect = userDiv.querySelector(".role-select");
+  if (roleSelect) {
+    roleSelect.addEventListener("change", async (e) => {
+      const newRole = e.target.value;
+      const updatedRoles = { ...roles, [uid]: newRole };
+      await updateDoc(doc(db, "collaborations", collabSnap.id), {
+        roles: updatedRoles
+      });
+      alert(`Role updated to "${newRole}"`);
+    });
   }
+
+  // Remove button
+  const removeBtn = userDiv.querySelector(".btn-remove");
+  if (removeBtn) {
+    removeBtn.addEventListener("click", async () => {
+      if (confirm("Are you sure you want to remove this participant?")) {
+        const updatedParticipants = participants.filter(p => p !== uid);
+        const updatedRoles = { ...roles };
+        delete updatedRoles[uid];
+
+        await updateDoc(doc(db, "collaborations", collabSnap.id), {
+          participants: updatedParticipants,
+          roles: updatedRoles
+        });
+
+        userDiv.remove();
+      }
+    });
+  }
+
+  participantsList.appendChild(userDiv);
+}
+
 }
 
 
