@@ -36,7 +36,7 @@ onAuthStateChanged(auth, async user => {
     }
   }
 
-  if (currentUser || actingAsUser.uid !== currentUser.uid) {
+  if (currentUser && actingAsUser && actingAsUser.uid !== currentUser.uid) {
     document.getElementById("impersonationBanner").classList.remove("d-none");
     currentUser = actingAsUser;
   }
