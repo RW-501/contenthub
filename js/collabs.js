@@ -25,7 +25,13 @@ async function loadDashboard(uid) {
     getDocs(query(collection(db, "collabRequests"), where("toUid", "==", uid))),
     getDocs(query(collection(db, "collaborations"), where("participants", "array-contains", uid)))
   ]);
+const tabs = {
+  incoming: document.getElementById("incomingList"),
+  sent: document.getElementById("sentList"),
+  active: document.getElementById("activeList"),
+  archived: document.getElementById("archivedList"),
 
+};
   const categorized = {
     incoming: [],
     sent: [],
