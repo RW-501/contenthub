@@ -554,6 +554,8 @@ display: block;
 
 
 <style>
+
+  /*
 .chat-popup {
     position: fixed;
     bottom: 1rem;
@@ -569,7 +571,192 @@ display: block;
 #currentUserInfo {
   background: #f8f9fa;
 }
+*/
 
+.message-bubble {
+    text-wrap-mode: wrap;
+    text-align: left;
+    padding: .5rem 2rem;
+    font-size: medium;
+}
+
+#chatMessages {
+    min-height: 100%;
+    overflow-y: scroll;
+}
+
+
+
+:root {
+  --bg-dark: #121212;
+  --bg-light: #1e1e1e;
+  --accent: #4ade80;
+  --text-light: #f1f1f1;
+  --text-muted: #a3a3a3;
+  --border: #2c2c2c;
+  --danger: #f87171;
+  --warning: #facc15;
+  --info: #38bdf8;
+  --radius: 8px;
+  --transition: 0.25s ease-in-out;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.chat-popup {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid var(--border);
+
+
+/* Header */
+.chat-header {
+  background-color: var(--accent) !important;
+  color: white;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Middle scrollable */
+.chat-popup > .flex-grow-1 {
+  flex-grow: 1;
+  overflow-y: auto;
+  background-color: var(--bg-light);
+  scroll-behavior: smooth;
+  padding: 0.5rem;
+}
+
+/* Message Bubble */
+.message-bubble {
+  background-color: var(--accent);
+  color: var(--bg-dark);
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  max-width: 280px;
+  word-break: break-word;
+  text-align: left;
+}
+
+.message-content a {
+  color: var(--bg-dark);
+}
+
+/* Hover time info */
+.message-bubble:hover + .time-info {
+  display: block !important;
+}
+
+.time-info {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Buttons inside message */
+.time-info button {
+  margin-left: 0.25rem;
+}
+
+/* Avatar and profile */
+.message-content img,
+.bottom-area img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Settings & Users */
+#chatSettings,
+#chatUserList {
+  background-color: var(--bg-light);
+  color: var(--text-light);
+  position: relative;
+}
+
+/* Back buttons */
+#chatSettings .btn,
+#chatUserList .btn {
+  border: none;
+  font-size: 1rem;
+  background-color: transparent;
+  color: var(--text-muted);
+}
+
+/* Recent user links */
+#recentUsers a {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+/* Bottom user info */
+.bottom-area {
+  background-color: var(--bg-light);
+  color: var(--text-light);
+  border-top: 1px solid var(--border);
+}
+
+.bottom-area .text-muted {
+  color: var(--text-muted) !important;
+}
+
+.bottom-area .btn {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* Footer input area */
+.chat-footer {
+  background-color: var(--bg-dark);
+  border-top: 1px solid var(--border);
+}
+
+.chat-footer input.form-control {
+  background-color: var(--bg-light);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.chat-footer input::placeholder {
+  color: var(--text-muted);
+}
+
+.chat-footer .btn {
+  background-color: var(--accent);
+  border: none;
+  color: var(--bg-dark);
+  font-weight: bold;
+  border-radius: var(--radius);
+}
+
+/* Like button badge */
+.btn-like .badge {
+  background-color: var(--danger);
+}
+
+/* Scrollbar styling (optional for WebKit browsers) */
+.chat-body::-webkit-scrollbar,
+.flex-grow-1::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-body::-webkit-scrollbar-thumb,
+.flex-grow-1::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 4px;
+}
+
+
+}
 </style>
 
 
@@ -587,7 +774,7 @@ display: block;
 
 <!-- Scrollable Middle Section -->
 <div class="flex-grow-1 overflow-auto position-relative">
-  
+
 <!-- Chat Settings -->
 <div id="chatSettings" class="d-none p-2 small position-relative" style="min-height: 100%;">
   <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2" onclick="showChatMessages()">🔙</button>
