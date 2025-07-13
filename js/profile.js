@@ -110,7 +110,7 @@ onAuthStateChanged(auth, async user => {
   });
 
   // Profile Actions
-  const isOwnerView = actingAsUser && !viewingUserId || actingAsUser && viewingUserId === actingAsUser.uid;
+  const isOwnerView = currentUser && !viewingUserId || currentUser && viewingUserId === currentUser.uid;
   const collabBtn = document.getElementById("collabBtn");
   const editProfileBtn = document.getElementById("editProfileBtn");
   const analyticsBtn = document.getElementById("analyticsBtn");
@@ -141,7 +141,7 @@ onAuthStateChanged(auth, async user => {
   const followBtn = document.getElementById("followBtn");
   if (!isOwnerView) {
     followBtn.style.display = "inline-block";
-    if ((userData.followers || []).includes(actingAsUser.uid)) {
+    if ((userData.followers || []).includes(currentUser.uid)) {
       followBtn.innerText = "Unfollow";
       followBtn.onclick = () => unfollowUser(viewingUserId);
     } else {
@@ -152,7 +152,13 @@ onAuthStateChanged(auth, async user => {
     followBtn?.remove();
   }
 
-  const currentPageID = viewingUserId || actingAsUser;
+  const currentPageID = currentUser ? currentUser.uid : viewingUserId;
+  if(!currentPageID){
+
+    console.warn("⚠️ Current PageID not found.");
+    return;
+  }
+
   loadUserReviews(currentPageID);
   checkNameChangeEligibility(userData);
   loadUserPosts(currentPageID, userData.displayName, userData.photoURL);
@@ -164,7 +170,7 @@ onAuthStateChanged(auth, async user => {
   loadPublicBadges(userData);
 
   setTimeout(async () => {
-    if (isOwnerView) return;
+    if (isOwnerView || userData.role == 'demo') return;
 
     const avatar = document.getElementById("userAvatar");
     if (!avatar) return console.warn("⚠️ Avatar element not found.");
