@@ -26,6 +26,7 @@ onSnapshot(userRef, (docSnap) => {
   if (docSnap.exists()) {
      userData = docSnap.data();
     
+console.log("userData ", userData)
 
 
   } else {
@@ -1977,18 +1978,10 @@ await updateDoc(userRef, {
   feedbackCount: increment(1)
 });
 
-// ✅ Re-check for task rewards
-const updatedSnap = await getDoc(userRef);
-const updatedData = updatedSnap.data();
-await checkAndAwardTasks(currentUser.uid, updatedData);
 
-  showModal({
-    title: `🎉 ${task.reward.badge || "Task Complete"}`,
-    message: `You earned ${task.reward.points || 0} points!`,
-    autoClose: 4000
-  });
-  
-  
+
+
+
   bootstrap.Modal.getInstance(document.getElementById("reviewModal")).hide();
 });
 
@@ -2005,6 +1998,7 @@ async function loadUserReviews(toUserId) {
   const snap = await getDocs(q);
 
 console.log("user ", toUserId, " reviews ", snap)
+
  const ratingText = document.getElementById("userRatingyText");
   ratingText.innerHTML = ""; // Clear old content
   const reviews = snap.docs.map(doc => doc.data());
