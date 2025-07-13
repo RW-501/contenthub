@@ -469,15 +469,10 @@ window.toggleChat = toggleChat;
 
 // Handle Open Chat Button
 document.getElementById("openChatBtn").addEventListener("click", () => {
-  //const currentUser = auth.currentUser;
-  if (!currentUser) {
-    const authModal = document.getElementById("auth-login");
-    authModal.classList.remove("d-none");
-    return;
-  } else {
+  
     toggleChat();
     initChat();
-  }
+  
 });
 
 // Monitor Auth State
@@ -545,6 +540,10 @@ window.toggleChatSettings = toggleChatSettings;
 let viewerUserId, viewerUsername, viewerUserPhotoURL, viewerRole;
 
 async function initChat() {
+    if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+  } 
   // Get current user info from dataset only ONCE
   const avatar = document.getElementById("userAvatar");
   viewerUserId = avatar.dataset.uid;
