@@ -555,6 +555,12 @@ function sanitize(text) {
   return div.innerHTML.replace(/\n/g, "<br>").replace(/  /g, '&nbsp;&nbsp;');
 }
 
+function stripHtml(input) {
+  const div = document.createElement("div");
+  div.innerHTML = input;
+  return div.textContent || div.innerText || "";
+}
+
 function renderMessage(msg) {
   const timeAgo = timeSince(msg.timestamp);
   const reactionsHtml = Object.entries(msg.reactions || {}).map(([emoji, users]) =>
@@ -563,12 +569,14 @@ function renderMessage(msg) {
 
   const fileIcon = msg.content.match(/(\.pdf|\.docx|\.mp4|\.zip)/i) ?
     `<i class='bi bi-file-earmark'></i> ` : "";
+
 const safeContent = sanitize(msg.content);
+const message = stripHtml(safeContent);
 
 chatBox.innerHTML += `
   <div class="msg mb-2 p-2 bg-light rounded" data-id="${msg.id}">
     <div class="fw-bold">${msg.sender}</div>
-    <div>${fileIcon}${safeContent}</div>
+    <div>${fileIcon}${message}</div>
     <div class="small text-muted mt-1 d-flex justify-content-between">
       <span title="${new Date(msg.timestamp).toLocaleString()}">${timeAgo}</span>
       <span class="d-flex gap-2">
