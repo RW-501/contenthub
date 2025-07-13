@@ -675,10 +675,23 @@ async function initChat() {
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
+
+  document.getElementById("chatInput").addEventListener("keydown", function (event) {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault(); // Prevent new line if Enter pressed
+    document.getElementById("sendBtn").focus();
+  }
+});
+
 }
 
 // Send Message
 document.getElementById("sendBtn").addEventListener("click", async () => {
+      if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+  } 
+
   const input = document.getElementById("chatInput");
   let message = input.value.trim();
   if (!message) return;
