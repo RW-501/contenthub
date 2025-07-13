@@ -1183,17 +1183,17 @@ for (const uid of participants) {
   const canEdit = currentUserUid === ownerUid && !isOwner;
 
 
-if (isOwner) {
-  document.getElementById("removeBoardBtn").classList.remove("d-none");
-  document.getElementById("archiveBoardBtn").classList.remove("d-none");
-} else {
-  document.getElementById("removeBoardBtn").classList.add("d-none");
-  document.getElementById("archiveBoardBtn").classList.add("d-none");
-  document.getElementById("removeBoardBtn")?.remove();
-  document.getElementById("archiveBoardBtn")?.remove();
-
-
-}
+setTimeout(() => {
+  if (isOwner) {
+    document.getElementById("removeBoardBtn")?.classList.remove("d-none");
+    document.getElementById("archiveBoardBtn")?.classList.remove("d-none");
+  } else {
+    document.getElementById("removeBoardBtn")?.classList.add("d-none");
+    document.getElementById("archiveBoardBtn")?.classList.add("d-none");
+    document.getElementById("removeBoardBtn")?.remove();
+    document.getElementById("archiveBoardBtn")?.remove();
+  }
+}, 200);
 
   const userDiv = document.createElement("div");
   userDiv.className = "d-flex align-items-center justify-content-between mb-2";
