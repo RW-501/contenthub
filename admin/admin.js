@@ -3753,17 +3753,27 @@ async function awardPointsToDemoUsers() {
 
 
 
+function getRandomTimestampWithinWeek() {
+  const now = new Date();
+  const oneWeekAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+  const randomTime = new Date(oneWeekAgo + Math.random() * (now.getTime() - oneWeekAgo));
+  return Timestamp.fromDate(randomTime);
+}
+
 async function updateAllPosts() {
-  const postsRef = collection(db, "posts");  // Make sure the collection is named correctly ("post" or "posts")
+  const postsRef = collection(db, "posts");
   const snapshot = await getDocs(postsRef);
 
   for (const docSnap of snapshot.docs) {
-    await updateDoc(doc(db, "posts", docSnap.id), {  // update in "post" collection
-      createdAt: serverTimestamp(),
+    const randomCreatedAt = getRandomTimestampWithinWeek();
+
+    await updateDoc(doc(db, "posts", docSnap.id), {
+      createdAt: randomCreatedAt,
     });
   }
 
-  console.log("Updated createdAt with serverTimestamp() for all posts.");
+  console.log("✅ Randomized createdAt date (within the last 7 days) for all posts.");
 }
 
-//updateAllPosts().catch(console.error);
+updateAllPosts().catch(console.error);
+
