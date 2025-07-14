@@ -245,18 +245,14 @@ async function loadRegularPosts(filter, search) {
 
 
 switch (filter) {
-  case "trending":
-    q = query(postsCol, orderBy("likes", "desc"), limit(10));
-    break;
   case "new":
     q = query(postsCol, orderBy("createdAt", "desc"), limit(10));
     break;
-  case "music":
-  case "art":
-  case "film":
-  case "audio":
-    q = query(postsCol, where("tags", "array-contains", filter), orderBy("createdAt", "desc"), limit(10));
+  case "trending":
+    q = query(postsCol, orderBy("likes", "desc"), limit(10));
     break;
+  // q = query(postsCol, where("tags", "array-contains", filter), orderBy("createdAt", "desc"), limit(10));
+   // break;
   default:
     // 🔥 Default to newest posts
     q = query(postsCol, orderBy("createdAt", "desc"), limit(10));
