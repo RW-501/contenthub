@@ -721,7 +721,7 @@ users.slice(0, 5).forEach(u => {
     <div>
       <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${u.id}">${u.displayName || 'Unknown'}</a><br/>
       <small>${(u.niches || []).join(', ')}</small><br/>
-      <small>⭐ ${u.rating || 0} | 💎 ${u.points || 0} pts</small>
+      <small>💎 ${u.points || 0} pts</small>
     </div>
     <button class="btn btn-sm btn-outline-primary ms-auto" onclick="followUser('${u.id}')">Follow</button>
   `;
