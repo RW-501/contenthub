@@ -584,6 +584,7 @@ async function initChat() {
     chatMessages.innerHTML = "";
     recentUsersEl.innerHTML = "";
 
+    const renderedMessages = new Set();
     const recentUserIds = new Set();
     const pinnedMessages = [];
     const normalMessages = [];
@@ -593,6 +594,9 @@ async function initChat() {
       const msg = docSnap.data();
       const docId = docSnap.id;
       const isMe = msg.uid === viewerUserId;
+
+      if (renderedMessages.has(docId)) continue; // already rendered
+      renderedMessages.add(docId);
 
       if (msg.status === "deleted") continue;
 
@@ -739,6 +743,7 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     pinned: false,
     status: "active"
   });
+
 
   input.value = "";
 });
