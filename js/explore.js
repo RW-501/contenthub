@@ -113,12 +113,14 @@ function createCollabCard(data, collabData) {
 
   card.innerHTML = `
     <strong>${data.title || "Untitled Collab"}</strong><br/>
-    <small>Requested by <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${data.owner}">Creator</a></small><br/>
+    <small>Creator by 
+    <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${data.owner}">
+    ${data.ownerName}</a></small><br/>
     <p>${data.description || ""}</p>
     <div class="progress my-2" style="height: 20px;">
       <div class="progress-bar" role="progressbar" style="width: ${progress}%">${progress}%</div>
     </div>
-    <p class="mb-2 text-muted">🧩 Total Tasks: ${totalTasks}</p>
+    <p class="mb-2">🧩 Total Tasks: ${totalTasks}</p>
     <div class="d-flex gap-2">
 <button 
   class="btn btn-sm btn-outline-primary mt-2"
