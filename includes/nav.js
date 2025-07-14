@@ -553,6 +553,8 @@ window.showChatMessages = showChatMessages;
 let viewerUserId, viewerUsername, viewerUserPhotoURL, viewerRole;
 
 let chatListenerUnsub = null;
+    const renderedMessages = new Set();
+
 
 async function initChat() {
 
@@ -581,10 +583,8 @@ async function initChat() {
   const recentUsersEl = document.getElementById("recentUsers");
 
   chatListenerUnsub = onSnapshot(q, async snapshot => {
-    chatMessages.innerHTML = "";
     recentUsersEl.innerHTML = "";
 
-    const renderedMessages = new Set();
     const recentUserIds = new Set();
     const pinnedMessages = [];
     const normalMessages = [];
@@ -595,8 +595,10 @@ async function initChat() {
       const docId = docSnap.id;
       const isMe = msg.uid === viewerUserId;
 
-      if (renderedMessages.has(docId)) continue; // already rendered
-      renderedMessages.add(docId);
+if (renderedMessages.has(docId)) continue; // already rendered
+renderedMessages.add(docId);
+chatMessages.appendChild(messageEl);
+
 
       if (msg.status === "deleted") continue;
 
@@ -706,6 +708,13 @@ if (heartBtn) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 }
+
+
+
+
+
+
+
 
   document.getElementById("chatInput").addEventListener("keydown", function (event) {
   if (event.key === "Enter" && !event.shiftKey) {

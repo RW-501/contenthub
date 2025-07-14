@@ -198,14 +198,35 @@ const otpResult = await window.confirmationResult.confirm(data.otp);
 
 
   // EMAIL SIGNUP
-  document.getElementById("emailSignUpBtn").addEventListener("click", async () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-const result = await loginWith('email-signup', { email, password });
-if (result.error) return alert(result.error);
-await ensureUserExists(result.user);
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+
+document.getElementById("emailSignUpBtn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    // Try to sign in first
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    await ensureUserExists(result.user); // Your custom function
     window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
-  });
+  } catch (err) {
+    if (err.code === "auth/user-not-found") {
+      // If user doesn't exist, create new account
+      try {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        await ensureUserExists(result.user);
+        window.location.href = 'https://rw-501.github.io/contenthub/pages/profile.html';
+      } catch (signupError) {
+        alert("Signup failed: " + signupError.message);
+      }
+    } else if (err.code === "auth/wrong-password") {
+      alert("Incorrect password.");
+    } else {
+      alert("Error: " + err.message);
+    }
+  }
+});
+
 
   // GOOGLE
   document.getElementById("googleBtn").addEventListener("click", async () => {
