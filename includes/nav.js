@@ -634,8 +634,10 @@ async function initChat() {
             ${safeMsg}
           </span>
           <div class="small d-none text-muted time-info">${timeAgo} 
-            <button class="btn btn-sm btn-outline-light btn-heart">
-            <span class="badge bg-danger">🔥 ${msg.heart || 0}</span></button>
+<button class="btn btn-sm btn-outline-light btn-heart" data-id="${docId}">
+  <span class="badge bg-danger">🔥 ${msg.heart || 0}</span>
+</button>
+
             ${deleteBtn} ${pinBtn}
           </div>
         </div>
