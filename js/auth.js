@@ -159,17 +159,6 @@ await sendNotification({
 
   }
 }
-// 📱 Invisible reCAPTCHA verifier (phone login)
-let recaptchaVerifier;
-let confirmationResult;
-
-export function initRecaptcha(containerId = 'recaptcha-container') {
-  recaptchaVerifier = new RecaptchaVerifier(containerId, {
-    size: 'invisible',
-    callback: () => {}
-  }, auth);
-  recaptchaVerifier.render();
-}
 
 // 🔁 Main reusable login function
 export async function loginWith(method, data = {}) {
@@ -190,12 +179,12 @@ export async function loginWith(method, data = {}) {
 
       case 'send-otp':
         if (!recaptchaVerifier) initRecaptcha(data.recaptchaContainerId || 'recaptcha-container');
-        confirmationResult = await signInWithPhoneNumber(auth, data.phone, recaptchaVerifier);
+window.confirmationResult = await signInWithPhoneNumber(auth, data.phone, recaptchaVerifier);
         return { message: 'OTP Sent' };
 
       case 'verify-otp':
         if (!confirmationResult) throw new Error("OTP not sent yet.");
-        const otpResult = await confirmationResult.confirm(data.otp);
+const otpResult = await window.confirmationResult.confirm(data.otp);
         return { user: otpResult.user };
 
       default:
@@ -228,7 +217,26 @@ await ensureUserExists(result.user);
   });
 
   // PHONE OTP
-  initRecaptcha('recaptcha-container');
+  //initRecaptcha('recaptcha-container');
+  
+// 📱 Invisible reCAPTCHA verifier (phone login)
+let recaptchaVerifier;
+window.confirmationResult = null;
+
+
+  let recaptchaInitialized = false;
+
+export function initRecaptcha(containerId = 'recaptcha-container') {
+  if (recaptchaInitialized) return;
+  recaptchaInitialized = true;
+
+  recaptchaVerifier = new RecaptchaVerifier(containerId, {
+    size: 'invisible',
+    callback: () => {}
+  }, auth);
+
+  recaptchaVerifier.render();
+}
 
   document.getElementById("sendOtpBtn").addEventListener("click", async () => {
     const phone = document.getElementById("phoneNumber").value;
