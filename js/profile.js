@@ -398,6 +398,14 @@ async function followUser(uid) {
   location.reload();
 }
 
+function encodeData(obj) {
+  const json = JSON.stringify(obj);
+  return btoa(encodeURIComponent(json));
+}
+function decodeData(str) {
+  const decoded = decodeURIComponent(atob(str));
+  return JSON.parse(decoded);
+}
 
 async function loadUserPosts(uid, displayName, photoURL) {
   const postGrid = document.getElementById("postsGrid");
@@ -472,8 +480,8 @@ if (status === "removed") continue;
     const createdAt = post.createdAt?.toDate?.() || new Date();
     const timeAgo = timeSince(createdAt.getTime());
 
-const encodedUser = btoa(JSON.stringify(docSnap.id));
-const encodedPost = btoa(JSON.stringify(post));
+const encodedUser = encodeData(JSON.stringify(docSnap.id));
+const encodedPost = encodeData(JSON.stringify(post));
 
   let joinButton = "";
   if (["collab", "help"].includes(post.type)) {
@@ -979,8 +987,10 @@ document.getElementById("collabBtn").addEventListener("click", async (e) => {
 
 
 async function requestToJoin(btn) {
-  const ownerData = JSON.parse(btn.dataset.user);
-  const collabId = JSON.parse(btn.dataset.post);
+    const ownerData = JSON.parse(decodeData(btn.dataset.user));
+    const collabId = JSON.parse(decodeData(btn.dataset.post));
+
+
   console.log("User:", ownerData, "Post:", collabId);
 
 
