@@ -544,9 +544,11 @@ let viewerUserId, viewerUsername, viewerUserPhotoURL, viewerRole;
 let chatListenerUnsub = null;
 
 async function initChat() {
+
+  
   if (!currentUser) {
     document.getElementById("auth-login").classList.remove("d-none");
-    return;
+   // return;
   }
 
   if (chatListenerUnsub) return; // prevent multiple listeners
