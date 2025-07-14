@@ -513,6 +513,8 @@ card.innerHTML = `
     <small class="text-muted d-block mb-2">
       ${timeAgo} • 
       <span id="like-count-${docSnap.id}">${post.likes || 0}</span> Likes
+      <span id="helpful-count-${docSnap.id}">${post.helpful || 0}</span> Helpful
+      <span id="interested-count-${docSnap.id}">${post.interested || 0}</span> Interested
     </small>
 
     <div class="d-flex gap-2  mb-2">
@@ -546,31 +548,30 @@ card.innerHTML = `
 const likeBtn = card.querySelector(`#like-btn-${docSnap.id}`);
 const likeCountEl = card.querySelector(`#like-count-${docSnap.id}`);
 const helpfulBtn = card.querySelector(`#helpful-btn-${docSnap.id}`);
+const helpfulCountEl = card.querySelector(`#helpful-count-${docSnap.id}`);
 const interestedBtn = card.querySelector(`#interested-btn-${docSnap.id}`);
+const interestedCountEl = card.querySelector(`#interested-count-${docSnap.id}`);
 
-// ✅ Safely add event listeners only if buttons exist
+// ❤️ Like Button
 if (likeBtn) {
   likeBtn.addEventListener("click", () => {
     console.log("❤️ Like clicked");
-
-    // Toggle class for visual feedback
     likeBtn.classList.toggle("active");
 
-    // Animate
     likeBtn.classList.add("animate__animated", "animate__bounce");
     setTimeout(() => likeBtn.classList.remove("animate__animated", "animate__bounce"), 800);
 
-    // Increment counter
+    // ✅ Update count visually
     if (likeCountEl) {
       const current = parseInt(likeCountEl.innerText) || 0;
       likeCountEl.innerText = current + 1;
     }
 
-    // React backend
     reactToPost(docSnap.id, "like", post.owner, post.caption);
   });
 }
 
+// 🙌 Helpful Button
 if (helpfulBtn) {
   helpfulBtn.addEventListener("click", () => {
     console.log("🙌 Helpful clicked");
@@ -579,10 +580,17 @@ if (helpfulBtn) {
     helpfulBtn.classList.add("animate__animated", "animate__pulse");
     setTimeout(() => helpfulBtn.classList.remove("animate__animated", "animate__pulse"), 800);
 
+    // ✅ Update count visually
+    if (helpfulCountEl) {
+      const current = parseInt(helpfulCountEl.innerText) || 0;
+      helpfulCountEl.innerText = current + 1;
+    }
+
     reactToPost(docSnap.id, "helpful", post.owner, post.caption);
   });
 }
 
+// ⭐ Interested Button
 if (interestedBtn) {
   interestedBtn.addEventListener("click", () => {
     console.log("⭐ Interested clicked");
@@ -591,57 +599,26 @@ if (interestedBtn) {
     interestedBtn.classList.add("animate__animated", "animate__tada");
     setTimeout(() => interestedBtn.classList.remove("animate__animated", "animate__tada"), 800);
 
+    // ✅ Update count visually
+    if (interestedCountEl) {
+      const current = parseInt(interestedCountEl.innerText) || 0;
+      interestedCountEl.innerText = current + 1;
+    }
+
     reactToPost(docSnap.id, "interested", post.owner, post.caption);
   });
 }
 
-
-    postGrid.appendChild(card);
-  }
 }
-async function reactToPost(postId, type, ownerId, caption) {
-    const currentUser = auth.currentUser;
-  if (!currentUser) {
-    const authModal = document.getElementById("auth-login");
-    authModal.classList.remove("d-none");
-    return;
-  }
-  const postRef = doc(db, "posts", postId);
-  const userRef = doc(db, "users", ownerId);
-
-  await updateDoc(postRef, { [`${type}Count`]: increment(1) });
-  await updateDoc(userRef, {
-    [`receivedReactions.${type}`]: increment(1)
-  });
-
-  const emojiMap = {
-    helpful: "🙌",
-    interested: "⭐",
-    like: "❤️"
-  };
-  const emoji = emojiMap[type] || "✨";
-
-      const avatar = document.getElementById("userAvatar");
-
-    const viewerUserId = avatar.dataset.uid;
-    const viewerDisplayName = avatar.dataset.displayName;
-    const viewerRole = avatar.dataset.role;
-    const viewerUsername = avatar.dataset.username;
-    const viewerUserPhotoURL = avatar.dataset.photo;
-
-  await sendNotification({
-    toUid: ownerId,
-    fromUid: viewerUserId,
-    fromDisplayName: viewerDisplayName,
-    fromuserAvatar: viewerUserPhotoURL,
-    message: `${viewerUsername} marked your post as ${type} ${emoji}: "${caption}"`,
-    type: `${type}Post`
-  });
 
   // 🎯 Optionally check for reward
   const updatedSnap = await getDoc(userRef);
   await checkAndAwardTasks(ownerId, updatedSnap.data());
+
+
+  
 }
+
 function timeAgo(date) {
   if (!date) return "";
   const seconds = Math.floor((new Date() - date) / 1000);
