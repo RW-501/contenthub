@@ -1380,85 +1380,89 @@ const socialPlatforms = {
   const editProfileBtn = document.getElementById("editProfileBtn");
   const linkValidity = {}; // Store validity per platform
 
-  function updateVerifyBtnState() {
-    const allValid = Object.values(linkValidity).every(v => v !== false); // allow true or undefined
-    verifyBtn.disabled = !allValid;
-    editProfileBtn.disabled = !allValid;
-  }
+ const verifyUrls = false; // ⛔ Set to false to skip link validation check
 
-  Object.keys(socialPlatforms).forEach((platform, index) => {
-    const input = document.getElementById(`editLink${index + 1}`);
-    if (!input) return;
+function updateVerifyBtnState() {
+  const allValid = Object.values(linkValidity).every(v => v !== false); // allow true or undefined
+  verifyBtn.disabled = !allValid;
+  editProfileBtn.disabled = !allValid;
+}
 
-    const base = socialPlatforms[platform];
+Object.keys(socialPlatforms).forEach((platform, index) => {
+  const input = document.getElementById(`editLink${index + 1}`);
+  if (!input) return;
 
-    // Create error message container
-    const errorMsg = document.createElement("div");
-    errorMsg.className = "text-danger small mt-1 d-none";
-    input.insertAdjacentElement("afterend", errorMsg);
+  const base = socialPlatforms[platform];
 
-    input.addEventListener("change", async () => {
-      let value = input.value.trim();
-      linkValidity[platform] = undefined; // Reset status
+  const errorMsg = document.createElement("div");
+  errorMsg.className = "text-danger small mt-1 d-none";
+  input.insertAdjacentElement("afterend", errorMsg);
 
-      if (!value) {
-        input.classList.remove("is-invalid");
+  input.addEventListener("change", async () => {
+    let value = input.value.trim();
+    linkValidity[platform] = undefined;
+
+    if (!value) {
+      input.classList.remove("is-invalid");
+      errorMsg.classList.add("d-none");
+      updateVerifyBtnState();
+      return;
+    }
+
+    if (!value.startsWith("http")) {
+      value = base + value.replace(/^@/, "");
+    }
+
+    input.value = value;
+
+    try {
+      const url = new URL(value);
+      if (!url.hostname.includes(new URL(base).hostname)) {
+        throw new Error("Domain mismatch");
+      }
+
+      errorMsg.textContent = "Checking link...";
+      errorMsg.classList.remove("d-none");
+      input.classList.remove("is-invalid");
+
+      if (!verifyUrls) {
+        // ✅ Skip fetch check if turned off
+        linkValidity[platform] = true;
         errorMsg.classList.add("d-none");
+        input.classList.remove("is-invalid");
         updateVerifyBtnState();
         return;
       }
 
-      // Format: only username → full URL
-      if (!value.startsWith("http")) {
-        value = base + value.replace(/^@/, "");
-      }
-
-      input.value = value;
-
-      // Validate domain
       try {
-        const url = new URL(value);
-        if (!url.hostname.includes(new URL(base).hostname)) {
-          throw new Error("Domain mismatch");
-        }
+        const response = await fetch(value, { method: "HEAD", mode: "no-cors" });
 
-        // Now do a CORS-safe check
-        errorMsg.textContent = "Checking link...";
-        errorMsg.classList.remove("d-none");
+        // ⚠️ no-cors doesn't allow checking status, so assume success unless an error is thrown
+        linkValidity[platform] = true;
+        errorMsg.classList.add("d-none");
         input.classList.remove("is-invalid");
 
-        try {
-          const response = await fetch(value, { method: "HEAD", mode: "no-cors" });
-          // We can't inspect response in no-cors, but assume it's okay if it doesn't throw
-
-          linkValidity[platform] = true;
-          errorMsg.classList.add("d-none");
-          input.classList.remove("is-invalid");
-          if(response){
-          linkValidity[platform] = false;
-errorMsg.textContent = `Unable to verify your ${platform} link. Please check the URL.`;
-          errorMsg.classList.remove("d-none");
-          input.classList.add("is-invalid");
-          }
-        } catch {
-          linkValidity[platform] = false;
-errorMsg.textContent = `Unable to verify your ${platform} link. Please check the URL.`;
-          errorMsg.classList.remove("d-none");
-          input.classList.add("is-invalid");
-        }
-      } catch (err) {
+        // Optional: if you want to be extra defensive, you can do a false fallback here
+        // if (response && !response.ok) { ... }
+      } catch {
         linkValidity[platform] = false;
-        errorMsg.textContent = `Please enter a valid ${platform} URL`;
+        errorMsg.textContent = `Unable to verify your ${platform} link. Please check the URL.`;
         errorMsg.classList.remove("d-none");
         input.classList.add("is-invalid");
       }
 
-      updateVerifyBtnState();
-    });
+    } catch (err) {
+      linkValidity[platform] = false;
+      errorMsg.textContent = `Please enter a valid ${platform} URL`;
+      errorMsg.classList.remove("d-none");
+      input.classList.add("is-invalid");
+    }
+
+    updateVerifyBtnState();
   });
+});
 
-  updateVerifyBtnState(); // Initial check
-
+updateVerifyBtnState();
 
 
 
