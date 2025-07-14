@@ -245,6 +245,23 @@ const badgeIcons = {
 };
 
 
+const myConfetti = confetti.create(document.createElement('canvas'), {
+  resize: true,
+  useWorker: true
+});
+
+document.body.appendChild(myConfetti.canvas);
+
+// Style the canvas to always be on top
+myConfetti.canvas.style.position = "fixed";
+myConfetti.canvas.style.top = "0";
+myConfetti.canvas.style.left = "0";
+myConfetti.canvas.style.width = "100%";
+myConfetti.canvas.style.height = "100%";
+myConfetti.canvas.style.pointerEvents = "none";
+myConfetti.canvas.style.zIndex = "9999999"; // 👈 Very high to beat Bootstrap modals
+
+
 
 async function loadRewardModal() {
   const user = auth.currentUser;

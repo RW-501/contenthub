@@ -132,24 +132,35 @@ function createNotificationHTML(n, ref, id) {
   const item = document.createElement("div");
   const timestamp = n.timestamp?.toDate?.() ? new Date(n.timestamp.toDate()).toLocaleString() : "Just now";
 
-  item.className = `position-relative list-group-item d-flex flex-column ${n.read ? '' : 'fw-bold'} p-3`;
+item.className = `position-relative list-group-item ${n.read ? '' : 'fw-bold'} p-3`;
 
-  item.innerHTML = `
-    <button class="btn btn-sm btn-link text-danger position-absolute top-0 end-0 me-1 mt-1 p-0" 
-            style="font-size: 1rem;" 
-            title="Dismiss" 
-            onclick="dismissNotif('${ref.path}')">✖</button>
-    
-    <div class="d-flex align-items-center mb-1">
-      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${n.fromUid}" class="me-2">
-        <img src="${n.fromuserAvatar}" class="avatar" style="width:32px;height:32px;border-radius:50%;" />
-      </a>
-      <div class="flex-grow-1">
-        <div>${n.message}</div>
-        <small class="text-muted">${timestamp}</small>
-      </div>
+item.innerHTML = `
+  <!-- Dismiss button -->
+  <button class="btn btn-sm btn-link text-danger position-absolute top-0 end-0 me-1 mt-1 p-0" 
+          style="font-size: 1rem;" 
+          title="Dismiss" 
+          onclick="dismissNotif('${ref.path}')">✖</button>
+
+  <!-- Content row -->
+  <div class="d-flex align-items-start">
+    <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${n.fromUid}" class="me-2">
+      <img src="${n.fromuserAvatar}" class="avatar" style="width:32px;height:32px;border-radius:50%;" />
+    </a>
+    <div class="flex-grow-1">
+      <div class="mb-1">${n.message}</div>
+      <small class="text-muted">${timestamp}</small>
     </div>
-  `;
+
+    <!-- Read button aligned right -->
+    <div class="ms-3">
+      <button class="btn btn-sm btn-outline-secondary"
+              onclick="markAsRead('${ref.path}')">
+        Mark as Read
+      </button>
+    </div>
+  </div>
+`;
+
 
   item.onclick = async () => {
     await updateDoc(ref, { read: true });
@@ -586,8 +597,31 @@ export const rewardTasks = [
 
 ];
 
-function showRewardToast(task, userData = {}, newTotalPoints = 0) {
-  setTimeout(() => {
+
+const rewardQueue = [];
+let isShowingReward = false;
+
+function queueRewardToast(task, userData, newTotalPoints) {
+  rewardQueue.push({ task, userData, newTotalPoints });
+  processRewardQueue();
+}
+
+async function processRewardQueue() {
+  if (isShowingReward || rewardQueue.length === 0) return;
+
+  const { task, userData, newTotalPoints } = rewardQueue.shift();
+  isShowingReward = true;
+
+  await runRewardToast(task, userData, newTotalPoints);
+
+  isShowingReward = false;
+
+  // Wait a moment before showing the next one
+  setTimeout(processRewardQueue, 800);
+}
+
+function runRewardToast(task, userData = {}, newTotalPoints = 0) {
+  return new Promise((resolve) => {
     const msg = task.reward.badge
       ? `🎉 You earned the "${task.reward.badge}" badge!`
       : `🎁 You earned ${task.reward.points} points!`;
@@ -599,14 +633,14 @@ function showRewardToast(task, userData = {}, newTotalPoints = 0) {
       origin: { y: 0.6 }
     });
 
-    // Show initial reward
+    // Show reward modal
     showModal({
       title: "Reward Earned",
       message: msg,
       autoClose: 4000
     });
 
-    // Milestone & feature logic
+    // Milestone logic
     setTimeout(async () => {
       const uid = userData.uid;
       const userRef = doc(db, "users", uid);
@@ -614,8 +648,8 @@ function showRewardToast(task, userData = {}, newTotalPoints = 0) {
       const featuredUntil = new Date(now);
       featuredUntil.setDate(featuredUntil.getDate() + 7);
 
-      // 200+ pts = automatic feature (if not already featured)
       const notYetFeatured = !userData.featured?.isFeatured;
+
       if (newTotalPoints >= 200 && newTotalPoints < 500 && notYetFeatured) {
         showModal({
           title: "🎉 You're Featured!",
@@ -636,34 +670,35 @@ function showRewardToast(task, userData = {}, newTotalPoints = 0) {
         });
       }
 
-      // 1000+ pts = "star"
       if (newTotalPoints >= 1000 && !userData.milestones?.includes("star")) {
         showModal({
           title: "🌟 You're a Content Star!",
           message: "You've earned over 1000 points. You're rising fast! 🌠",
           autoClose: 6000
         });
+
         await updateDoc(userRef, {
           milestones: arrayUnion("star")
         });
       }
 
-      // 2000+ pts = "elite"
       if (newTotalPoints >= 2000 && !userData.milestones?.includes("elite")) {
         showModal({
           title: "🚀 Elite Creator Unlocked!",
           message: "2,000+ points! You're one of the top creators on the platform 🔥",
           autoClose: 6000
         });
+
         await updateDoc(userRef, {
           milestones: arrayUnion("elite")
         });
       }
 
-    }, 5000);
-  }, 1000);
+      // Finish this reward toast
+      resolve();
+    }, 4500); // enough time for first modal to auto-close
+  });
 }
-
 
 
 export async function checkAndAwardTasks(uid, userData) {
@@ -722,7 +757,7 @@ export async function checkAndAwardTasks(uid, userData) {
 
       // Calculate new total points & trigger reward modal
       const newTotalPoints = updates.points;
-      showRewardToast(task, { ...userData, uid }, newTotalPoints);
+queueRewardToast(task, { ...userData, uid }, newTotalPoints);
 
       console.log(`✅ Awarded task ${task.id} to ${uid}`);
     }
