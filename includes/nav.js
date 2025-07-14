@@ -662,6 +662,7 @@ async function initChat() {
         });
       }
 
+// Heart button handler
 const heartBtn = messageEl.querySelector(".btn-heart");
 if (heartBtn) {
   heartBtn.addEventListener("click", async () => {
@@ -670,8 +671,6 @@ if (heartBtn) {
     });
   });
 }
-
-
       const pinBtnEl = messageEl.querySelector(".btn-pin");
       if (pinBtnEl) {
         pinBtnEl.addEventListener("click", async () => {
