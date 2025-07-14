@@ -417,6 +417,7 @@ const q = query(
   orderBy("createdAt", "desc")
 );
   const snapshot = await getDocs(q);
+console.log(`Loading ${snapshot.size} posts for user: ${uid}`);
 
   if (snapshot.empty) {
     postGrid.innerHTML = `
@@ -430,6 +431,8 @@ const q = query(
 
   for (const docSnap of snapshot.docs) {
     const post = docSnap.data();
+
+    console.log("Rendering post:", post.caption, post);
 
     // ✅ Skip if scheduled in the future
     if (post.scheduledAt && post.scheduledAt.toDate() > now) continue;
