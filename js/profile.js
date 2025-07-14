@@ -472,12 +472,21 @@ if (status === "removed") continue;
     const createdAt = post.createdAt?.toDate?.() || new Date();
     const timeAgo = timeSince(createdAt.getTime());
 
+const encodedUser = btoa(JSON.stringify(docSnap.id));
+const encodedPost = btoa(JSON.stringify(post));
+
   let joinButton = "";
   if (["collab", "help"].includes(post.type)) {
     joinButton = `
-      <button class="btn btn-sm btn-outline-primary mt-2" onclick="requestToJoin('${docSnap.id}', '${post}')">
-        Request to Join
-      </button>
+    <button 
+  class="btn btn-sm btn-outline-primary mt-2"
+    data-user="${encodedUser}"
+    data-post="${encodedPost}"
+  onclick="requestToJoin(this)"
+>
+  Request to Join
+</button>
+
     `;
   }
 card.innerHTML = `
@@ -915,6 +924,9 @@ async function loadUserCollabs(uid) {
       const status = data.status || "active";
       const title = data.title || "Untitled Collaboration";
 
+const encodedUser = btoa(JSON.stringify(data));
+const encodedPost = btoa(JSON.stringify(id));
+
       const item = document.createElement("li");
       item.className = "list-group-item";
 
@@ -931,8 +943,8 @@ async function loadUserCollabs(uid) {
         ${isPublic && !alreadyJoined && currentUserId !== uid
           ? `<button 
   class="btn btn-sm btn-outline-primary mt-2"
-  data-user='${JSON.stringify(data)}'
-  data-post='${JSON.stringify(id)}'
+    data-user="${encodedUser}"
+    data-post="${encodedPost}"
   onclick="requestToJoin(this)"
 >
   Request to Join

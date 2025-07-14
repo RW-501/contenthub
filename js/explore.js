@@ -111,6 +111,8 @@ function createCollabCard(data, collabData) {
   const progress = data.progress || 0;
   const totalTasks = data.totalTasks || 0;
 
+const encodedPost = btoa(JSON.stringify(data));
+const encodedUser = btoa(JSON.stringify(collabData));
   card.innerHTML = `
     <strong>${data.title || "Untitled Collab"}</strong><br/>
     <small>Creator by 
@@ -124,8 +126,8 @@ function createCollabCard(data, collabData) {
     <div class="d-flex gap-2">
 <button 
   class="btn btn-sm btn-outline-primary mt-2"
-  data-post='${JSON.stringify(data)}'
-  data-user='${JSON.stringify(collabData)}'
+    data-post="${encodedPost}"
+    data-user="${encodedUser}"
 
   onclick="requestToJoin(this)"
 >
@@ -139,9 +141,9 @@ function createCollabCard(data, collabData) {
 
 
 async function requestToJoin(btn) {
-  const ownerData = JSON.parse?.(btn.dataset.user);
-  const infoData = JSON.parse(btn.dataset.post);
-  console.log("User:", ownerData, "Post:", infoData);
+    const ownerData = JSON.parse(atob(btn.dataset.user));
+    const infoData = JSON.parse(atob(btn.dataset.post));
+ // console.log("User:", ownerData, "Post:", infoData);
 
 
     const currentUser = auth.currentUser;
@@ -333,6 +335,9 @@ async function createPostCard(post, postId) {
   const userSnap = await getDoc(doc(db, "users", post.owner));
   const userData = userSnap.exists() ? userSnap.data() : {};
 
+  const encodedUser = btoa(JSON.stringify(userData));
+  const encodedPost = btoa(JSON.stringify(post));
+
   let typeBadge = "";
   if (post.type === "collab") {
     typeBadge = `<span class="badge bg-primary me-2">🤝 Collab Request</span>`;
@@ -345,8 +350,8 @@ async function createPostCard(post, postId) {
     joinButton = `
 <button 
   class="btn btn-sm btn-outline-primary mt-2"
-  data-user='${JSON.stringify(userData)}'
-  data-post='${JSON.stringify(post)}'
+    data-user="${encodedUser}"
+    data-post="${encodedPost}"
   onclick="requestToJoin(this)"
 >
   Request to Join
