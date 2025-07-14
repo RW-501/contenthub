@@ -504,6 +504,7 @@ const encodedPost = encodeData(JSON.stringify(post));
 
     `;
   }
+
 card.innerHTML = `
   ${mediaHTML}
   <div class="PostCard card-body">
@@ -615,6 +616,8 @@ if (interestedBtn) {
     reactToPost(docSnap.id, "interested", post.owner, post.caption);
   });
 }
+
+postGrid.appendChild(card);
 
 }
 
