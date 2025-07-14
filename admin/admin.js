@@ -3754,11 +3754,11 @@ async function awardPointsToDemoUsers() {
 
 
 async function updateAllPosts() {
-  const postsRef = collection(db, "post");  // Make sure the collection is named correctly ("post" or "posts")
+  const postsRef = collection(db, "posts");  // Make sure the collection is named correctly ("post" or "posts")
   const snapshot = await getDocs(postsRef);
 
   for (const docSnap of snapshot.docs) {
-    await updateDoc(doc(db, "post", docSnap.id), {  // update in "post" collection
+    await updateDoc(doc(db, "posts", docSnap.id), {  // update in "post" collection
       createdAt: serverTimestamp(),
     });
   }
