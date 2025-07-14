@@ -235,16 +235,43 @@ mediaInput.addEventListener("change", e => {
 });
 
 
+
+// Profanity Filter List
+const bannedWords = [
+  "badword1",
+  "badword2",
+  "badword3",
+  "damn",
+  "hell",
+  "shit",
+  "fuck",
+  "bitch",
+  "asshole",
+  "bastard",
+  "slut",
+  "dick",
+  "pussy",
+  "nigger",
+  "faggot",
+  "cunt"
+];
+
+function filterProfanity(text) {
+  const regex = new RegExp(bannedWords.join("|"), "gi");
+  return text.replace(regex, "****");
+}
+
 // Publish Handler
 const publishBtn = document.getElementById("publishPostBtn");
 publishBtn.addEventListener("click", async () => {
   const user = auth.currentUser;
   if (!user) return alert("Please sign in.");
 
-  const captionRaw = document.getElementById("caption").innerText.trim();
+  const message = document.getElementById("caption").innerText.trim();
   const contributorsRaw = document.getElementById("contributors").value;
   const scheduleTime = document.getElementById("scheduleTime").value;
   const projectGoal = document.getElementById("projectGoal").value.trim();
+  const captionRaw = filterProfanity(message);
 
   // Auto detect hashtags from #...
   const tags = [...captionRaw.matchAll(/#(\w+)/g)].map(m => m[1].toLowerCase());
