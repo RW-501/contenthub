@@ -72,6 +72,18 @@
   <!-- User List -->
 <h3 class="section-title">Users</h3>
 <div class="card card-table p-3 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+  <input id="userSearch" class="form-control w-50" placeholder="Search by name, niche, or role...">
+
+  <select id="sortUsers" class="form-select w-auto ms-2">
+    <option value="newest">Newest First</option>
+    <option value="oldest">Oldest First</option>
+    <option value="name">Name (A-Z)</option>
+    <option value="role">Role</option>
+    <option value="status">Status</option>
+  </select>
+</div>
+
   <table class="table table-sm align-middle">
     <thead>
       <tr>

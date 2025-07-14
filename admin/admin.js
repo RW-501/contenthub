@@ -160,50 +160,83 @@ const userMap = {}; // Global map of demo user data
 
 async function loadUsers() {
   const userTable = document.getElementById("userTable");
-  const users = await getDocs(collection(db, "users"));
+  const searchInput = document.getElementById("userSearch");
+  const sortSelect = document.getElementById("sortUsers");
+
+  const querySnapshot = await getDocs(collection(db, "users"));
+  let users = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  // Filter users
+  const searchValue = (searchInput?.value || "").toLowerCase();
+  if (searchValue) {
+    users = users.filter(u => {
+      return (
+        (u.displayName || "").toLowerCase().includes(searchValue) ||
+        (u.niches || []).join(",").toLowerCase().includes(searchValue) ||
+        (u.role || "").toLowerCase().includes(searchValue)
+      );
+    });
+  }
+
+  // Sort users
+  const sortOption = sortSelect?.value || "newest";
+  users.sort((a, b) => {
+    if (sortOption === "newest") return new Date(b.createdAt?.toDate?.()) - new Date(a.createdAt?.toDate?.());
+    if (sortOption === "oldest") return new Date(a.createdAt?.toDate?.()) - new Date(b.createdAt?.toDate?.());
+    if (sortOption === "name") return (a.displayName || "").localeCompare(b.displayName || "");
+    if (sortOption === "role") return (a.role || "").localeCompare(b.role || "");
+    if (sortOption === "status") return (a.status || "").localeCompare(b.status || "");
+    return 0;
+  });
+
+  // Render users
   userTable.innerHTML = "";
+  const now = new Date();
 
-users.forEach(docSnap => {
-  const u = docSnap.data();
-  const id = docSnap.id;
+  users.forEach(u => {
+    const id = u.id;
+    const banUntil = u.bannedUntil?.toDate?.();
+    const banUntilDisplay = banUntil ? banUntil.toLocaleDateString() : "";
+    const createdAt = u.createdAt?.toDate?.();
+    const isNew = createdAt && (now - createdAt) < (3 * 24 * 60 * 60 * 1000); // last 3 days
 
-  const banUntil = u.bannedUntil?.toDate?.();
-  const banUntilDisplay = banUntil ? banUntil.toLocaleDateString() : "";
+    const actionButtons = `
+      <button class="usersCard btn btn-sm btn-outline-primary me-1" onclick="openActionModal('${id}')">⚙ Actions</button>
+      ${u.role === 'demo' ? `<button class="btn btn-sm btn-outline-success" onclick="editUserProfile('${id}')">✏️ Edit</button>` : ''}
+    `;
 
-  const role = u.role || "user";
+    const row = `
+      <tr>
+        <td>
+          ${u.displayName || 'N/A'}
+          ${u.featured?.isFeatured ? `<span class="badge bg-warning text-dark ms-1">⭐ Featured</span>` : ""}
+          ${isNew ? `<span class="badge bg-success ms-1">New</span>` : ""}
+        </td>
+        <td>${(u.niches || []).join(", ")}</td>
+        <td><span class="badge bg-info text-dark">${u.role || 'user'}</span></td>
+        <td><span class="badge bg-${u.status === 'active' ? 'success' : u.status === 'blocked' ? 'warning' : 'secondary'}">${u.status}</span></td>
+        <td>${banUntilDisplay}</td>
+        <td>${actionButtons}</td>
+      </tr>
+    `;
 
-
-  userMap[id] = u;
-
-
-  const status = u.status || "active";
-
-  const actionButtons = `
-    <button class="usersCard btn btn-sm btn-outline-primary me-1" onclick="openActionModal('${id}')">⚙ Actions</button>
-${role === 'demo' ? `<button class="btn btn-sm btn-outline-success" onclick="editUserProfile('${id}')">✏️ Edit</button>` : ''}
-  `;
-
-
-
-  const row = `
-    <tr>
-<td>
-  ${u.displayName || 'N/A'}
-  ${u.featured?.isFeatured ? `<span class="badge bg-warning text-dark ms-1">⭐ Featured</span>` : ""}
-</td>
-      <td>${(u.niches || []).join(", ")}</td>
-      <td><span class="badge bg-info text-dark">${role}</span></td>
-      <td><span class="badge bg-${status === 'active' ? 'success' : status === 'blocked' ? 'warning' : 'secondary'}">${status}</span></td>
-      <td>${banUntilDisplay}</td>
-      <td>${actionButtons}</td>
-    </tr>`;
-
-  userTable.insertAdjacentHTML("beforeend", row);
-});
-
+    userTable.insertAdjacentHTML("beforeend", row);
+  });
 }
+
 window.loadUsers = loadUsers;
 
+
+document.getElementById("userSearch")?.addEventListener("input", debounce(loadUsers, 300));
+document.getElementById("sortUsers")?.addEventListener("change", loadUsers);
+
+function debounce(fn, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
 
 
 let selectedUserId = null;
