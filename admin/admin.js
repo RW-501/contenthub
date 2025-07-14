@@ -3766,4 +3766,4 @@ async function updateAllPosts() {
   console.log("Updated createdAt with serverTimestamp() for all posts.");
 }
 
-updateAllPosts().catch(console.error);
+//updateAllPosts().catch(console.error);
