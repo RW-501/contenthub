@@ -10,7 +10,7 @@ import {
   doc,
   getDoc,
   getDocs, updateDoc,
-  query,
+  query, serverTimestamp,
   where, increment 
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import {
@@ -294,7 +294,7 @@ await addDoc(collection(db, "posts"), {
   status: "active",
   type: postTypeSelect.value,  // 🔥 new field
   projectGoal: projectGoal || null,
-  createdAt: new Date(),
+  createdAt: serverTimestamp(),
   scheduledAt: scheduleTime ? new Date(scheduleTime) : null
 });
 

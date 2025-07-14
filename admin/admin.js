@@ -3750,3 +3750,20 @@ async function awardPointsToDemoUsers() {
   console.log("🎉 Finished awarding points to demo users.");
 }
 ///awardPointsToDemoUsers();
+
+
+
+async function updateAllPosts() {
+  const postsRef = collection(db, "post");  // Make sure the collection is named correctly ("post" or "posts")
+  const snapshot = await getDocs(postsRef);
+
+  for (const docSnap of snapshot.docs) {
+    await updateDoc(doc(db, "post", docSnap.id), {  // update in "post" collection
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  console.log("Updated createdAt with serverTimestamp() for all posts.");
+}
+
+updateAllPosts().catch(console.error);
