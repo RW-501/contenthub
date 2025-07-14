@@ -411,7 +411,11 @@ async function loadUserPosts(uid, displayName, photoURL) {
   const postGrid = document.getElementById("postsGrid");
   postGrid.innerHTML = "";
 
-  const q = query(collection(db, "posts"), where("owner", "==", uid), orderBy("createdAt", "desc"));
+const q = query(
+  collection(db, "posts"),
+  where("owner", "==", uid),
+  orderBy("createdAt", "desc")
+);
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
