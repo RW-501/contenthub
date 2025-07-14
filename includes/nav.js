@@ -514,14 +514,6 @@ function toggleUserList() {
   chatMessages.classList.add("d-none");
   chatSettings.classList.add("d-none");
 
-    const avatar = document.getElementById("userAvatar");
-  viewerUserId = avatar.dataset.uid;
-  viewerUsername = avatar.dataset.username || avatar.dataset.displayName;
-  viewerUserPhotoURL = avatar.dataset.photo || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
-  viewerRole = avatar.dataset.role || "user";
-
-  document.getElementById("currentUserAvatar").src = viewerUserPhotoURL;
-  document.getElementById("currentUserName").textContent = viewerUsername || "Anonymous";
 
  
 }
@@ -544,6 +536,16 @@ function showChatMessages() {
   document.getElementById("chatMessages").classList.remove("d-none");
   document.getElementById("chatUserList").classList.add("d-none");
   document.getElementById("chatSettings").classList.add("d-none");
+
+      const avatar = document.getElementById("userAvatar");
+  viewerUserId = avatar.dataset.uid;
+  viewerUsername = avatar.dataset.username || avatar.dataset.displayName;
+  viewerUserPhotoURL = avatar.dataset.photo || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  viewerRole = avatar.dataset.role || "user";
+
+  document.getElementById("currentUserAvatar").src = viewerUserPhotoURL;
+  document.getElementById("currentUserName").textContent = viewerUsername || "Anonymous";
+
 }
 window.showChatMessages = showChatMessages;
 
@@ -705,6 +707,14 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     document.getElementById("auth-login").classList.remove("d-none");
     return;
   }
+    const avatar = document.getElementById("userAvatar");
+  viewerUserId = avatar.dataset.uid;
+  viewerUsername = avatar.dataset.username || avatar.dataset.displayName;
+  viewerUserPhotoURL = avatar.dataset.photo || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  viewerRole = avatar.dataset.role || "user";
+
+  document.getElementById("currentUserAvatar").src = viewerUserPhotoURL;
+  document.getElementById("currentUserName").textContent = viewerUsername || "Anonymous";
 
   const input = document.getElementById("chatInput");
   let message = input.value.trim();
