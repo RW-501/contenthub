@@ -514,6 +514,15 @@ function toggleUserList() {
   chatMessages.classList.add("d-none");
   chatSettings.classList.add("d-none");
 
+    const avatar = document.getElementById("userAvatar");
+  viewerUserId = avatar.dataset.uid;
+  viewerUsername = avatar.dataset.username || avatar.dataset.displayName;
+  viewerUserPhotoURL = avatar.dataset.photo || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+  viewerRole = avatar.dataset.role || "user";
+
+  document.getElementById("currentUserAvatar").src = viewerUserPhotoURL;
+  document.getElementById("currentUserName").textContent = viewerUsername || "Anonymous";
+
  
 }
 window.toggleUserList = toggleUserList;
