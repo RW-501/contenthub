@@ -611,12 +611,54 @@ if (interestedBtn) {
 
 }
 
+
+  
+}
+
+
+async function reactToPost(postId, type, ownerId, caption) {
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const authModal = document.getElementById("auth-login");
+    authModal.classList.remove("d-none");
+    return;
+  }
+
+  const postRef = doc(db, "posts", postId);
+  const userRef = doc(db, "users", ownerId);
+
+  // ✅ Increment the correct field on post and user
+  await updateDoc(postRef, { [`${type}Count`]: increment(1) });
+  await updateDoc(userRef, {
+    [`receivedReactions.${type}`]: increment(1)
+  });
+
+  const emojiMap = {
+    helpful: "🙌",
+    interested: "⭐",
+    like: "❤️"
+  };
+  const emoji = emojiMap[type] || "✨";
+
+  const avatar = document.getElementById("userAvatar");
+
+  const viewerUserId = avatar?.dataset.uid || currentUser.uid;
+  const viewerDisplayName = avatar?.dataset.displayName || currentUser.displayName || "Someone";
+  const viewerUsername = avatar?.dataset.username || currentUser.email?.split('@')[0] || "user";
+  const viewerUserPhotoURL = avatar?.dataset.photo || currentUser.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png';
+
+  await sendNotification({
+    toUid: ownerId,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: `${viewerUsername} marked your post as ${type} ${emoji}: "${caption}"`,
+    type: `${type}Post`
+  });
+
   // 🎯 Optionally check for reward
   const updatedSnap = await getDoc(userRef);
   await checkAndAwardTasks(ownerId, updatedSnap.data());
-
-
-  
 }
 
 function timeAgo(date) {
