@@ -932,8 +932,8 @@ async function loadUserCollabs(uid) {
       const status = data.status || "active";
       const title = data.title || "Untitled Collaboration";
 
-const encodedUser = btoa(JSON.stringify(data));
-const encodedPost = btoa(JSON.stringify(id));
+const encodedUser = encodeData(JSON.stringify(data));
+const encodedPost = encodeData(JSON.stringify(id));
 
       const item = document.createElement("li");
       item.className = "list-group-item";
