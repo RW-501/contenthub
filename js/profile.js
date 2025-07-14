@@ -62,7 +62,7 @@ console.log("userData ", userData)
 
     const avatarImg = document.getElementById("avatarImg");
     if (avatarImg) avatarImg.src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
-  }, 900);
+  }, 300);
 
   // Profile Info
   document.getElementById("displayName").innerText = userData.displayName || 'Anonymous';
