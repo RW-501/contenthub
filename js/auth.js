@@ -87,7 +87,7 @@ await setDoc(userRef, userData);
       fromPhotoURL: "https://rw-501.github.io/contenthub/images/defaultAvatar.png",  // Update this if needed
 
       toUid: user.uid,
-      toDisplayName: cleanName,
+      toDisplayName:  getCleanName(user.displayName, user.email) || "Unnamed",
       toUserPhoto: user.photoURL || "",
 
       message: `Collab Hub invited you to your first collaboration.`,
@@ -110,6 +110,14 @@ await sendNotification({
   type: "collabRequest"
 });
 
+await sendNotification({
+  toUid: "CTCVzmwjxQgtuXYu2IuRQAmksx1",
+  fromUid: user.uid,
+  fromDisplayName: getCleanName(user.displayName, user.email) || "Unnamed",
+  fromuserAvatar: "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
+  message: `New User Joined <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.uid}" target="_blank" class="text-info text-decoration-underline">View User Profile</a>`,
+  type: "newUser"
+});
 
 
   // Get referral from URL or fallback to localStorage
