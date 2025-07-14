@@ -24,7 +24,7 @@ import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks } from "ht
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+const storage = getStorage(app, "gs://content-hub-11923.firebasestorage.app");
 
 console.log(" loading POST JS  post area");
 

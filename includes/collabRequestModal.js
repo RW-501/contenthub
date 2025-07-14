@@ -12,7 +12,7 @@ import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks} from "htt
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+const storage = getStorage(app, "gs://content-hub-11923.firebasestorage.app");
 
 
 let isUploading = false;

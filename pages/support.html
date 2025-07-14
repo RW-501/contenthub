@@ -102,7 +102,7 @@
 
   const auth = getAuth();
   const db = getFirestore();
-  const storage = getStorage();
+const storage = getStorage(app, "gs://content-hub-11923.firebasestorage.app");
 
   const form = document.getElementById("ticketForm");
   const statusBox = document.getElementById("ticketStatus");

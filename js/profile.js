@@ -10,7 +10,7 @@ import {
 import { app, db, auth  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks, markAllNotificationsRead, rewardTasks } from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
-const storage = getStorage(app);
+const storage = getStorage(app, "gs://content-hub-11923.firebasestorage.app");
 
 // Profile View Logic
 let currentUser, viewingUserId, userData;

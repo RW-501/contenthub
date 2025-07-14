@@ -24,7 +24,7 @@ import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks} from "htt
 // Firebase instances
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+const storage = getStorage(app, "gs://content-hub-11923.firebasestorage.app");
 
 // UI Elements
 const postGrid = document.getElementById("postGrid");
