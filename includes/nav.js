@@ -9,7 +9,7 @@ import {
 import {
   getFirestore,
   doc,
-  getDoc, 
+  getDoc, increment,
    collection, addDoc, onSnapshot, updateDoc,  serverTimestamp, query, orderBy 
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
@@ -634,7 +634,7 @@ async function initChat() {
             ${safeMsg}
           </span>
           <div class="small d-none text-muted time-info">${timeAgo} 
-            <button class="btn btn-sm btn-outline-light btn-like">
+            <button class="btn btn-sm btn-outline-light btn-heart">
             <span class="badge bg-danger">🔥 ${msg.heart || 0}</span></button>
             ${deleteBtn} ${pinBtn}
           </div>
@@ -659,6 +659,16 @@ async function initChat() {
           }
         });
       }
+
+const heartBtn = messageEl.querySelector(".btn-heart");
+if (heartBtn) {
+  heartBtn.addEventListener("click", async () => {
+    await updateDoc(doc(db, "chatRoom", heartBtn.dataset.id), {
+      heart: increment(1)
+    });
+  });
+}
+
 
       const pinBtnEl = messageEl.querySelector(".btn-pin");
       if (pinBtnEl) {
