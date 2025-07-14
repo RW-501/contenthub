@@ -720,7 +720,7 @@ async function loadSuggestedCreators() {
       <img src="${u.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" alt="avatar" class="creator-avatar" />
       <div>
         <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${u.id}">${u.displayName || 'Unknown'}</a><br/>
-        <small>${u.niches || ''}</small>
+<small>${(u.niches || []).join(', ')}</small>
       </div>
       <button class="btn btn-sm btn-outline-primary ms-auto" onclick="followUser('${u.id}')">Follow</button>
     `;
