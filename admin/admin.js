@@ -3775,5 +3775,5 @@ async function updateAllPosts() {
   console.log("✅ Randomized createdAt date (within the last 7 days) for all posts.");
 }
 
-updateAllPosts().catch(console.error);
+//updateAllPosts().catch(console.error);
 
