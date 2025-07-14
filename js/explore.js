@@ -371,6 +371,8 @@ const likeBtnId = `like-btn-${postId}`;
 const helpfulBtnId = `helpful-btn-${postId}`;
 const interestedBtnId = `interested-btn-${postId}`;
 const likeCountId = `like-count-${postId}`;
+const interestedCountId = `interested-count-${postId}`;
+const helpfulCountId = `helpful-count-${postId}`;
 
 // Set the card content first (this creates the social-links div)
 card.innerHTML = `
@@ -402,6 +404,8 @@ card.innerHTML = `
 
     <small class="d-block mb-2">
       ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes 
+      • <span id="${helpfulCountId}">${post.helpful || 0}</span> Helpful 
+      • <span id="${interestedCountId}">${post.interested || 0}</span> Interested 
     </small>
 
     <div class="d-flex gap-2 mb-2">
@@ -452,28 +456,30 @@ if (socialContainer && Array.isArray(userData.links)) {
 }
 
 
+// Buttons
 const likeBtn = card.querySelector(`#${likeBtnId}`);
 const likeCountEl = card.querySelector(`#${likeCountId}`);
 const helpfulBtn = card.querySelector(`#${helpfulBtnId}`);
+const helpfulCountEl = card.querySelector(`#${helpfulCountId}`);
 const interestedBtn = card.querySelector(`#${interestedBtnId}`);
+const interestedCountEl = card.querySelector(`#${interestedCountId}`);
 
 // ❤️ Like Button
 if (likeBtn) {
   likeBtn.addEventListener("click", () => {
     console.log("❤️ Like clicked");
-    likeBtn.classList.toggle("active");
+    const isActive = likeBtn.classList.toggle("active");
 
     // Animate
     likeBtn.classList.add("animate__animated", "animate__bounce");
     setTimeout(() => likeBtn.classList.remove("animate__animated", "animate__bounce"), 800);
 
-    // Increment like count
+    // Update like count
     if (likeCountEl) {
       const current = parseInt(likeCountEl.innerText) || 0;
-      likeCountEl.innerText = current + 1;
+      likeCountEl.innerText = isActive ? current + 1 : current - 1;
     }
 
-    // Trigger post reaction
     reactToPost(postId, "like", post.owner, post.caption);
   });
 }
@@ -482,11 +488,17 @@ if (likeBtn) {
 if (helpfulBtn) {
   helpfulBtn.addEventListener("click", () => {
     console.log("🙌 Helpful clicked");
-    helpfulBtn.classList.toggle("active");
+    const isActive = helpfulBtn.classList.toggle("active");
 
     // Animate
     helpfulBtn.classList.add("animate__animated", "animate__pulse");
     setTimeout(() => helpfulBtn.classList.remove("animate__animated", "animate__pulse"), 800);
+
+    // Update helpful count
+    if (helpfulCountEl) {
+      const current = parseInt(helpfulCountEl.innerText) || 0;
+      helpfulCountEl.innerText = isActive ? current + 1 : current - 1;
+    }
 
     reactToPost(postId, "helpful", post.owner, post.caption);
   });
@@ -496,19 +508,24 @@ if (helpfulBtn) {
 if (interestedBtn) {
   interestedBtn.addEventListener("click", () => {
     console.log("⭐ Interested clicked");
-    interestedBtn.classList.toggle("active");
+    const isActive = interestedBtn.classList.toggle("active");
 
     // Animate
     interestedBtn.classList.add("animate__animated", "animate__tada");
     setTimeout(() => interestedBtn.classList.remove("animate__animated", "animate__tada"), 800);
 
+    // Update interested count
+    if (interestedCountEl) {
+      const current = parseInt(interestedCountEl.innerText) || 0;
+      interestedCountEl.innerText = isActive ? current + 1 : current - 1;
+    }
+
     reactToPost(postId, "interested", post.owner, post.caption);
   });
 }
 
-  return card;
+return card;
 }
-
 
 async function reactToPost(postId, type, ownerId, caption) {
   if (!currentUser) {
