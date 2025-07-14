@@ -402,7 +402,7 @@ display: block;
       <button id="sendOtpBtn" class="btn btn-outline-info w-100 mb-2">Login</button>
 
       <div id="otpSection" class="d-none">
-        <input type="text" id="otpCode" placeholder="Enter OTP" class="form-control mb-2" />
+        <input type="text" inputmode="numeric" pattern="[0-9]*" id="otpCode">
         <button id="verifyOtpBtn" class="btn btn-primary w-100">Verify Code</button>
       </div>
     </div>

@@ -13,33 +13,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 import {
-  updateDoc, doc, getDoc, setDoc, serverTimestamp
+  updateDoc, doc, getDoc, setDoc, serverTimestamp, collection, addDoc, increment
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { app, auth, db  } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 import { sendNotification, NOTIFICATION_TEMPLATES, markAllNotificationsRead, rewardTasks } from "https://rw-501.github.io/contenthub/includes/notifications.js";
-
-
-export async function ensureUserExists(user) {
-  const userRef = doc(db, "users", user.uid);
-  const docSnap = await getDoc(userRef);
-
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-
-    // 🔒 Blocked User Check
-    if (data.status === 'blocked') {
-      throw new Error("Your account is blocked.");
-    }
-
-    // 🕒 Update Last Login Timestamp
-    await updateDoc(userRef, {
-      lastLogin: new Date()
-    });
-
-  } else {
-    // 🆕 Create New User Profile
-const rawName = user.displayName || user.email || "unnamed";
 
 // Helper function to generate a username
 function generateUsername(base) {
@@ -62,8 +40,30 @@ function getCleanName(displayName, email) {
   return "user";
 }
 
+export async function ensureUserExists(user) {
+  const userRef = doc(db, "users", user.uid);
+  const docSnap = await getDoc(userRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+
+    // 🔒 Blocked User Check
+    if (data.status === 'blocked') {
+      throw new Error("Your account is blocked.");
+    }
+
+    // 🕒 Update Last Login Timestamp
+    await updateDoc(userRef, {
+      lastLogin: new Date()
+    });
+
+  } else {
+    // 🆕 Create New User Profile
+const rawName = user.displayName || user.email || "user";
+
+
 const userData = { 
-  displayName: getCleanName(user.displayName, user.email) || "Unnamed",
+displayName: getCleanName(user.displayName, user.email) || "user",
   username: generateUsername(rawName),
   email: user.email || null,
   photoURL: user.photoURL || "",
@@ -87,7 +87,7 @@ await setDoc(userRef, userData);
       fromPhotoURL: "https://rw-501.github.io/contenthub/images/defaultAvatar.png",  // Update this if needed
 
       toUid: user.uid,
-      toDisplayName:  getCleanName(user.displayName, user.email) || "Unnamed",
+      toDisplayName:   getCleanName(user.displayName, user.email) || "user",
       toUserPhoto: user.photoURL || "",
 
       message: `Collab Hub invited you to your first collaboration.`,
@@ -113,7 +113,7 @@ await sendNotification({
 await sendNotification({
   toUid: "CTCVzmwjxQgtuXYu2IuRQAmksx1",
   fromUid: user.uid,
-  fromDisplayName: getCleanName(user.displayName, user.email) || "Unnamed",
+  fromDisplayName:  getCleanName(user.displayName, user.email) || "user",
   fromuserAvatar: "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
   message: `New User Joined <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${user.uid}" target="_blank" class="text-info text-decoration-underline">View User Profile</a>`,
   type: "newUser"
@@ -127,7 +127,6 @@ await sendNotification({
     if (!referredBy) return;
 
   // Attach to user doc
-  const userRef = doc(db, "users", user.uid);
   await setDoc(userRef, {
     uid: user.uid,
     referredBy: referredBy || null,
@@ -183,7 +182,7 @@ window.confirmationResult = await signInWithPhoneNumber(auth, data.phone, recapt
         return { message: 'OTP Sent' };
 
       case 'verify-otp':
-        if (!confirmationResult) throw new Error("OTP not sent yet.");
+if (!window.confirmationResult) throw new Error("OTP not sent yet.");
 const otpResult = await window.confirmationResult.confirm(data.otp);
         return { user: otpResult.user };
 
@@ -218,7 +217,7 @@ await ensureUserExists(result.user);
 
   // PHONE OTP
   //initRecaptcha('recaptcha-container');
-  
+
 // 📱 Invisible reCAPTCHA verifier (phone login)
 let recaptchaVerifier;
 window.confirmationResult = null;
