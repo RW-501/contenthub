@@ -713,19 +713,21 @@ async function loadSuggestedCreators() {
   users = users.sort(() => 0.5 - Math.random());
 
   // Take first 5 after shuffle
-  users.slice(0, 5).forEach(u => {
-    const div = document.createElement("div");
-    div.className = "creator-suggest";
-    div.innerHTML = `
-      <img src="${u.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" alt="avatar" class="creator-avatar" />
-      <div>
-        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${u.id}">${u.displayName || 'Unknown'}</a><br/>
-<small>${(u.niches || []).join(', ')}</small>
-      </div>
-      <button class="btn btn-sm btn-outline-primary ms-auto" onclick="followUser('${u.id}')">Follow</button>
-    `;
-    suggestedCreatorsDiv.appendChild(div);
-  });
+users.slice(0, 5).forEach(u => {
+  const div = document.createElement("div");
+  div.className = "creator-suggest";
+  div.innerHTML = `
+    <img src="${u.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" alt="avatar" class="creator-avatar" />
+    <div>
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${u.id}">${u.displayName || 'Unknown'}</a><br/>
+      <small>${(u.niches || []).join(', ')}</small><br/>
+      <small>⭐ ${u.rating || 0} | 💎 ${u.points || 0} pts</small>
+    </div>
+    <button class="btn btn-sm btn-outline-primary ms-auto" onclick="followUser('${u.id}')">Follow</button>
+  `;
+  suggestedCreatorsDiv.appendChild(div);
+});
+
 }
 
 
