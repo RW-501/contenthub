@@ -480,7 +480,7 @@ if (likeBtn) {
       likeCountEl.innerText = isActive ? current + 1 : current - 1;
     }
 
-    reactToPost(postId, "like", post.owner, post.caption);
+    reactToPost(postId, "likes", post.owner, post.caption);
   });
 }
 
@@ -536,7 +536,7 @@ async function reactToPost(postId, type, ownerId, caption) {
   const postRef = doc(db, "posts", postId);
   const userRef = doc(db, "users", ownerId);
 
-  await updateDoc(postRef, { [`${type}Count`]: increment(1) });
+  await updateDoc(postRef, { [`${type}`]: increment(1) });
   await updateDoc(userRef, {
     [`receivedReactions.${type}`]: increment(1)
   });
