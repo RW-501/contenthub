@@ -1,451 +1,73 @@
-// Firebase Imports
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
 import {
-  getFirestore,
-  doc,
   getDoc,
+  doc,
   updateDoc,
-  collection,
-  query,
-  where, addDoc, 
-  arrayUnion, increment, serverTimestamp, Timestamp,
-  startAfter, 
+  increment,
+  addDoc,
   getDocs,
-  orderBy,   // ✅ add this
-  limit      // ✅ and this
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+  collection,
+  serverTimestamp,
+  query,
+  orderBy
+} from  "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// Your config import (must expose the initialized app)
-import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
-import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks} from "https://rw-501.github.io/contenthub/includes/notifications.js";
-// import { createPostCard } from "https://rw-501.github.io/contenthub/includes/createPostCard.js";
+import { db, auth } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
-// Firebase instances
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app, "gs://content-hub-11923.firebasestorage.app");
-
-// UI Elements
-const postGrid = document.getElementById("postGrid");
-const suggestedCreatorsDiv = document.getElementById("suggestedCreators");
-const filterSelect = document.getElementById("filterSelect");
-const searchInput = document.getElementById("searchInput");
-const collabZoneToggle = document.getElementById("collabZoneToggle");
-
-// App State
-let lastVisiblePost = null;
-let loadingMore = false;
-let currentUser = null;
-let q;
- 
-
-// Auth check
-onAuthStateChanged(auth, user => {
-  if (!user) {
-    loadPosts();
-    loadSuggestedCreators();
-
-  }  else {
-    currentUser = user;
-    loadPosts();
-    loadSuggestedCreators();
-
-  }
-});
+import { sendNotification, NOTIFICATION_TEMPLATES} from "https://rw-501.github.io/contenthub/includes/notifications.js";
 
 
+    let currentUser = null;
 
-// Load Posts based on filters
-async function loadPosts(reset = true) {
-  if (loadingMore) return console.warn("[loadPosts] Already loading, aborting...");
-  loadingMore = true;
-  if (reset) resetPostGrid();
-
-  const collabZone = collabZoneToggle.checked;
-  const filter = filterSelect.value;
-  const search = searchInput.value.trim().toLowerCase();
-
-  console.log("[loadPosts] collabZone:", collabZone, "| filter:", filter, "| search:", search);
-
-  if (collabZone) {
-    await loadCollabPosts();
-  } else {
-    await loadRegularPosts(filter, search);
-  }
-
-  loadingMore = false;
-}
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
 
 
-function resetPostGrid() {
-  postGrid.innerHTML = "";
-  lastVisiblePost = null;
-}
-
-async function loadCollabPosts() {
-  try {
-    const q = query(
-      collection(db, "collaborations"),
-      where("isPublic", "==", true),
-      orderBy("createdAt", "desc"),
-      limit(10)
-    );
-    const snap = await getDocs(q);
-    if (snap.empty) return console.log("[loadCollabPosts] No collab posts found.");
-
-    snap.forEach(docSnap => {
-      const data = docSnap.data();
-      const card = createCollabCard(data, docSnap.id);
-      postGrid.appendChild(card);
+      }
     });
-  } catch (error) {
-    console.error("[loadCollabPosts] Error:", error);
-  }
-}
-
-
-function isBase64Encoded(str) {
-  if (typeof str !== "string") return false;
-  try {
-    // atob can decode some invalid strings without throwing
-    const decoded = atob(str);
-    // Check if the result is valid URI-encoded JSON
-    decodeURIComponent(decoded); // this may throw if it's not URI encoded
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-function safeDecodeData(str) {
-  if (!isValidEncodedJson(str)) return str; // fallback for raw doc ID or string
-
-  try {
-    const decoded = decodeURIComponent(atob(str));
-    return JSON.parse(decoded);
-  } catch (e) {
-    console.error("safeDecodeData failed:", e);
-    return str;
-  }
-}
-
 
 function encodeData(obj) {
-  if (typeof obj === "string") return obj; // already a string (e.g., ID)
-
-  try {
-    const json = JSON.stringify(obj);
-    return btoa(encodeURIComponent(json));
-  } catch (e) {
-    console.error("encodeData failed:", e);
-    return obj;
-  }
+  const json = JSON.stringify(obj);
+  return btoa(encodeURIComponent(json));
 }
-
-function isValidEncodedJson(str) {
-  if (typeof str !== "string") return false;
-
-  // Basic check for base64-like string
-  const base64Regex = /^[A-Za-z0-9+/=]+$/;
-  if (!base64Regex.test(str)) return false;
-
-  try {
-    const decoded = atob(str);
-    const jsonStr = decodeURIComponent(decoded);
-    JSON.parse(jsonStr);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function createCollabCard(data, collabData) {
-  const card = document.createElement("div");
-  card.className = "card p-3 mb-3";
-  const progress = data.progress || 0;
-  const totalTasks = data.totalTasks || 0;
-
-    console.log("[createCollabCard] data:", data);
-    console.log("[createCollabCard] collabData:", collabData);
-
-const encodedPost = encodeData(data);
-const encodedUser = typeof collabData === "object" ? encodeData(collabData) : collabData;
-
-
-    console.log("[createCollabCard] encodedPost:", encodedPost);
-    console.log("[createCollabCard] encodedUser:", encodedUser);
-
-  card.innerHTML = `
-    <strong>${data.title || "Untitled Collab"}</strong><br/>
-    <small>Creator by 
-    <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${data.owner}">
-    ${data.ownerName}</a></small><br/>
-    <p>${data.description || ""}</p>
-    <div class="progress my-2" style="height: 20px;">
-      <div class="progress-bar" role="progressbar" style="width: ${progress}%">${progress}%</div>
-    </div>
-    <p class="mb-2">🧩 Total Tasks: ${totalTasks}</p>
-    <div class="d-flex gap-2">
-<button 
-  class="btn btn-sm btn-outline-primary mt-2"
-    data-collab="${encodedPost}"
-    data-post="${encodedPost}"
-    data-user="${encodedUser}"
-
-  onclick="requestToJoin(this)"
->
-  Request to Join
-</button>      
-<button class="btn btn-sm btn-outline-secondary" onclick="followUser('${data.owner}')">Follow Creator</button>
-    </div>
-  `;
-  return card;
+function sanitize(text) {
+  return String(text || "")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 
-async function requestToJoin(btn) {
-  const encodedUser = btn.dataset.user;
-  const encodedPost = btn.dataset.post;
-  const encodedCollab = btn.dataset.collab;
+function sanitizeText(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
 
-  const ownerData = safeDecodeData(encodedUser);
-  const infoData = safeDecodeData(encodedPost);
-  const collabData = safeDecodeData(encodedCollab);
-
-  console.log("[requestToJoin] encodedUser:", encodedUser);
-  console.log("[requestToJoin] ownerData:", ownerData);
-  console.log("[requestToJoin] infoData:", infoData);
-  console.log("[requestToJoin] collabData:", collabData);
-
-
-    if (typeof collabData === "string") {
-  const collabId = collabData;
-  // use it directly
-} else {
-  const collabId = collabData?.id || collabData?.collabId;
-  // fallback logic
+function linkify(text) {
+  return text.replace(/(https?:\/\/[\w\.-\/?=&%#]+)/gi, '<a href="$1" target="_blank">$1</a>')
+             .replace(/@([\w]+)/g, '<span class="text-primary">@$1</span>')
+             .replace(/#([\w]+)/g, '<span class="text-info">#$1</span>');
 }
 
 
-    const currentUser = auth.currentUser;
-  if (!currentUser) {
-    const authModal = document.getElementById("auth-login");
-    authModal.classList.remove("d-none");
-    return;
-  }
-let toUserId = infoData.owner || ownerData.owner;
-let toUserName = ownerData.ownerDisplayName || ownerData.ownerName || ownerData.displayName || infoData.displayName;
-let toPhoto = ownerData.ownerPhotoURL || ownerData.ownerPhoto || ownerData.photoURL;
-let postInfo = infoData.caption || infoData.title  || ownerData.title;
+function formatTimeAgo(timestamp) {
+  const date = typeof timestamp === "number" ? new Date(timestamp) : timestamp?.toDate?.() || new Date();
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
 
-
-
-    const avatar = document.getElementById("userAvatar");
-const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayName;
-const viewerRole = avatar.dataset.role;
-const viewerUsername = avatar.dataset.username;
-const viewerUserPhotoURL = avatar.dataset.photo;
-
-    if (toUserId == viewerUserId) return alert("⚠️ You are the owner of this post");
-
-
-    if (collabData && ownerData) {
-const collabRef = doc(db, "collaborations", ownerData);
-
-const requestInfo = {
-  uid: viewerUserId,
-  displayName: viewerDisplayName || viewerUsername,
-  username: viewerUsername,
-  photoURL: viewerUserPhotoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
-  role: "viewer",
-  status: "pending",
-};
-
-// First, set the timestamp manually
-requestInfo.requestedAt = Timestamp.now(); // ✅ Instead of serverTimestamp()
-
-try {
-  await updateDoc(collabRef, {
-    requests: arrayUnion(requestInfo)
-  });
-
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  const intervals = { year: 31536000, month: 2592000, week: 604800, day: 86400, hour: 3600, minute: 60, second: 1 };
   
-
-      await sendNotification({
-    toUid: toUserId,
-    fromUid: viewerUserId,
-    fromDisplayName: viewerDisplayName,
-    fromuserAvatar: viewerUserPhotoURL,
-    message: `${viewerDisplayName} sent you a request to collaborate.`,
-    type: "collabRequest",
-  });
-
-
-    console.log("✅ Join request submitted to collaboration.");
-    alert("🚀 Request sent!", "success");
-  } catch (error) {
-    console.error("❌ Failed to update collaboration requests:", error);
-    alert("Error sending request", "danger");
-  }
-  return;
-}else {
-     console.log("collabRequests ??????????????????");
-console.log("toUserId:", toUserId);
-console.log("toUserName:", toUserName);
-console.log("toPhoto:", toPhoto);
-console.log("postInfo:", postInfo);
-console.log("viewerUserId:", viewerUserId);
-console.log("viewerDisplayName:", viewerDisplayName);
-console.log("viewerUserPhotoURL:", viewerUserPhotoURL);
-
-  
-if (!viewerUserId || !toUserId) {
-  console.error("Missing IDs:", { viewerUserId, toUserId });
-  return alert("Missing user info. Please refresh and try again.");
-}
-
-  try {
-
-    const requestsRef = collection(db, "collabRequests");
-    const existingSnap = await getDocs(query(requestsRef,
-      where("toUid", "==", toUserId),
-      where("fromUid", "==", viewerUserId),
-      where("status", "in", ["pending", "approved"])
-    ));
-
-    if (!existingSnap.empty) {
-      showModal({
-        title: "Already Requested",
-        message: "You've already requested to join this collaboration.",
-        autoClose: 3000
-      });
-      return;
-    }
-
-
-
-
-
-
-try {
-  await addDoc(requestsRef, {
-    fromUid: viewerUserId,
-    fromDisplayName: viewerDisplayName,
-    fromPhotoURL: viewerUserPhotoURL,
-    toUid: toUserId,
-    toDisplayName: toUserName,
-    toUserPhoto: toPhoto,
-    message: `${viewerDisplayName} sent you a request to collaborate.`,
-    title: `Collaboration Request`,
-    description: `${viewerDisplayName} requested to join this collaboration. From: ${postInfo || "Unknown Project"}`,
-    status: "pending",
-    timestamp: Timestamp.now()
-  });
-} catch (e) {
-  console.error("❌ addDoc failed:", e);
-}
-
-
-
-    // ✅ Increment collabRequestsSent on user
-    const userRef = doc(db, "users", viewerUserId);
-    await updateDoc(userRef, {
-      collabRequestsSent: increment(1)
-    });  
-
-    showModal({
-      title: "Request Sent",
-      message: "Your request to join has been sent.",
-      autoClose: 3000
-    });
-
-      await sendNotification({
-    toUid: toUserId,
-    fromUid: viewerUserId,
-    fromDisplayName: viewerDisplayName,
-    fromuserAvatar: viewerUserPhotoURL,
-    message: `${viewerDisplayName} sent you a request to collaborate.`,
-    type: "collabRequest",
-  });
-
-
-
-  } catch (error) {
-    console.error("[requestToJoin] Error:", error);
-    alert("❌ Failed to send join request. Please try again.");
+  for (const [unit, value] of Object.entries(intervals)) {
+    const count = Math.floor(seconds / value);
+    if (count > 0) return rtf.format(-count, unit);
   }
 
-}
-
-}
-window.requestToJoin = requestToJoin;
-
-
-
-
-
-async function loadRegularPosts(filter, search) {
-  let q;
-  const postsCol = collection(db, "posts");
-
-
-switch (filter) {
-  case "new":
-    q = query(postsCol, orderBy("createdAt", "desc"), limit(10));
-    break;
-  case "trending":
-    q = query(postsCol, orderBy("likes", "desc"), limit(10));
-    break;
-  // q = query(postsCol, where("tags", "array-contains", filter), orderBy("createdAt", "desc"), limit(10));
-   // break;
-  default:
-    // 🔥 Default to newest posts
-    q = query(postsCol, orderBy("createdAt", "desc"), limit(10));
-}
-
-if (lastVisiblePost) {
-  q = query(q, startAfter(lastVisiblePost));
-}
-  console.log("[loadRegularPosts] q:", q, "| filter:", filter);
-
-const snap = await getDocs(q);
-
-if (!snap.empty) lastVisiblePost = snap.docs[snap.docs.length - 1];
-
-const now = new Date();
-
-for (const docSnap of snap.docs) {
-  const post = docSnap.data();
-
-  // ⛔ Skip if scheduled in the future
-  if (post.scheduledAt && post.scheduledAt.toDate() > now) continue;
-
-  // ⛔ Skip if should be filtered
-  if (shouldSkipPost(post, search)) continue;
-
-  // ✅ Skip if status is removed
-  const status = (post.status ?? "").toLowerCase();
-  if (status === "removed") continue;
-
-  const card = await createPostCard(post, docSnap.id);
-  postGrid.appendChild(card);
-}
-
-
+  return "just now";
 }
 
 
 
-
-
-function shouldSkipPost(post, search) {
-  const caption = post.caption?.toLowerCase() || "";
-  const tags = post.tags?.join(" ") || "";
-  return search && !caption.includes(search) && !tags.includes(search);
-}
 
 
 
@@ -474,7 +96,7 @@ async function createPostCard(post, postId) {
 
   const mediaHTML = renderMedia(post.media?.[0]);
   const createdAt = post.createdAt?.toDate?.() || new Date();
-  const timeAgo = timeSince(createdAt.getTime());
+  const timeAgo = formatTimeAgo(createdAt.getTime());
 
   const userSnap = await getDoc(doc(db, "users", post.owner));
   const userData = userSnap.exists() ? userSnap.data() : {};
@@ -706,8 +328,8 @@ async function reactToPost(postId, type, ownerId, caption) {
     type: `${type}Post`
   });
 
+  
 }
-
 
 
 
@@ -790,161 +412,9 @@ function renderMedia(media) {
   return mediaHTML;
 }
 
-function sanitize(text) {
-  return String(text || "")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-function linkify(text) {
-  return text.replace(/(https?:\/\/[\w\.-\/?=&%#]+)/gi, '<a href="$1" target="_blank">$1</a>')
-             .replace(/@([\w]+)/g, '<span class="text-primary">@$1</span>')
-             .replace(/#([\w]+)/g, '<span class="text-info">#$1</span>');
-}
-
-function timeSince(timestamp) {
-  const now = Date.now();
-  const seconds = Math.floor((now - timestamp) / 1000);
-
-  if (seconds < 60) return `${seconds}s ago`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-
-  return new Date(timestamp).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
-function timeAgo(date) {
-  if (!date) return "";
-  const seconds = Math.floor((new Date() - date) / 1000);
-  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-
-  const intervals = {
-    year: 31536000,
-    month: 2592000,
-    week: 604800,
-    day: 86400,
-    hour: 3600,
-    minute: 60,
-    second: 1,
-  };
-
-  for (const [unit, value] of Object.entries(intervals)) {
-    const count = Math.floor(seconds / value);
-    if (count > 0) return rtf.format(-count, unit);
-  }
-
-  return "just now";
-}
-
-// Infinite scroll handler
-window.addEventListener("scroll", () => {
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
-    loadPosts(false);
-  }
-});
-
-// Suggested creators
-async function loadSuggestedCreators() {
-  const usersCol = collection(db, "users");
-  const q = query(usersCol, limit(20)); // Grab more for randomness
-  const snap = await getDocs(q);
-  suggestedCreatorsDiv.innerHTML = "";
-
-  let users = [];
-  snap.forEach(docSnap => {
-    const u = docSnap.data();
-    if (u.uid !== currentUser?.uid) {
-      users.push({ id: docSnap.id, ...u });
-    }
-  });
-
-  // Shuffle array
-  users = users.sort(() => 0.5 - Math.random());
-
-  // Take first 5 after shuffle
-users.slice(0, 5).forEach(u => {
-  const div = document.createElement("div");
-  div.className = "creator-suggest";
-  div.innerHTML = `
-    <img src="${u.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}" alt="avatar" class="creator-avatar" />
-    <div>
-      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${u.id}">${u.displayName || 'Unknown'}</a><br/>
-      <small>${(u.niches || []).join(', ')}</small><br/>
-      <small>💎 ${u.points || 0} pts</small>
-    </div>
-    <button class="btn btn-sm btn-outline-primary ms-auto" onclick="followUser('${u.id}')">Follow</button>
-  `;
-  suggestedCreatorsDiv.appendChild(div);
-});
-
-}
 
 
-// Follow user
-window.followUser = async (uid) => {
-  if (!currentUser) return showModal({ title: "Login Required", message: "Please log in to follow users." });
 
-  const userRef = doc(db, "users", currentUser.uid); // Current user
-  const targetRef = doc(db, "users", uid); // Profile being viewed
-
-      
-    const avatar = document.getElementById("userAvatar");
-const viewerUserId = avatar.dataset.uid;
-const viewerDisplayName = avatar.dataset.displayName;
-const viewerRole = avatar.dataset.role;
-const viewerUsername = avatar.dataset.username;
-const viewerUserPhotoURL = avatar.dataset.photo;
-
-  await sendNotification({
-    toUid: uid,
-    fromUid: viewerUserId,
-    fromDisplayName: viewerDisplayName,
-    fromuserAvatar: viewerUserPhotoURL,
-    message: `@${user} follows you`,
-    type: "following"
-  });
-
-  await updateDoc(userRef, {
-    following: arrayUnion(uid)
-  });
-
-  await updateDoc(targetRef, {
-    followers: arrayUnion(currentUser.uid)
-  });
-
-  showModal({
-    title: "Followed!",
-    message: "You are now following this creator.",
-    autoClose: 3000
-  });
-};
-
-filterSelect.addEventListener("change", () => loadPosts(true));
-searchInput.addEventListener("input", () => loadPosts(true));
-collabZoneToggle.addEventListener("change", () => loadPosts(true));
-
-
-async function removePost(postId) {
-  if (!confirm("Are you sure you want to remove this post?")) return;
-  try {
-    await updateDoc(doc(db, "posts", postId), { status: "removed" });
-    // Optionally hide or reload the post
-    document.getElementById(`post-${postId}`)?.remove();
-  } catch (err) {
-    console.error("Failed to remove post:", err);
-    alert("Something went wrong removing the post.");
-  }
-}
-window.removePost = removePost;
 
 let currentPostId = null;
 let currentPostOwnerId = null;
@@ -999,7 +469,7 @@ if (c.parentId || status === "removed") continue;
         ? `<button class="btn btn-sm btn-danger position-absolute end-0 top-0 me-2 mb-1 removeBtn"
                    onclick="removeComment('${id}')">Remove</button>`
         : ""}</div>
-        <div class="small">${timeAgo(c.timestamp?.toDate?.())}</div>
+        <div class="small">${formatTimeAgo(c.timestamp?.toDate?.())}</div>
 
         <button class="btn btn-sm text-primary p-0 mt-2" onclick="showReplyBox('${id}')">↪️ Reply</button>
         <div id="replyBox-${id}" class="mt-2" style="display: none;">
@@ -1034,7 +504,7 @@ html += `
             ? `<button class="btn btn-sm btn-danger position-absolute end-0 top-0 me-2 mb-1 removeBtn"
                        onclick="removeComment('${reply.id}')">Remove</button>`
             : ""}</div>
-            <div class="small">${timeAgo(reply.timestamp?.toDate?.())}</div>
+            <div class="small">${formatTimeAgo(reply.timestamp?.toDate?.())}</div>
           </div>
 
         </div>
@@ -1112,11 +582,7 @@ await updateDoc(doc(db, "users", viewerUserId), {
 }
 window.addComments = addComments;
 
-function sanitizeText(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
+
 
 function showReplyBox(commentId) {
   document.getElementById(`replyBox-${commentId}`).style.display = "block";
@@ -1169,3 +635,26 @@ async function addReply(parentCommentId, commenteruId, currentPostId, currentPos
 window.addReply = addReply;
 
 
+
+
+window.openComments = openComments;
+window.removeComment = removeComment;
+window.addComments = addComments;
+window.showReplyBox = showReplyBox;
+window.addReply = addReply;
+
+export {
+  openComments,
+  removeComment,
+  addComments,
+  showReplyBox,
+  addReply
+};
+
+export {
+  createPostCard,
+  sanitize,
+  sanitizeText,
+  formatTimeAgo,
+  renderMedia
+};

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Post Detail</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"/>
+  <!-- Add this to your <head> -->
+<link rel="stylesheet" href="https://rw-501.github.io/contenthub/css/main.css" /></head>
+<body>
+
+    
+      <div id="toolbarContainer"></div>
+
+  <!-- Your page content here -->
+
+  <!-- Include Bootstrap JS (required for navbar) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Inject toolbar -->
+  <script type="module">
+    const toolbarContainer = document.getElementById("toolbarContainer");
+    const html = await fetch('https://rw-501.github.io/contenthub/includes/nav.html').then(res => res.text());
+    toolbarContainer.innerHTML = html;
+    import('https://rw-501.github.io/contenthub/includes/nav.js');
+  </script>
+
+
+<!-- Main Section -->
+  <main id="main">
+
+<div class="container">
+    <button class="btn btn-sm btn-outline-secondary mb-3" onclick="history.back()">← Back</button>
+    
+    <!-- Post Container -->
+    <div id="postContainer" class="mb-4">
+      <p class="text-muted">Loading post...</p>
+    </div>
+
+
+      <!-- Share Buttons -->
+      <div id="shareButtons" class="mb-4 d-flex gap-2 flex-wrap"></div>
+
+    <!-- Comments Section -->
+    <div class="card">
+      <div class="card-header">💬 Comments</div>
+      <div class="card-body" id="commentsSection">
+        <p class="text-muted">Comments will go here...</p>
+      </div>
+    </div>
+</div>
+
+
+  </main>
+
+<!-- Add this at the bottom of <body> -->
+<div id="footerContainer"></div>
+
+<script type="module">
+  const footer = await fetch('https://rw-501.github.io/contenthub/includes/footer.html').then(res => res.text());
+  document.getElementById('footerContainer').innerHTML = footer;
+  import('https://rw-501.github.io/contenthub/includes/footer.js');
+</script>
+
+
+  <!-- Firebase + App Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getFirestore, doc, getDoc, getDocs, setDoc, updateDoc,deleteDoc,  collection, onSnapshot, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { db, auth  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+
+import { createPostCard } from "https://rw-501.github.io/contenthub/includes/createPostCard.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get("id");
+
+    const postContainer = document.getElementById("postContainer");
+    const shareButtons = document.getElementById("shareButtons");
+
+    if (!postId) {
+      postContainer.innerHTML = `<div class="alert alert-danger">❌ Post ID not found in URL.</div>`;
+    } else {
+      loadPost(postId);
+    }
+
+    
+
+    async function loadPost(postId) {
+      try {
+        const postRef = doc(db, "posts", postId);
+        const postSnap = await getDoc(postRef);
+
+        if (!postSnap.exists()) {
+          postContainer.innerHTML = `<div class="alert alert-warning">⚠️ Post not found.</div>`;
+          return;
+        }
+
+        const card = await createPostCard(postSnap.data(), postId);
+        postContainer.innerHTML = ""; // Clear loading text
+         const shareHTML = `
+          <span class="fw-bold me-2">Share:</span>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedURL}" target="_blank" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-facebook"></i> Facebook
+          </a>
+          <a href="https://twitter.com/intent/tweet?url=${encodedURL}&text=${encodedText}" target="_blank" class="btn btn-outline-info btn-sm">
+            <i class="bi bi-twitter"></i> Twitter
+          </a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodedURL}" target="_blank" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-linkedin"></i> LinkedIn
+          </a>
+          <a href="https://api.whatsapp.com/send?text=${encodedText}%20${encodedURL}" target="_blank" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-whatsapp"></i> WhatsApp
+          </a>
+          <button class="btn btn-outline-dark btn-sm" onclick="navigator.clipboard.writeText('${postURL}')">
+            <i class="bi bi-clipboard"></i> Copy Link
+          </button>
+        `;
+
+        shareButtons.innerHTML = shareHTML;
+        postContainer.appendChild(card);
+
+      } catch (error) {
+        console.error("[loadPost] Error:", error);
+        postContainer.innerHTML = `<div class="alert alert-danger">❌ Failed to load post.</div>`;
+      }
+    }
+  </script>
+</body>
+</html>
