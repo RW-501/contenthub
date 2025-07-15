@@ -461,8 +461,16 @@ async function createPostCard(post, postId) {
   const userSnap = await getDoc(doc(db, "users", post.owner));
   const userData = userSnap.exists() ? userSnap.data() : {};
 
-  const encodedUser = encodeData(JSON.stringify(userData));
-  const encodedPost = encodeData(JSON.stringify(post));
+
+      console.log("[createPostCard] userData:", userData);
+    console.log("[createPostCard] post:", post);
+
+const encodedPost = encodeData(userData);
+const encodedUser = typeof post === "object" ? encodeData(post) : post;
+
+
+    console.log("[createPostCard] encodedPost:", encodedPost);
+    console.log("[createPostCard] encodedUser:", encodedUser);
 
   let typeBadge = "";
   if (post.type === "collab") {
