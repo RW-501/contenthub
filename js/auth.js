@@ -13,7 +13,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 import {
-  updateDoc, doc, getDoc, setDoc, serverTimestamp, collection, addDoc, increment
+  
+   doc, updateDoc, arrayUnion, getDoc, setDoc, serverTimestamp, collection, addDoc, increment
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { app, auth, db  } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
@@ -78,27 +79,17 @@ await setDoc(userRef, userData);
 
 
 
-    // 🤝 Auto-send collab request from system
-    const requestsRef = collection(db, "collabRequests");
+const collabId = "KkDJgVy1EOV4mgGZTyAC";
+const collabRef = doc(db, "collaborations", collabId);
 
-    const adminData = {
-      fromUid: "0000",
-      fromDisplayName: "Collab Hub Admin",
-      fromPhotoURL: "https://rw-501.github.io/contenthub/images/defaultAvatar.png",  // Update this if needed
-
-      toUid: user.uid,
-      toDisplayName:   getCleanName(user.displayName, user.email) || "user",
-      toUserPhoto: user.photoURL || "",
-
-      message: `Collab Hub invited you to your first collaboration.`,
-      title: `Collaboration Invitation`,
-      description: `Welcome to the Creator Collab Hub! This is an invite to get started by exploring your first collab.`,
-
-      status: "pending",
-      timestamp: serverTimestamp()
-    };
-
-    await addDoc(requestsRef, adminData);
+try {
+  await updateDoc(collabRef, {
+    participants: arrayUnion(user.uid)
+  });
+  console.log("✅ Participant added successfully.");
+} catch (error) {
+  console.error("❌ Error updating collaboration:", error);
+}
 
     // 🔔 Fire a notification
 await sendNotification({
