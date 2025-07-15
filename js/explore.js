@@ -108,11 +108,13 @@ async function loadCollabPosts() {
 
 function isBase64Encoded(str) {
   try {
-    return btoa(atob(str)) === str;
+    atob(str);
+    return true;
   } catch (e) {
     return false;
   }
 }
+
 
 function safeDecodeData(str) {
   if (!isBase64Encoded(str)) return str; // fallback to raw string (likely a doc ID)
