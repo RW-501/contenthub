@@ -626,40 +626,41 @@ function runRewardToast(task, userData = {}, newTotalPoints = 0) {
       ? `🎉 You earned the "${task.reward.badge}" badge!`
       : `🎁 You earned ${task.reward.points} points!`;
 
-      
-      const myConfetti = confetti.create(document.createElement('canvas'), {
-        resize: true,
-        useWorker: true
-      });
-      
-      document.body.appendChild(myConfetti.canvas);
-      
-      // Style the canvas to always be on top
-      myConfetti.canvas.style.position = "fixed";
-      myConfetti.canvas.style.top = "0";
-      myConfetti.canvas.style.left = "0";
-      myConfetti.canvas.style.width = "100%";
-      myConfetti.canvas.style.height = "100%";
-      myConfetti.canvas.style.pointerEvents = "none";
-      myConfetti.canvas.style.zIndex = "9999999"; // 👈 Very high to beat Bootstrap modals
-      
-      
-    // Confetti
-    confetti({
+    // ✅ Create & insert custom canvas
+    const canvas = document.createElement("canvas");
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.pointerEvents = "none";
+    canvas.style.zIndex = "9999999"; // Above all modals
+    document.body.appendChild(canvas);
+
+    const myConfetti = confetti.create(canvas, {
+      resize: true,
+      useWorker: true,
+    });
+
+    // Fire confetti
+    myConfetti({
       particleCount: 250,
       spread: 80,
-      origin: { y: 0.6 }
+      origin: { y: 0.6 },
     });
 
     // Show reward modal
     showModal({
       title: "Reward Earned",
       message: msg,
-      autoClose: 4000
+      autoClose: 4000,
     });
 
-    // Milestone logic
+    // After toast duration, do milestone logic and cleanup
     setTimeout(async () => {
+      // ✅ Clean up canvas
+      document.body.removeChild(canvas);
+
       const uid = userData.uid;
       const userRef = doc(db, "users", uid);
       const now = new Date();
@@ -672,7 +673,7 @@ function runRewardToast(task, userData = {}, newTotalPoints = 0) {
         showModal({
           title: "🎉 You're Featured!",
           message: "You've earned over 200 points and have been featured for a week! 🚀",
-          autoClose: 5000
+          autoClose: 5000,
         });
 
         await updateDoc(userRef, {
@@ -683,8 +684,8 @@ function runRewardToast(task, userData = {}, newTotalPoints = 0) {
             featuredUntil: Timestamp.fromDate(featuredUntil),
             rank: 2,
             addedBy: "system",
-            addedAt: serverTimestamp()
-          }
+            addedAt: serverTimestamp(),
+          },
         });
       }
 
@@ -692,11 +693,11 @@ function runRewardToast(task, userData = {}, newTotalPoints = 0) {
         showModal({
           title: "🌟 You're a Content Star!",
           message: "You've earned over 1000 points. You're rising fast! 🌠",
-          autoClose: 6000
+          autoClose: 6000,
         });
 
         await updateDoc(userRef, {
-          milestones: arrayUnion("star")
+          milestones: arrayUnion("star"),
         });
       }
 
@@ -704,15 +705,14 @@ function runRewardToast(task, userData = {}, newTotalPoints = 0) {
         showModal({
           title: "🚀 Elite Creator Unlocked!",
           message: "2,000+ points! You're one of the top creators on the platform 🔥",
-          autoClose: 6000
+          autoClose: 6000,
         });
 
         await updateDoc(userRef, {
-          milestones: arrayUnion("elite")
+          milestones: arrayUnion("elite"),
         });
       }
 
-      // Finish this reward toast
       resolve();
     }, 4500); // enough time for first modal to auto-close
   });
