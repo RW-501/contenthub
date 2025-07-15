@@ -292,8 +292,20 @@ try {
   return;
 }else {
      console.log("collabRequests ??????????????????");
+console.log("toUserId:", toUserId);
+console.log("toUserName:", toUserName);
+console.log("toPhoto:", toPhoto);
+console.log("postInfo:", postInfo);
+console.log("viewerUserId:", viewerUserId);
+console.log("viewerDisplayName:", viewerDisplayName);
+console.log("viewerUserPhotoURL:", viewerUserPhotoURL);
 
   
+if (!viewerUserId || !toUserId) {
+  console.error("Missing IDs:", { viewerUserId, toUserId });
+  return alert("Missing user info. Please refresh and try again.");
+}
+
   try {
 
     const requestsRef = collection(db, "collabRequests");
@@ -317,22 +329,24 @@ try {
 
 
 
-await addDoc(requestsRef, {
-  fromUid: viewerUserId,
-  fromDisplayName: viewerDisplayName,
-  fromPhotoURL: viewerUserPhotoURL,  // Make sure this is defined
+try {
+  await addDoc(requestsRef, {
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromPhotoURL: viewerUserPhotoURL,
+    toUid: toUserId,
+    toDisplayName: toUserName,
+    toUserPhoto: toPhoto,
+    message: `${viewerDisplayName} sent you a request to collaborate.`,
+    title: `Collaboration Request`,
+    description: `${viewerDisplayName} requested to join this collaboration. From: ${postInfo || "Unknown Project"}`,
+    status: "pending",
+    timestamp: Timestamp.now()
+  });
+} catch (e) {
+  console.error("❌ addDoc failed:", e);
+}
 
-  toUid: toUserId,
-  toDisplayName: toUserName,
-  toUserPhoto: toPhoto,  // Ensure it's a URL
-
-  message: `${viewerDisplayName} sent you a request to collaborate.`,
-  title: `Collaboration Request`,
-  description: `${viewerDisplayName} requested to join this collaboration. From: ${postInfo || "Unknown Project"}`,
-  
-  status: "pending",
-  timestamp: Timestamp.now()
-});
 
 
     // ✅ Increment collabRequestsSent on user
