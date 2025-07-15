@@ -251,8 +251,8 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     if (toUserId == viewerUserId) return alert("⚠️ You are the owner of this post");
 
 
-    if (collabData && ownerData.id) {
-  const collabRef = doc(db, "collaborations", ownerData.id);
+    if (collabData && ownerData) {
+  const collabRef = doc(db, "collaborations", ownerData);
 
   const requestInfo = {
     uid: viewerUserId,
@@ -287,7 +287,8 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     showToast("Error sending request", "danger");
   }
   return;
-}else{
+}else {
+     console.log("collabRequests ??????????????????");
 
   
   try {
@@ -311,7 +312,6 @@ const viewerUserPhotoURL = avatar.dataset.photo;
 
 
 
-     console.log("??????????????????????????");
 
 
 await addDoc(requestsRef, {
