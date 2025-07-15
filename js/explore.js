@@ -151,10 +151,10 @@ const encodedUser = encodeData(collabData);
 
 
 async function requestToJoin(btn) {
-    const ownerData = JSON.parse(decodeData(btn.dataset.user));
-    const infoData = JSON.parse(decodeData(btn.dataset.post));
+    const ownerData = JSON.parse?.(decodeData(btn.dataset.user));
+    const infoData = JSON.parse?.(decodeData(btn.dataset.post));
 
-    const collabData = JSON.parse(decodeData(btn.dataset.collab));
+    const collabData = JSON.parse?.(decodeData(btn.dataset.collab));
  // console.log("User:", ownerData, "Post:", infoData);
 
 
