@@ -145,8 +145,14 @@ function createCollabCard(data, collabData) {
   const progress = data.progress || 0;
   const totalTasks = data.totalTasks || 0;
 
+    console.log("[createCollabCard] data:", data);
+    console.log("[createCollabCard] collabData:", collabData);
+
 const encodedPost = encodeData(data);
 const encodedUser = encodeData(collabData);
+
+    console.log("[createCollabCard] encodedPost:", encodedPost);
+    console.log("[createCollabCard] encodedUser:", encodedUser);
 
   card.innerHTML = `
     <strong>${data.title || "Untitled Collab"}</strong><br/>
@@ -181,8 +187,12 @@ const ownerData = safeDecodeData(btn.dataset.user);
 const infoData = safeDecodeData(btn.dataset.post);
 const collabData = safeDecodeData(btn.dataset.collab); // could be string or object
 
- // console.log("User:", ownerData, "Post:", infoData);
-if (typeof collabData === "string") {
+    console.log("[requestToJoin] infoData:", infoData);
+    console.log("[requestToJoin] ownerData:", ownerData);
+    console.log("[requestToJoin] collabData:", collabData);
+
+
+    if (typeof collabData === "string") {
   const collabId = collabData;
   // use it directly
 } else {
@@ -202,9 +212,6 @@ let toUserName = ownerData.ownerDisplayName || ownerData.ownerName || ownerData.
 let toPhoto = ownerData.ownerPhotoURL || ownerData.ownerPhoto || ownerData.photoURL;
 let postInfo = infoData.caption || infoData.title  || ownerData.title;
 
-    console.log("[requestToJoin] infoData:", infoData);
-    console.log("[requestToJoin] ownerData:", ownerData);
-    console.log("[requestToJoin] collabData:", collabData);
 
   try {
 
