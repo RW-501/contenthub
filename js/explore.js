@@ -105,26 +105,28 @@ async function loadCollabPosts() {
 }
 
 
-
 function isBase64Encoded(str) {
+  if (typeof str !== "string") return false;
   try {
-    atob(str);
+    // atob can decode some invalid strings without throwing
+    const decoded = atob(str);
+    // Check if the result is valid URI-encoded JSON
+    decodeURIComponent(decoded); // this may throw if it's not URI encoded
     return true;
   } catch (e) {
     return false;
   }
 }
 
-
 function safeDecodeData(str) {
-  if (!isBase64Encoded(str)) return str; // fallback to raw string (likely a doc ID)
-  
+  if (!isBase64Encoded(str)) return str; // raw ID or non-encoded value
+
   try {
     const decoded = decodeURIComponent(atob(str));
     return JSON.parse(decoded);
   } catch (e) {
     console.error("safeDecodeData failed:", e);
-    return str; // or null if you prefer
+    return str; // fallback to raw string
   }
 }
 
