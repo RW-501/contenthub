@@ -331,7 +331,7 @@ await addDoc(requestsRef, {
   description: `${viewerDisplayName} requested to join this collaboration. From: ${postInfo || "Unknown Project"}`,
   
   status: "pending",
-  timestamp: serverTimestamp()
+  timestamp: Timestamp.now()
 });
 
 
