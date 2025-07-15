@@ -165,7 +165,7 @@ card.innerHTML = `
         <div class="mt-1" id="social-links-${postId}"></div>
       </div>
     </div>
-<a class="text-decoration-none" href="https://rw-501.github.io/contenthub/pages/post.html?id=${postId}">
+<a id="post-link-${postId} class="text-decoration-none" href="https://rw-501.github.io/contenthub/pages/post.html?id=${postId}">
     <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
 </a>
 
