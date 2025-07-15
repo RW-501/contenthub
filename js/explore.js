@@ -252,23 +252,26 @@ const viewerUserPhotoURL = avatar.dataset.photo;
 
 
     if (collabData && ownerData) {
-  const collabRef = doc(db, "collaborations", ownerData);
+const collabRef = doc(db, "collaborations", ownerData);
 
-  const requestInfo = {
-    uid: viewerUserId,
-    displayName: viewerDisplayName || viewerUsername,
-    username: viewerUsername,
-    photoURL: viewerUserPhotoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
-    role: "viewer",
-    requestedAt: serverTimestamp(),
-    status: "pending",
-  };
+const requestInfo = {
+  uid: viewerUserId,
+  displayName: viewerDisplayName || viewerUsername,
+  username: viewerUsername,
+  photoURL: viewerUserPhotoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
+  role: "viewer",
+  status: "pending",
+};
 
-  try {
-    await updateDoc(collabRef, {
-      requests: arrayUnion(requestInfo)
-    });
+// First, set the timestamp manually
+requestInfo.requestedAt = Timestamp.now(); // ✅ Instead of serverTimestamp()
 
+try {
+  await updateDoc(collabRef, {
+    requests: arrayUnion(requestInfo)
+  });
+
+  
 
       await sendNotification({
     toUid: toUserId,
@@ -281,10 +284,10 @@ const viewerUserPhotoURL = avatar.dataset.photo;
 
 
     console.log("✅ Join request submitted to collaboration.");
-    showToast("🚀 Request sent!", "success");
+    alert("🚀 Request sent!", "success");
   } catch (error) {
     console.error("❌ Failed to update collaboration requests:", error);
-    showToast("Error sending request", "danger");
+    alert("Error sending request", "danger");
   }
   return;
 }else {
