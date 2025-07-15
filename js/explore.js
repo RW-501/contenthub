@@ -136,6 +136,7 @@ const encodedUser = encodeData(collabData);
 <button 
   class="btn btn-sm btn-outline-primary mt-2"
     data-collab="${encodedPost}"
+    data-post="${encodedPost}"
     data-user="${encodedUser}"
 
   onclick="requestToJoin(this)"
