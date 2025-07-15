@@ -149,7 +149,8 @@ function createCollabCard(data, collabData) {
     console.log("[createCollabCard] collabData:", collabData);
 
 const encodedPost = encodeData(data);
-const encodedUser = encodeData(collabData);
+const encodedUser = typeof collabData === "object" ? encodeData(collabData) : collabData;
+
 
     console.log("[createCollabCard] encodedPost:", encodedPost);
     console.log("[createCollabCard] encodedUser:", encodedUser);
