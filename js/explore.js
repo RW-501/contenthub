@@ -20,7 +20,7 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-s
 // Your config import (must expose the initialized app)
 import { app } from "https://rw-501.github.io/contenthub/js/firebase-config.js";
 import { sendNotification, NOTIFICATION_TEMPLATES, checkAndAwardTasks} from "https://rw-501.github.io/contenthub/includes/notifications.js";
-// import { createPostCard } from "https://rw-501.github.io/contenthub/includes/createPostCard.js";
+ import { createPostCard } from "https://rw-501.github.io/contenthub/includes/createPostCard.js";
 
 // Firebase instances
 const auth = getAuth(app);
@@ -467,7 +467,7 @@ const platformIcons = {
   other: "bi bi-link-45deg"
 };
 
-
+/*
 async function createPostCard(post, postId) {
   const card = document.createElement("div");
   card.className = "card mb-3";
@@ -844,6 +844,9 @@ function timeAgo(date) {
 
   return "just now";
 }
+*/
+
+
 
 // Infinite scroll handler
 window.addEventListener("scroll", () => {
