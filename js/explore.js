@@ -235,7 +235,7 @@ async function requestToJoin(btn) {
     return;
   }
 let toUserId = infoData.owner || ownerData.owner;
-let toUserName = ownerData.ownerDisplayName || ownerData.ownerName || ownerData.displayName;
+let toUserName = ownerData.ownerDisplayName || ownerData.ownerName || ownerData.displayName || infoData.displayName;
 let toPhoto = ownerData.ownerPhotoURL || ownerData.ownerPhoto || ownerData.photoURL;
 let postInfo = infoData.caption || infoData.title  || ownerData.title;
 
