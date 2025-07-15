@@ -68,12 +68,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getFirestore, doc, getDoc, getDocs, setDoc, updateDoc,deleteDoc,  collection, onSnapshot, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { db, auth  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
+import { db, auth, app  } from 'https://rw-501.github.io/contenthub/js/firebase-config.js';
 
 import { createPostCard } from "https://rw-501.github.io/contenthub/includes/createPostCard.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
 
     const params = new URLSearchParams(window.location.search);
     const postId = params.get("id");
