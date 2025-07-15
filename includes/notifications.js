@@ -626,9 +626,27 @@ function runRewardToast(task, userData = {}, newTotalPoints = 0) {
       ? `🎉 You earned the "${task.reward.badge}" badge!`
       : `🎁 You earned ${task.reward.points} points!`;
 
+      
+      const myConfetti = confetti.create(document.createElement('canvas'), {
+        resize: true,
+        useWorker: true
+      });
+      
+      document.body.appendChild(myConfetti.canvas);
+      
+      // Style the canvas to always be on top
+      myConfetti.canvas.style.position = "fixed";
+      myConfetti.canvas.style.top = "0";
+      myConfetti.canvas.style.left = "0";
+      myConfetti.canvas.style.width = "100%";
+      myConfetti.canvas.style.height = "100%";
+      myConfetti.canvas.style.pointerEvents = "none";
+      myConfetti.canvas.style.zIndex = "9999999"; // 👈 Very high to beat Bootstrap modals
+      
+      
     // Confetti
     confetti({
-      particleCount: 120,
+      particleCount: 250,
       spread: 80,
       origin: { y: 0.6 }
     });
