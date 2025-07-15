@@ -240,7 +240,6 @@ let toPhoto = ownerData.ownerPhotoURL || ownerData.ownerPhoto || ownerData.photo
 let postInfo = infoData.caption || infoData.title  || ownerData.title;
 
 
-  try {
 
     const avatar = document.getElementById("userAvatar");
 const viewerUserId = avatar.dataset.uid;
@@ -270,6 +269,17 @@ const viewerUserPhotoURL = avatar.dataset.photo;
       requests: arrayUnion(requestInfo)
     });
 
+
+      await sendNotification({
+    toUid: toUserId,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: `${viewerDisplayName} sent you a request to collaborate.`,
+    type: "collabRequest",
+  });
+
+
     console.log("✅ Join request submitted to collaboration.");
     showToast("🚀 Request sent!", "success");
   } catch (error) {
@@ -277,7 +287,10 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     showToast("Error sending request", "danger");
   }
   return;
-}
+}else{
+
+  
+  try {
 
     const requestsRef = collection(db, "collabRequests");
     const existingSnap = await getDocs(query(requestsRef,
@@ -296,15 +309,6 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     }
 
 
-
-  await sendNotification({
-    toUid: toUserId,
-    fromUid: viewerUserId,
-    fromDisplayName: viewerDisplayName,
-    fromuserAvatar: viewerUserPhotoURL,
-    message: `${viewerDisplayName} sent you a request to collaborate.`,
-    type: "collabRequest",
-  });
 
 
      console.log("??????????????????????????");
@@ -340,10 +344,24 @@ await addDoc(requestsRef, {
       autoClose: 3000
     });
 
+      await sendNotification({
+    toUid: toUserId,
+    fromUid: viewerUserId,
+    fromDisplayName: viewerDisplayName,
+    fromuserAvatar: viewerUserPhotoURL,
+    message: `${viewerDisplayName} sent you a request to collaborate.`,
+    type: "collabRequest",
+  });
+
+
+
   } catch (error) {
     console.error("[requestToJoin] Error:", error);
     alert("❌ Failed to send join request. Please try again.");
   }
+
+}
+
 }
 window.requestToJoin = requestToJoin;
 
