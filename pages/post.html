@@ -98,6 +98,8 @@ import { createPostCard } from "https://rw-501.github.io/contenthub/includes/cre
         }
 
         const card = await createPostCard(postSnap.data(), postId);
+          const encodedURL = encodeURIComponent(window.location);
+
         postContainer.innerHTML = ""; // Clear loading text
          const shareHTML = `
           <span class="fw-bold me-2">Share:</span>
