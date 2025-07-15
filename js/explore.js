@@ -119,16 +119,17 @@ function isBase64Encoded(str) {
 }
 
 function safeDecodeData(str) {
-  if (!isBase64Encoded(str)) return str; // raw ID or non-encoded value
+  if (!isValidEncodedJson(str)) return str; // fallback for raw doc ID or string
 
   try {
     const decoded = decodeURIComponent(atob(str));
     return JSON.parse(decoded);
   } catch (e) {
     console.error("safeDecodeData failed:", e);
-    return str; // fallback to raw string
+    return str;
   }
 }
+
 
 function encodeData(obj) {
   if (typeof obj === "string") return obj; // already a string (e.g., ID)
@@ -142,6 +143,22 @@ function encodeData(obj) {
   }
 }
 
+function isValidEncodedJson(str) {
+  if (typeof str !== "string") return false;
+
+  // Basic check for base64-like string
+  const base64Regex = /^[A-Za-z0-9+/=]+$/;
+  if (!base64Regex.test(str)) return false;
+
+  try {
+    const decoded = atob(str);
+    const jsonStr = decodeURIComponent(decoded);
+    JSON.parse(jsonStr);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function createCollabCard(data, collabData) {
   const card = document.createElement("div");
@@ -188,13 +205,18 @@ const encodedUser = typeof collabData === "object" ? encodeData(collabData) : co
 
 
 async function requestToJoin(btn) {
-const ownerData = safeDecodeData(btn.dataset.user);
-const infoData = safeDecodeData(btn.dataset.post);
-const collabData = safeDecodeData(btn.dataset.collab); // could be string or object
+  const encodedUser = btn.dataset.user;
+  const encodedPost = btn.dataset.post;
+  const encodedCollab = btn.dataset.collab;
 
-    console.log("[requestToJoin] infoData:", infoData);
-    console.log("[requestToJoin] ownerData:", ownerData);
-    console.log("[requestToJoin] collabData:", collabData);
+  const ownerData = safeDecodeData(encodedUser);
+  const infoData = safeDecodeData(encodedPost);
+  const collabData = safeDecodeData(encodedCollab);
+
+  console.log("[requestToJoin] encodedUser:", encodedUser);
+  console.log("[requestToJoin] ownerData:", ownerData);
+  console.log("[requestToJoin] infoData:", infoData);
+  console.log("[requestToJoin] collabData:", collabData);
 
 
     if (typeof collabData === "string") {
