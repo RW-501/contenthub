@@ -398,6 +398,9 @@ const duration = 2 * 1000;
 const interval = setInterval(fireworks, 250);
 setTimeout(() => clearInterval(interval), duration);
 */
+
+
+
 function showBadgeDetail(task, isDone) {
 
   const detail = document.getElementById("badgeDetailContent");
@@ -613,9 +616,7 @@ async function initChat() {
       const docId = docSnap.id;
       const isMe = msg.uid === viewerUserId;
 
-if (renderedMessages.has(docId)) continue; // already rendered
-renderedMessages.add(docId);
-chatMessages.appendChild(messageEl);
+
 
 
       if (msg.status === "deleted") continue;
@@ -638,6 +639,10 @@ chatMessages.appendChild(messageEl);
       const pinBtn = viewerRole === "admin" ? `<button class="btn btn-sm btn-warning btn-pin ms-1" data-id="${docId}">📌</button>` : "";
 
       const messageEl = document.createElement("div");
+      if (renderedMessages.has(docId)) continue; // already rendered
+renderedMessages.add(docId);
+chatMessages.appendChild(messageEl);
+
       messageEl.className = `d-flex ${isMe ? "justify-content-end" : "justify-content-start"} my-2`;
 
       messageEl.innerHTML = `

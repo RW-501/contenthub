@@ -134,7 +134,7 @@ const encodedUser = encodeData(JSON.stringify(collabData));
     <div class="d-flex gap-2">
 <button 
   class="btn btn-sm btn-outline-primary mt-2"
-    data-post="${encodedPost}"
+    data-collab="${encodedPost}"
     data-user="${encodedUser}"
 
   onclick="requestToJoin(this)"
@@ -151,6 +151,8 @@ const encodedUser = encodeData(JSON.stringify(collabData));
 async function requestToJoin(btn) {
     const ownerData = JSON.parse(decodeData(btn.dataset.user));
     const infoData = JSON.parse(decodeData(btn.dataset.post));
+
+    const collabData = JSON.parse(decodeData(btn.dataset.collab));
  // console.log("User:", ownerData, "Post:", infoData);
 
 
@@ -167,6 +169,7 @@ let postInfo = infoData.caption || infoData.title  || ownerData.title;
 
     console.log("[requestToJoin] infoData:", infoData);
     console.log("[requestToJoin] ownerData:", ownerData);
+    console.log("[requestToJoin] collabData:", collabData);
 
   try {
 
@@ -178,6 +181,34 @@ const viewerUsername = avatar.dataset.username;
 const viewerUserPhotoURL = avatar.dataset.photo;
 
     if (toUserId == viewerUserId) return alert("⚠️ You are the owner of this post");
+
+
+    if (collabData && ownerData.id) {
+  const collabRef = doc(db, "collaborations", ownerData.id);
+
+  const requestInfo = {
+    uid: viewerUserId,
+    displayName: viewerDisplayName || viewerUsername,
+    username: viewerUsername,
+    photoURL: viewerUserPhotoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png",
+    role: "viewer",
+    requestedAt: serverTimestamp(),
+    status: "pending",
+  };
+
+  try {
+    await updateDoc(collabRef, {
+      requests: arrayUnion(requestInfo)
+    });
+
+    console.log("✅ Join request submitted to collaboration.");
+    showToast("🚀 Request sent!", "success");
+  } catch (error) {
+    console.error("❌ Failed to update collaboration requests:", error);
+    showToast("Error sending request", "danger");
+  }
+  return;
+}
 
     const requestsRef = collection(db, "collabRequests");
     const existingSnap = await getDocs(query(requestsRef,
