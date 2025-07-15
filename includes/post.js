@@ -301,6 +301,12 @@ publishBtn.addEventListener("click", async () => {
       }
     }
   }
+
+  if(!captionRaw){
+    alert("Please write a post");
+
+    return;
+  }
 const avatar = document.getElementById("userAvatar");
 
 const ownerDisplayName = avatar.dataset.displayName || "creator";
