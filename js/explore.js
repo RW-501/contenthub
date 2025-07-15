@@ -119,8 +119,9 @@ function createCollabCard(data, collabData) {
   const progress = data.progress || 0;
   const totalTasks = data.totalTasks || 0;
 
-const encodedPost = encodeData(JSON.stringify(data));
-const encodedUser = encodeData(JSON.stringify(collabData));
+const encodedPost = encodeData(data);
+const encodedUser = encodeData(collabData);
+
   card.innerHTML = `
     <strong>${data.title || "Untitled Collab"}</strong><br/>
     <small>Creator by 
