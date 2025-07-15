@@ -189,7 +189,6 @@ const otpResult = await window.confirmationResult.confirm(data.otp);
 
 
   // EMAIL SIGNUP
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 
 document.getElementById("emailSignUpBtn").addEventListener("click", async () => {
   const email = document.getElementById("email").value;
