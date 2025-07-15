@@ -104,14 +104,40 @@ async function loadCollabPosts() {
   }
 }
 
+
+
+function isBase64Encoded(str) {
+  try {
+    return btoa(atob(str)) === str;
+  } catch (e) {
+    return false;
+  }
+}
+
+function safeDecodeData(str) {
+  if (!isBase64Encoded(str)) return str; // fallback to raw string (likely a doc ID)
+  
+  try {
+    const decoded = decodeURIComponent(atob(str));
+    return JSON.parse(decoded);
+  } catch (e) {
+    console.error("safeDecodeData failed:", e);
+    return str; // or null if you prefer
+  }
+}
+
 function encodeData(obj) {
-  const json = JSON.stringify(obj);
-  return btoa(encodeURIComponent(json));
+  if (typeof obj === "string") return obj; // already a string (e.g., ID)
+
+  try {
+    const json = JSON.stringify(obj);
+    return btoa(encodeURIComponent(json));
+  } catch (e) {
+    console.error("encodeData failed:", e);
+    return obj;
+  }
 }
-function decodeData(str) {
-  const decoded = decodeURIComponent(atob(str));
-  return JSON.parse(decoded);
-}
+
 
 function createCollabCard(data, collabData) {
   const card = document.createElement("div");
@@ -151,11 +177,18 @@ const encodedUser = encodeData(collabData);
 
 
 async function requestToJoin(btn) {
-    const ownerData = JSON.parse?.(decodeData(btn.dataset.user));
-    const infoData = JSON.parse?.(decodeData(btn.dataset.post));
+const ownerData = safeDecodeData(btn.dataset.user);
+const infoData = safeDecodeData(btn.dataset.post);
+const collabData = safeDecodeData(btn.dataset.collab); // could be string or object
 
-    const collabData = JSON.parse?.(decodeData(btn.dataset.collab));
  // console.log("User:", ownerData, "Post:", infoData);
+if (typeof collabData === "string") {
+  const collabId = collabData;
+  // use it directly
+} else {
+  const collabId = collabData?.id || collabData?.collabId;
+  // fallback logic
+}
 
 
     const currentUser = auth.currentUser;
