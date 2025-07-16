@@ -174,9 +174,8 @@ card.innerHTML = `
   <div class="PostCard card-body position-relative">
   
 <!-- ⋮ OPTIONS BUTTON (Top-Right Corner, 40x40px) -->
-<button class=" position-absolute top-0 end-0 mt-2  align-items-center justify-content-center"
-        style="width: 40px; height: 40px;"
-        onclick="openPostOptions('${postId}', '${post.owner}')" 
+<button id='openPostOptions${postId}' class=" position-absolute top-0 end-0 light-text  align-items-center justify-content-center"
+        style="width: 40px; height: 40px;" 
         title="More Options">
   <i class="bi bi-three-dots-vertical fs-5"></i>
 </button>
@@ -271,6 +270,26 @@ const helpfulBtn = card.querySelector(`#${helpfulBtnId}`);
 const helpfulCountEl = card.querySelector(`#${helpfulCountId}`);
 const interestedBtn = card.querySelector(`#${interestedBtnId}`);
 const interestedCountEl = card.querySelector(`#${interestedCountId}`);
+
+const openPostOptionsBtn = card.querySelector(`#openPostOptions${postId}`);
+if (openPostOptionsBtn) {
+  openPostOptionsBtn.addEventListener("click", () => {
+
+  const isOwner = currentUser?.uid === ownerId;
+  const modalContent = document.getElementById("postOptionsContent");
+
+  modalContent.innerHTML = `
+    <button class="btn btn-outline-danger w-100 mb-2" onclick="reportPost('${postId}')">🚨 Report Post</button>
+    ${isOwner ? `<button class="btn btn-outline-danger w-100" onclick="removePost('${postId}')">🗑️ Remove Post</button>` : ""}
+  `;
+
+  // Open modal manually
+  const modal = new bootstrap.Modal(document.getElementById("postOptionsModal"));
+  modal.show();
+
+    });
+}
+
 
 // ❤️ Like Button
 if (likeBtn) {
@@ -372,20 +391,6 @@ async function reactToPost(postId, type, ownerId, caption) {
 
   
 
-function openPostOptions(postId, ownerId) {
-  const isOwner = currentUser?.uid === ownerId;
-  const modalContent = document.getElementById("postOptionsContent");
-
-  modalContent.innerHTML = `
-    <button class="btn btn-outline-danger w-100 mb-2" onclick="reportPost('${postId}')">🚨 Report Post</button>
-    ${isOwner ? `<button class="btn btn-outline-danger w-100" onclick="removePost('${postId}')">🗑️ Remove Post</button>` : ""}
-  `;
-
-  // Open modal manually
-  const modal = new bootstrap.Modal(document.getElementById("postOptionsModal"));
-  modal.show();
-}
-window.openPostOptions = openPostOptions;
 
 
 async function reportPost(postId) {
