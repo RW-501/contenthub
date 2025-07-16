@@ -170,7 +170,7 @@ const helpfulCountId = `helpful-count-${postId}`;
 card.innerHTML = `
   ${mediaHTML}
   <div class="PostCard card-body position-relative">
-
+  
       <!-- ⋮ OPTIONS BUTTON -->
 <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2" onclick="openPostOptions('${postId}', '${post.owner}')">
   <i class="bi bi-three-dots-vertical"></i>
@@ -225,7 +225,11 @@ card.innerHTML = `
       💬 Comments
     </button>
 
-
+    ${
+      currentUser?.uid === post.owner
+        ? `<button class="btn btn-sm btn-outline-danger mb-2 removeBtn" onclick="removePost('${postId}')">🗑️ Remove</button>`
+        : ""
+    }
   </div>
 `;
 
