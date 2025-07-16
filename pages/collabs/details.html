@@ -34,13 +34,16 @@
     
 
     <button class="btn btn-sm btn-outline-secondary mb-3" onclick="history.back()">← Back</button>
-    <div id="collabInfo"></div>
-    <div id="progressSection" class="my-3">
-      <div class="progress" style="height: 20px;">
-        <div id="progressBarFill" class="progress-bar" role="progressbar" style="width: 0%">0% Complete</div>
-      </div>
-    </div>
-    <div id="taskList"></div>
+<div id="collabInfo" class="mb-4"></div>
+
+<!-- Progress Bar -->
+<div class="progress mb-3" style="height: 16px;">
+  <div id="progressBarFill" class="progress-bar bg-info" style="width: 0%">0% Complete</div>
+</div>
+
+<!-- Task List -->
+<div id="taskList"></div>
+
 
 
           <!-- Share Buttons -->
@@ -113,6 +116,18 @@ function renderCollabHeader(data) {
 }
 
 
+function updateProgressBar(tasks = []) {
+  const total = tasks.length;
+  const done = tasks.filter(t => t.completed).length;
+  const percent = total ? Math.round((done / total) * 100) : 0;
+
+  const progressEl = document.getElementById("progressBarFill");
+  if (progressEl) {
+    progressEl.style.width = `${percent}%`;
+    progressEl.textContent = `${percent}% Complete`;
+  }
+}
+
 
 
   function renderCollab(id, data) {
@@ -178,7 +193,77 @@ function renderCollabHeader(data) {
   `;
 }
 
+function renderAllTasks(tasksArray) {
+  const taskList = document.getElementById("taskList");
+  taskList.innerHTML = "";
 
+  const sorted = tasksArray.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  getDoc(collabRef).then(docSnap => {
+    const pinnedTexts = docSnap.data().pinnedTasks || [];
+
+    if (pinnedTexts.length > 0) {
+      const pinnedSection = document.createElement("div");
+      pinnedSection.innerHTML = "<h6>📌 Pinned Tasks</h6>";
+      pinnedTexts.forEach(text => {
+        const task = sorted.find(t => t.text === text);
+        if (task) pinnedSection.appendChild(renderTaskReadOnly(task));
+      });
+      taskList.appendChild(pinnedSection);
+    }
+
+    sorted.forEach(task => {
+      if (!pinnedTexts.includes(task.text)) {
+        renderTaskReadOnly(task);
+      }
+    });
+
+    updateProgressBar(sorted);
+  });
+}
+
+
+function renderTaskReadOnly(taskObj) {
+  const taskList = document.getElementById("taskList");
+
+  const taskDiv = document.createElement("div");
+  taskDiv.className = "task border rounded p-3 mb-2 bg-light";
+
+  const taskText = document.createElement("h6");
+  taskText.textContent = taskObj.text;
+  taskText.className = taskObj.completed ? "text-decoration-line-through" : "";
+
+  taskDiv.appendChild(taskText);
+
+  const metaRow = document.createElement("div");
+  metaRow.className = "small text-muted d-flex flex-wrap gap-3 mb-2";
+
+  if (taskObj.goal) metaRow.innerHTML += `<span>🎯 <strong>Goal:</strong> ${taskObj.goal}</span>`;
+  if (taskObj.order !== null && taskObj.order !== undefined) metaRow.innerHTML += `<span>🔢 <strong>Order:</strong> ${taskObj.order}</span>`;
+  if (taskObj.deadline) {
+    const dueDate = new Date(taskObj.deadline);
+    const friendlyDate = dueDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const isOverdue = Date.now() > dueDate.getTime();
+    const deadlineClass = isOverdue ? "text-danger fw-bold" : "";
+    metaRow.innerHTML += `<span class="${deadlineClass}">🕒 <strong>Due:</strong> ${friendlyDate}</span>`;
+  }
+  if (taskObj.assignee) metaRow.innerHTML += `<span>👤 <strong>Assigned:</strong> ${taskObj.assignee}</span>`;
+  if (taskObj.links?.length) metaRow.innerHTML += `<span>📎 <strong>Links:</strong> ${taskObj.links.join(", ")}</span>`;
+
+  taskDiv.appendChild(metaRow);
+
+  if (taskObj.checklist?.length) {
+    const checklist = document.createElement("ul");
+    (taskObj.checklist || []).forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      checklist.appendChild(li);
+    });
+    taskDiv.appendChild(checklist);
+  }
+
+  taskList.appendChild(taskDiv);
+}
 
 
 
