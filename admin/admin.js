@@ -3977,7 +3977,7 @@ async function seedDemoUserPosts() {
   console.log("📢 Finished seeding scheduled daily posts for 3 weeks.");
 }
 
-
+/*
 window.addEventListener("DOMContentLoaded", () => {
   const ENABLE_DEMO_POST_SEEDING = true;
   if (ENABLE_DEMO_POST_SEEDING) {
@@ -3985,7 +3985,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-
+*/
 
 function getRandomPastTimestamp(maxDaysAgo = 10) {
   const now = new Date();
