@@ -3609,7 +3609,7 @@ if (ENABLE_REVIEW_SEEDING) {
 */
 
 
-
+/*
 const demoPostTemplates = [
   { caption: "Launching my new creator site soon! Feedback welcome 🚀", type: "general" },
   { caption: "Looking for a music editor for my upcoming reel 🎶", type: "collab", projectGoal: "Music editor, reel experience" },
@@ -3703,28 +3703,189 @@ const demoPostTemplates = [
   { caption: "Need someone to help design YouTube channel banner 🎨", type: "collab", projectGoal: "Bold, clean aesthetic" },
   { caption: "Why does my mic sound staticky on Zoom?", type: "help" }
 ];
+*/
 
+const demoPostTemplates = [
+  { caption: "Launching my new creator site soon! Feedback welcome 🚀", type: "general" },
+  { caption: "Let's build something amazing together 🌟", type: "general" },
+  { caption: "Great things happen when we collaborate 💡", type: "general" },
+  { caption: "Teaming up with incredible creators this week 🎨👥", type: "general" },
+  { caption: "Dream it. Plan it. Build it. Together. 💭🛠️", type: "general" },
+  { caption: "The best ideas come from collaboration 🤝", type: "general" },
+  { caption: "Ready to connect and create 🔗✨", type: "general" },
+  { caption: "If you want to go far, go together 🌍", type: "general" },
+  { caption: "Behind every success is a great team 👏", type: "general" },
+  { caption: "Finding my creative tribe online 🧠💬", type: "general" },
+  { caption: "Pushing each other to do better 💪💬", type: "general" },
+  { caption: "Helping others grow while growing myself 🌱🚀", type: "general" },
+  { caption: "New collab dropping soon — stay tuned! 📢", type: "general" },
+  { caption: "Grateful for every creator who's helped me grow 🙏", type: "general" },
+  { caption: "Let’s combine our skills and make magic 🧩✨", type: "general" },
+  { caption: "Learning so much from this amazing collab 🧠🔥", type: "general" },
+  { caption: "One vision, many minds 🧠💡", type: "general" },
+  { caption: "Working with others fuels my creativity 🎇", type: "general" },
+  { caption: "Looking for creatives to build something meaningful 💬", type: "general" },
+  { caption: "You never know who you'll meet when you reach out 🤝", type: "general" },
+  { caption: "Together, we’re limitless ♾️", type: "general" },
+  { caption: "Every collab is a chance to grow 🌱", type: "general" },
+  { caption: "Energy is contagious — let's share it ⚡", type: "general" },
+  { caption: "Inspired by those around me 🙌", type: "general" },
+  { caption: "Success is better when it’s shared 🏆", type: "general" },
+  { caption: "Creators supporting creators 🫶", type: "general" },
+  { caption: "One project. Many talents. 🔥", type: "general" },
+  { caption: "A rising tide lifts all boats ⛵", type: "general" },
+  { caption: "Every connection brings new opportunities 🔗", type: "general" },
+  { caption: "Creativity thrives in community 🎭", type: "general" },
+  { caption: "Let's brainstorm something wild together 🧠⚡", type: "general" },
+  { caption: "Solo is great. Team is better 🚀", type: "general" },
+  { caption: "Don't compete — collaborate 🧩", type: "general" },
+  { caption: "Shoutout to the amazing minds in this project 🎤", type: "general" },
+  { caption: "Let’s turn ideas into reality — together 💭➡️🏗️", type: "general" },
+  { caption: "Creating with good people = 🔥 results", type: "general" },
+  { caption: "Every collab teaches me something new 📚", type: "general" },
+  { caption: "Let’s start something epic together 📢", type: "general" },
+  { caption: "Teamwork makes the dream work 💯", type: "general" },
+  { caption: "Incredible things happen when creators unite 🎨🤝", type: "general" },
+  { caption: "Found a dope partner for this next project 😎", type: "general" },
+  { caption: "More minds = more momentum 🧠💨", type: "general" },
+  { caption: "This platform helped me find real collaborators 💬", type: "general" },
+  { caption: "Let’s help each other win 💪", type: "general" },
+  { caption: "Big collab energy 🔥", type: "general" },
+  { caption: "Stronger together — always 💫", type: "general" },
+  { caption: "So proud of what our team created 🎉", type: "general" },
+  { caption: "The internet connects the best minds 🌐🧠", type: "general" },
+  { caption: "Every partner adds a new spark ✨", type: "general" },
+  { caption: "This collab changed how I create 🙌", type: "general" },
+  { caption: "Let’s make content that matters 🎬", type: "general" },
+  { caption: "Ideas are better when shared 💡↔️", type: "general" },
+  { caption: "Creativity has no borders 🌎", type: "general" },
+  { caption: "Grateful to build with such talented people 🛠️❤️", type: "general" },
+  { caption: "Iron sharpens iron ⚔️", type: "general" },
+  { caption: "We’re building a movement, not just a project 💥", type: "general" },
+  { caption: "Tag someone you want to collab with 🎯", type: "general" },
+  { caption: "Who’s down to build something bold? 👀", type: "general" },
+  { caption: "Creators of the world, let’s unite 🌍", type: "general" },
+  { caption: "Working with people I admire = 💯", type: "general" },
+  { caption: "It all starts with a message 💬", type: "general" },
+  { caption: "Real ones collab, not compete 🔁", type: "general" },
+  { caption: "Time to expand your creative circle 🌐", type: "general" },
+  { caption: "Collab requests open 🎯", type: "general" },
+  { caption: "Taking collaboration seriously this year 🎯🔥", type: "general" },
+  { caption: "This platform has changed how I connect 🔗", type: "general" },
+  { caption: "You bring the ideas, I’ll bring the execution 🛠️", type: "general" },
+  { caption: "Every creator has something unique to give ✨", type: "general" },
+  { caption: "Let’s build the next big thing 💡🚀", type: "general" },
+  { caption: "Always open to new collab energy 💥", type: "general" },
+  { caption: "Who’s your dream collaborator? Tag them below ⬇️", type: "general" },
+  { caption: "Join me on this creator journey 🌈", type: "general" },
+  { caption: "The most creative projects are team-built 🧠🧠", type: "general" },
+  { caption: "Want to team up? Let’s chat 📩", type: "general" },
+  { caption: "More magic. Less ego. More collabs 💫", type: "general" },
+  { caption: "Building something special with my network 🔧", type: "general" },
+  { caption: "One vision. One team. Endless potential 💡", type: "general" },
+  { caption: "Doing it differently with a team I trust 🔁", type: "general" },
+  { caption: "Collabs keep me motivated 🙌", type: "general" },
+  { caption: "If you want to go fast, go alone. If you want to go far, go together 🛤️", type: "general" },
+  { caption: "Connecting with creatives is my favorite part 🌐❤️", type: "general" },
+  { caption: "Sharing wins, lessons, and momentum 🎯", type: "general" },
+  { caption: "Every connection is a chance to grow 🌱", type: "general" },
+  { caption: "Let’s connect and get creative ⚡", type: "general" },
+  { caption: "Built online, made by real people 👥📲", type: "general" },
+  { caption: "Got an idea? Let’s build it 💡💪", type: "general" },
+  { caption: "From strangers to collaborators — love this journey 🧭", type: "general" },
+  { caption: "Bringing visions to life with a crew 🧑‍🤝‍🧑", type: "general" },
+  { caption: "Who’s building something dope this week? 🔥", type: "general" },
+  { caption: "Creating something that feels bigger than me 🧠🌐", type: "general" },
+  { caption: "Ready to level up with the right team 🎮🚀", type: "general" },
+  { caption: "Everyone wins when we build together 🏗️🏆", type: "general" },
+  { caption: "It takes a squad to do it right 🙌", type: "general" },
+  { caption: "Finding my people one project at a time 🤝", type: "general" },
+  { caption: "The energy from this collab is unmatched 🔋", type: "general" },
+  { caption: "Not just making content — we’re making impact 💥", type: "general" },
+  { caption: "The best part of creating is who you meet along the way 🚶‍♂️🚶‍♀️", type: "general" },
+  { caption: "Don’t wait for the perfect time. Just start with someone. 👊", type: "general" }
+,
+  { caption: "Tired of doing it alone. I’m ready for real collaboration.", type: "general" },
+  { caption: "No team, no budget — just pure vision. Let’s build.", type: "general" },
+  { caption: "Not chasing clout. I want to build something that lasts.", type: "general" },
+  { caption: "Real talk — I’m burnt out creating alone. Who’s building something real?", type: "general" },
+  { caption: "If you're serious, let’s work. No egos, just execution.", type: "general" },
+  { caption: "Everyone wants to shine. Few want to grind together.", type: "general" },
+  { caption: "I don't need a fanbase — I need a crew.", type: "general" },
+  { caption: "Not looking for likes. I’m looking for legacy.", type: "general" },
+  { caption: "Sick of surface-level ‘collabs’. Let’s actually build.", type: "general" },
+  { caption: "If you’ve been doubted, disrespected, or dismissed — I see you. Let’s rise.", type: "general" },
+  { caption: "This isn’t hype. This is hunger.", type: "general" },
+  { caption: "Alone, I survived. Together, we could win.", type: "general" },
+  { caption: "It’s lonely creating in silence. Let’s make some noise together.", type: "general" },
+  { caption: "Tired of gatekeepers. Let’s open our own doors.", type: "general" },
+  { caption: "I don’t want credit. I want progress.", type: "general" },
+  { caption: "They won’t share their seat at the table? Cool. Let’s build our own table.", type: "general" },
+  { caption: "If you’ve ever been slept on, you’re not alone. Let’s wake 'em up.", type: "general" },
+  { caption: "This is for the ones still creating even when no one’s watching.", type: "general" },
+  { caption: "No degrees, no followers, no ‘blue check’. Just skill and drive.", type: "general" },
+  { caption: "Not perfect. Not polished. Just passionate.", type: "general" },
+  { caption: "If you don’t see a space for you — create it.", type: "general" },
+  { caption: "Not begging to be seen. Just refusing to be silenced.", type: "general" },
+  { caption: "I’ve failed more times than I’ve succeeded. Still building.", type: "general" },
+  { caption: "Done waiting for approval. Let’s go.", type: "general" },
+  { caption: "They’ll ignore you until you’re undeniable. Keep going.", type: "general" },
+  { caption: "I don't need a stage — I need a squad.", type: "general" },
+  { caption: "I know what it’s like to feel overlooked. That’s why I collab with heart.", type: "general" },
+  { caption: "The best collabs don’t care about numbers — they care about the vision.", type: "general" },
+  { caption: "No more fake hype. I want real work with real ones.", type: "general" },
+  { caption: "This isn’t a trend. This is therapy.", type: "general" },
+  { caption: "Trying to connect with others who’ve felt invisible. Let’s build loud.", type: "general" },
+  { caption: "You ever feel like you're giving 110% into silence? Yeah, same.", type: "general" },
+  { caption: "Not chasing viral. Chasing value.", type: "general" },
+  { caption: "We all start at 0. But we don't have to stay there alone.", type: "general" },
+  { caption: "I’m not the most popular. But I’m one of the most consistent.", type: "general" },
+  { caption: "If you’re sick of small talk and want to build, hit me up.", type: "general" },
+  { caption: "I don’t want a collab partner. I want someone who gives a damn.", type: "general" },
+  { caption: "If you're still showing up, you're already ahead.", type: "general" },
+  { caption: "You ever feel like quitting... but don’t? That’s your power.", type: "general" },
+  { caption: "Here’s to the ones who keep creating with no cosign.", type: "general" },
+  { caption: "This is raw. This is real. This is why I keep showing up.", type: "general" },
+  { caption: "Burnout is real. Connection helps. Let’s talk.", type: "general" },
+  { caption: "Don’t need permission. Just purpose.", type: "general" },
+  { caption: "Let’s link with people who get it — no fluff.", type: "general" },
+  { caption: "This ain't a flex. It's a fight to keep going.", type: "general" },
+  { caption: "If you feel alone in this journey, you’re not. Let’s link.", type: "general" },
+  { caption: "They won’t support you until it’s safe. Support yourself until then.", type: "general" },
+  { caption: "Every post is a reminder: I'm still here. Still trying. Still building.", type: "general" },
+  { caption: "Want to collab with people who believe in more than just numbers.", type: "general" }
+];
 
 async function seedDemoUserPosts() {
   const demoUsersSnap = await getDocs(query(collection(db, "users"), where("role", "==", "demo")));
   const demoUsers = demoUsersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+  const usedCaptions = new Set();
+  const availablePosts = [...demoPostTemplatesRaw].sort(() => 0.5 - Math.random());
+
   for (const user of demoUsers) {
     const postCount = Math.floor(Math.random() * 3) + 2; // 2–4 posts per user
-    const selectedPosts = [...demoPostTemplates]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, postCount);
+    const selectedPosts = [];
+
+    while (selectedPosts.length < postCount && availablePosts.length > 0) {
+      const post = availablePosts.pop();
+      if (!usedCaptions.has(post.caption)) {
+        usedCaptions.add(post.caption);
+        selectedPosts.push(post);
+      }
+    }
 
     for (const post of selectedPosts) {
       const isFuture = Math.random() < 0.3;
-      const dateOffset = Math.floor(Math.random() * 15) + 1;
-      const createdAt = new Date();
-      createdAt.setDate(createdAt.getDate() + (isFuture ? dateOffset : -dateOffset));
+      const offsetDays = Math.floor(Math.random() * 21); // 0–20 days
+      const offsetMs = offsetDays * 24 * 60 * 60 * 1000;
+      const now = new Date();
+      const createdAt = new Date(now.getTime() + (isFuture ? offsetMs : -offsetMs));
       const scheduledAt = isFuture ? createdAt : null;
 
-      const likes = Math.floor(Math.random() * 100);
-      const helpful = Math.floor(Math.random() * 20);
-      const interested = Math.floor(Math.random() * 15);
+      const likes = Math.floor(Math.random() * 10);
+      const helpful = Math.floor(Math.random() * 5);
+      const interested = Math.floor(Math.random() * 7);
 
       const docData = {
         owner: user.id,
@@ -3750,7 +3911,8 @@ async function seedDemoUserPosts() {
   console.log("📢 Finished seeding demo user posts.");
 }
 
-/*
+
+
 window.addEventListener("DOMContentLoaded", () => {
   const ENABLE_DEMO_POST_SEEDING = true;
   if (ENABLE_DEMO_POST_SEEDING) {
@@ -3759,7 +3921,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
-*/
+
 
 async function awardPointsToDemoUsers() {
   const usersRef = collection(db, "users");
