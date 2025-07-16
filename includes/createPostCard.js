@@ -174,11 +174,11 @@ card.innerHTML = `
   <div class="PostCard card-body position-relative">
   
 <!-- ⋮ OPTIONS BUTTON (Top-Right Corner, 40x40px) -->
-<button id='openPostOptions${postId}' class=" position-absolute top-0 end-0 light-text  align-items-center justify-content-center"
+<div id='openPostOptions${postId}' class=" position-absolute top-0 end-0 light-text  align-items-center justify-content-center"
         style="width: 40px; height: 40px;" 
         title="More Options">
   <i class="bi bi-three-dots-vertical fs-5"></i>
-</button>
+</div>
 
 
     <div class="d-flex align-items-center mb-2">
