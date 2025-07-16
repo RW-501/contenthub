@@ -3986,14 +3986,12 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 */
-
-
-  function getRandomTimestampWithinDays(daysRange = 21, inFuture = false) {
+function getRandomTimestampWithinDays(daysRange = 21, inFuture = false) {
   const now = new Date();
   const offsetMs = Math.random() * daysRange * 24 * 60 * 60 * 1000;
   const randomDate = new Date(now.getTime() + (inFuture ? offsetMs : -offsetMs));
 
-  // Add random hour/minute for realism
+  // Random hour, minute, second
   const hour = Math.floor(Math.random() * 24);
   const minute = Math.floor(Math.random() * 60);
   const second = Math.floor(Math.random() * 60);
@@ -4003,30 +4001,36 @@ window.addEventListener("DOMContentLoaded", () => {
 }
 
 async function updateAllPosts() {
-  const snapshot = await getDocs(query(collection(db, "users"), where("role", "==", "user")));
+  const usersSnap = await getDocs(query(collection(db, "users"), where("role", "==", "user")));
+  
+  for (const userDoc of usersSnap.docs) {
+    const userId = userDoc.id;
 
+    // Get all posts by this user
+    const postsSnap = await getDocs(query(collection(db, "posts"), where("owner", "==", userId)));
 
-  for (const docSnap of snapshot.docs) {
-    const shouldSchedule = Math.random() < 0.3; // 30% chance it’s a future post
+    for (const postDoc of postsSnap.docs) {
+      const post = postDoc.data();
+      const shouldSchedule = Math.random() < 0.3;
 
-    const createdAt = getRandomTimestampWithinDays(21, false); // Past 21 days
-    const scheduledAt = shouldSchedule ? getRandomTimestampWithinDays(21, true) : null;
+      const createdAt = getRandomTimestampWithinDays(21, false); // past
+      const scheduledAt = shouldSchedule ? getRandomTimestampWithinDays(21, true) : null;
 
-    const updateData = {
-      createdAt,
-      scheduledAt,
-    };
+      const updateData = {
+        createdAt,
+        scheduledAt,
+      };
 
-    // Add status if missing
-    if (!docSnap.data().status) {
-      updateData.status = "active";
+      if (!post.status) {
+        updateData.status = "active";
+      }
+
+      await updateDoc(doc(db, "posts", postDoc.id), updateData);
+      console.log(`✅ Updated post ${postDoc.id} for user ${userId}`);
     }
-
-    await updateDoc(doc(db, "posts", docSnap.id), updateData);
-    console.log(`✅ Updated post ${docSnap.id}`);
   }
 
-  console.log("📢 All posts updated with accurate random dates and fallback status.");
+  console.log("📢 All posts updated with createdAt, scheduledAt, and fallback status.");
 }
 
 updateAllPosts().catch(console.error);
