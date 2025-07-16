@@ -3987,33 +3987,37 @@ window.addEventListener("DOMContentLoaded", () => {
 
 */
 
-function getRandomPastTimestamp(maxDaysAgo = 10) {
-  const now = new Date();
-  const pastTime = new Date(now.getTime() - Math.random() * maxDaysAgo * 24 * 60 * 60 * 1000);
-  return Timestamp.fromDate(pastTime);
-}
 
-function getRandomFutureTimestamp(maxDaysAhead = 31) {
+  function getRandomTimestampWithinDays(daysRange = 21, inFuture = false) {
   const now = new Date();
-  const futureTime = new Date(now.getTime() + Math.random() * maxDaysAhead * 24 * 60 * 60 * 1000);
-  return Timestamp.fromDate(futureTime);
+  const offsetMs = Math.random() * daysRange * 24 * 60 * 60 * 1000;
+  const randomDate = new Date(now.getTime() + (inFuture ? offsetMs : -offsetMs));
+
+  // Add random hour/minute for realism
+  const hour = Math.floor(Math.random() * 24);
+  const minute = Math.floor(Math.random() * 60);
+  const second = Math.floor(Math.random() * 60);
+  randomDate.setHours(hour, minute, second, 0);
+
+  return Timestamp.fromDate(randomDate);
 }
 
 async function updateAllPosts() {
-  const postsRef = collection(db, "posts");
-  const snapshot = await getDocs(postsRef);
+  const snapshot = await getDocs(query(collection(db, "users"), where("role", "==", "user")));
+
 
   for (const docSnap of snapshot.docs) {
-    const createdAt = getRandomPastTimestamp(10);
-    const shouldSchedule = Math.random() < 0.2; // 30% chance it's a future post
-    const scheduledAt = shouldSchedule ? getRandomFutureTimestamp(31) : null;
+    const shouldSchedule = Math.random() < 0.3; // 30% chance it’s a future post
+
+    const createdAt = getRandomTimestampWithinDays(21, false); // Past 21 days
+    const scheduledAt = shouldSchedule ? getRandomTimestampWithinDays(21, true) : null;
 
     const updateData = {
       createdAt,
       scheduledAt,
     };
 
-    // Set status to 'active' if missing
+    // Add status if missing
     if (!docSnap.data().status) {
       updateData.status = "active";
     }
@@ -4022,11 +4026,10 @@ async function updateAllPosts() {
     console.log(`✅ Updated post ${docSnap.id}`);
   }
 
-  console.log("📢 All posts updated with createdAt, scheduledAt, and fallback status.");
+  console.log("📢 All posts updated with accurate random dates and fallback status.");
 }
 
-///  updateAllPosts().catch(console.error);
-
+updateAllPosts().catch(console.error);
 
 
 async function awardPointsToDemoUsers() {
