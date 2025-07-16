@@ -173,12 +173,13 @@ card.innerHTML = `
   ${mediaHTML}
   <div class="PostCard card-body position-relative">
   
-  <!-- ⋮ OPTIONS BUTTON (Top-Right Corner) -->
-  <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 mt-2 me-2 px-2 py-1"
-          onclick="openPostOptions('${postId}', '${post.owner}')" 
-          title="More Options">
-    <i class="bi bi-three-dots-vertical small"></i>
-  </button>
+<!-- ⋮ OPTIONS BUTTON (Top-Right Corner, 40x40px) -->
+<button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 mt-2 me-2 d-flex align-items-center justify-content-center"
+        style="width: 40px; height: 40px;"
+        onclick="openPostOptions('${postId}', '${post.owner}')" 
+        title="More Options">
+  <i class="bi bi-three-dots-vertical fs-5"></i>
+</button>
 
 
     <div class="d-flex align-items-center mb-2">
