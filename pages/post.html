@@ -207,12 +207,19 @@ setTimeout(() => {
   const userImage = document.getElementById(`user-image-${postId}`)?.src || "";
   const userPost = document.getElementById(`user-post-${postId}`)?.innerText || "";
 
+  // Log collected data
+  console.log("🔍 Collected Post Info:");
+  console.log("👤 Name:", userName);
+  console.log("🏅 Points:", userPoints);
+  console.log("🖼️ Image URL:", userImage);
+  console.log("📝 Post Content:", userPost);
+
   // Update preview DOM
   document.getElementById(`user-name`).innerText = userName || "User";
   document.getElementById(`user-points`).innerText = userPoints || "0";
   document.getElementById(`user-image`).src = userImage || "default.jpg";
   document.getElementById(`user-post`).innerText = userPost || "";
-}, 1000); // Adjust the timeout as needed
+}, 1000); // Delay to ensure elements are ready
 
     }
 
