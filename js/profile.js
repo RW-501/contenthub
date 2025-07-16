@@ -516,7 +516,10 @@ card.innerHTML = `
          class="fw-bold text-decoration-none">${displayName}</a>
     </div>
 
+      <a href="https://rw-501.github.io/contenthub/pages/post.html?id=${id}"
+         class="fw-bold text-decoration-none">
     <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+    </a>
 
     <small class="text-muted d-block mb-2">
       ${timeAgo} • 

@@ -8,6 +8,59 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"/>
   <!-- Add this to your <head> -->
 <link rel="stylesheet" href="https://rw-501.github.io/contenthub/css/main.css" /></head>
+
+<style>
+
+  #postPreview {
+  width: 400px;
+  padding: 30px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2f80ed, #56ccf2);
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+
+#postPreview .badge-frame {
+  border: 4px solid white;
+  padding: 20px;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+  background-color: white;
+  overflow: hidden;
+}
+
+#postPreview .badge-frame img {
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+}
+
+#postPreview h3 {
+  margin: 10px 0;
+  font-size: 24px;
+}
+
+#postPreview .points {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+#postPreview .user-post {
+  font-size: 16px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+</style>
 <body>
 
     
@@ -50,6 +103,19 @@
       </div>
     </div>
 </div>
+
+<div id="postPreview">
+  <div class="badge-frame">
+    <img id="user-image-${postId}" src="https://example.com/avatar.png" alt="User Avatar" />
+  </div>
+  <h3 id="user-name-${postId}">Ron Wilson</h3>
+  <div class="points" id="user-points-${postId}">💯 1,200 Points</div>
+  <div class="user-post" id="user-post-${postId}">"Just unlocked the Collaboration Master badge!"</div>
+</div>
+
+
+<button id="makeImage">Convert to Image</button>
+<div id="imageResult"></div>
 
 
  <div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
@@ -103,7 +169,39 @@ import { createPostCard } from "https://rw-501.github.io/contenthub/includes/cre
       loadPost(postId);
     }
 
-    
+document.getElementById("makeImage").addEventListener("click", async () => {
+  const element = document.getElementById("postPreview");
+
+  // Get individual user data elements (if needed for use)
+  const userName = document.getElementById(`user-name-${postId}`)?.innerText || "";
+  const userPoints = document.getElementById(`user-points-${postId}`)?.innerText || "";
+  const userImage = document.getElementById(`user-image-${postId}`)?.src || "";
+  const userPost = document.getElementById(`user-post-${postId}`)?.innerText || "";
+
+  const canvas = await html2canvas(element, {
+    backgroundColor: null, // Keep transparency
+    useCORS: true,         // For loading external images
+    scale: 2               // Higher resolution
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const img = document.createElement("img");
+  img.src = imgData;
+  img.classList.add("img-fluid", "mt-3", "rounded");
+
+  const result = document.getElementById("imageResult");
+  result.innerHTML = "";
+  result.appendChild(img);
+
+  const downloadBtn = document.createElement("a");
+  downloadBtn.href = imgData;
+  downloadBtn.download = "badge-post.png";
+  downloadBtn.innerText = "Download Image";
+  downloadBtn.classList.add("btn", "btn-primary", "mt-3");
+  result.appendChild(downloadBtn);
+});
+
 
     async function loadPost(postId) {
       try {
