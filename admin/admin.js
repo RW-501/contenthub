@@ -3880,29 +3880,32 @@ async function seedDemoUserPosts() {
       const offsetDays = Math.floor(Math.random() * 21); // 0–20 days
       const offsetMs = offsetDays * 24 * 60 * 60 * 1000;
       const now = new Date();
-      const createdAt = new Date(now.getTime() + (isFuture ? offsetMs : -offsetMs));
-      const scheduledAt = isFuture ? createdAt : null;
+const createdAtDate = new Date(now.getTime() + (isFuture ? offsetMs : -offsetMs));
+const createdAt = Timestamp.fromDate(createdAtDate);
+const scheduledAt = isFuture ? createdAt : null;
+
 
       const likes = Math.floor(Math.random() * 10);
       const helpful = Math.floor(Math.random() * 5);
       const interested = Math.floor(Math.random() * 7);
 
-      const docData = {
-        owner: user.id,
-        caption: post.caption,
-        tags: [...(post.caption.match(/#(\w+)/g) || [])].map(t => t.slice(1)),
-        contributors: [],
-        media: [],
-        likes,
-        helpful,
-        status: "active",
-        interested,
-        views: Math.floor(likes * 2.5),
-        type: post.type,
-        projectGoal: post.projectGoal || null,
-        createdAt,
-        scheduledAt,
-      };
+const docData = {
+  owner: user.id,
+  caption: post.caption,
+  tags: [...(post.caption.match(/#(\w+)/g) || [])].map(t => t.slice(1)),
+  contributors: [],
+  media: [],
+  likes,
+  helpful,
+  status: "active",
+  interested,
+  views: Math.floor(likes * 2.5),
+  type: post.type,
+  projectGoal: post.projectGoal || null,
+  createdAt,
+  scheduledAt,
+};
+
 
       await addDoc(collection(db, "posts"), docData);
       console.log(`✅ Seeded post for ${user.displayName || user.id}: "${post.caption}"`);
@@ -3921,6 +3924,48 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 */
+
+import { collection, getDocs, updateDoc, doc, Timestamp } from "firebase/firestore";
+
+function getRandomPastTimestamp(maxDaysAgo = 10) {
+  const now = new Date();
+  const pastTime = new Date(now.getTime() - Math.random() * maxDaysAgo * 24 * 60 * 60 * 1000);
+  return Timestamp.fromDate(pastTime);
+}
+
+function getRandomFutureTimestamp(maxDaysAhead = 31) {
+  const now = new Date();
+  const futureTime = new Date(now.getTime() + Math.random() * maxDaysAhead * 24 * 60 * 60 * 1000);
+  return Timestamp.fromDate(futureTime);
+}
+
+async function updateAllPosts() {
+  const postsRef = collection(db, "posts");
+  const snapshot = await getDocs(postsRef);
+
+  for (const docSnap of snapshot.docs) {
+    const createdAt = getRandomPastTimestamp(10);
+    const shouldSchedule = Math.random() < 0.2; // 30% chance it's a future post
+    const scheduledAt = shouldSchedule ? getRandomFutureTimestamp(31) : null;
+
+    const updateData = {
+      createdAt,
+      scheduledAt,
+    };
+
+    // Set status to 'active' if missing
+    if (!docSnap.data().status) {
+      updateData.status = "active";
+    }
+
+    await updateDoc(doc(db, "posts", docSnap.id), updateData);
+    console.log(`✅ Updated post ${docSnap.id}`);
+  }
+
+  console.log("📢 All posts updated with createdAt, scheduledAt, and fallback status.");
+}
+
+updateAllPosts().catch(console.error);
 
 
 
@@ -3949,29 +3994,6 @@ async function awardPointsToDemoUsers() {
 
 
 
-function getRandomTimestampWithinWeek() {
-  const now = new Date();
-  const oneWeekAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
-  const randomTime = new Date(oneWeekAgo + Math.random() * (now.getTime() - oneWeekAgo));
-  return Timestamp.fromDate(randomTime);
-}
-
-async function updateAllPosts() {
-  const postsRef = collection(db, "posts");
-  const snapshot = await getDocs(postsRef);
-
-  for (const docSnap of snapshot.docs) {
-    const randomCreatedAt = getRandomTimestampWithinWeek();
-
-    await updateDoc(doc(db, "posts", docSnap.id), {
-      createdAt: randomCreatedAt,
-    });
-  }
-
-  console.log("✅ Randomized createdAt date (within the last 7 days) for all posts.");
-}
-
-updateAllPosts().catch(console.error);
 
 
 
