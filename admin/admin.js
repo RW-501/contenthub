@@ -3925,7 +3925,6 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 */
 
-import { collection, getDocs, updateDoc, doc, Timestamp } from "firebase/firestore";
 
 function getRandomPastTimestamp(maxDaysAgo = 10) {
   const now = new Date();
