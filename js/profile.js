@@ -516,7 +516,7 @@ card.innerHTML = `
          class="fw-bold text-decoration-none">${displayName}</a>
     </div>
 
-      <a href="https://rw-501.github.io/contenthub/pages/post.html?id=${id}"
+      <a href="https://rw-501.github.io/contenthub/pages/post.html?id=${docSnap.id}"
          class="fw-bold text-decoration-none">
     <p class="card-text">${linkify(sanitize(post.caption || ""))}</p>
     </a>
