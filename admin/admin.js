@@ -3705,7 +3705,7 @@ const demoPostTemplates = [
 ];
 */
 
-const demoPostTemplates = [
+const demoPostTemplatesRaw = [
   { caption: "Launching my new creator site soon! Feedback welcome 🚀", type: "general" },
   { caption: "Let's build something amazing together 🌟", type: "general" },
   { caption: "Great things happen when we collaborate 💡", type: "general" },
