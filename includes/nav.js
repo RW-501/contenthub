@@ -332,8 +332,7 @@ grid.appendChild(section);
     : "🏆 All rewards completed!";
 }
 
-
- function renderBadgeTile(task, isDone, completedMap = {}) {
+function renderBadgeTile(task, isDone, completedMap = {}) {
   const icon = isDone ? "🏅" : "🔓";
   const badgeType = `badge-type-${task.type}`;
   const earnedClass = isDone ? "earned" : "";
@@ -354,35 +353,40 @@ grid.appendChild(section);
   `;
 
   div.addEventListener("click", () => {
-    
-const myConfetti = confetti.create(document.createElement('canvas'), {
-  resize: true,
-  useWorker: true
-});
-
-document.body.appendChild(myConfetti.canvas);
-
-// Style the canvas to always be on top
-myConfetti.canvas.style.position = "fixed";
-myConfetti.canvas.style.top = "0";
-myConfetti.canvas.style.left = "0";
-myConfetti.canvas.style.width = "100%";
-myConfetti.canvas.style.height = "100%";
-myConfetti.canvas.style.pointerEvents = "none";
-myConfetti.canvas.style.zIndex = "9999999"; // 👈 Very high to beat Bootstrap modals
-
-
-        // Confetti
-    confetti({
-      particleCount: 320,
-      spread: 90,
-      origin: { y: 0.6 }
-    });
-
     showBadgeDetail(task, isDone);
+
+    if (isDone) {
+      // Delay confetti by 100ms
+      setTimeout(() => {
+        // Only create the canvas once
+        if (!document.getElementById("confettiCanvas")) {
+          const confettiCanvas = document.createElement("canvas");
+          confettiCanvas.id = "confettiCanvas";
+          confettiCanvas.style.position = "fixed";
+          confettiCanvas.style.top = "0";
+          confettiCanvas.style.left = "0";
+          confettiCanvas.style.width = "100%";
+          confettiCanvas.style.height = "100%";
+          confettiCanvas.style.pointerEvents = "none";
+          confettiCanvas.style.zIndex = "9999999";
+          document.body.appendChild(confettiCanvas);
+        }
+
+        const myConfetti = confetti.create(document.getElementById("confettiCanvas"), {
+          resize: true,
+          useWorker: true
+        });
+
+        myConfetti({
+          particleCount: 320,
+          spread: 90,
+          origin: { y: 0.6 }
+        });
+      }, 100);
+    }
   });
 
-  return div; // return the actual DOM node
+  return div;
 }
 
 function fireworks() {
