@@ -89,6 +89,32 @@ const platformIcons = {
   other: "bi bi-link-45deg"
 };
 
+function insertSharedPostOptionsModal() {
+  // Prevent duplicate insertion
+  if (document.getElementById("postOptionsModal")) return;
+
+  const modalHTML = `
+    <div class="modal fade" id="postOptionsModal" tabindex="-1" aria-labelledby="postOptionsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="postOptionsModalLabel">Post Options</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="postOptionsContent">
+            <!-- Buttons will be injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const div = document.createElement("div");
+  div.innerHTML = modalHTML.trim();
+  document.body.appendChild(div.firstChild);
+}
+window.insertSharedPostOptionsModal = insertSharedPostOptionsModal;
+
 
 async function createPostCard(post, postId) {
   const card = document.createElement("div");
@@ -146,9 +172,10 @@ card.innerHTML = `
   <div class="PostCard card-body position-relative">
 
     <!-- ⋮ OPTIONS BUTTON -->
-    <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2" data-bs-toggle="modal" data-bs-target="#postOptionsModal-${postId}">
-      <i class="bi bi-three-dots-vertical"></i>
-    </button>
+<button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2" onclick="openPostOptions('${postId}', '${post.owner}')">
+  <i class="bi bi-three-dots-vertical"></i>
+</button>
+
 
     <div class="d-flex align-items-center mb-2">
       <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">
@@ -197,25 +224,7 @@ card.innerHTML = `
     </button>
   </div>
 
-  <!-- OPTIONS MODAL -->
-  <div class="modal fade" id="postOptionsModal-${postId}" tabindex="-1" aria-labelledby="postOptionsModalLabel-${postId}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="postOptionsModalLabel-${postId}">Post Options</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <button class="btn btn-outline-danger w-100 mb-2" onclick="reportPost('${postId}')">🚨 Report Post</button>
-          ${
-            currentUser?.uid === post.owner
-              ? `<button class="btn btn-outline-danger w-100" onclick="removePost('${postId}')">🗑️ Remove Post</button>`
-              : ""
-          }
-        </div>
-      </div>
-    </div>
-  </div>
+
 `;
 
 
@@ -350,6 +359,20 @@ async function reactToPost(postId, type, ownerId, caption) {
   
 }
 
+function openPostOptions(postId, ownerId) {
+  const isOwner = currentUser?.uid === ownerId;
+  const modalContent = document.getElementById("postOptionsContent");
+
+  modalContent.innerHTML = `
+    <button class="btn btn-outline-danger w-100 mb-2" onclick="reportPost('${postId}')">🚨 Report Post</button>
+    ${isOwner ? `<button class="btn btn-outline-danger w-100" onclick="removePost('${postId}')">🗑️ Remove Post</button>` : ""}
+  `;
+
+  // Open modal manually
+  const modal = new bootstrap.Modal(document.getElementById("postOptionsModal"));
+  modal.show();
+}
+window.openPostOptions = openPostOptions;
 
 
 async function reportPost(postId) {
