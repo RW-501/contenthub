@@ -42,6 +42,12 @@
       </div>
     </div>
     <div id="taskList"></div>
+
+
+          <!-- Share Buttons -->
+      <div id="shareButtons" class="mb-4 d-flex gap-2 flex-wrap"></div>
+
+      
     <div class="text-center mt-4">
       <button id="requestBtn" class="btn btn-primary">🤝 Request to Join Project</button>
     </div>
@@ -87,6 +93,13 @@ function loadCollab() {
     renderAllTasks(data.tasks || []);
     updateProgressBar(data.tasks || []);
   });
+
+  renderShareButtons({
+  title: "Check out this amazing post!",
+  image: "https://example.com/image.jpg", // (optional for future OG sharing),
+  targetElementId: "shareButtons"
+});
+
 }
 
 function renderCollabHeader(data) {
@@ -165,6 +178,45 @@ function renderCollabHeader(data) {
     </div>
   `;
 }
+
+
+
+
+
+function renderShareButtons({ title = "View This Post", image = "", targetElementId = "shareButtons" }) {
+  const postURL = window.location.href;
+  const encodedURL = encodeURIComponent(postURL);
+  const encodedText = encodeURIComponent(title);
+  const encodedImage = encodeURIComponent(image); // For future use
+
+  const container = document.getElementById(targetElementId);
+  if (!container) return console.warn(`⚠️ No element with ID "${targetElementId}" found.`);
+
+  const html = `
+    <span class="fw-bold me-2">Share:</span>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedURL}" target="_blank" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-facebook"></i> Facebook
+    </a>
+    <a href="https://twitter.com/intent/tweet?url=${encodedURL}&text=${encodedText}" target="_blank" class="btn btn-outline-info btn-sm">
+      <i class="bi bi-twitter"></i> Twitter
+    </a>
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodedURL}" target="_blank" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-linkedin"></i> LinkedIn
+    </a>
+    <a href="https://api.whatsapp.com/send?text=${encodedText}%20${encodedURL}" target="_blank" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-whatsapp"></i> WhatsApp
+    </a>
+    <button class="btn btn-outline-dark btn-sm" onclick="navigator.clipboard.writeText('${postURL}')">
+      <i class="bi bi-clipboard"></i> Copy Link
+    </button>
+  `;
+
+  container.innerHTML = html;
+}
+
+
+
+
 
 
 document.getElementById("requestBtn").addEventListener("click", async () => {
