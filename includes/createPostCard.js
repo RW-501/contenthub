@@ -173,11 +173,14 @@ card.innerHTML = `
   ${mediaHTML}
   <div class="PostCard card-body position-relative">
   
-      <!-- ⋮ OPTIONS BUTTON -->
-<button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2" onclick="openPostOptions('${postId}', '${post.owner}')">
-  <i class="bi bi-three-dots-vertical"></i>
-</button>
+  <!-- ⋮ OPTIONS BUTTON (Top-Right Corner) -->
+  <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 mt-2 me-2 px-2 py-1"
+          onclick="openPostOptions('${postId}', '${post.owner}')" 
+          title="More Options">
+    <i class="bi bi-three-dots-vertical small"></i>
+  </button>
 
+  
     <div class="d-flex align-items-center mb-2">
       <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
          class="fw-bold text-decoration-none">
