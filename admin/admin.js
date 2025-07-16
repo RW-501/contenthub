@@ -3703,7 +3703,7 @@ const demoPostTemplates = [
   { caption: "Need someone to help design YouTube channel banner 🎨", type: "collab", projectGoal: "Bold, clean aesthetic" },
   { caption: "Why does my mic sound staticky on Zoom?", type: "help" }
 ];
-*/
+
 
 const demoPostTemplatesRaw = [
   { caption: "Launching my new creator site soon! Feedback welcome 🚀", type: "general" },
@@ -3855,66 +3855,127 @@ const demoPostTemplatesRaw = [
   { caption: "Every post is a reminder: I'm still here. Still trying. Still building.", type: "general" },
   { caption: "Want to collab with people who believe in more than just numbers.", type: "general" }
 ];
+*/
+
+
+
+const insightfulPostTemplates = [
+  { caption: "Every collaboration teaches me something new—even when it doesn’t go as planned.", type: "general" },
+  { caption: "Creators: what’s something you wish you knew before starting your last collab?", type: "general" },
+  { caption: "Not every idea needs to be perfect. Just real enough to start a conversation.", type: "general" },
+  { caption: "Growth doesn’t come from the easy projects. It comes from the messy, real ones.", type: "general" },
+  { caption: "Sometimes the best contribution isn’t doing more—it’s asking better questions.", type: "general" },
+  { caption: "A good collaborator listens as much as they lead. Silence can be strategy.", type: "general" },
+  { caption: "One person’s feedback helped shift my entire creative direction. Forever grateful.", type: "general" },
+  { caption: "Just realized: I’ve learned more from collabs this month than I did in school last year.", type: "general" },
+  { caption: "Creative conflict doesn’t mean failure. It means people care.", type: "general" },
+  { caption: "You don’t need to know everything. You just need to know how to ask the right people.", type: "general" },
+  { caption: "Making content is easy. Making meaningful content? That takes team trust.", type: "general" },
+  { caption: "Some people bring skills. Some bring energy. Some bring both. Find those people.", type: "general" },
+  { caption: "Most people just need a chance. Be the person who gives it.", type: "general" },
+  { caption: "The goal isn’t to go viral. It’s to go real.", type: "general" },
+  { caption: "A few good minds > a thousand empty likes.", type: "general" },
+  { caption: "Collab tip: Set shared goals. Not just deadlines.", type: "general" },
+  { caption: "What’s a mistake you made that helped you grow faster?", type: "general" },
+  { caption: "Had a tough talk with a teammate today. It brought us closer. That’s growth.", type: "general" },
+  { caption: "Not every follower will get it. Make content for the people who do.", type: "general" },
+  { caption: "Every collab is a mirror. What are you learning about yourself?", type: "general" },
+  { caption: "Deadlines matter. But so does mental health. Creators, check in with yourselves.", type: "general" },
+  { caption: "You can tell a lot about someone by how they handle creative disagreements.", type: "general" },
+  { caption: "Energy doesn’t lie. That’s why your collab team matters more than your equipment.", type: "general" },
+  { caption: "When someone supports your vision without fully understanding it—that’s trust.", type: "general" },
+  { caption: "Some posts will flop. Some will fly. Make them anyway.", type: "general" },
+  { caption: "The hardest part of creating isn’t starting. It’s continuing when no one claps.", type: "general" },
+  { caption: "The right feedback at the right time can change your whole path.", type: "general" },
+  { caption: "What if success isn’t numbers, but alignment?", type: "general" },
+  { caption: "Being real is harder than being polished. Be real anyway.", type: "general" },
+  { caption: "Tired ≠ unproductive. Rest is creative strategy.", type: "general" },
+  { caption: "Keep showing up. Consistency builds trust in yourself and others.", type: "general" },
+  { caption: "The work speaks even when you don’t post it. Stay consistent.", type: "general" },
+  { caption: "Best collab advice I ever got: Work with people, not their followers.", type: "general" },
+  { caption: "Creators: What’s one mindset shift that changed how you show up?", type: "general" },
+  { caption: "Let go of ego. Make space for shared genius.", type: "general" },
+  { caption: "Sometimes your idea is just waiting for the right partner to unlock it.", type: "general" },
+  { caption: "Not everyone will get the vision. Build with the ones who do.", type: "general" },
+  { caption: "When you find people who challenge you and cheer for you—keep them.", type: "general" },
+  { caption: "The internet is noisy. Insight is quiet. Share it anyway.", type: "general" },
+  { caption: "Today I almost gave up. But I remembered why I started.", type: "general" },
+  { caption: "No is part of the journey. Don’t let it be the end.", type: "general" },
+  { caption: "What’s your real goal—attention, impact, or legacy?", type: "general" },
+  { caption: "If you want to go far, build with people who hold you accountable.", type: "general" },
+  { caption: "Trust is earned in small moments. Keep showing up.", type: "general" },
+  { caption: "Collab mindset: Less ego. More empathy.", type: "general" },
+  { caption: "Being seen is powerful. Seeing others is a superpower.", type: "general" },
+  { caption: "Creativity is brave. So is asking for help.", type: "general" },
+  { caption: "Share the journey, not just the results. People connect to process.", type: "general" },
+  { caption: "You won’t always be motivated. That’s why habits matter.", type: "general" },
+  { caption: "It’s okay to pause. Just don’t quit.", type: "general" }
+];
+
 
 async function seedDemoUserPosts() {
-  const demoUsersSnap = await getDocs(query(collection(db, "users"), where("role", "==", "demo")));
+  const demoUsersSnap = await getDocs(query(collection(db, "users"), where("role", "==", "user")));
   const demoUsers = demoUsersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
   const usedCaptions = new Set();
-  const availablePosts = [...demoPostTemplatesRaw].sort(() => 0.5 - Math.random());
+  const availablePosts = [...insightfulPostTemplates].sort(() => 0.5 - Math.random());
 
-  for (const user of demoUsers) {
-    const postCount = Math.floor(Math.random() * 3) + 2; // 2–4 posts per user
-    const selectedPosts = [];
+  let postIndex = 0; // Used to control daily posting spread
 
-    while (selectedPosts.length < postCount && availablePosts.length > 0) {
-      const post = availablePosts.pop();
-      if (!usedCaptions.has(post.caption)) {
-        usedCaptions.add(post.caption);
-        selectedPosts.push(post);
-      }
-    }
+  for (let dayOffset = 0; dayOffset < 21; dayOffset++) {
+    const postDateBase = new Date();
+    postDateBase.setDate(postDateBase.getDate() + dayOffset);
 
-    for (const post of selectedPosts) {
-      const isFuture = Math.random() < 0.3;
-      const offsetDays = Math.floor(Math.random() * 21); // 0–20 days
-      const offsetMs = offsetDays * 24 * 60 * 60 * 1000;
-      const now = new Date();
-const createdAtDate = new Date(now.getTime() + (isFuture ? offsetMs : -offsetMs));
-const createdAt = Timestamp.fromDate(createdAtDate);
-const scheduledAt = isFuture ? createdAt : null;
+    for (const user of demoUsers) {
+      if (availablePosts.length === 0) break;
 
+      // Pull the next unique post
+      let post;
+      do {
+        post = availablePosts.pop();
+      } while (usedCaptions.has(post.caption) && availablePosts.length > 0);
+
+      if (!post || usedCaptions.has(post.caption)) continue;
+      usedCaptions.add(post.caption);
+
+      // Random hour and minute for scheduling time
+      const hour = Math.floor(Math.random() * 24);     // 0–23
+      const minute = Math.floor(Math.random() * 60);   // 0–59
+      const second = Math.floor(Math.random() * 60);   // Add randomness to seconds too
+
+      const scheduledDate = new Date(postDateBase);
+      scheduledDate.setHours(hour, minute, second, 0);
+
+      const timestamp = Timestamp.fromDate(scheduledDate);
 
       const likes = Math.floor(Math.random() * 10);
       const helpful = Math.floor(Math.random() * 5);
       const interested = Math.floor(Math.random() * 7);
 
-const docData = {
-  owner: user.id,
-  caption: post.caption,
-  tags: [...(post.caption.match(/#(\w+)/g) || [])].map(t => t.slice(1)),
-  contributors: [],
-  media: [],
-  likes,
-  helpful,
-  status: "active",
-  interested,
-  views: Math.floor(likes * 2.5),
-  type: post.type,
-  projectGoal: post.projectGoal || null,
-  createdAt,
-  scheduledAt,
-};
-
+      const docData = {
+        owner: user.id,
+        caption: post.caption,
+        tags: [...(post.caption.match(/#(\w+)/g) || [])].map(t => t.slice(1)),
+        contributors: [],
+        media: [],
+        likes,
+        helpful,
+        status: "active",
+        interested,
+        views: Math.floor(likes * 2.5),
+        type: post.type,
+        projectGoal: post.projectGoal || null,
+        createdAt: timestamp,
+        scheduledAt: timestamp,
+      };
 
       await addDoc(collection(db, "posts"), docData);
-      console.log(`✅ Seeded post for ${user.displayName || user.id}: "${post.caption}"`);
+      console.log(`✅ Day ${dayOffset + 1}: Seeded post for ${user.displayName || user.id}: "${post.caption}"`);
     }
   }
 
-  console.log("📢 Finished seeding demo user posts.");
+  console.log("📢 Finished seeding scheduled daily posts for 3 weeks.");
 }
-
 
 /*
 window.addEventListener("DOMContentLoaded", () => {
