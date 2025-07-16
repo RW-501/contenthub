@@ -3971,20 +3971,7 @@ async function updateAllPosts() {
   console.log("✅ Randomized createdAt date (within the last 7 days) for all posts.");
 }
 
-//updateAllPosts().catch(console.error);
+updateAllPosts().catch(console.error);
 
 
 
-async function backfillPostStatuses() {
-  const snap = await getDocs(collection(db, "posts"));
-  for (const docSnap of snap.docs) {
-    const post = docSnap.data();
-    if (!post.status) {
-      await updateDoc(doc(db, "posts", docSnap.id), { status: "active" });
-      console.log(`✅ Updated post ${docSnap.id} with status: "active"`);
-    }
-  }
-  console.log("🎉 All missing post statuses backfilled!");
-}
-
-backfillPostStatuses();

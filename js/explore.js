@@ -434,7 +434,7 @@ for (const docSnap of snap.docs) {
   // ✅ Skip if status is removed
   const status = (post.status ?? "").toLowerCase();
   if (status === "removed") continue;
-  
+
     console.log("status ",status);
 
   const card = await createPostCard(post, docSnap.id);
@@ -539,7 +539,7 @@ const viewerUserPhotoURL = avatar.dataset.photo;
     fromUid: viewerUserId,
     fromDisplayName: viewerDisplayName,
     fromuserAvatar: viewerUserPhotoURL,
-    message: `@${user} follows you`,
+    message: `@${viewerDisplayName} follows you`,
     type: "following"
   });
 
