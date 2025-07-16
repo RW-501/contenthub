@@ -117,6 +117,8 @@ window.insertSharedPostOptionsModal = insertSharedPostOptionsModal;
 
 
 async function createPostCard(post, postId) {
+  console.log("postId ",postId);
+
   const card = document.createElement("div");
   card.className = "card mb-3";
 
