@@ -4033,7 +4033,7 @@ async function updateAllPosts() {
   console.log("📢 All posts updated with createdAt, scheduledAt, and fallback status.");
 }
 
-updateAllPosts().catch(console.error);
+//updateAllPosts().catch(console.error);
 
 
 async function awardPointsToDemoUsers() {
