@@ -178,7 +178,7 @@ const encodedUser = typeof collabData === "object" ? encodeData(collabData) : co
     console.log("[createCollabCard] encodedUser:", encodedUser);
 
   card.innerHTML = `
-   <a href="https://rw-501.github.io/contenthub/pages/collabs/detail.html?id=${collabData}">
+   <a href="https://rw-501.github.io/contenthub/pages/collabs/details.html?id=${collabData}">
     <strong>${data.title || "Untitled Collab"}</strong></a>
     <br/>
     <small>Creator by 
