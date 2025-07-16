@@ -801,3 +801,34 @@ function convertLinks(text) {
     url => `<a href="${url}" target="_blank" class="text-light text-decoration-underline">${url}</a>`
   );
 }
+
+
+
+
+
+
+
+  if (userRole === "admin") {
+    document.getElementById("screenshotBtn").classList.remove("d-none");
+  }
+
+  document.getElementById("screenshotBtn").addEventListener("click", async () => {
+    const target = document.getElementById("main");
+    if (!target) {
+      alert("Main content area not found.");
+      return;
+    }
+
+    const canvas = await html2canvas(target, {
+      backgroundColor: "#fff", // Optional, to avoid transparency
+      scale: 2,
+      useCORS: true
+    });
+
+    const imageData = canvas.toDataURL("image/png");
+
+    const downloadLink = document.createElement("a");
+    downloadLink.href = imageData;
+    downloadLink.download = `screenshot-${Date.now()}.png`;
+    downloadLink.click();
+  });
