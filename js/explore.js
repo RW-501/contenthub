@@ -423,6 +423,8 @@ const now = new Date();
 for (const docSnap of snap.docs) {
   const post = docSnap.data();
 
+    console.log("post ",post);
+
   // ⛔ Skip if scheduled in the future
   if (post.scheduledAt && post.scheduledAt.toDate() > now) continue;
 
