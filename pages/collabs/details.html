@@ -107,7 +107,7 @@ function loadCollab() {
 function renderCollabHeader(data) {
   const html = `
     <h2>${data.title || "Untitled Project"}</h2>
-    <p class="text-muted">${data.description || "No description available."}</p>
+    <p class="small">${data.description || "No description available."}</p>
     ${renderMedia(data.mediaLink)}
     <p><strong>Visibility:</strong> ${data.isPublic ? "Public" : "Private"}</p>
     <p><strong>Participants:</strong> ${(data.participants || []).length}</p>
@@ -130,68 +130,6 @@ function updateProgressBar(tasks = []) {
 
 
 
-  function renderCollab(id, data) {
-  const dateStr = formatTimestamp(data.timestamp);
-  const mediaHTML = renderMediaPreview(data.mediaLink);
-  const isPinned = data.pinned;
-  const isPublic = data.isPublic;
-  const participantCount = (data.participants || []).length;
-  const totalTasks = (data.tasks || []).length;
-  const progress = data.progress || 0;
-  const status = data.status || "active";
-
-  const statusBadge = status === "archive"
-    ? `<span class="badge bg-secondary">Archived</span>`
-    : `<span class="badge bg-success">Active</span>`;
-
-  return `
-    <div class="list-group-item ${isPinned ? 'border border-2 border-warning bg-light' : ''}">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <strong>${data.title || "Untitled Project"}</strong>
-          ${isPinned ? '<span class="badge bg-warning text-dark ms-2">📌 Pinned</span>' : ''}
-          <p class="mb-1">${data.description?.substring(0, 100) || "No description provided."}</p>
-          <small class="text-muted">
-            📅 ${dateStr}
-          </small>
-        </div>
-        <div class="text-end">
-          ${statusBadge}
-          <button class="btn btn-sm btn-outline-primary ms-2" onclick="openGroupChat('${id}')">
-            <i class="bi bi-chat-left-text"></i> View Project
-          </button>
-          <button class="btn btn-sm btn-link text-decoration-none" data-bs-toggle="collapse" data-bs-target="#collab-details-${id}">
-            Details
-          </button>
-        </div>
-      </div>
-
-      <div class="collapse mt-3" id="collab-details-${id}">
-        <div class="border-top pt-3">
-          <div class="row mb-2 text-muted small">
-            <div class="col-md-4">
-              🔐 <strong>Visibility:</strong> ${isPublic ? "Public" : "Private"}
-            </div>
-            <div class="col-md-4">
-            👥 Participants: ${participantCount}<br>
-            </div>
-            <div class="col-md-4">
-              ✅ <strong>Tasks:</strong> ${totalTasks}
-            </div>
-            <div class="col-md-4">
-              📈 <strong>Progress:</strong>
-              <div class="progress" style="height: 10px;">
-                <div class="progress-bar bg-info" role="progressbar" style="width: ${progress}%;" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-            </div>
-          </div>
-          <p class="mb-1"><strong>Full Description:</strong> ${data.description || "No description."}</p>
-          ${mediaHTML}
-        </div>
-      </div>
-    </div>
-  `;
-}
 
 function renderAllTasks(tasksArray) {
   const taskList = document.getElementById("taskList");
