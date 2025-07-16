@@ -3895,6 +3895,7 @@ async function seedDemoUserPosts() {
         media: [],
         likes,
         helpful,
+        status: "active",
         interested,
         views: Math.floor(likes * 2.5),
         type: post.type,
