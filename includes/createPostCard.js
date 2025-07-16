@@ -171,25 +171,27 @@ card.innerHTML = `
   ${mediaHTML}
   <div class="PostCard card-body position-relative">
 
-    <!-- ⋮ OPTIONS BUTTON -->
+      <!-- ⋮ OPTIONS BUTTON -->
 <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2" onclick="openPostOptions('${postId}', '${post.owner}')">
   <i class="bi bi-three-dots-vertical"></i>
 </button>
 
-
     <div class="d-flex align-items-center mb-2">
-      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">
-        <img id='user-image-${postId}' src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
-             class="creator-avata rounded-circle me-2" width="40" height="40" />
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
+         class="fw-bold text-decoration-none">
+        <img id="user-image-${postId}" src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
+             class="creator-avata rounded-circle me-2"
+             width="40" height="40" />
       </a>
       <div>
-        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">
+        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
+           class="fw-bold text-decoration-none">
           <div class="d-flex align-items-center gap-2">
-            <p id='user-name-${postId}' class="mb-0">${userData.displayName || 'Unknown User'}</p>
-            <span id='user-points-${postId}' class="badge bg-warning text-dark" title="Creator Points">⭐ ${userData.points || 0}</span>
+            <p id="user-name-${postId}" class="mb-0">${userData.displayName || 'Unknown User'}</p>
+            <span id="user-points-${postId}" class="badge bg-warning text-dark" title="Creator Points">⭐ ${userData.points || 0}</span>
           </div>
         </a>
-        <p>${userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}</p>
+        <p>${userData.availability ? `<i class='bi bi-clock-history'></i> ${userData.availability}` : ""}</p>
         <br/>
         ${typeBadge}
         <div class="mt-1" id="social-links-${postId}"></div>
@@ -197,7 +199,7 @@ card.innerHTML = `
     </div>
 
     <a id="post-link-${postId}" class="text-decoration-none" href="https://rw-501.github.io/contenthub/pages/post.html?id=${postId}">
-      <p id='user-post-${postId}' class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+      <p id="user-post-${postId}" class="card-text">${linkify(sanitize(post.caption || ""))}</p>
     </a>
 
     <small class="d-block mb-2">
@@ -222,10 +224,12 @@ card.innerHTML = `
       onclick="openComments('${postId}', '${post.owner}')">
       💬 Comments
     </button>
+
+
   </div>
-
-
 `;
+
+
 
 
 // Now safely access and populate social links
