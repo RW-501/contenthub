@@ -143,21 +143,24 @@ const helpfulCountId = `helpful-count-${postId}`;
 // Set the card content first (this creates the social-links div)
 card.innerHTML = `
   ${mediaHTML}
-  <div class="PostCard card-body">
+  <div class="PostCard card-body position-relative">
+
+    <!-- ⋮ OPTIONS BUTTON -->
+    <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2" data-bs-toggle="modal" data-bs-target="#postOptionsModal-${postId}">
+      <i class="bi bi-three-dots-vertical"></i>
+    </button>
+
     <div class="d-flex align-items-center mb-2">
-      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
-         class="fw-bold text-decoration-none">
+      <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">
         <img id='user-image-${postId}' src="${userData.photoURL || 'https://rw-501.github.io/contenthub/images/defaultAvatar.png'}"
-             class="creator-avata rounded-circle me-2"
-             width="40" height="40" />
+             class="creator-avata rounded-circle me-2" width="40" height="40" />
       </a>
-      <div >
-        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
-           class="fw-bold text-decoration-none">
-<div class="d-flex align-items-center gap-2">
-  <p  id='user-name-${postId}'  class="mb-0">${userData.displayName || 'Unknown User'}</p>
-  <span  id='user-points-${postId}'  class="badge bg-warning text-dark" title="Creator Points">⭐ ${userData.points || 0}</span>
-</div>
+      <div>
+        <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}" class="fw-bold text-decoration-none">
+          <div class="d-flex align-items-center gap-2">
+            <p id='user-name-${postId}' class="mb-0">${userData.displayName || 'Unknown User'}</p>
+            <span id='user-points-${postId}' class="badge bg-warning text-dark" title="Creator Points">⭐ ${userData.points || 0}</span>
+          </div>
         </a>
         <p>${userData.availability ? `<i class="bi bi-clock-history"></i> ${userData.availability}` : ""}</p>
         <br/>
@@ -165,9 +168,10 @@ card.innerHTML = `
         <div class="mt-1" id="social-links-${postId}"></div>
       </div>
     </div>
-<a id="post-link-${postId} class="text-decoration-none" href="https://rw-501.github.io/contenthub/pages/post.html?id=${postId}">
-    <p  id='user-post-${postId}' class="card-text">${linkify(sanitize(post.caption || ""))}</p>
-</a>
+
+    <a id="post-link-${postId}" class="text-decoration-none" href="https://rw-501.github.io/contenthub/pages/post.html?id=${postId}">
+      <p id='user-post-${postId}' class="card-text">${linkify(sanitize(post.caption || ""))}</p>
+    </a>
 
     <small class="d-block mb-2">
       ${timeAgo} • <span id="${likeCountId}">${post.likes || 0}</span> Likes 
@@ -191,12 +195,26 @@ card.innerHTML = `
       onclick="openComments('${postId}', '${post.owner}')">
       💬 Comments
     </button>
+  </div>
 
-    ${
-      currentUser?.uid === post.owner
-        ? `<button class="btn btn-sm btn-outline-danger mb-2 removeBtn" onclick="removePost('${postId}')">🗑️ Remove</button>`
-        : ""
-    }
+  <!-- OPTIONS MODAL -->
+  <div class="modal fade" id="postOptionsModal-${postId}" tabindex="-1" aria-labelledby="postOptionsModalLabel-${postId}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="postOptionsModalLabel-${postId}">Post Options</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <button class="btn btn-outline-danger w-100 mb-2" onclick="reportPost('${postId}')">🚨 Report Post</button>
+          ${
+            currentUser?.uid === post.owner
+              ? `<button class="btn btn-outline-danger w-100" onclick="removePost('${postId}')">🗑️ Remove Post</button>`
+              : ""
+          }
+        </div>
+      </div>
+    </div>
   </div>
 `;
 
@@ -334,8 +352,32 @@ async function reactToPost(postId, type, ownerId, caption) {
 
 
 
+async function reportPost(postId) {
+  try {
+    const postRef = doc(db, "posts", postId);
+
+    await updateDoc(postRef, {
+      flagged: true,
+      flaggedAt: Timestamp.now(), // Optional: track when it was flagged
+    });
+
+    showModal({
+      title: "Post Reported",
+      message: `Thank you for reporting. We will review the post shortly.`,
+      autoClose: 3000
+    });
+  } catch (error) {
+    console.error("Failed to report post:", error);
+    showModal({
+      title: "Error",
+      message: `Could not report post. Please try again later.`,
+      autoClose: 3000
+    });
+  }
+}
 
 
+window.reportPost = reportPost;
 
 
 function renderMedia(media) {

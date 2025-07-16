@@ -325,6 +325,7 @@ await addDoc(collection(db, "posts"), {
   interested: 0,
   views: 0,
   status: "active",
+  flagged: false,
   type: postTypeSelect.value,  // 🔥 new field
   projectGoal: projectGoal || null,
   createdAt: serverTimestamp(),
