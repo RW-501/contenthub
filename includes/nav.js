@@ -69,6 +69,11 @@ if (snap.exists()) {
   avatar.dataset.pronouns = userData.pronouns || "";
 
   role = userData.role;
+
+  if (role === "admin") {
+    document.getElementById("screenshotBtn").classList.remove("d-none");
+  }
+  
   // Set avatar image
   document.getElementById("avatarImg").src = userData.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
 
@@ -808,9 +813,7 @@ function convertLinks(text) {
 
 
 
-  if (role === "admin") {
-    document.getElementById("screenshotBtn").classList.remove("d-none");
-  }
+  
 
   document.getElementById("screenshotBtn").addEventListener("click", async () => {
     const target = document.getElementById("main");
