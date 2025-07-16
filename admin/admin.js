@@ -3977,14 +3977,14 @@ async function seedDemoUserPosts() {
   console.log("📢 Finished seeding scheduled daily posts for 3 weeks.");
 }
 
-/*
+
 window.addEventListener("DOMContentLoaded", () => {
   const ENABLE_DEMO_POST_SEEDING = true;
   if (ENABLE_DEMO_POST_SEEDING) {
     seedDemoUserPosts().catch(console.error);
   }
 });
-*/
+
 
 
 function getRandomPastTimestamp(maxDaysAgo = 10) {
