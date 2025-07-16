@@ -180,7 +180,7 @@ card.innerHTML = `
     <i class="bi bi-three-dots-vertical small"></i>
   </button>
 
-  
+
     <div class="d-flex align-items-center mb-2">
       <a href="https://rw-501.github.io/contenthub/pages/profile.html?uid=${post.owner}"
          class="fw-bold text-decoration-none">
@@ -370,7 +370,6 @@ async function reactToPost(postId, type, ownerId, caption) {
   });
 
   
-}
 
 function openPostOptions(postId, ownerId) {
   const isOwner = currentUser?.uid === ownerId;
@@ -415,6 +414,7 @@ async function reportPost(postId) {
 
 window.reportPost = reportPost;
 
+}
 
 function renderMedia(media) {
   if (!media || !media.url) return "";
