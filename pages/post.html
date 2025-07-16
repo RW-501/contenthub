@@ -29,16 +29,9 @@
   border-color: #7dd3fc;
 }
 
-#postPreview .badge-frame {
-  border: 4px solid white;
-  padding: 20px;
-  border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 20px;
-  background-color: white;
-  overflow: hidden;
-}
+
+
+
 
 #postPreview .badge-frame img {
   width: 100%;
@@ -63,6 +56,14 @@
   background-color: rgba(255, 255, 255, 0.15);
   border-radius: 10px;
   margin-top: 10px;
+}
+
+.watermark {
+  position: absolute;
+  bottom: 10px;
+  right: 15px;
+  font-size: 14px;
+  opacity: 0.7;
 }
 
 </style>
@@ -134,7 +135,8 @@
           </div>
           <h3 id="user-name">User</h3>
           <div class="points" id="user-points">💯 1,200 Points</div>
-          <div class="user-post mt-2" id="user-post">"Just unlocked the Collaboration Master badge!"</div>
+          <div class="user-post mt-2" id="user-post">"Need help editing a video!"</div>
+          <div class="watermark">🎬 ContentHub</div>
         </div>
 
         <!-- Image Result -->
