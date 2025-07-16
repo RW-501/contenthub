@@ -174,7 +174,7 @@ card.innerHTML = `
   <div class="PostCard card-body position-relative">
   
 <!-- ⋮ OPTIONS BUTTON (Top-Right Corner, 40x40px) -->
-<button class="btn btn-sm rounded-circle shadow-sm position-absolute top-0 end-0 mt-2 me-2 d-flex align-items-center justify-content-center"
+<button class=" position-absolute top-0 end-0 mt-2  align-items-center justify-content-center"
         style="width: 40px; height: 40px;"
         onclick="openPostOptions('${postId}', '${post.owner}')" 
         title="More Options">
