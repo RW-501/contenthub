@@ -105,18 +105,44 @@
     </div>
 </div>
 
-<div id="postPreview">
-  <div class="badge-frame">
-    <img id="user-image" src="https://example.com/avatar.png" alt="User Avatar" />
+<!-- Trigger Button -->
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#screenshotModal">
+  Convert to Image
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="screenshotModal" tabindex="-1" aria-labelledby="screenshotModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="screenshotModalLabel">Badge Preview</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body text-center">
+        <!-- Capture Area -->
+        <div id="postPreview" class="p-4 rounded shadow" style="background: linear-gradient(135deg, #2f80ed, #56ccf2); color: white;">
+          <div class="badge-frame mb-3">
+            <img id="user-image" src="https://rw-501.github.io/contenthub/images/defaultAvatar.png" alt="User Avatar" class="rounded-circle" style="width: 100px; height: 100px;" />
+          </div>
+          <h3 id="user-name">Ron Wilson</h3>
+          <div class="points" id="user-points">💯 1,200 Points</div>
+          <div class="user-post mt-2" id="user-post">"Just unlocked the Collaboration Master badge!"</div>
+        </div>
+
+        <!-- Image Result -->
+        <div id="imageResult" class="mt-4"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="makeImage" class="btn btn-success">Save as Image</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
   </div>
-  <h3 id="user-name">Ron Wilson</h3>
-  <div class="points" id="user-points">💯 1,200 Points</div>
-  <div class="user-post" id="user-post">"Just unlocked the Collaboration Master badge!"</div>
 </div>
-
-
-<button id="makeImage">Convert to Image</button>
-<div id="imageResult"></div>
 
 
  <div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
