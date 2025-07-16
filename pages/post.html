@@ -107,11 +107,11 @@
 
 <div id="postPreview">
   <div class="badge-frame">
-    <img id="user-image-${postId}" src="https://example.com/avatar.png" alt="User Avatar" />
+    <img id="user-image" src="https://example.com/avatar.png" alt="User Avatar" />
   </div>
-  <h3 id="user-name-${postId}">Ron Wilson</h3>
-  <div class="points" id="user-points-${postId}">💯 1,200 Points</div>
-  <div class="user-post" id="user-post-${postId}">"Just unlocked the Collaboration Master badge!"</div>
+  <h3 id="user-name">Ron Wilson</h3>
+  <div class="points" id="user-points">💯 1,200 Points</div>
+  <div class="user-post" id="user-post">"Just unlocked the Collaboration Master badge!"</div>
 </div>
 
 
@@ -168,16 +168,24 @@ import { createPostCard } from "https://rw-501.github.io/contenthub/includes/cre
       postContainer.innerHTML = `<div class="alert alert-danger">❌ Post ID not found in URL.</div>`;
     } else {
       loadPost(postId);
+
+        const userName = document.getElementById(`user-name-${postId}`)?.innerText || "";
+  const userPoints = document.getElementById(`user-points-${postId}`)?.innerText || "";
+  const userImage = document.getElementById(`user-image-${postId}`)?.src || "";
+  const userPost = document.getElementById(`user-post-${postId}`)?.innerText || "";
+
+      // Update DOM
+      document.getElementById(`user-name`).innerText = userName || "User";
+      document.getElementById(`user-points`).innerText = userPoints || "0";
+      document.getElementById(`user-image`).src = userImage || "default.jpg";
+      document.getElementById(`user-post`).innerText = userPost || "";
+
     }
 
 document.getElementById("makeImage").addEventListener("click", async () => {
   const element = document.getElementById("postPreview");
 
-  // Get individual user data elements (if needed for use)
-  const userName = document.getElementById(`user-name-${postId}`)?.innerText || "";
-  const userPoints = document.getElementById(`user-points-${postId}`)?.innerText || "";
-  const userImage = document.getElementById(`user-image-${postId}`)?.src || "";
-  const userPost = document.getElementById(`user-post-${postId}`)?.innerText || "";
+
 
   const canvas = await html2canvas(element, {
     backgroundColor: null, // Keep transparency
