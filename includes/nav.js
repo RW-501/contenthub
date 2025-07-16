@@ -808,7 +808,7 @@ function convertLinks(text) {
 
 
 
-  if (userRole === "admin") {
+  if (role === "admin") {
     document.getElementById("screenshotBtn").classList.remove("d-none");
   }
 
