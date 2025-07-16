@@ -96,12 +96,16 @@
       <p class="text-muted">Loading post...</p>
     </div>
 
+<!-- Trigger Button -->
+<button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#screenshotModal">
+  Convert to Image
+</button>
 
       <!-- Share Buttons -->
       <div id="shareButtons" class="mb-4 d-flex gap-2 flex-wrap"></div>
 
     <!-- Comments Section -->
-    <div class="card">
+    <div class="card mb-4">
       <div class="card-header">💬 Comments</div>
       <div class="card-body" id="commentsSection">
         <p class="text-muted">Comments will go here...</p>
@@ -109,10 +113,8 @@
     </div>
 </div>
 
-<!-- Trigger Button -->
-<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#screenshotModal">
-  Convert to Image
-</button>
+<br>
+
 
 <!-- Modal -->
 <div class="modal fade" id="screenshotModal" tabindex="-1" aria-labelledby="screenshotModalLabel" aria-hidden="true">
@@ -199,16 +201,18 @@ import { createPostCard } from "https://rw-501.github.io/contenthub/includes/cre
     } else {
       loadPost(postId);
 
-        const userName = document.getElementById(`user-name-${postId}`)?.innerText || "";
+setTimeout(() => {
+  const userName = document.getElementById(`user-name-${postId}`)?.innerText || "";
   const userPoints = document.getElementById(`user-points-${postId}`)?.innerText || "";
   const userImage = document.getElementById(`user-image-${postId}`)?.src || "";
   const userPost = document.getElementById(`user-post-${postId}`)?.innerText || "";
 
-      // Update DOM
-      document.getElementById(`user-name`).innerText = userName || "User";
-      document.getElementById(`user-points`).innerText = userPoints || "0";
-      document.getElementById(`user-image`).src = userImage || "default.jpg";
-      document.getElementById(`user-post`).innerText = userPost || "";
+  // Update preview DOM
+  document.getElementById(`user-name`).innerText = userName || "User";
+  document.getElementById(`user-points`).innerText = userPoints || "0";
+  document.getElementById(`user-image`).src = userImage || "default.jpg";
+  document.getElementById(`user-post`).innerText = userPost || "";
+}, 700); // Adjust the timeout as needed
 
     }
 
